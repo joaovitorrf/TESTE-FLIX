@@ -1,33 +1,54 @@
 /**
- * PIPOCAFLIX - security.js v2
- * Psychological Protection Layer
+ * PIPOCAFLIX - security.js v3
+ * Psychological Shield (Stable Version)
  */
 
 (function () {
   'use strict';
 
+  let securityTriggered = false;
+
+  function blockAccess(message) {
+    if (securityTriggered) return;
+    securityTriggered = true;
+
+    document.body.innerHTML = `
+      <div style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        background:#000;
+        color:#fff;
+        font-family:sans-serif;
+        text-align:center;
+        padding:20px;">
+        <div>
+          <h1>⚠️ Acesso Bloqueado</h1>
+          <p>${message}</p>
+        </div>
+      </div>
+    `;
+  }
+
   /* ═══════════════════════════════
-     🔒 BLOQUEIOS BÁSICOS
+     🔒 BLOQUEIOS DE INTERAÇÃO
   ═══════════════════════════════ */
 
-  // Disable right click
+  // Bloquear clique direito
   document.addEventListener('contextmenu', e => e.preventDefault());
 
-  // Disable selection outside inputs
-  document.addEventListener('selectstart', function (e) {
-    if (!e.target.closest('input, textarea, [contenteditable="true"]')) {
-      e.preventDefault();
-    }
-  });
+  // Bloquear seleção total
+  document.addEventListener('selectstart', e => e.preventDefault());
 
-  // Disable drag of media
+  // Bloquear drag de mídia
   document.addEventListener('dragstart', function (e) {
     if (['IMG', 'VIDEO'].includes(e.target.tagName)) {
       e.preventDefault();
     }
   });
 
-  // Block critical shortcuts
+  // Bloquear atalhos
   document.addEventListener('keydown', function (e) {
 
     const key = e.key.toLowerCase();
@@ -35,121 +56,106 @@
     // F12
     if (key === 'f12') return e.preventDefault();
 
-    // Ctrl combinations
+    // Ctrl
     if (e.ctrlKey) {
-      const blocked = ['u', 's', 'p'];
-      if (blocked.includes(key)) return e.preventDefault();
 
-      // Ctrl + A outside inputs
-      if (key === 'a' && 
-          !e.target.closest('input, textarea, [contenteditable="true"]')) {
-        return e.preventDefault();
+      const blockedKeys = ['u','s','p','c','v','a'];
+
+      if (blockedKeys.includes(key)) {
+        e.preventDefault();
+        return false;
+      }
+
+      // Ctrl + Shift + I/J/C
+      if (e.shiftKey && ['i','j','c'].includes(key)) {
+        e.preventDefault();
+        return false;
       }
     }
 
-    // Ctrl + Shift + I/J/C
-    if (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
-      return e.preventDefault();
-    }
+  });
 
+  // Bloquear botão esquerdo apenas se clicar 3 vezes rápido (anti spam inspect)
+  let clickCount = 0;
+  document.addEventListener('click', function () {
+    clickCount++;
+    setTimeout(() => clickCount = 0, 800);
+
+    if (clickCount >= 5) {
+      blockAccess("Comportamento suspeito detectado.");
+    }
   });
 
   /* ═══════════════════════════════
      🧠 DEVTOOLS DETECTION
   ═══════════════════════════════ */
 
-  let devToolsTriggered = false;
+  function detectDevTools() {
 
-  function triggerSecurityAction() {
-    if (devToolsTriggered) return;
-    devToolsTriggered = true;
-
-    document.body.innerHTML = '';
-    window.location.replace("https://www.google.com");
-  }
-
-  // Size detection
-  function detectBySize() {
-    const threshold = 150;
+    const threshold = 160;
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
 
     if (widthDiff > threshold || heightDiff > threshold) {
-      triggerSecurityAction();
+      blockAccess("Ferramentas de desenvolvedor detectadas.");
     }
-  }
 
-  // Debugger trap
-  function detectByDebugger() {
     const start = performance.now();
     debugger;
     const end = performance.now();
 
-    if (end - start > 100) {
-      triggerSecurityAction();
+    if (end - start > 120) {
+      blockAccess("Depuração não permitida.");
     }
   }
 
-  setInterval(() => {
-    detectBySize();
-    detectByDebugger();
-  }, 2000);
+  setInterval(detectDevTools, 2000);
 
   /* ═══════════════════════════════
-     🚫 ANTI ADBLOCK
+     🚫 ANTI ADBLOCK (FIXED)
   ═══════════════════════════════ */
 
   function detectAdBlock() {
+
     const bait = document.createElement('div');
-    bait.className = 'adsbox ad-banner ad-unit ad-container';
+    bait.className = 'ad ads ad-banner adsbox';
     bait.style.position = 'absolute';
+    bait.style.height = '10px';
+    bait.style.width = '10px';
     bait.style.left = '-999px';
+    bait.style.top = '-999px';
+
     document.body.appendChild(bait);
 
     setTimeout(() => {
-      if (!bait.offsetHeight) {
-        document.body.innerHTML = `
-          <div style="
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            height:100vh;
-            background:#000;
-            color:#fff;
-            font-family:sans-serif;
-            text-align:center;
-            padding:20px;">
-            <div>
-              <h1>⚠️ AdBlock Detectado</h1>
-              <p>Desative o bloqueador de anúncios para continuar.</p>
-            </div>
-          </div>
-        `;
-      }
+
+      const isBlocked = (
+        !bait ||
+        bait.offsetParent === null ||
+        bait.offsetHeight === 0 ||
+        bait.clientHeight === 0
+      );
+
       bait.remove();
-    }, 150);
+
+      if (isBlocked) {
+        blockAccess("AdBlock detectado. Desative para continuar.");
+      }
+
+    }, 200);
   }
 
-  window.addEventListener("load", detectAdBlock);
+  window.addEventListener('load', function () {
+    setTimeout(detectAdBlock, 500);
+  });
 
   /* ═══════════════════════════════
-     🧨 CONSOLE TRAP
+     🧨 CONSOLE PSICOLÓGICO
   ═══════════════════════════════ */
 
   setTimeout(() => {
-    console.log(
-      "%cPARE.",
-      "color:red;font-size:40px;font-weight:bold;"
-    );
-    console.log(
-      "%cEste sistema é protegido. Qualquer tentativa de engenharia reversa pode resultar em bloqueio.",
-      "font-size:14px;color:#999;"
-    );
-  }, 1000);
-
-  // Silenciar console
-  ['log', 'warn', 'error', 'info', 'debug'].forEach(method => {
-    console[method] = function () {};
-  });
+    console.log("%cPARE.", "color:red;font-size:40px;font-weight:bold;");
+    console.log("%cEste sistema é protegido.", "color:#aaa;font-size:14px;");
+  }, 800);
 
 })();
