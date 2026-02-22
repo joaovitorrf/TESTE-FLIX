@@ -1,29 +1,35 @@
 /**
  * PIPOCAFLIX - api.js
- * Integração Google Sheets via Proxy Worker (CORS-safe)
+ * Integração Google Sheets via Worker Cloudflare
+ *
+ * O Worker expõe 3 rotas diretas:
+ *   GET /filmes    → CSV da aba Filmes
+ *   GET /series    → CSV da aba Séries
+ *   GET /episodios → CSV da aba Episódios
+ *
+ * NÃO usar ?url= — o Worker usa pathname como rota.
  */
 
-const PROXY = "https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev/?url=";
+const WORKER_BASE = "https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev";
 
-const SHEET_BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9sXjpyoG6N147QcYeh50AIXF6-Bmp0sCt4fqDblpjw466UBvTWXW8AZr4_PzUTWdRxYb5kUa0uOi4/pub?output=csv";
-
-const TABS = {
-  FILMES:    "&gid=300449936",
-  SERIES:    "&gid=413183487",
-  EPISODIOS: "&gid=1394045118"
+// Rotas exatas que o Worker aceita (pathname sem /)
+const ROUTES = {
+  FILMES:    "/filmes",
+  SERIES:    "/series",
+  EPISODIOS: "/episodios"
 };
 
 const SMARTLINK = "https://www.effectivegatecpm.com/eacwhk55f?key=87f8fc919fb5d70a825293b5490713dd";
 
-// Cache em memória para evitar fetches duplicados
+// Cache em memória para evitar fetches repetidos durante a sessão
 const _cache = {};
-const CACHE_TTL = 5 * 60 * 1000; // 5 min
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
 /* ─────────────────────────────────────────────
-   fetchCSV — busca via proxy com retry
+   fetchCSV — chama Worker diretamente pela rota
+   Ex: WORKER_BASE + "/filmes"
 ───────────────────────────────────────────── */
 async function fetchCSV(tab, retries = 3, delay = 1200) {
-  const url = SHEET_BASE + TABS[tab];
   const cacheKey = tab;
 
   // Retorna cache válido
@@ -31,20 +37,21 @@ async function fetchCSV(tab, retries = 3, delay = 1200) {
     return _cache[cacheKey].data;
   }
 
-  const proxyUrl = PROXY + encodeURIComponent(url);
+  // URL correta: https://...workers.dev/filmes  (sem ?url=, sem parâmetros)
+  const workerUrl = WORKER_BASE + ROUTES[tab];
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const ctrl = new AbortController();
+      const ctrl  = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 15000);
 
-      const res = await fetch(proxyUrl, {
-        signal: ctrl.signal,
+      const res = await fetch(workerUrl, {
+        signal:  ctrl.signal,
         headers: { 'Accept': 'text/csv, text/plain, */*' }
       });
       clearTimeout(timer);
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status} ao buscar ${tab}`);
 
       const text = await res.text();
       const data = parseCSV(text);
@@ -57,6 +64,7 @@ async function fetchCSV(tab, retries = 3, delay = 1200) {
         console.error(`[API] Falha ao buscar ${tab} após ${retries} tentativas:`, err);
         return [];
       }
+      // Espera crescente entre retries
       await new Promise(r => setTimeout(r, delay * attempt));
     }
   }
