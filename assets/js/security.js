@@ -1,121 +1,155 @@
 /**
- * PIPOCAFLIX - security.js
- * Anti-DevTools | Anti-Copy | Anti-Debug | Anti-Source
+ * PIPOCAFLIX - security.js v2
+ * Psychological Protection Layer
  */
 
-(function() {
+(function () {
   'use strict';
 
-  /* ── Disable right-click ── */
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    return false;
-  });
+  /* ═══════════════════════════════
+     🔒 BLOQUEIOS BÁSICOS
+  ═══════════════════════════════ */
 
-  /* ── Disable select ── */
-  document.addEventListener('selectstart', function(e) {
-    if (!e.target.matches('input, textarea, [contenteditable]')) {
+  // Disable right click
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  // Disable selection outside inputs
+  document.addEventListener('selectstart', function (e) {
+    if (!e.target.closest('input, textarea, [contenteditable="true"]')) {
       e.preventDefault();
     }
   });
 
-  /* ── Bloquear teclas críticas ── */
-  document.addEventListener('keydown', function(e) {
-    // F12
-    if (e.key === 'F12') { e.preventDefault(); return false; }
-    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && ['I','J','C','i','j','c'].includes(e.key)) {
-      e.preventDefault(); return false;
-    }
-    // Ctrl+U (view source)
-    if (e.ctrlKey && ['U','u'].includes(e.key)) {
-      e.preventDefault(); return false;
-    }
-    // Ctrl+S (save)
-    if (e.ctrlKey && ['S','s'].includes(e.key)) {
-      e.preventDefault(); return false;
-    }
-    // Ctrl+A (select all) - only on non-inputs
-    if (e.ctrlKey && ['A','a'].includes(e.key) &&
-        !e.target.matches('input, textarea, [contenteditable]')) {
-      e.preventDefault(); return false;
+  // Disable drag of media
+  document.addEventListener('dragstart', function (e) {
+    if (['IMG', 'VIDEO'].includes(e.target.tagName)) {
+      e.preventDefault();
     }
   });
 
-  /* ── Detectar DevTools abertas via debugger ── */
-  var devtoolsOpen = false;
+  // Block critical shortcuts
+  document.addEventListener('keydown', function (e) {
 
-  function detectDevTools() {
-    var threshold = 160;
-    var widthDiff  = window.outerWidth  - window.innerWidth;
-    var heightDiff = window.outerHeight - window.innerHeight;
+    const key = e.key.toLowerCase();
+
+    // F12
+    if (key === 'f12') return e.preventDefault();
+
+    // Ctrl combinations
+    if (e.ctrlKey) {
+      const blocked = ['u', 's', 'p'];
+      if (blocked.includes(key)) return e.preventDefault();
+
+      // Ctrl + A outside inputs
+      if (key === 'a' && 
+          !e.target.closest('input, textarea, [contenteditable="true"]')) {
+        return e.preventDefault();
+      }
+    }
+
+    // Ctrl + Shift + I/J/C
+    if (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
+      return e.preventDefault();
+    }
+
+  });
+
+  /* ═══════════════════════════════
+     🧠 DEVTOOLS DETECTION
+  ═══════════════════════════════ */
+
+  let devToolsTriggered = false;
+
+  function triggerSecurityAction() {
+    if (devToolsTriggered) return;
+    devToolsTriggered = true;
+
+    document.body.innerHTML = '';
+    window.location.replace("https://www.google.com");
+  }
+
+  // Size detection
+  function detectBySize() {
+    const threshold = 150;
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
 
     if (widthDiff > threshold || heightDiff > threshold) {
-      if (!devtoolsOpen) {
-        devtoolsOpen = true;
-        handleDevTools();
+      triggerSecurityAction();
+    }
+  }
+
+  // Debugger trap
+  function detectByDebugger() {
+    const start = performance.now();
+    debugger;
+    const end = performance.now();
+
+    if (end - start > 100) {
+      triggerSecurityAction();
+    }
+  }
+
+  setInterval(() => {
+    detectBySize();
+    detectByDebugger();
+  }, 2000);
+
+  /* ═══════════════════════════════
+     🚫 ANTI ADBLOCK
+  ═══════════════════════════════ */
+
+  function detectAdBlock() {
+    const bait = document.createElement('div');
+    bait.className = 'adsbox ad-banner ad-unit ad-container';
+    bait.style.position = 'absolute';
+    bait.style.left = '-999px';
+    document.body.appendChild(bait);
+
+    setTimeout(() => {
+      if (!bait.offsetHeight) {
+        document.body.innerHTML = `
+          <div style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+            background:#000;
+            color:#fff;
+            font-family:sans-serif;
+            text-align:center;
+            padding:20px;">
+            <div>
+              <h1>⚠️ AdBlock Detectado</h1>
+              <p>Desative o bloqueador de anúncios para continuar.</p>
+            </div>
+          </div>
+        `;
       }
-    } else {
-      devtoolsOpen = false;
-    }
+      bait.remove();
+    }, 150);
   }
 
-  function handleDevTools() {
-    // Limpa console
-    console.clear();
-    // Redireciona para home suavemente
-    try { history.go(0); } catch(e) {}
-  }
+  window.addEventListener("load", detectAdBlock);
 
-  // Verifica periodicamente
-  setInterval(detectDevTools, 1000);
+  /* ═══════════════════════════════
+     🧨 CONSOLE TRAP
+  ═══════════════════════════════ */
 
-  /* ── Anti-debug trap no console ── */
-  var consoleMethods = ['log','warn','error','info','debug','dir','table'];
-  consoleMethods.forEach(function(method) {
-    var original = console[method];
-    console[method] = function() {
-      // Permite erros internos passarem silenciosamente
-    };
+  setTimeout(() => {
+    console.log(
+      "%cPARE.",
+      "color:red;font-size:40px;font-weight:bold;"
+    );
+    console.log(
+      "%cEste sistema é protegido. Qualquer tentativa de engenharia reversa pode resultar em bloqueio.",
+      "font-size:14px;color:#999;"
+    );
+  }, 1000);
+
+  // Silenciar console
+  ['log', 'warn', 'error', 'info', 'debug'].forEach(method => {
+    console[method] = function () {};
   });
-
-  /* ── Ofusca dados sensíveis do DOM ── */
-  // Observa tentativas de inspecionar elementos de vídeo
-  if (typeof MutationObserver !== 'undefined') {
-    var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        mutation.addedNodes.forEach(function(node) {
-          if (node.nodeType === 1) {
-            // Remove atributos src expostos em iframes não-autorizados
-            if (node.tagName === 'IFRAME' && 
-                node.src && 
-                !node.src.includes('youtube') && 
-                !node.src.includes('youtu.be') &&
-                !node.dataset.authorized) {
-              // Não remove, apenas registra
-            }
-          }
-        });
-      });
-    });
-    observer.observe(document.body || document.documentElement, {
-      childList: true,
-      subtree: true
-    });
-  }
-
-  /* ── Proteção de drag-and-drop de imagens ── */
-  document.addEventListener('dragstart', function(e) {
-    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
-      e.preventDefault();
-    }
-  });
-
-  /* ── Console warning ── */
-  setTimeout(function() {
-    var style1 = 'font-size:30px;font-weight:bold;color:red;';
-    var style2 = 'font-size:15px;color:#555;';
-    // Mensagem de aviso para engenheiros curiosos
-  }, 500);
 
 })();
