@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PipocaFlix — Assistir Filme</title>
+<meta name="description" content="Assista filmes online grátis no PipocaFlix em HD.">
+<meta name="theme-color" content="#e50914">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
+</head>
+<body>
+
+<!-- Mobile search overlay -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
+  <svg style="flex-shrink:0;color:var(--red)" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar filmes, séries..." autocomplete="off" spellcheck="false">
+  <button class="mobile-search-close" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- Header -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo">PIPOCA<span>FLIX</span></a>
+  <nav class="nav">
+    <a href="index.html">Início</a>
+    <a href="index.html#filmes">Filmes</a>
+    <a href="index.html#series">Séries</a>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar..." autocomplete="off" spellcheck="false">
+  </div>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- Search results -->
+<div class="search-results-overlay" id="searchResultsOverlay">
+  <p class="search-results-title">Resultados para: <span id="searchQueryLabel"></span></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+</div>
+
+<!-- Detail Hero -->
+<section class="detail-hero" id="detailHero">
+  <div class="detail-bg" id="detailBg"></div>
+  <div class="detail-content">
+    <img id="detailPoster" class="detail-poster"
+      src="https://placehold.co/300x450/181818/555?text=Carregando..."
+      alt="Capa do filme">
+    <div class="detail-info">
+      <div id="loadingIndicator" style="color:var(--text-muted);font-size:1rem;">
+        ⏳ Carregando informações...
+      </div>
+      <h1 class="detail-title" id="detailTitle" style="display:none"></h1>
+      <div class="detail-tags" id="detailTags" style="display:none"></div>
+      <div class="detail-meta-row" id="detailMeta" style="display:none"></div>
+      <p class="detail-synopsis" id="detailSynopsis" style="display:none"></p>
+      <div class="hero-buttons" id="detailButtons" style="display:none">
+        <button class="btn-primary" id="watchNowBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Assistir Agora
+        </button>
+        <a href="index.html" class="btn-secondary">← Voltar</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ad before player -->
+<div class="ad-before-player">
+  <script async data-cfasync="false"
+    src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
+  <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
+</div>
+
+<!-- Player Section -->
+<section class="player-section" id="playerSection" style="display:none">
+  <h2 style="font-family:var(--font-display);font-size:1.5rem;letter-spacing:1px;margin-bottom:1rem;text-align:center">
+    🎬 Player
+  </h2>
+
+  <!-- Unlock button -->
+  <button class="unlock-btn" id="btnDesbloquear">
+    🔓 Clique 3 vezes para desbloquear o player
+  </button>
+  <div class="unlock-progress">
+    <div class="unlock-dot" id="dot1"></div>
+    <div class="unlock-dot" id="dot2"></div>
+    <div class="unlock-dot" id="dot3"></div>
+  </div>
+
+  <!-- Player -->
+  <div class="player-container" id="playerBox" style="display:none">
+    <video id="video" preload="metadata"></video>
+
+    <div class="player-overlay" id="playerOverlay">
+      <img src="https://i.ibb.co/6Jbf2TRY/transferir-1.jpg" class="player-overlay-logo" alt="PipocaFlix"
+        onerror="this.style.display='none'">
+      <span class="player-overlay-text">Clique para reproduzir</span>
+    </div>
+
+    <button class="center-play-btn" id="centerPlay" aria-label="Reproduzir">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+
+    <div class="player-controls hidden" id="playerControls">
+      <div class="player-controls-row">
+        <button class="ctrl-btn" id="back10" aria-label="Voltar 10 segundos" title="−10s">
+          <svg viewBox="0 0 24 24">
+            <path d="M11 18V6l-8 6 8 6zm2-12h8v2h-8zm0 6h6v2h-6z"/>
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="playPause" aria-label="Play/Pause">
+          <svg viewBox="0 0 24 24" id="playIcon">
+            <path id="playPausePath" d="M8 5v14l11-7z"/>
+          </svg>
+        </button>
+        <button class="ctrl-btn" id="forward10" aria-label="Avançar 10 segundos" title="+10s">
+          <svg viewBox="0 0 24 24">
+            <path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/>
+          </svg>
+        </button>
+        <div class="player-title" id="playerTitle"></div>
+        <button class="ctrl-btn" id="fullscreenBtn" aria-label="Tela cheia">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h6v2H6v4H4V4zm14 0v6h-2V6h-4V4h6zm0 14h-6v-2h4v-4h2v6zm-14 0v-6h2v4h4v2H4z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="player-progress-row">
+        <span class="player-time" id="currentTime">0:00</span>
+        <div class="player-progress" id="progressBar">
+          <div class="player-progress-filled" id="progressFilled"></div>
+        </div>
+        <span class="player-time" id="totalTime">0:00</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trailer Section -->
+<section class="trailer-section" id="trailerSection" style="display:none">
+  <div class="section-header" style="padding:0">
+    <h2 class="section-title">Trailer Oficial</h2>
+  </div>
+  <div style="height:1rem"></div>
+  <div class="trailer-container">
+    <iframe id="trailerFrame" title="Trailer" allowfullscreen loading="lazy"
+      allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+  </div>
+</section>
+
+<!-- Cast Section -->
+<section class="cast-section" id="castSection" style="display:none">
+  <div class="section-header" style="padding:0;margin-bottom:1rem">
+    <h2 class="section-title">Elenco</h2>
+  </div>
+  <div class="cast-scroll" id="castScroll"></div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-logo">PIPOCA<span>FLIX</span></div>
+  <p class="footer-text">O melhor catálogo de filmes e séries online.</p>
+  <div class="ad-footer">
+    <script async data-cfasync="false"
+      src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
+    <div id="container-cccc7245f0c46289c4b3a2911da39bca-footer"></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
+    <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/js/security.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/search.js"></script>
+<script src="../assets/js/player.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════
+//   PIPOCAFLIX — filme.js (inline)
+// ═══════════════════════════════════════════════════
+
+/* ── Header scroll ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+/* ── Mobile search ── */
+document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('mobileSearchInput').focus(), 100);
+});
+document.getElementById('mobileSearchClose').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.remove('open');
+  document.getElementById('searchResultsOverlay').classList.remove('active');
+  document.getElementById('mobileSearchInput').value = '';
+});
+
+/* ── Get param ── */
+function getParam(key) {
+  return new URLSearchParams(window.location.search).get(key);
+}
+
+/* ── Normaliza YouTube URL para embed ── */
+function getYoutubeEmbedUrl(url) {
+  if (!url) return '';
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?]+)/
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0&autoplay=0`;
+  }
+  if (url.includes('youtube.com/embed/')) return url;
+  return '';
+}
+
+/* ── Render cast ── */
+function renderCast(nomeElenco, fotoElenco) {
+  if (!nomeElenco) return;
+  const nomes  = nomeElenco.split(',').map(s => s.trim()).filter(Boolean);
+  const fotos  = fotoElenco ? fotoElenco.split(',').map(s => s.trim()) : [];
+  const scroll = document.getElementById('castScroll');
+
+  nomes.forEach((nome, i) => {
+    const div = document.createElement('div');
+    div.className = 'cast-item';
+    const foto = fotos[i] || `https://placehold.co/90x90/181818/555?text=${encodeURIComponent(nome.charAt(0))}`;
+    div.innerHTML = `
+      <img class="cast-avatar" src="${foto}" alt="${nome}"
+        onerror="this.src='https://placehold.co/90x90/181818/555?text=${encodeURIComponent(nome.charAt(0))}'">
+      <div class="cast-name">${nome}</div>
+    `;
+    scroll.appendChild(div);
+  });
+
+  document.getElementById('castSection').style.display = 'block';
+}
+
+/* ── Main init ── */
+async function init() {
+  const nome = getParam('nome');
+  if (!nome) { location.href = 'index.html'; return; }
+
+  // Atualiza title
+  document.title = `${nome} — PipocaFlix`;
+
+  try {
+    const filmes = await PipocaAPI.getFilmes();
+    const item = filmes.find(f =>
+      PipocaAPI.normalizeStr(f.nome) === PipocaAPI.normalizeStr(nome)
+    ) || filmes.find(f =>
+      PipocaAPI.normalizeStr(f.nome).includes(PipocaAPI.normalizeStr(nome)) ||
+      PipocaAPI.normalizeStr(nome).includes(PipocaAPI.normalizeStr(f.nome))
+    );
+
+    if (!item) {
+      document.getElementById('loadingIndicator').textContent = '⚠️ Filme não encontrado.';
+      return;
+    }
+
+    // Preenche bg e poster
+    document.getElementById('detailBg').style.backgroundImage = `url(${item.capa || ''})`;
+    const poster = document.getElementById('detailPoster');
+    poster.src = item.capa || 'https://placehold.co/300x450/181818/555?text=Sem+Capa';
+    poster.alt = item.nome;
+
+    // Mostra info
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('detailTitle').textContent = item.nome;
+    document.getElementById('detailTitle').style.display = '';
+
+    // Tags
+    const tagsEl = document.getElementById('detailTags');
+    if (item.categoria) {
+      item.categoria.split(',').forEach(cat => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = cat.trim();
+        tagsEl.appendChild(span);
+      });
+    }
+    if (item.audio) {
+      const span = document.createElement('span');
+      span.className = 'tag';
+      span.textContent = '🔊 ' + item.audio;
+      tagsEl.appendChild(span);
+    }
+    tagsEl.style.display = 'flex';
+
+    // Meta
+    document.getElementById('detailMeta').innerHTML = `
+      ${item.ano      ? `<span><strong>📅</strong> ${item.ano}</span>`      : ''}
+      ${item.duracao  ? `<span><strong>⏱</strong> ${item.duracao}</span>`   : ''}
+      ${item.tipo     ? `<span><strong>🎬</strong> ${item.tipo}</span>`      : ''}
+    `;
+    document.getElementById('detailMeta').style.display = 'flex';
+
+    // Sinopse
+    document.getElementById('detailSynopsis').textContent = item.sinopse || 'Sinopse não disponível.';
+    document.getElementById('detailSynopsis').style.display = '';
+    document.getElementById('detailButtons').style.display = 'flex';
+
+    // Scroll suave para player ao clicar "Assistir Agora"
+    document.getElementById('watchNowBtn').addEventListener('click', () => {
+      document.getElementById('playerSection').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Mostra seção do player
+    document.getElementById('playerSection').style.display = 'block';
+
+    // Video src
+    const video = document.getElementById('video');
+    video.poster = item.capa || '';
+    if (item.linkMP4) {
+      video.innerHTML = `<source src="${item.linkMP4}" type="video/mp4">`;
+    }
+
+    // Trailer
+    const trailerEmbed = getYoutubeEmbedUrl(item.trailer);
+    if (trailerEmbed) {
+      document.getElementById('trailerFrame').src = trailerEmbed;
+      document.getElementById('trailerSection').style.display = 'block';
+    }
+
+    // Cast
+    renderCast(item.nomeElenco, item.fotoElenco);
+
+    // Player title
+    document.getElementById('playerTitle').textContent = `${item.nome}${item.ano ? ' (' + item.ano + ')' : ''}`;
+
+    // Init player
+    PipocaPlayer.initFilmePlayer({
+      btnId:       'btnDesbloquear',
+      playerBoxId: 'playerBox',
+      videoId:     'video',
+      overlayId:   'playerOverlay',
+      centerPlayId:'centerPlay',
+      controlsId:  'playerControls'
+    });
+
+    // Setup search
+    setupSearch(filmes);
+
+    // SEO meta dynamic
+    document.querySelector('meta[name="description"]').content =
+      `Assista ${item.nome} (${item.ano || ''}) online grátis no PipocaFlix. ${(item.sinopse || '').slice(0, 120)}`;
+
+  } catch (err) {
+    console.error('[PipocaFlix Filme] Erro:', err);
+    document.getElementById('loadingIndicator').textContent = '⚠️ Erro ao carregar o filme. Tente novamente.';
+  }
+}
+
+/* ── Search setup ── */
+async function setupSearch(filmes) {
+  const allItems = filmes || await PipocaAPI.getTodosConteudos();
+  PipocaSearch.indexContent(allItems);
+
+  const desktopInput   = document.getElementById('desktopSearchInput');
+  const mobileInput    = document.getElementById('mobileSearchInput');
+  const resultsOverlay = document.getElementById('searchResultsOverlay');
+  const resultsGrid    = document.getElementById('searchResultsGrid');
+  const queryLabel     = document.getElementById('searchQueryLabel');
+
+  function doSearch(q) {
+    if (!q || q.length < 2) { resultsOverlay.classList.remove('active'); return; }
+    const res = PipocaSearch.search(q, 24);
+    queryLabel.textContent = `"${q}"`;
+    resultsGrid.innerHTML  = '';
+    res.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const page = item.isSerie ? 'serie.html' : 'filme.html';
+      card.innerHTML = `
+        <img class="card-thumb" src="${item.capa || ''}" alt="${item.nome}" loading="lazy"
+          onerror="this.src='https://placehold.co/300x450/181818/555?text=Sem+Capa'">
+        <span class="card-type-badge">${item.isSerie ? 'Série' : 'Filme'}</span>
+        <div class="card-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="card-info">
+          <div class="card-title">${item.nome}</div>
+          <div class="card-meta"><span>${item.ano || ''}</span></div>
+        </div>`;
+      card.addEventListener('click', () => {
+        location.href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+      });
+      resultsGrid.appendChild(card);
+    });
+    resultsOverlay.classList.add('active');
+  }
+
+  const deb = PipocaSearch.debounce(doSearch, 280);
+  desktopInput.addEventListener('input', e => deb(e.target.value));
+  mobileInput.addEventListener('input',  e => deb(e.target.value));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { resultsOverlay.classList.remove('active'); desktopInput.value = ''; mobileInput.value = ''; }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
