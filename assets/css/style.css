@@ -1070,3 +1070,93 @@ input { font-family: var(--font-body); }
 .card:nth-child(8)  { animation-delay: 0.28s; }
 .card:nth-child(9)  { animation-delay: 0.32s; }
 .card:nth-child(10) { animation-delay: 0.36s; }
+
+/* ============================================================
+   PIPOCAFLIX v2 — SEÇÕES HOME (Mais Recentes / Filmes / Séries)
+   ============================================================ */
+
+/* ── "Ver mais" / seta de catalogo ── */
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  transition: gap var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+.section-link:hover { gap: 10px; color: #ff3040; }
+.section-link svg { width: 16px; height: 16px; }
+
+/* ── Catálogo expandido (filmes/séries completos) ── */
+.catalogo-full {
+  display: none;
+  margin-top: 1.5rem;
+}
+.catalogo-full.is-open { display: block; }
+
+/* ── "Carregar mais" button ── */
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 1.5rem auto 0;
+  padding: 0.65rem 2rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.load-more-btn:hover {
+  border-color: var(--red);
+  color: var(--white);
+  background: var(--red-soft);
+}
+.load-more-btn.hidden { display: none; }
+
+/* ── Skeleton rows ── */
+.skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 480px)  { .skeleton-row { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
+@media (min-width: 768px)  { .skeleton-row { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; } }
+@media (min-width: 1200px) { .skeleton-row { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; } }
+
+/* ── Ad native — posição correta (pré-footer) ── */
+.ad-native-bottom {
+  margin: 3rem auto 0;
+  max-width: 960px;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+  text-align: center;
+}
+.ad-native-bottom::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--red-soft);
+  margin: 0 auto 1.5rem;
+  border-radius: 2px;
+}
+
+/* ── Separador entre seções ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 0.5rem 0 2.5rem;
+}
+
+/* ── Remove o ad-header do topo ── */
+.ad-header { display: none !important; }
