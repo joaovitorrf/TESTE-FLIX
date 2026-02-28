@@ -1,161 +1,173 @@
 /**
- * PIPOCAFLIX - security.js v3
- * Psychological Shield (Stable Version)
+ * PIPOCAFLIX - security.js v5
+ * Paranoia Hardened Mode
  */
 
 (function () {
-  'use strict';
 
-  let securityTriggered = false;
+'use strict';
 
-  function blockAccess(message) {
-    if (securityTriggered) return;
-    securityTriggered = true;
+/* ===============================
+   🧠 STRING FRAGMENTATION
+================================= */
 
-    document.body.innerHTML = `
-      <div style="
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        height:100vh;
-        background:#000;
-        color:#fff;
-        font-family:sans-serif;
-        text-align:center;
-        padding:20px;">
-        <div>
-          <h1>⚠️ Acesso Bloqueado</h1>
-          <p>${message}</p>
-        </div>
-      </div>
-    `;
+const _d0 = ["www","pipocaflix","fun"];
+const allowedDomain = _d0.join(".");
+const redirectUrl = ["https://","www.","google",".com"].join("");
+
+let securityTriggered = false;
+
+/* ===============================
+   🔐 HARD LOCK
+================================= */
+
+function triggerSecurity(reason) {
+
+  if (securityTriggered) return;
+  securityTriggered = true;
+
+  try {
+    sessionStorage.setItem("pf_flag", "1");
+  } catch(e){}
+
+  window.location.replace(redirectUrl);
+}
+
+/* ===============================
+   🌍 DOMAIN CHECK
+================================= */
+
+if (location.hostname !== allowedDomain) {
+  triggerSecurity("domain");
+}
+
+/* ===============================
+   🚫 IFRAME
+================================= */
+
+if (window.top !== window.self) {
+  triggerSecurity("iframe");
+}
+
+/* ===============================
+   🤖 HEADLESS / BOT
+================================= */
+
+if (
+  navigator.webdriver ||
+  /Headless|Phantom|Selenium|Puppeteer/i.test(navigator.userAgent)
+) {
+  triggerSecurity("bot");
+}
+
+/* ===============================
+   🔍 DEVTOOLS DETECTION
+================================= */
+
+function detectDevTools() {
+
+  const threshold = 160;
+
+  if (
+    window.outerWidth - window.innerWidth > threshold ||
+    window.outerHeight - window.innerHeight > threshold
+  ) {
+    triggerSecurity("devtools-size");
   }
 
-  /* ═══════════════════════════════
-     🔒 BLOQUEIOS DE INTERAÇÃO
-  ═══════════════════════════════ */
+  const start = performance.now();
+  debugger;
+  const end = performance.now();
 
-  // Bloquear clique direito
-  document.addEventListener('contextmenu', e => e.preventDefault());
+  if (end - start > 100) {
+    triggerSecurity("debugger");
+  }
+}
 
-  // Bloquear seleção total
-  document.addEventListener('selectstart', e => e.preventDefault());
+setInterval(detectDevTools, 1200);
 
-  // Bloquear drag de mídia
-  document.addEventListener('dragstart', function (e) {
-    if (['IMG', 'VIDEO'].includes(e.target.tagName)) {
+/* ===============================
+   🔄 SESSION TOKEN
+================================= */
+
+if (!sessionStorage.getItem("pf_token")) {
+  sessionStorage.setItem("pf_token", crypto.randomUUID());
+}
+
+/* ===============================
+   🧨 SELF INTEGRITY CHECK
+================================= */
+
+const originalToString = Function.prototype.toString;
+const selfCode = originalToString.call(arguments.callee);
+
+setInterval(() => {
+  if (Function.prototype.toString !== originalToString) {
+    triggerSecurity("function-tamper");
+  }
+}, 2000);
+
+/* ===============================
+   🧨 ANTI REMOVE SCRIPT
+================================= */
+
+const observer = new MutationObserver(() => {
+  const scripts = document.getElementsByTagName("script");
+  let found = false;
+
+  for (let s of scripts) {
+    if (s.src && s.src.includes("security")) {
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    triggerSecurity("script-removed");
+  }
+});
+
+observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true
+});
+
+/* ===============================
+   🔒 BASIC BLOCKS
+================================= */
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+
+document.addEventListener('keydown', function (e) {
+
+  const key = e.key.toLowerCase();
+
+  if (key === 'f12') return e.preventDefault();
+
+  if (e.ctrlKey) {
+
+    const blockedKeys = ['u','s','p','c','v','a'];
+
+    if (blockedKeys.includes(key)) {
       e.preventDefault();
-    }
-  });
-
-  // Bloquear atalhos
-  document.addEventListener('keydown', function (e) {
-
-    const key = e.key.toLowerCase();
-
-    // F12
-    if (key === 'f12') return e.preventDefault();
-
-    // Ctrl
-    if (e.ctrlKey) {
-
-      const blockedKeys = ['u','s','p','c','v','a'];
-
-      if (blockedKeys.includes(key)) {
-        e.preventDefault();
-        return false;
-      }
-
-      // Ctrl + Shift + I/J/C
-      if (e.shiftKey && ['i','j','c'].includes(key)) {
-        e.preventDefault();
-        return false;
-      }
+      return false;
     }
 
-  });
-
-  // Bloquear botão esquerdo apenas se clicar 3 vezes rápido (anti spam inspect)
-  let clickCount = 0;
-  document.addEventListener('click', function () {
-    clickCount++;
-    setTimeout(() => clickCount = 0, 800);
-
-    if (clickCount >= 5) {
-      blockAccess("Comportamento suspeito detectado.");
-    }
-  });
-
-  /* ═══════════════════════════════
-     🧠 DEVTOOLS DETECTION
-  ═══════════════════════════════ */
-
-  function detectDevTools() {
-
-    const threshold = 160;
-    const widthDiff = window.outerWidth - window.innerWidth;
-    const heightDiff = window.outerHeight - window.innerHeight;
-
-    if (widthDiff > threshold || heightDiff > threshold) {
-      blockAccess("Ferramentas de desenvolvedor detectadas.");
-    }
-
-    const start = performance.now();
-    debugger;
-    const end = performance.now();
-
-    if (end - start > 120) {
-      blockAccess("Depuração não permitida.");
+    if (e.shiftKey && ['i','j','c'].includes(key)) {
+      e.preventDefault();
+      return false;
     }
   }
 
-  setInterval(detectDevTools, 2000);
+});
 
-  /* ═══════════════════════════════
-     🚫 ANTI ADBLOCK (FIXED)
-  ═══════════════════════════════ */
+/* ===============================
+   🔥 CONSOLE PSYCHOLOGICAL
+================================= */
 
-  function detectAdBlock() {
-
-    const bait = document.createElement('div');
-    bait.className = 'ad ads ad-banner adsbox';
-    bait.style.position = 'absolute';
-    bait.style.height = '10px';
-    bait.style.width = '10px';
-    bait.style.left = '-999px';
-    bait.style.top = '-999px';
-
-    document.body.appendChild(bait);
-
-    setTimeout(() => {
-
-      const isBlocked = (
-        !bait ||
-        bait.offsetParent === null ||
-        bait.offsetHeight === 0 ||
-        bait.clientHeight === 0
-      );
-
-      bait.remove();
-
-      if (isBlocked) {
-        blockAccess("AdBlock detectado. Desative para continuar.");
-      }
-
-    }, 200);
-  }
-
-  window.addEventListener('load', function () {
-    setTimeout(detectAdBlock, 500);
-  });
-
-  /* ═══════════════════════════════
-     🧨 CONSOLE PSICOLÓGICO
-  ═══════════════════════════════ */
-
-  setTimeout(() => {
-    console.log("%cPARE.", "color:red;font-size:40px;font-weight:bold;");
-    console.log("%cEste sistema é protegido.", "color:#aaa;font-size:14px;");
-  }, 800);
+setTimeout(() => {
+  console.log("%cPARE.", "color:red;font-size:40px;font-weight:bold;");
+}, 800);
 
 })();
