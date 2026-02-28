@@ -1,6 +1,6 @@
 /**
- * PIPOCAFLIX - security.js v5
- * Paranoia Hardened Mode
+ * PIPOCAFLIX - security.js v6
+ * Paranoia Total Mode
  */
 
 (function () {
@@ -22,13 +22,10 @@ let securityTriggered = false;
 ================================= */
 
 function triggerSecurity(reason) {
-
   if (securityTriggered) return;
   securityTriggered = true;
 
-  try {
-    sessionStorage.setItem("pf_flag", "1");
-  } catch(e){}
+  try { sessionStorage.setItem("pf_flag", "1"); } catch(e){}
 
   window.location.replace(redirectUrl);
 }
@@ -84,7 +81,7 @@ function detectDevTools() {
   }
 }
 
-setInterval(detectDevTools, 1200);
+setInterval(detectDevTools, 1000);
 
 /* ===============================
    🔄 SESSION TOKEN
@@ -95,11 +92,10 @@ if (!sessionStorage.getItem("pf_token")) {
 }
 
 /* ===============================
-   🧨 SELF INTEGRITY CHECK
+   🧨 SELF INTEGRITY
 ================================= */
 
 const originalToString = Function.prototype.toString;
-const selfCode = originalToString.call(arguments.callee);
 
 setInterval(() => {
   if (Function.prototype.toString !== originalToString) {
@@ -133,33 +129,72 @@ observer.observe(document.documentElement, {
 });
 
 /* ===============================
-   🔒 BASIC BLOCKS
+   🔒 BLOQUEIOS ABSOLUTOS
 ================================= */
 
+// Botão direito
 document.addEventListener('contextmenu', e => e.preventDefault());
+
+// Selecionar texto
 document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('mousedown', e => {
+  if (e.detail > 1) e.preventDefault();
+});
+
+// Drag
+document.addEventListener('dragstart', e => e.preventDefault());
+
+// Copy / Cut / Paste
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+document.addEventListener('paste', e => e.preventDefault());
+
+// Clipboard API override
+navigator.clipboard && (navigator.clipboard.writeText = () => Promise.reject());
+
+/* ===============================
+   ⌨️ BLOQUEIO TOTAL DE TECLADO
+================================= */
 
 document.addEventListener('keydown', function (e) {
 
   const key = e.key.toLowerCase();
 
+  // F12
   if (key === 'f12') return e.preventDefault();
+
+  // F5 / Ctrl+R
+  if (key === 'f5') return e.preventDefault();
 
   if (e.ctrlKey) {
 
-    const blockedKeys = ['u','s','p','c','v','a'];
+    const blocked = [
+      'u','s','p','c','v','a','r','i','j','k','h','o'
+    ];
 
-    if (blockedKeys.includes(key)) {
+    if (blocked.includes(key)) {
       e.preventDefault();
       return false;
     }
 
-    if (e.shiftKey && ['i','j','c'].includes(key)) {
-      e.preventDefault();
-      return false;
+    if (e.shiftKey) {
+      const shiftBlocked = ['i','j','c','k'];
+      if (shiftBlocked.includes(key)) {
+        e.preventDefault();
+        return false;
+      }
     }
   }
 
+});
+
+/* ===============================
+   🖨️ BLOQUEAR IMPRESSÃO
+================================= */
+
+window.addEventListener('beforeprint', e => {
+  e.preventDefault();
+  triggerSecurity("print");
 });
 
 /* ===============================
