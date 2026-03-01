@@ -4,36 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PipocaFlix — Assistir Série</title>
-<meta name="theme-color" content="#ff2d43">
+<meta name="description" content="Assista séries online grátis no PipocaFlix em HD.">
+<meta name="theme-color" content="#e50914">
 <link rel="stylesheet" href="../assets/css/style.css">
-<script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
 </head>
 <body>
 
-<!-- Mobile search -->
+<!-- Mobile search overlay -->
 <div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+  <svg style="flex-shrink:0;color:var(--red)" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
     <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
   </svg>
   <input type="search" class="mobile-search-input" id="mobileSearchInput"
-    placeholder="Buscar..." autocomplete="off" spellcheck="false">
-  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+    placeholder="Buscar filmes, séries..." autocomplete="off" spellcheck="false">
+  <button class="mobile-search-close" id="mobileSearchClose">Cancelar</button>
 </div>
 
 <!-- Header -->
 <header class="header" id="mainHeader">
-  <a href="index.html" class="logo">PipocaFlix</a>
+  <a href="index.html" class="logo">PIPOCA<span>FLIX</span></a>
   <nav class="nav">
     <a href="index.html">Início</a>
-    <a href="catalogo.html">Catálogo</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="index.html#filmes">Filmes</a>
+    <a href="index.html#series">Séries</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
-    <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar..." autocomplete="off" spellcheck="false">
   </div>
   <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -44,7 +44,7 @@
 
 <!-- Search results -->
 <div class="search-results-overlay" id="searchResultsOverlay">
-  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <p class="search-results-title">Resultados para: <span id="searchQueryLabel"></span></p>
   <div class="cards-grid" id="searchResultsGrid"></div>
 </div>
 
@@ -53,17 +53,17 @@
   <div class="detail-bg" id="detailBg"></div>
   <div class="detail-content">
     <img id="detailPoster" class="detail-poster"
-      src="https://placehold.co/300x450/13131a/333?text=..."
-      alt="Capa">
+      src="https://placehold.co/300x450/181818/555?text=Carregando..."
+      alt="Capa da série">
     <div class="detail-info">
-      <div id="loadingMsg" style="color:var(--text-3);font-size:1rem">⏳ Carregando...</div>
+      <div id="loadingIndicator" style="color:var(--text-muted);font-size:1rem;">⏳ Carregando...</div>
       <h1 class="detail-title" id="detailTitle" style="display:none"></h1>
       <div class="detail-tags" id="detailTags" style="display:none"></div>
       <div class="detail-meta-row" id="detailMeta" style="display:none"></div>
       <p class="detail-synopsis" id="detailSynopsis" style="display:none"></p>
-      <div class="hero-btns" id="detailBtns" style="display:none">
-        <button class="btn-primary" id="scrollToEpsBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <div class="hero-buttons" id="detailButtons" style="display:none">
+        <button class="btn-primary" id="watchNowBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           Ver Episódios
         </button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
@@ -73,36 +73,34 @@
 </section>
 
 <!-- Ad -->
-<div class="ad-section">
-  <div class="ad-wrap ad-468x60">
-    <script>
-      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
-    </script>
-    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
-  </div>
+<div class="ad-before-player">
+  <script async data-cfasync="false"
 </div>
 
-<!-- Player -->
+<!-- Player Section -->
 <section class="player-section" id="playerSection" style="display:none">
-  <p class="player-section-title" id="playerSectionTitle">🎬 Player</p>
+  <h2 id="playerSectionTitle" style="font-family:var(--font-display);font-size:1.5rem;letter-spacing:1px;margin-bottom:1rem;text-align:center">🎬 Player</h2>
 
   <div class="player-container" id="playerBox" style="display:none">
     <video id="video" preload="metadata"></video>
+
     <div class="player-overlay" id="playerOverlay">
       <img src="https://i.ibb.co/6Jbf2TRY/transferir-1.jpg" class="player-overlay-logo" alt="PipocaFlix"
         onerror="this.style.display='none'">
-      <span class="player-overlay-text">Selecione um episódio abaixo</span>
+      <span class="player-overlay-text">Clique para reproduzir</span>
     </div>
+
     <button class="center-play-btn" id="centerPlay" aria-label="Reproduzir">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
+
     <div class="player-controls hidden" id="playerControls">
-      <div class="player-ctrl-row">
-        <button class="ctrl-btn" id="back10" aria-label="−10s">
+      <div class="player-controls-row">
+        <button class="ctrl-btn" id="back10" aria-label="Voltar 10s" title="−10s">
           <svg viewBox="0 0 24 24"><path d="M11 18V6l-8 6 8 6zm2-12h8v2h-8zm0 6h6v2h-6z"/></svg>
         </button>
-        <button class="ctrl-btn" id="playPause" aria-label="Play/Pause">▶</button>
-        <button class="ctrl-btn" id="forward10" aria-label="+10s">
+        <button class="ctrl-btn" id="playPause" aria-label="Play/Pause">&#9654;</button>
+        <button class="ctrl-btn" id="forward10" aria-label="Avançar 10s" title="+10s">
           <svg viewBox="0 0 24 24"><path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/></svg>
         </button>
         <div class="player-title" id="playerTitle">PipocaFlix</div>
@@ -121,25 +119,18 @@
   </div>
 </section>
 
-<!-- Native Banner -->
-<div class="ad-section">
-  <script async data-cfasync="false"
-    src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
-  <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
-</div>
-
 <!-- Trailer -->
 <section class="trailer-section" id="trailerSection" style="display:none">
   <div class="section-header" style="padding:0;margin-bottom:1rem">
     <h2 class="section-title">Trailer Oficial</h2>
   </div>
-  <div class="trailer-wrap">
+  <div class="trailer-container">
     <iframe id="trailerFrame" title="Trailer" allowfullscreen loading="lazy"
       allow="autoplay; encrypted-media; picture-in-picture"></iframe>
   </div>
 </section>
 
-<!-- Elenco -->
+<!-- Cast -->
 <section class="cast-section" id="castSection" style="display:none">
   <div class="section-header" style="padding:0;margin-bottom:1rem">
     <h2 class="section-title">Elenco</h2>
@@ -147,261 +138,316 @@
   <div class="cast-scroll" id="castScroll"></div>
 </section>
 
-<!-- Temporadas & Episódios -->
+<!-- Seasons & Episodes -->
 <section class="seasons-section" id="seasonsSection" style="display:none">
-  <div class="section-header" style="padding:0;margin-bottom:1.25rem">
-    <h2 class="section-title">Temporadas &amp; Episódios</h2>
-  </div>
+  <h2 class="seasons-title">📦 Temporadas &amp; Episódios</h2>
   <div class="season-tabs" id="seasonTabs" role="tablist"></div>
   <div class="episodes-list" id="episodesList" role="list"></div>
-  <p id="noEpsMsg" style="display:none;color:var(--text-3);padding:1rem 0">
-    ℹ️ Episódios ainda não cadastrados para esta série.
+  <p id="noEpisodesMsg" style="display:none;color:var(--text-muted);padding:1rem 0">
+    ℹ️ Episódios não cadastrados no banco de dados desta série.
   </p>
 </section>
 
-<!-- 300x250 -->
-<div class="ad-section">
-  <div class="ad-wrap ad-300x250">
-    <script>
-      atOptions = { 'key':'cc3696d612a9f3e92f49193e4b3418e6','format':'iframe','height':250,'width':300,'params':{} };
-    </script>
-    <script src="https://www.highperformanceformat.com/cc3696d612a9f3e92f49193e4b3418e6/invoke.js"></script>
-  </div>
-</div>
-
 <!-- Footer -->
 <footer class="footer">
-  <div class="footer-logo">PipocaFlix</div>
-  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-logo">PIPOCA<span>FLIX</span></div>
+  <p class="footer-text">O melhor catálogo de filmes e séries online.</p>
+  <div class="ad-footer">
+    <script async data-cfasync="false"
+  </div>
   <div class="footer-bottom">
-    <span>© 2025 PipocaFlix.</span>
+    <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
     <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
   </div>
 </footer>
 
-<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-</button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="../assets/js/security.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/search.js"></script>
 <script src="../assets/js/player.js"></script>
+
 <script>
+// ═══════════════════════════════════════════════════
+//   PIPOCAFLIX — serie.js (inline)
+// ═══════════════════════════════════════════════════
+
 let seriePlayer = null;
 let temporadaAtual = 1;
 let temporadasData = {};
-let nomeSerie = '';
 
 window.addEventListener('scroll', () => {
-  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 60);
-  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
-}, {passive:true});
-document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
 
+/* ── Mobile search ── */
 document.getElementById('mobileSearchToggle').addEventListener('click', () => {
   document.getElementById('mobileSearchOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('mobileSearchInput').focus(), 80);
+  setTimeout(() => document.getElementById('mobileSearchInput').focus(), 100);
 });
 document.getElementById('mobileSearchClose').addEventListener('click', () => {
   document.getElementById('mobileSearchOverlay').classList.remove('open');
   document.getElementById('searchResultsOverlay').classList.remove('active');
-  document.getElementById('mobileSearchInput').value='';
-});
-document.addEventListener('keydown', e => {
-  if (e.key==='Escape') {
-    document.getElementById('mobileSearchOverlay').classList.remove('open');
-    document.getElementById('searchResultsOverlay').classList.remove('active');
-    document.getElementById('desktopSearchInput').value='';
-    document.getElementById('mobileSearchInput').value='';
-  }
+  document.getElementById('mobileSearchInput').value = '';
 });
 
-function getParam(k) { return new URLSearchParams(location.search).get(k); }
-function ytEmbed(url) {
+function getParam(key) {
+  return new URLSearchParams(window.location.search).get(key);
+}
+
+function getYoutubeEmbedUrl(url) {
   if (!url) return '';
-  const m=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?]+)/);
-  return m ? `https://www.youtube.com/embed/${m[1]}?rel=0` : '';
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?]+)/);
+  if (m) return `https://www.youtube.com/embed/${m[1]}?rel=0`;
+  return '';
 }
 
-function renderCast(nomes, fotos) {
-  if (!nomes) return;
-  const ns=nomes.split(',').map(s=>s.trim()).filter(Boolean);
-  const fs=fotos?fotos.split(',').map(s=>s.trim()):[];
-  const wrap=document.getElementById('castScroll');
-  ns.forEach((n,i)=>{
-    const foto=fs[i]||`https://placehold.co/84x84/1a1a24/555?text=${encodeURIComponent(n[0]||'?')}`;
-    const div=document.createElement('div');
-    div.className='cast-item';
-    div.innerHTML=`<img class="cast-avatar" src="${foto}" alt="${n}"
-      onerror="this.src='https://placehold.co/84x84/1a1a24/555?text=${encodeURIComponent(n[0]||'?')}'">
-      <div class="cast-name">${n}</div>`;
-    wrap.appendChild(div);
+function renderCast(nomeElenco, fotoElenco) {
+  if (!nomeElenco) return;
+  const nomes  = nomeElenco.split(',').map(s => s.trim()).filter(Boolean);
+  const fotos  = fotoElenco ? fotoElenco.split(',').map(s => s.trim()) : [];
+  const scroll = document.getElementById('castScroll');
+  nomes.forEach((nome, i) => {
+    const div = document.createElement('div');
+    div.className = 'cast-item';
+    const foto = fotos[i] || `https://placehold.co/90x90/181818/555?text=${encodeURIComponent(nome.charAt(0))}`;
+    div.innerHTML = `
+      <img class="cast-avatar" src="${foto}" alt="${nome}"
+        onerror="this.src='https://placehold.co/90x90/181818/555?text=${encodeURIComponent(nome.charAt(0))}'">
+      <div class="cast-name">${nome}</div>`;
+    scroll.appendChild(div);
   });
-  document.getElementById('castSection').style.display='block';
+  document.getElementById('castSection').style.display = 'block';
 }
 
-function renderTemporadas() {
-  const tabs = document.getElementById('seasonTabs');
-  const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
-  if (nums.length===0) { document.getElementById('noEpsMsg').style.display='block'; return; }
+/* ── Render temporadas ── */
+function renderTemporadas(nomeSerie) {
+  const tabs  = document.getElementById('seasonTabs');
+  const lista = document.getElementById('episodesList');
+  const nEps  = document.getElementById('noEpisodesMsg');
+  const numTemporadas = Object.keys(temporadasData).length;
 
-  tabs.innerHTML='';
-  nums.forEach(t=>{
-    const btn=document.createElement('button');
-    btn.className='season-tab'+(t===temporadaAtual?' active':'');
-    btn.textContent=`Temporada ${t}`;
-    btn.setAttribute('role','tab');
-    btn.setAttribute('aria-selected', t===temporadaAtual?'true':'false');
-    btn.addEventListener('click',()=>{
-      temporadaAtual=t;
-      tabs.querySelectorAll('.season-tab').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false');});
+  if (numTemporadas === 0) {
+    nEps.style.display = 'block';
+    return;
+  }
+  nEps.style.display = 'none';
+
+  // Cria tabs de temporadas
+  tabs.innerHTML = '';
+  Object.keys(temporadasData).sort((a,b) => a-b).forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'season-tab' + (parseInt(t) === temporadaAtual ? ' active' : '');
+    btn.textContent = `Temporada ${t}`;
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', parseInt(t) === temporadaAtual ? 'true' : 'false');
+    btn.addEventListener('click', () => {
+      temporadaAtual = parseInt(t);
+      tabs.querySelectorAll('.season-tab').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
       btn.classList.add('active');
-      btn.setAttribute('aria-selected','true');
-      renderEpisodios();
+      btn.setAttribute('aria-selected', 'true');
+      renderEpisodios(nomeSerie);
     });
     tabs.appendChild(btn);
   });
-  renderEpisodios();
+
+  renderEpisodios(nomeSerie);
 }
 
-function renderEpisodios() {
-  const lista=document.getElementById('episodesList');
-  const eps=temporadasData[temporadaAtual]||[];
-  lista.innerHTML='';
-  if (eps.length===0) {
-    lista.innerHTML='<p style="color:var(--text-3);padding:1rem 0">Sem episódios para esta temporada.</p>';
+/* ── Render episódios ── */
+function renderEpisodios(nomeSerie) {
+  const lista   = document.getElementById('episodesList');
+  const eps     = temporadasData[temporadaAtual] || [];
+  lista.innerHTML = '';
+
+  if (eps.length === 0) {
+    lista.innerHTML = '<p style="color:var(--text-muted);padding:1rem 0">Sem episódios para esta temporada.</p>';
     return;
   }
-  eps.forEach(ep=>{
-    const btn=document.createElement('button');
-    btn.className='episode-btn';
-    btn.setAttribute('role','listitem');
-    btn.innerHTML=`
-      <span class="ep-num">${String(ep.episodio).padStart(2,'0')}</span>
-      <span class="ep-name">${nomeSerie} — T${ep.temporada} EP${ep.episodio}</span>
-      <span class="ep-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`;
-    btn.addEventListener('click',()=>tocar(ep));
+
+  eps.forEach(ep => {
+    const btn = document.createElement('button');
+    btn.className = 'episode-btn';
+    btn.setAttribute('role', 'listitem');
+    btn.innerHTML = `
+      <span class="episode-num">${String(ep.episodio).padStart(2,'0')}</span>
+      <span class="episode-name">${nomeSerie} — T${temporadaAtual} EP${ep.episodio}</span>
+      <span class="episode-play-icon">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </span>`;
+    btn.addEventListener('click', () => tocar(ep, nomeSerie));
     lista.appendChild(btn);
   });
 }
 
-function tocar(ep) {
+/* ── Tocar episódio ── */
+function tocar(ep, nomeSerie) {
   PipocaAPI.openSmartlink();
-  const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
-  if (seriePlayer) seriePlayer.loadEpisode(ep.linkMP4, titulo);
+  const titulo = `${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
+  if (seriePlayer) {
+    seriePlayer.loadEpisode(ep.linkMP4, titulo);
+  }
 }
 
-function setupSearch(allItems) {
-  PipocaSearch.indexContent(allItems);
-  const overlay=document.getElementById('searchResultsOverlay');
-  const grid=document.getElementById('searchResultsGrid');
-  const label=document.getElementById('searchQueryLabel');
-  function mkCard(item) {
-    const d=document.createElement('div'); d.className='card';
-    const page=item.isSerie?'serie.html':'filme.html';
-    d.innerHTML=`<div class="card-thumb-wrap">
-      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
-        onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
-      <span class="card-badge">${item.isSerie?'Série':'Filme'}</span>
-      <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-    </div>
-    <div class="card-info"><div class="card-name">${item.nome}</div>
-    <div class="card-meta-row"><span>${item.ano||''}</span></div></div>`;
-    d.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(item.nome)}`);
-    return d;
-  }
-  function doSearch(q) {
-    if (!q||q.length<2) { overlay.classList.remove('active'); return; }
-    const res=PipocaSearch.search(q,30);
-    label.textContent=q; grid.innerHTML='';
-    res.forEach(i=>grid.appendChild(mkCard(i)));
-    overlay.classList.add('active');
-  }
-  const deb=PipocaSearch.debounce(doSearch,250);
-  document.getElementById('desktopSearchInput').addEventListener('input',e=>deb(e.target.value));
-  document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));
-}
-
+/* ── Init ── */
 async function init() {
-  const nomeParam = getParam('nome');
-  if (!nomeParam) { location.href='index.html'; return; }
-  nomeSerie = nomeParam;
-  document.title = `${nomeSerie} — PipocaFlix`;
+  const nome = getParam('nome');
+  if (!nome) { location.href = 'index.html'; return; }
+
+  document.title = `${nome} — PipocaFlix`;
 
   try {
     const [series, allContent] = await Promise.all([
       PipocaAPI.getSeries(),
       PipocaAPI.getTodosConteudos()
     ]);
+
+    PipocaSearch.indexContent(allContent);
     setupSearch(allContent);
 
-    const normNome = PipocaAPI.normalizeStr(nomeParam);
-    const item = series.find(s=>PipocaAPI.normalizeStr(s.nome)===normNome)
-              || series.find(s=>PipocaAPI.normalizeStr(s.nome).includes(normNome)||normNome.includes(PipocaAPI.normalizeStr(s.nome)));
+    const item = series.find(s =>
+      PipocaAPI.normalizeStr(s.nome) === PipocaAPI.normalizeStr(nome)
+    ) || series.find(s =>
+      PipocaAPI.normalizeStr(s.nome).includes(PipocaAPI.normalizeStr(nome)) ||
+      PipocaAPI.normalizeStr(nome).includes(PipocaAPI.normalizeStr(s.nome))
+    );
 
-    if (!item) { document.getElementById('loadingMsg').textContent='⚠️ Série não encontrada.'; return; }
-    nomeSerie = item.nome;
+    if (!item) {
+      document.getElementById('loadingIndicator').textContent = '⚠️ Série não encontrada.';
+      return;
+    }
 
-    // BG + Poster
-    document.getElementById('detailBg').style.backgroundImage=`url(${item.capa||''})`;
-    const poster=document.getElementById('detailPoster');
-    poster.src=item.capa||'https://placehold.co/300x450/13131a/333?text=Sem+Capa';
-    poster.alt=item.nome;
+    // Fundo e poster
+    document.getElementById('detailBg').style.backgroundImage = `url(${item.capa || ''})`;
+    const poster = document.getElementById('detailPoster');
+    poster.src = item.capa || 'https://placehold.co/300x450/181818/555?text=Sem+Capa';
+    poster.alt = item.nome;
 
     // Info
-    document.getElementById('loadingMsg').style.display='none';
-    document.getElementById('detailTitle').textContent=item.nome;
-    document.getElementById('detailTitle').style.display='';
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('detailTitle').textContent = item.nome;
+    document.getElementById('detailTitle').style.display = '';
 
-    const tags=document.getElementById('detailTags');
-    if (item.categoria) item.categoria.split(',').forEach(c=>{if(!c.trim())return;const s=document.createElement('span');s.className='tag';s.textContent=c.trim();tags.appendChild(s);});
-    if (item.audio) {const s=document.createElement('span');s.className='tag';s.textContent='🔊 '+item.audio;tags.appendChild(s);}
-    const sTag=document.createElement('span');sTag.className='tag';sTag.textContent=`📺 ${item.totalTemp||'?'} Temporada(s)`;tags.appendChild(sTag);
-    tags.style.display='flex';
+    const tagsEl = document.getElementById('detailTags');
+    if (item.categoria) {
+      item.categoria.split(',').forEach(cat => {
+        const span = document.createElement('span');
+        span.className = 'tag'; span.textContent = cat.trim();
+        tagsEl.appendChild(span);
+      });
+    }
+    if (item.audio) {
+      const span = document.createElement('span');
+      span.className = 'tag'; span.textContent = '🔊 ' + item.audio;
+      tagsEl.appendChild(span);
+    }
+    const serieTag = document.createElement('span');
+    serieTag.className = 'tag';
+    serieTag.textContent = `📺 ${item.totalTemp || '?'} Temporada(s)`;
+    tagsEl.appendChild(serieTag);
+    tagsEl.style.display = 'flex';
 
-    document.getElementById('detailMeta').innerHTML=[
-      item.ano?`<span><strong>📅</strong> ${item.ano}</span>`:'',
-      item.duracao?`<span><strong>⏱</strong> ${item.duracao}</span>`:'',
-      item.tipo?`<span><strong>📺</strong> ${item.tipo}</span>`:'',
-    ].join('');
-    document.getElementById('detailMeta').style.display='flex';
-    document.getElementById('detailSynopsis').textContent=item.sinopse||'Sinopse não disponível.';
-    document.getElementById('detailSynopsis').style.display='';
-    document.getElementById('detailBtns').style.display='flex';
+    document.getElementById('detailMeta').innerHTML = `
+      ${item.ano     ? `<span><strong>📅</strong> ${item.ano}</span>`       : ''}
+      ${item.duracao ? `<span><strong>⏱</strong> ${item.duracao}</span>`    : ''}
+      ${item.tipo    ? `<span><strong>🎬</strong> ${item.tipo}</span>`       : ''}
+    `;
+    document.getElementById('detailMeta').style.display = 'flex';
+    document.getElementById('detailSynopsis').textContent = item.sinopse || 'Sinopse não disponível.';
+    document.getElementById('detailSynopsis').style.display = '';
+    document.getElementById('detailButtons').style.display = 'flex';
 
-    document.getElementById('scrollToEpsBtn').addEventListener('click',()=>
-      document.getElementById('seasonsSection').scrollIntoView({behavior:'smooth'}));
+    document.getElementById('watchNowBtn').addEventListener('click', () => {
+      document.getElementById('seasonsSection').scrollIntoView({ behavior: 'smooth' });
+    });
 
     // Trailer
-    const ytUrl=ytEmbed(item.trailer);
-    if (ytUrl) { document.getElementById('trailerFrame').src=ytUrl; document.getElementById('trailerSection').style.display='block'; }
+    const trailerEmbed = getYoutubeEmbedUrl(item.trailer);
+    if (trailerEmbed) {
+      document.getElementById('trailerFrame').src = trailerEmbed;
+      document.getElementById('trailerSection').style.display = 'block';
+    }
 
     // Cast
     renderCast(item.nomeElenco, item.fotoElenco);
 
-    // Player init
-    document.getElementById('playerSection').style.display='block';
-    document.getElementById('playerTitle').textContent=item.nome;
+    // Player
+    document.getElementById('playerSection').style.display = 'block';
+    document.getElementById('playerTitle').textContent = item.nome;
 
     seriePlayer = PipocaPlayer.initSeriePlayer({
-      videoId:'video', overlayId:'playerOverlay', centerPlayId:'centerPlay',
-      controlsId:'playerControls', playerBoxId:'playerBox', titleId:'playerTitle'
+      videoId:      'video',
+      overlayId:    'playerOverlay',
+      centerPlayId: 'centerPlay',
+      controlsId:   'playerControls',
+      playerBoxId:  'playerBox',
+      titleId:      'playerTitle'
     });
 
-    // Episódios
+    // Busca episódios
     temporadasData = await PipocaAPI.getEpisodiosPorSerie(item.nome);
-    const nums = Object.keys(temporadasData).map(Number);
-    temporadaAtual = nums.length > 0 ? Math.min(...nums) : 1;
 
-    document.getElementById('seasonsSection').style.display='block';
-    renderTemporadas();
+    // Mostra seção temporadas
+    document.getElementById('seasonsSection').style.display = 'block';
+    temporadaAtual = Math.min(...Object.keys(temporadasData).map(Number)) || 1;
+    renderTemporadas(item.nome);
 
-  } catch(err) {
-    console.error('[PipocaFlix Série]',err);
-    document.getElementById('loadingMsg').textContent='⚠️ Erro ao carregar a série.';
+    // SEO
+    document.querySelector('meta[name="description"]').content =
+      `Assista ${item.nome} (${item.ano || ''}) online grátis no PipocaFlix. ${(item.sinopse || '').slice(0, 120)}`;
+
+  } catch (err) {
+    console.error('[PipocaFlix Série] Erro:', err);
+    document.getElementById('loadingIndicator').textContent = '⚠️ Erro ao carregar a série.';
   }
+}
+
+/* ── Search setup ── */
+function setupSearch(allItems) {
+  const desktopInput    = document.getElementById('desktopSearchInput');
+  const mobileInput     = document.getElementById('mobileSearchInput');
+  const resultsOverlay  = document.getElementById('searchResultsOverlay');
+  const resultsGrid     = document.getElementById('searchResultsGrid');
+  const queryLabel      = document.getElementById('searchQueryLabel');
+
+  function doSearch(q) {
+    if (!q || q.length < 2) { resultsOverlay.classList.remove('active'); return; }
+    const res = PipocaSearch.search(q, 24);
+    queryLabel.textContent = `"${q}"`;
+    resultsGrid.innerHTML  = '';
+    res.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const page = item.isSerie ? 'serie.html' : 'filme.html';
+      card.innerHTML = `
+        <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+          onerror="this.src='https://placehold.co/300x450/181818/555?text=Sem+Capa'">
+        <span class="card-type-badge">${item.isSerie ? 'Série' : 'Filme'}</span>
+        <div class="card-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="card-info">
+          <div class="card-title">${item.nome}</div>
+          <div class="card-meta"><span>${item.ano||''}</span></div>
+        </div>`;
+      card.addEventListener('click', () => { location.href = `${page}?nome=${encodeURIComponent(item.nome)}`; });
+      resultsGrid.appendChild(card);
+    });
+    resultsOverlay.classList.add('active');
+  }
+
+  const deb = PipocaSearch.debounce(doSearch, 280);
+  desktopInput.addEventListener('input', e => deb(e.target.value));
+  mobileInput.addEventListener('input',  e => deb(e.target.value));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      resultsOverlay.classList.remove('active');
+      desktopInput.value = '';
+      mobileInput.value  = '';
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
