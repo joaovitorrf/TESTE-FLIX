@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo — PipocaFlix</title>
+<meta name="description" content="Catálogo completo de filmes e séries no PipocaFlix.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
+</head>
+<body>
+
+<!-- Mobile search overlay -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar..." autocomplete="off" spellcheck="false">
+  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- Header -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo">PipocaFlix</a>
+  <nav class="nav">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html" class="active">Catálogo</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar..." autocomplete="off" spellcheck="false">
+  </div>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- Search results -->
+<div class="search-results-overlay" id="searchResultsOverlay">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+</div>
+
+<!-- Categoria ou título dinâmico -->
+<div class="cat-page-header" id="catPageHeader">
+  <div class="cat-page-icon" id="catPageIcon">🎬</div>
+  <div>
+    <h1 class="cat-page-title" id="catPageTitle">Catálogo Completo</h1>
+    <p class="cat-page-count" id="catPageCount">Carregando...</p>
+  </div>
+</div>
+
+<!-- Ad 468x60 -->
+<div class="ad-section" style="padding-top:0.5rem;padding-bottom:0">
+  <div class="ad-wrap ad-468x60">
+    <script>
+      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
+    </script>
+    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
+  </div>
+</div>
+
+<!-- Filtros rápidos de tipo -->
+<div style="padding: 1.25rem clamp(1rem,5vw,3.5rem) 0;display:flex;gap:0.5rem;flex-wrap:wrap" id="typeFilters">
+  <button class="season-tab active" data-tipo="todos">Todos</button>
+  <button class="season-tab" data-tipo="filmes">Filmes</button>
+  <button class="season-tab" data-tipo="series">Séries</button>
+</div>
+
+<!-- Layout com sidebar -->
+<div class="content-with-sidebar" style="padding: 1.25rem clamp(1rem,5vw,3.5rem) 2rem">
+
+  <!-- Sidebar ads - desktop only -->
+  <aside class="sidebar-ads">
+    <div class="ad-wrap ad-160x600">
+      <script>
+        atOptions = { 'key':'73e2e39f6288659099e0bda2dbb7fc69','format':'iframe','height':600,'width':160,'params':{} };
+      </script>
+      <script src="https://www.highperformanceformat.com/73e2e39f6288659099e0bda2dbb7fc69/invoke.js"></script>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="content-main">
+    <!-- Skeleton -->
+    <div class="cards-grid" id="skeletonGrid">
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards-grid" id="catalogoGrid" style="display:none"></div>
+
+    <!-- Ad entre páginas -->
+    <div class="ad-section" style="padding-left:0;padding-right:0" id="midAd" style="display:none">
+      <div class="ad-wrap ad-300x250">
+        <script>
+          atOptions = { 'key':'cc3696d612a9f3e92f49193e4b3418e6','format':'iframe','height':250,'width':300,'params':{} };
+        </script>
+        <script src="https://www.highperformanceformat.com/cc3696d612a9f3e92f49193e4b3418e6/invoke.js"></script>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    <nav class="pagination" id="pagination" aria-label="Paginação"></nav>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-logo">PipocaFlix</div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix.</span>
+    <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/js/security.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/search.js"></script>
+<script>
+const PER_PAGE = 10;
+let allContent = [], filtered = [], currentPage = 1;
+
+// ── Header scroll + back to top ──
+window.addEventListener('scroll', () => {
+  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 60);
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+}, {passive:true});
+document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+
+// ── Mobile search ──
+document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('mobileSearchInput').focus(), 80);
+});
+document.getElementById('mobileSearchClose').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.remove('open');
+  document.getElementById('searchResultsOverlay').classList.remove('active');
+  document.getElementById('mobileSearchInput').value = '';
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('mobileSearchOverlay').classList.remove('open');
+    document.getElementById('searchResultsOverlay').classList.remove('active');
+    document.getElementById('desktopSearchInput').value = '';
+    document.getElementById('mobileSearchInput').value = '';
+  }
+});
+
+// ── Params ──
+function getParam(k) { return new URLSearchParams(location.search).get(k); }
+
+// ── Card ──
+function mkCard(item) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  const page = item.isSerie ? 'serie.html' : 'filme.html';
+  div.innerHTML = `
+    <div class="card-thumb-wrap">
+      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+        onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
+      <span class="card-badge">${item.isSerie?'Série':'Filme'}</span>
+      <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">${item.nome}</div>
+      <div class="card-meta-row">
+        ${item.ano?`<span>${item.ano}`:''}
+        ${item.categoria?`<span>· ${item.categoria.split(',')[0].trim()}</span>`:''}
+      </div>
+    </div>`;
+  div.addEventListener('click', () => { location.href=`${page}?nome=${encodeURIComponent(item.nome)}`; });
+  div.setAttribute('role','button'); div.setAttribute('tabindex','0');
+  div.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') div.click(); });
+  return div;
+}
+
+// ── Render page ──
+function renderPage() {
+  const grid    = document.getElementById('catalogoGrid');
+  const skeleton= document.getElementById('skeletonGrid');
+  skeleton.style.display = 'none';
+  grid.style.display     = 'grid';
+  document.getElementById('midAd').style.display = '';
+
+  const start = (currentPage-1)*PER_PAGE;
+  const slice = filtered.slice(start, start+PER_PAGE);
+
+  grid.innerHTML = '';
+  if (slice.length === 0) {
+    grid.innerHTML = '<p style="grid-column:1/-1;color:var(--text-3);text-align:center;padding:4rem 0">Nenhum conteúdo encontrado.</p>';
+  } else {
+    slice.forEach(item => grid.appendChild(mkCard(item)));
+  }
+
+  document.getElementById('catPageCount').textContent =
+    `${filtered.length} títulos · Página ${currentPage} de ${Math.ceil(filtered.length/PER_PAGE)||1}`;
+
+  renderPagination();
+  window.scrollTo({top: document.getElementById('catPageHeader').offsetTop - 80, behavior:'smooth'});
+}
+
+// ── Pagination ──
+function renderPagination() {
+  const total = Math.ceil(filtered.length/PER_PAGE);
+  const nav   = document.getElementById('pagination');
+  nav.innerHTML = '';
+  if (total <= 1) return;
+
+  function mkBtn(label, page, disabled, active) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (active?' active':'');
+    btn.textContent = label;
+    btn.disabled = disabled;
+    if (active) btn.setAttribute('aria-current','page');
+    btn.addEventListener('click', () => { currentPage=page; renderPage(); });
+    return btn;
+  }
+  function mkEllipsis() {
+    const s = document.createElement('span');
+    s.className='page-ellipsis'; s.textContent='…';
+    return s;
+  }
+
+  nav.appendChild(mkBtn('‹', currentPage-1, currentPage===1, false));
+
+  const start = Math.max(1, Math.min(currentPage-2, total-4));
+  const end   = Math.min(total, start+4);
+
+  if (start>1) { nav.appendChild(mkBtn('1',1,false,false)); if(start>2) nav.appendChild(mkEllipsis()); }
+  for (let i=start;i<=end;i++) nav.appendChild(mkBtn(i,i,false,i===currentPage));
+  if (end<total) { if(end<total-1) nav.appendChild(mkEllipsis()); nav.appendChild(mkBtn(total,total,false,false)); }
+
+  nav.appendChild(mkBtn('›', currentPage+1, currentPage===total, false));
+}
+
+// ── Apply filter ──
+function applyFilter(tipo, cat) {
+  if (tipo === 'filmes')  filtered = allContent.filter(c=>!c.isSerie);
+  else if (tipo==='series') filtered = allContent.filter(c=>c.isSerie);
+  else filtered = [...allContent];
+
+  if (cat) {
+    const normCat = cat.toLowerCase();
+    filtered = filtered.filter(c => c.categoria && c.categoria.toLowerCase().includes(normCat));
+  }
+
+  currentPage = 1;
+  renderPage();
+}
+
+// ── Type filter buttons ──
+function setupTypeFilters(tipo) {
+  document.querySelectorAll('[data-tipo]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tipo === (tipo||'todos'));
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-tipo]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = getParam('cat');
+      applyFilter(btn.dataset.tipo, cat);
+    });
+  });
+}
+
+// ── Search ──
+function setupSearch(allItems) {
+  PipocaSearch.indexContent(allItems);
+  const resultsOverlay = document.getElementById('searchResultsOverlay');
+  const resultsGrid    = document.getElementById('searchResultsGrid');
+  const queryLabel     = document.getElementById('searchQueryLabel');
+  function doSearch(q) {
+    if (!q||q.length<2) { resultsOverlay.classList.remove('active'); return; }
+    const res = PipocaSearch.search(q, 30);
+    queryLabel.textContent = q;
+    resultsGrid.innerHTML  = '';
+    res.forEach(item => resultsGrid.appendChild(mkCard(item)));
+    resultsOverlay.classList.add('active');
+  }
+  const deb = PipocaSearch.debounce(doSearch, 250);
+  document.getElementById('desktopSearchInput').addEventListener('input', e=>deb(e.target.value));
+  document.getElementById('mobileSearchInput').addEventListener('input', e=>deb(e.target.value));
+}
+
+// ── Page header by cat/tipo ──
+const CAT_EMOJIS = {
+  'ação':'⚡','acao':'⚡','romance':'💕','terror':'👻','horror':'👻','comédia':'😂','comedia':'😂',
+  'drama':'🎭','ficção':'🚀','ficcao':'🚀','animação':'✨','animacao':'✨','aventura':'🗺️',
+  'thriller':'🔪','crime':'🔫','fantasia':'🧙','documentário':'📽️','documentario':'📽️'
+};
+function getEmoji(cat) {
+  if (!cat) return '🎬';
+  const k = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for (const [key,val] of Object.entries(CAT_EMOJIS)) { if (k.includes(key)) return val; }
+  return '🎬';
+}
+
+// ── INIT ──
+async function init() {
+  const tipo = getParam('tipo') || 'todos';
+  const cat  = getParam('cat');
+
+  // Header dinâmico
+  if (cat) {
+    document.getElementById('catPageIcon').textContent = getEmoji(cat);
+    document.getElementById('catPageTitle').textContent = cat;
+    document.title = `${cat} — PipocaFlix`;
+  } else if (tipo === 'filmes') {
+    document.getElementById('catPageIcon').textContent = '🎬';
+    document.getElementById('catPageTitle').textContent = 'Filmes';
+    document.title = 'Filmes — PipocaFlix';
+  } else if (tipo === 'series') {
+    document.getElementById('catPageIcon').textContent = '📺';
+    document.getElementById('catPageTitle').textContent = 'Séries';
+    document.title = 'Séries — PipocaFlix';
+  }
+
+  setupTypeFilters(cat ? 'todos' : tipo);
+
+  try {
+    const [filmes, series] = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
+    allContent = [...filmes, ...series];
+    setupSearch(allContent);
+    applyFilter(cat ? 'todos' : tipo, cat);
+  } catch(err) {
+    console.error('[PipocaFlix Catálogo]', err);
+    document.getElementById('skeletonGrid').style.display='none';
+    document.getElementById('catalogoGrid').style.display='grid';
+    document.getElementById('catalogoGrid').innerHTML=
+      '<p style="grid-column:1/-1;color:var(--text-3);text-align:center;padding:4rem 0">⚠️ Erro ao carregar. Tente novamente.</p>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
