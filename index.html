@@ -4,41 +4,48 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PipocaFlix — Filmes e Séries Online</title>
-<meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo em HD.">
-<meta name="theme-color" content="#ff2d43">
+<meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo, HD, sem travamentos.">
+<meta name="theme-color" content="#e50914">
 <link rel="stylesheet" href="../assets/css/style.css">
 
-<!-- Social Bar -->
-<script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
 </head>
 <body>
 
-<!-- ═══ MOBILE SEARCH OVERLAY ═══ -->
+<!-- ================================================
+     MOBILE SEARCH OVERLAY (aparece ao clicar na lupa)
+================================================ -->
 <div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog" aria-label="Busca">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+  <svg style="flex-shrink:0;color:var(--red)" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
     <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
   </svg>
   <input type="search" class="mobile-search-input" id="mobileSearchInput"
-    placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
-  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+    placeholder="Buscar filmes, séries..." autocomplete="off" autocorrect="off" spellcheck="false">
+  <button class="mobile-search-close" id="mobileSearchClose" aria-label="Fechar busca">Cancelar</button>
 </div>
 
-<!-- ═══ HEADER ═══ -->
+<!-- ================================================
+     HEADER
+================================================ -->
 <header class="header" id="mainHeader">
-  <a href="index.html" class="logo" aria-label="PipocaFlix Home">PipocaFlix</a>
-  <nav class="nav" aria-label="Navegação">
+  <a href="index.html" class="logo">PIPOCA<span>FLIX</span></a>
+
+  <nav class="nav" aria-label="Navegação principal">
     <a href="index.html" class="active">Início</a>
-    <a href="catalogo.html">Catálogo</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="index.html#filmes">Filmes</a>
+    <a href="index.html#series">Séries</a>
   </nav>
-  <div class="search-wrapper">
+
+  <!-- Desktop search -->
+  <div class="search-wrapper" id="desktopSearchWrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
     <input type="search" class="search-bar" id="desktopSearchInput"
-      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
+      placeholder="Buscar filmes e séries..." autocomplete="off" autocorrect="off" spellcheck="false"
+      aria-label="Buscar conteúdo">
   </div>
+
+  <!-- Mobile search toggle -->
   <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -46,490 +53,452 @@
   </button>
 </header>
 
-<!-- ═══ SEARCH RESULTS ═══ -->
-<div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados">
-  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+<!-- ================================================
+     SEARCH RESULTS OVERLAY
+================================================ -->
+<div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados da busca">
+  <p class="search-results-title">Resultados para: <span id="searchQueryLabel"></span></p>
   <div class="cards-grid" id="searchResultsGrid"></div>
-  <p id="searchNoResults" style="display:none;color:var(--text-3);text-align:center;padding:3rem 0">
+  <p id="noResults" style="display:none;color:var(--text-muted);text-align:center;padding:2rem 0">
     Nenhum resultado encontrado. Tente outra busca.
   </p>
 </div>
 
-<!-- ═══ HERO CARROSSEL ═══ -->
-<section class="hero" id="hero" aria-label="Destaques">
-  <div class="hero-slides" id="heroSlides">
-    <!-- Slides injetados por JS -->
-    <div class="hero-slide active">
-      <div class="hero-slide-bg" style="background:linear-gradient(135deg,#0c0c10,#1a1a24)"></div>
-    </div>
-  </div>
+<!-- ================================================
+     NATIVE BANNER (Header)
+================================================ -->
+<div class="ad-header" style="margin-top:var(--header-h);padding:0 clamp(1rem,4vw,3rem)">
+  <script async data-cfasync="false"
+</div>
 
-  <!-- Content para cada slide (único, atualizado por JS) -->
-  <div class="hero-content" id="heroContent" aria-live="polite">
+<!-- ================================================
+     HERO
+================================================ -->
+<section class="hero" id="hero" aria-label="Destaque">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content" id="heroContent">
     <div class="hero-badge">🔥 Em Destaque</div>
     <h1 class="hero-title" id="heroTitle">Carregando...</h1>
     <div class="hero-meta" id="heroMeta"></div>
     <p class="hero-synopsis" id="heroSynopsis"></p>
-    <div class="hero-btns">
-      <a href="#" id="heroWatchBtn" class="btn-primary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    <div class="hero-buttons">
+      <a id="heroWatchBtn" href="#" class="btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         Assistir Agora
       </a>
-      <a href="#" id="heroInfoBtn" class="btn-secondary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-        Mais Infos
-      </a>
+      <button class="btn-secondary" id="heroInfoBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Mais Informações
+      </button>
     </div>
   </div>
-
-  <!-- Navegação do hero -->
-  <div class="hero-arrows" role="group" aria-label="Navegar destaques">
-    <button class="hero-arrow" id="heroPrev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <button class="hero-arrow" id="heroNext" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-  </div>
-  <div class="hero-dots" id="heroDots" role="tablist"></div>
 </section>
 
-<!-- ═══ AD 468x60 ═══ -->
-<div class="ad-section" style="padding-top:1.5rem;padding-bottom:0">
-  <div class="ad-wrap ad-468x60">
-    <script>
-      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
-    </script>
-    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
-  </div>
-</div>
+<!-- ================================================
+     MAIN CONTENT
+================================================ -->
+<main class="main-content" role="main">
 
-<!-- ═══ CATEGORIAS ═══ -->
-<section class="categories-section">
-  <div class="section-header">
-    <h2 class="section-title">Explorar Categorias</h2>
-  </div>
-  <div class="cat-scroll-wrap">
-    <div class="cat-scroll" id="catScroll"></div>
-  </div>
-</section>
-
-<!-- ═══ FILMES RECENTES ═══ -->
-<section class="content-section">
-  <div class="section-header">
-    <h2 class="section-title">Filmes Recentes</h2>
-    <a href="catalogo.html?tipo=filmes" class="see-all-link">
-      Ver todos
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </a>
-  </div>
-  <div class="carousel-wrap">
-    <button class="carousel-arrow prev" id="filmePrev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <!-- Skeleton -->
-    <div class="carousel-track" id="filmesTrack" aria-label="Filmes recentes">
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+  <!-- ── Todos os conteúdos + filtros + paginação ── -->
+  <section class="section" id="catalogoSection">
+    <div class="section-header">
+      <h2 class="section-title">Catálogo Completo</h2>
+      <span id="catalogoCount" style="color:var(--text-muted);font-size:0.85rem"></span>
     </div>
-    <button class="carousel-arrow next" id="filmeNext" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-  </div>
-</section>
 
-<!-- ═══ AD 300x250 entre seções ═══ -->
-<div class="ad-section">
-  <div class="ad-wrap ad-300x250">
-    <script>
-      atOptions = { 'key':'cc3696d612a9f3e92f49193e4b3418e6','format':'iframe','height':250,'width':300,'params':{} };
-    </script>
-    <script src="https://www.highperformanceformat.com/cc3696d612a9f3e92f49193e4b3418e6/invoke.js"></script>
-  </div>
-  <!-- Native Banner -->
-  <div style="flex:1;max-width:468px">
+    <!-- Filtros de categoria -->
+    <div class="filters" id="categoryFilters" role="group" aria-label="Filtrar por categoria">
+      <button class="filter-btn active" data-filter="todos">Todos</button>
+      <button class="filter-btn" data-filter="filmes">Filmes</button>
+      <button class="filter-btn" data-filter="series">Séries</button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div class="loading-grid" id="skeletonGrid">
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+
+    <!-- Cards grid -->
+    <div class="cards-grid" id="catalogoGrid" style="display:none"></div>
+
+    <!-- Pagination -->
+    <nav class="pagination" id="pagination" aria-label="Paginação do catálogo"></nav>
+  </section>
+
+  <!-- Ad between sections -->
+  <div class="ad-before-player">
     <script async data-cfasync="false"
-      src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
-    <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
   </div>
-</div>
 
-<!-- ═══ SÉRIES RECENTES ═══ -->
-<section class="content-section">
-  <div class="section-header">
-    <h2 class="section-title">Séries em Destaque</h2>
-    <a href="catalogo.html?tipo=series" class="see-all-link">
-      Ver todas
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </a>
-  </div>
-  <div class="carousel-wrap">
-    <button class="carousel-arrow prev" id="seriePrev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="carousel-track" id="seriesTrack" aria-label="Séries em destaque">
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-    </div>
-    <button class="carousel-arrow next" id="serieNext" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-  </div>
-</section>
+</main>
 
-<!-- ═══ AD 468x60 antes do footer ═══ -->
-<div class="ad-section">
-  <div class="ad-wrap ad-468x60">
-    <script>
-      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
-    </script>
-    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
-  </div>
-</div>
-
-<!-- ═══ FOOTER ═══ -->
-<footer class="footer">
-  <div class="footer-logo">PipocaFlix</div>
-  <p class="footer-desc">O melhor catálogo de filmes e séries online. Assista quando quiser, onde quiser — experiência cinematográfica no seu dispositivo.</p>
-  <div class="ad-section" style="padding:0 0 1.5rem">
+<!-- ================================================
+     FOOTER
+================================================ -->
+<footer class="footer" role="contentinfo">
+  <div class="footer-logo">PIPOCA<span>FLIX</span></div>
+  <p class="footer-text">
+    O melhor catálogo de filmes e séries online. Assista quando quiser, onde quiser.
+    Qualidade HD e experiência cinematográfica no seu dispositivo.
+  </p>
+  <div class="ad-footer">
     <script async data-cfasync="false"
-      src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
-    <div id="container-cccc7245f0c46289c4b3a2911da39bca-footer"></div>
   </div>
   <div class="footer-bottom">
     <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
-    <span style="color:var(--red)">Feito com ❤️ para fãs de cinema</span>
+    <span>Feito com ❤️ para fãs de cinema</span>
   </div>
 </footer>
 
-<!-- Back to top -->
-<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-</button>
-
+<!-- Toast -->
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ═══ SCRIPTS ═══ -->
+<!-- ================================================
+     SCRIPTS
+================================================ -->
 <script src="../assets/js/security.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/search.js"></script>
+
 <script>
-/* ═══════════════════════════════════════════════════════
-   PIPOCAFLIX INDEX.JS
-   - Hero aleatório com carrossel automático
-   - Carrosséis de filmes e séries (horizontal)
-   - Categorias dinâmicas
-   - Busca com overlay
-   - Sem paginação na home (ver catálogo vai pra outra página)
-═══════════════════════════════════════════════════════ */
+// ═══════════════════════════════════════════════════
+//   PIPOCAFLIX — index.js (inline)
+// ═══════════════════════════════════════════════════
 
-// ── Categorias com emojis e gradientes ──
-const CAT_CONFIG = {
-  'ação':       { emoji:'⚡', gradient:'linear-gradient(135deg,#1a1a2e,#e94560)' },
-  'acao':       { emoji:'⚡', gradient:'linear-gradient(135deg,#1a1a2e,#e94560)' },
-  'romance':    { emoji:'💕', gradient:'linear-gradient(135deg,#2d1b1b,#c94b4b)' },
-  'terror':     { emoji:'👻', gradient:'linear-gradient(135deg,#0d0d0d,#3a1c71)' },
-  'horror':     { emoji:'🩸', gradient:'linear-gradient(135deg,#0d0d0d,#3a1c71)' },
-  'comédia':    { emoji:'😂', gradient:'linear-gradient(135deg,#1a2a1a,#f7971e)' },
-  'comedia':    { emoji:'😂', gradient:'linear-gradient(135deg,#1a2a1a,#f7971e)' },
-  'drama':      { emoji:'🎭', gradient:'linear-gradient(135deg,#1a1a2e,#4a4a8a)' },
-  'ficção':     { emoji:'🚀', gradient:'linear-gradient(135deg,#001a33,#0077b6)' },
-  'ficcao':     { emoji:'🚀', gradient:'linear-gradient(135deg,#001a33,#0077b6)' },
-  'animação':   { emoji:'✨', gradient:'linear-gradient(135deg,#1a0a2e,#7b2d8b)' },
-  'animacao':   { emoji:'✨', gradient:'linear-gradient(135deg,#1a0a2e,#7b2d8b)' },
-  'aventura':   { emoji:'🗺️', gradient:'linear-gradient(135deg,#1a2010,#56ab2f)' },
-  'thriller':   { emoji:'🔪', gradient:'linear-gradient(135deg,#0d0d10,#434343)' },
-  'crime':      { emoji:'🔫', gradient:'linear-gradient(135deg,#0d0d10,#434343)' },
-  'fantasia':   { emoji:'🧙', gradient:'linear-gradient(135deg,#1a0a30,#8360c3)' },
-  'documentário':{ emoji:'📽️', gradient:'linear-gradient(135deg,#101820,#2c5364)' },
-  'documentario':{ emoji:'📽️', gradient:'linear-gradient(135deg,#101820,#2c5364)' },
-  'faroeste':   { emoji:'🤠', gradient:'linear-gradient(135deg,#1a1005,#c79200)' },
-  'guerra':     { emoji:'⚔️', gradient:'linear-gradient(135deg,#0d0d0d,#5c5c5c)' },
-  'musical':    { emoji:'🎵', gradient:'linear-gradient(135deg,#0d0020,#8b0000)' },
-  'família':    { emoji:'👨‍👩‍👧', gradient:'linear-gradient(135deg,#001a20,#00b4db)' },
-  'familia':    { emoji:'👨‍👩‍👧', gradient:'linear-gradient(135deg,#001a20,#00b4db)' },
-};
-function getCatConfig(cat) {
-  const k = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  for (const key of Object.keys(CAT_CONFIG)) {
-    if (k.includes(key) || key.includes(k)) return CAT_CONFIG[key];
-  }
-  return { emoji:'🎬', gradient:'linear-gradient(135deg,#1a1a24,#ff2d43)' };
-}
+const ITEMS_PER_PAGE = 10;
+let allContent      = [];
+let filteredContent = [];
+let currentPage     = 1;
+let activeFilter    = 'todos';
 
-// ── Helpers ──
-function norm(s) {
-  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').trim();
-}
-function showToast(msg, ms=2500) {
+/* ── Toast ── */
+function showToast(msg, ms = 2500) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
+  t.textContent = msg;
+  t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), ms);
 }
 
-// ── Header scroll ──
-const header = document.getElementById('mainHeader');
+/* ── Header scroll ── */
 window.addEventListener('scroll', () => {
-  header.classList.toggle('scrolled', window.scrollY > 60);
-  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
-}, {passive:true});
-document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
 
-// ── Mobile search ──
-const mobileOverlay = document.getElementById('mobileSearchOverlay');
-const mobileInput   = document.getElementById('mobileSearchInput');
-document.getElementById('mobileSearchToggle').addEventListener('click', () => {
-  mobileOverlay.classList.add('open');
-  document.getElementById('mobileSearchToggle').setAttribute('aria-expanded','true');
-  setTimeout(() => mobileInput.focus(), 80);
-});
-document.getElementById('mobileSearchClose').addEventListener('click', () => {
-  mobileOverlay.classList.remove('open');
-  document.getElementById('searchResultsOverlay').classList.remove('active');
-  mobileInput.value = '';
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    mobileOverlay.classList.remove('open');
-    document.getElementById('searchResultsOverlay').classList.remove('active');
-    document.getElementById('desktopSearchInput').value = '';
-    mobileInput.value = '';
-  }
-});
-
-// ── Render card (carrossel) ──
-function mkCard(item) {
+/* ── Render card ── */
+function renderCard(item) {
   const div = document.createElement('div');
   div.className = 'card';
+  div.setAttribute('role', 'article');
+  div.setAttribute('aria-label', item.nome);
+  div.setAttribute('tabindex', '0');
+
   const page = item.isSerie ? 'serie.html' : 'filme.html';
+  const href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+
   div.innerHTML = `
-    <div class="card-thumb-wrap">
-      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
-        onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
-      <span class="card-badge">${item.isSerie?'Série':'Filme'}</span>
-      <div class="card-play">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      </div>
+    <img class="card-thumb" src="${item.capa || ''}"
+      alt="${item.nome}"
+      loading="lazy"
+      onerror="this.src='https://placehold.co/300x450/181818/555?text=Sem+Capa'">
+    <span class="card-type-badge">${item.isSerie ? 'Série' : 'Filme'}</span>
+    <div class="card-play-btn">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </div>
     <div class="card-info">
-      <div class="card-name">${item.nome}</div>
-      <div class="card-meta-row">
-        ${item.ano ? `<span>${item.ano}</span>`:''}
-        ${item.categoria ? `<span>· ${item.categoria.split(',')[0].trim()}</span>`:''}
+      <div class="card-title">${item.nome}</div>
+      <div class="card-meta">
+        <span>${item.ano || ''}</span>
+        ${item.categoria ? `<span>· ${item.categoria.split(',')[0].trim()}</span>` : ''}
       </div>
-    </div>`;
-  div.addEventListener('click', () => { location.href = `${page}?nome=${encodeURIComponent(item.nome)}`; });
-  div.setAttribute('role','button'); div.setAttribute('tabindex','0');
-  div.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') div.click(); });
+    </div>
+  `;
+
+  div.addEventListener('click', () => { location.href = href; });
+  div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') location.href = href; });
   return div;
 }
 
-// ── Carousel scroll helpers ──
-function setupCarouselArrows(trackId, prevId, nextId) {
-  const track = document.getElementById(trackId);
-  const prev  = document.getElementById(prevId);
-  const next  = document.getElementById(nextId);
-  if (!track||!prev||!next) return;
-  const STEP = 680;
-  prev.addEventListener('click', () => track.scrollBy({left:-STEP,behavior:'smooth'}));
-  next.addEventListener('click', () => track.scrollBy({left:STEP,behavior:'smooth'}));
+/* ── Render Grid Page ── */
+function renderGrid() {
+  const grid = document.getElementById('catalogoGrid');
+  const skeleton = document.getElementById('skeletonGrid');
+  skeleton.style.display = 'none';
+  grid.style.display = 'grid';
+
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const end   = start + ITEMS_PER_PAGE;
+  const slice = filteredContent.slice(start, end);
+
+  grid.innerHTML = '';
+  if (slice.length === 0) {
+    grid.innerHTML = '<p style="grid-column:1/-1;color:var(--text-muted);text-align:center;padding:3rem 0">Nenhum conteúdo encontrado.</p>';
+    return;
+  }
+  slice.forEach(item => grid.appendChild(renderCard(item)));
+
+  // Atualiza contador
+  document.getElementById('catalogoCount').textContent =
+    `${filteredContent.length} conteúdos · página ${currentPage} de ${Math.ceil(filteredContent.length / ITEMS_PER_PAGE)}`;
 }
 
-// ── Hero carrossel ──
-let heroItems = [];
-let heroIdx   = 0;
-let heroTimer = null;
+/* ── Render Pagination ── */
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  const total = Math.ceil(filteredContent.length / ITEMS_PER_PAGE);
+  container.innerHTML = '';
 
-function heroGoTo(idx) {
-  heroIdx = (idx + heroItems.length) % heroItems.length;
-  const item = heroItems[heroIdx];
-  const page = item.isSerie ? 'serie.html' : 'filme.html';
+  if (total <= 1) return;
 
-  // BG
-  document.getElementById('heroSlides').querySelectorAll('.hero-slide').forEach((s,i) => {
-    s.classList.toggle('active', i === heroIdx);
-    const bg = s.querySelector('.hero-slide-bg');
-    if (bg) bg.style.backgroundImage = `url(${item.capa||''})`;
-  });
-
-  // Content
-  document.getElementById('heroTitle').textContent = item.nome || '';
-  document.getElementById('heroSynopsis').textContent = item.sinopse || '';
-  document.getElementById('heroMeta').innerHTML = [
-    item.ano      ? `<span class="hero-meta-tag">📅 ${item.ano}</span>` : '',
-    item.duracao  ? `<span class="hero-meta-tag">⏱ ${item.duracao}</span>` : '',
-    item.categoria? `<span class="hero-meta-tag">🎭 ${item.categoria.split(',')[0].trim()}</span>` : '',
-    item.audio    ? `<span class="hero-meta-tag">🔊 ${item.audio}</span>` : '',
-  ].join('');
-  document.getElementById('heroWatchBtn').href = `${page}?nome=${encodeURIComponent(item.nome)}`;
-  document.getElementById('heroInfoBtn').href  = `${page}?nome=${encodeURIComponent(item.nome)}`;
-
-  // Dots
-  document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===heroIdx));
-}
-
-function heroStart() {
-  clearInterval(heroTimer);
-  heroTimer = setInterval(() => heroGoTo(heroIdx + 1), 7000);
-}
-
-function setupHero(allContent) {
-  // Pega até 10 itens COM capa, embaralhados
-  const pool = allContent.filter(c => c.capa && c.sinopse)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 10);
-
-  heroItems = pool.length > 0 ? pool : allContent.filter(c=>c.capa).slice(0,5);
-  if (heroItems.length === 0) return;
-
-  // Cria slides
-  const slidesEl = document.getElementById('heroSlides');
-  slidesEl.innerHTML = '';
-  heroItems.forEach((item, i) => {
-    const slide = document.createElement('div');
-    slide.className = 'hero-slide' + (i===0?' active':'');
-    slide.innerHTML = `<div class="hero-slide-bg" style="background-image:url('${item.capa||''}')"></div>`;
-    slidesEl.appendChild(slide);
-  });
-
-  // Dots
-  const dotsEl = document.getElementById('heroDots');
-  dotsEl.innerHTML = '';
-  heroItems.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'hero-dot' + (i===0?' active':'');
-    dot.setAttribute('role','tab');
-    dot.setAttribute('aria-label', `Slide ${i+1}`);
-    dot.addEventListener('click', () => { heroGoTo(i); heroStart(); });
-    dotsEl.appendChild(dot);
-  });
-
-  // Arrows
-  document.getElementById('heroPrev').addEventListener('click', () => { heroGoTo(heroIdx-1); heroStart(); });
-  document.getElementById('heroNext').addEventListener('click', () => { heroGoTo(heroIdx+1); heroStart(); });
-
-  heroGoTo(0);
-  heroStart();
-}
-
-// ── Categorias ──
-function setupCategories(allContent) {
-  const catMap = {};
-  allContent.forEach(item => {
-    if (!item.categoria) return;
-    item.categoria.split(',').forEach(c => {
-      const k = c.trim();
-      if (!k) return;
-      if (!catMap[k]) catMap[k] = 0;
-      catMap[k]++;
+  function mkBtn(label, page, disabled, active) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (active ? ' active' : '');
+    btn.textContent = label;
+    btn.disabled = disabled;
+    btn.setAttribute('aria-label', `Página ${page}`);
+    if (active) btn.setAttribute('aria-current', 'page');
+    btn.addEventListener('click', () => {
+      currentPage = page;
+      renderGrid();
+      renderPagination();
+      // Scroll suave para o topo da seção
+      document.getElementById('catalogoSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+    return btn;
+  }
+
+  // Prev
+  container.appendChild(mkBtn('‹', currentPage - 1, currentPage === 1, false));
+
+  // Página info
+  const info = document.createElement('span');
+  info.className = 'page-info';
+  info.textContent = `${currentPage} / ${total}`;
+  info.setAttribute('aria-live', 'polite');
+  container.appendChild(info);
+
+  // Pages (show up to 5 pages around current)
+  let start = Math.max(1, currentPage - 2);
+  let end   = Math.min(total, start + 4);
+  start = Math.max(1, end - 4);
+
+  if (start > 1) container.appendChild(mkBtn('1', 1, false, false));
+  if (start > 2) {
+    const dots = document.createElement('span');
+    dots.className = 'page-info'; dots.textContent = '…';
+    container.appendChild(dots);
+  }
+
+  for (let i = start; i <= end; i++) {
+    container.appendChild(mkBtn(i, i, false, i === currentPage));
+  }
+
+  if (end < total - 1) {
+    const dots = document.createElement('span');
+    dots.className = 'page-info'; dots.textContent = '…';
+    container.appendChild(dots);
+  }
+  if (end < total) container.appendChild(mkBtn(total, total, false, false));
+
+  // Next
+  container.appendChild(mkBtn('›', currentPage + 1, currentPage === total, false));
+}
+
+/* ── Apply filter ── */
+function applyFilter(filter) {
+  activeFilter = filter;
+  currentPage = 1;
+
+  if (filter === 'filmes')  filteredContent = allContent.filter(c => !c.isSerie);
+  else if (filter === 'series') filteredContent = allContent.filter(c => c.isSerie);
+  else filteredContent = [...allContent];
+
+  renderGrid();
+  renderPagination();
+}
+
+/* ── Build category buttons ── */
+function buildCategoryFilters() {
+  const categories = new Set();
+  allContent.forEach(c => {
+    if (c.categoria) c.categoria.split(',').forEach(cat => categories.add(cat.trim()));
   });
 
-  const cats = Object.entries(catMap)
-    .sort((a,b) => b[1]-a[1])
-    .slice(0, 16);
-
-  const scroll = document.getElementById('catScroll');
-  scroll.innerHTML = '';
-  cats.forEach(([cat, count]) => {
-    const cfg = getCatConfig(cat);
-    const div = document.createElement('div');
-    div.className = 'cat-card';
-    div.innerHTML = `
-      <div class="cat-card-bg" style="background:${cfg.gradient}">${cfg.emoji}</div>
-      <div class="cat-card-overlay">
-        <div class="cat-card-name">${cat}</div>
-        <div class="cat-card-count">${count} títulos</div>
-      </div>`;
-    div.setAttribute('role','button');
-    div.setAttribute('tabindex','0');
-    div.setAttribute('aria-label',`Ver categoria ${cat}`);
-    div.addEventListener('click', () => {
-      location.href = `catalogo.html?cat=${encodeURIComponent(cat)}`;
+  const container = document.getElementById('categoryFilters');
+  // Adiciona categorias dinâmicas após os 3 buttons fixos
+  Array.from(categories).slice(0, 8).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.filter = cat;
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = cat;
+      currentPage  = 1;
+      filteredContent = allContent.filter(c =>
+        c.categoria && c.categoria.toLowerCase().includes(cat.toLowerCase())
+      );
+      renderGrid();
+      renderPagination();
     });
-    div.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') div.click(); });
-    scroll.appendChild(div);
+    container.appendChild(btn);
   });
+
+  // Eventos dos buttons fixos
+  container.querySelectorAll('[data-filter="todos"],[data-filter="filmes"],[data-filter="series"]')
+    .forEach(btn => {
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyFilter(btn.dataset.filter);
+      });
+    });
 }
 
-// ── Render carousel track ──
-function fillTrack(trackId, items, max=20) {
-  const track = document.getElementById(trackId);
-  track.innerHTML = '';
-  items.slice(0, max).forEach(item => track.appendChild(mkCard(item)));
+/* ── Hero ── */
+function setupHero(items) {
+  const featured = items.find(c => c.capa) || items[0];
+  if (!featured) return;
+
+  const heroBg = document.getElementById('heroBg');
+  heroBg.style.backgroundImage = `url(${featured.capa})`;
+
+  document.getElementById('heroTitle').textContent = featured.nome;
+  document.getElementById('heroSynopsis').textContent = featured.sinopse || 'Sem sinopse disponível.';
+
+  const meta = document.getElementById('heroMeta');
+  meta.innerHTML = `
+    ${featured.ano ? `<span>📅 ${featured.ano}</span>` : ''}
+    ${featured.duracao ? `<span>⏱ ${featured.duracao}</span>` : ''}
+    ${featured.categoria ? `<span>🎭 ${featured.categoria.split(',')[0].trim()}</span>` : ''}
+    ${featured.audio ? `<span>🔊 ${featured.audio}</span>` : ''}
+  `;
+
+  const page = featured.isSerie ? 'serie.html' : 'filme.html';
+  document.getElementById('heroWatchBtn').href = `${page}?nome=${encodeURIComponent(featured.nome)}`;
+  document.getElementById('heroInfoBtn').addEventListener('click', () => {
+    location.href = `${page}?nome=${encodeURIComponent(featured.nome)}`;
+  });
+
+  // Rotaciona hero a cada 8s
+  let idx = 0;
+  const pool = items.filter(c => c.capa).slice(0, 12);
+  if (pool.length > 1) {
+    setInterval(() => {
+      idx = (idx + 1) % pool.length;
+      const it = pool[idx];
+      heroBg.style.backgroundImage = `url(${it.capa})`;
+      document.getElementById('heroTitle').textContent = it.nome;
+      document.getElementById('heroSynopsis').textContent = it.sinopse || '';
+      const p = it.isSerie ? 'serie.html' : 'filme.html';
+      document.getElementById('heroWatchBtn').href = `${p}?nome=${encodeURIComponent(it.nome)}`;
+    }, 8000);
+  }
 }
 
-// ── Search ──
-function setupSearch(allContent) {
-  PipocaSearch.indexContent(allContent);
-
+/* ── SEARCH ── */
+function setupSearch() {
+  const desktopInput  = document.getElementById('desktopSearchInput');
+  const mobileInput   = document.getElementById('mobileSearchInput');
   const resultsOverlay = document.getElementById('searchResultsOverlay');
-  const resultsGrid    = document.getElementById('searchResultsGrid');
-  const queryLabel     = document.getElementById('searchQueryLabel');
-  const noResults      = document.getElementById('searchNoResults');
+  const resultsGrid   = document.getElementById('searchResultsGrid');
+  const noResults     = document.getElementById('noResults');
+  const queryLabel    = document.getElementById('searchQueryLabel');
 
-  function doSearch(q) {
-    if (!q || q.trim().length < 2) {
+  const mobileToggle  = document.getElementById('mobileSearchToggle');
+  const mobileOverlay = document.getElementById('mobileSearchOverlay');
+  const mobileClose   = document.getElementById('mobileSearchClose');
+
+  function doSearch(query) {
+    if (!query || query.trim().length < 2) {
       resultsOverlay.classList.remove('active');
       return;
     }
-    const res = PipocaSearch.search(q, 30);
-    queryLabel.textContent = q;
+    const results = PipocaSearch.search(query, 24);
+    queryLabel.textContent = `"${query}"`;
     resultsGrid.innerHTML  = '';
-    noResults.style.display = res.length === 0 ? 'block' : 'none';
-    res.forEach(item => resultsGrid.appendChild(mkCard(item)));
+    noResults.style.display = results.length === 0 ? 'block' : 'none';
+    results.forEach(item => resultsGrid.appendChild(renderCard(item)));
     resultsOverlay.classList.add('active');
   }
 
-  const deb = PipocaSearch.debounce(doSearch, 250);
-  document.getElementById('desktopSearchInput').addEventListener('input', e => deb(e.target.value));
-  mobileInput.addEventListener('input', e => deb(e.target.value));
+  const debouncedSearch = PipocaSearch.debounce(doSearch, 280);
+
+  desktopInput.addEventListener('input', e => debouncedSearch(e.target.value));
+  mobileInput.addEventListener('input',  e => debouncedSearch(e.target.value));
+
+  // Fecha ao pressionar Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      resultsOverlay.classList.remove('active');
+      desktopInput.value = '';
+      mobileInput.value  = '';
+      mobileOverlay.classList.remove('open');
+      document.getElementById('mobileSearchToggle').setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Mobile toggle
+  mobileToggle.addEventListener('click', () => {
+    mobileOverlay.classList.add('open');
+    mobileToggle.setAttribute('aria-expanded', 'true');
+    setTimeout(() => mobileInput.focus(), 100);
+  });
+  mobileClose.addEventListener('click', () => {
+    mobileOverlay.classList.remove('open');
+    mobileToggle.setAttribute('aria-expanded', 'false');
+    resultsOverlay.classList.remove('active');
+    mobileInput.value = '';
+  });
+
+  // Fecha overlay ao clicar fora
   resultsOverlay.addEventListener('click', e => {
     if (e.target === resultsOverlay) {
       resultsOverlay.classList.remove('active');
-      document.getElementById('desktopSearchInput').value = '';
-      mobileInput.value = '';
+      desktopInput.value = '';
+      mobileInput.value  = '';
     }
   });
 }
 
-// ── INIT ──
+/* ── INIT ── */
 async function init() {
   try {
+    // Carrega todos os conteúdos em paralelo
     const [filmes, series] = await Promise.all([
       PipocaAPI.getFilmes(),
       PipocaAPI.getSeries()
     ]);
-    const allContent = [...filmes, ...series];
 
-    // Hero aleatório
+    allContent      = [...filmes, ...series];
+    filteredContent = [...allContent];
+
+    // Indexa para busca
+    PipocaSearch.indexContent(allContent);
+
+    // Hero
     setupHero(allContent);
 
-    // Categorias
-    setupCategories(allContent);
+    // Filtros dinâmicos
+    buildCategoryFilters();
 
-    // Filmes carrossel (embaralhado para variar)
-    const filmesShuffled = [...filmes].sort(() => Math.random() - 0.5);
-    fillTrack('filmesTrack', filmesShuffled, 24);
-    setupCarouselArrows('filmesTrack','filmePrev','filmeNext');
+    // Renderiza primeira página
+    renderGrid();
+    renderPagination();
 
-    // Séries carrossel
-    const seriesShuffled = [...series].sort(() => Math.random() - 0.5);
-    fillTrack('seriesTrack', seriesShuffled, 24);
-    setupCarouselArrows('seriesTrack','seriePrev','serieNext');
+    // Busca
+    setupSearch();
 
-    // Search
-    setupSearch(allContent);
-
-  } catch(err) {
-    console.error('[PipocaFlix]', err);
-    showToast('⚠️ Erro ao carregar conteúdo. Verifique sua conexão.');
+  } catch (err) {
+    console.error('[PipocaFlix] Erro ao carregar:', err);
+    document.getElementById('skeletonGrid').style.display = 'none';
+    document.getElementById('catalogoGrid').style.display = 'grid';
+    document.getElementById('catalogoGrid').innerHTML =
+      '<p style="grid-column:1/-1;color:var(--text-muted);text-align:center;padding:3rem 0">⚠️ Erro ao carregar conteúdo. Tente novamente em instantes.</p>';
   }
 }
 
