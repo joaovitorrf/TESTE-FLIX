@@ -19,7 +19,7 @@ const ROUTES = {
   EPISODIOS: "/episodios"
 };
 
-const SMARTLINK = "https://omg10.com/4/10670410";
+const SMARTLINK = "https://www.effectivegatecpm.com/eacwhk55f?key=87f8fc919fb5d70a825293b5490713dd";
 
 // Cache em memória para evitar fetches repetidos durante a sessão
 const _cache = {};
