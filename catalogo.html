@@ -7,6 +7,7 @@
 <meta name="description" content="Catálogo completo de filmes e séries no PipocaFlix.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
 </head>
 <body>
 
@@ -59,6 +60,14 @@
 </div>
 
 <!-- Ad 468x60 -->
+<div class="ad-section" style="padding-top:0.5rem;padding-bottom:0">
+  <div class="ad-wrap ad-468x60">
+    <script>
+      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
+    </script>
+    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
+  </div>
+</div>
 
 <!-- Filtros rápidos de tipo -->
 <div style="padding: 1.25rem clamp(1rem,5vw,3.5rem) 0;display:flex;gap:0.5rem;flex-wrap:wrap" id="typeFilters">
@@ -69,6 +78,16 @@
 
 <!-- Layout com sidebar -->
 <div class="content-with-sidebar" style="padding: 1.25rem clamp(1rem,5vw,3.5rem) 2rem">
+
+  <!-- Sidebar ads - desktop only -->
+  <aside class="sidebar-ads">
+    <div class="ad-wrap ad-160x600">
+      <script>
+        atOptions = { 'key':'73e2e39f6288659099e0bda2dbb7fc69','format':'iframe','height':600,'width':160,'params':{} };
+      </script>
+      <script src="https://www.highperformanceformat.com/73e2e39f6288659099e0bda2dbb7fc69/invoke.js"></script>
+    </div>
+  </aside>
 
   <!-- Main content -->
   <div class="content-main">
@@ -85,7 +104,14 @@
     <div class="cards-grid" id="catalogoGrid" style="display:none"></div>
 
     <!-- Ad entre páginas -->
-    
+    <div class="ad-section" style="padding-left:0;padding-right:0" id="midAd" style="display:none">
+      <div class="ad-wrap ad-300x250">
+        <script>
+          atOptions = { 'key':'cc3696d612a9f3e92f49193e4b3418e6','format':'iframe','height':250,'width':300,'params':{} };
+        </script>
+        <script src="https://www.highperformanceformat.com/cc3696d612a9f3e92f49193e4b3418e6/invoke.js"></script>
+      </div>
+    </div>
 
     <!-- Paginação -->
     <nav class="pagination" id="pagination" aria-label="Paginação"></nav>
@@ -174,7 +200,7 @@ function renderPage() {
   const skeleton= document.getElementById('skeletonGrid');
   skeleton.style.display = 'none';
   grid.style.display     = 'grid';
-  
+  document.getElementById('midAd').style.display = '';
 
   const start = (currentPage-1)*PER_PAGE;
   const slice = filtered.slice(start, start+PER_PAGE);
