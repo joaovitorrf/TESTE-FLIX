@@ -4,48 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PipocaFlix — Filmes e Séries Online</title>
-<meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo, HD, sem travamentos.">
-<meta name="theme-color" content="#e50914">
+<meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo em HD.">
+<meta name="theme-color" content="#ff2d43">
 <link rel="stylesheet" href="../assets/css/style.css">
 
-<!-- Social Bar Monetização -->
+<!-- Social Bar -->
 <script src="https://pl28456424.effectivegatecpm.com/af/b2/ae/afb2aeef36a1a40f4d3634823ebf0f59.js"></script>
 </head>
 <body>
 
-<!-- ================================================
-     MOBILE SEARCH OVERLAY
-================================================ -->
+<!-- ═══ MOBILE SEARCH OVERLAY ═══ -->
 <div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog" aria-label="Busca">
-  <svg style="flex-shrink:0;color:var(--red)" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
     <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
   </svg>
   <input type="search" class="mobile-search-input" id="mobileSearchInput"
-    placeholder="Buscar filmes, séries..." autocomplete="off" autocorrect="off" spellcheck="false">
-  <button class="mobile-search-close" id="mobileSearchClose" aria-label="Fechar busca">Cancelar</button>
+    placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
 </div>
 
-<!-- ================================================
-     HEADER
-================================================ -->
+<!-- ═══ HEADER ═══ -->
 <header class="header" id="mainHeader">
-  <a href="index.html" class="logo">PIPOCA<span>FLIX</span></a>
-
-  <nav class="nav" aria-label="Navegação principal">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home">PipocaFlix</a>
+  <nav class="nav" aria-label="Navegação">
     <a href="index.html" class="active">Início</a>
-    <a href="#filmes">Filmes</a>
-    <a href="#series">Séries</a>
+    <a href="catalogo.html">Catálogo</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
   </nav>
-
-  <div class="search-wrapper" id="desktopSearchWrapper">
+  <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
     <input type="search" class="search-bar" id="desktopSearchInput"
-      placeholder="Buscar filmes e séries..." autocomplete="off" autocorrect="off" spellcheck="false"
-      aria-label="Buscar conteúdo">
+      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
   </div>
-
   <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -53,633 +46,490 @@
   </button>
 </header>
 
-<!-- ================================================
-     SEARCH RESULTS OVERLAY
-================================================ -->
-<div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados da busca">
-  <p class="search-results-title">Resultados para: <span id="searchQueryLabel"></span></p>
+<!-- ═══ SEARCH RESULTS ═══ -->
+<div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
   <div class="cards-grid" id="searchResultsGrid"></div>
-  <p id="noResults" style="display:none;color:var(--text-muted);text-align:center;padding:2rem 0">
+  <p id="searchNoResults" style="display:none;color:var(--text-3);text-align:center;padding:3rem 0">
     Nenhum resultado encontrado. Tente outra busca.
   </p>
 </div>
 
-<!-- ================================================
-     HERO
-================================================ -->
-<section class="hero" id="hero" aria-label="Destaque">
-  <div class="hero-bg" id="heroBg"></div>
-  <div class="hero-content" id="heroContent">
+<!-- ═══ HERO CARROSSEL ═══ -->
+<section class="hero" id="hero" aria-label="Destaques">
+  <div class="hero-slides" id="heroSlides">
+    <!-- Slides injetados por JS -->
+    <div class="hero-slide active">
+      <div class="hero-slide-bg" style="background:linear-gradient(135deg,#0c0c10,#1a1a24)"></div>
+    </div>
+  </div>
+
+  <!-- Content para cada slide (único, atualizado por JS) -->
+  <div class="hero-content" id="heroContent" aria-live="polite">
     <div class="hero-badge">🔥 Em Destaque</div>
     <h1 class="hero-title" id="heroTitle">Carregando...</h1>
     <div class="hero-meta" id="heroMeta"></div>
     <p class="hero-synopsis" id="heroSynopsis"></p>
-    <div class="hero-buttons">
-      <a id="heroWatchBtn" href="#" class="btn-primary">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    <div class="hero-btns">
+      <a href="#" id="heroWatchBtn" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         Assistir Agora
       </a>
-      <button class="btn-secondary" id="heroInfoBtn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-        Mais Informações
-      </button>
+      <a href="#" id="heroInfoBtn" class="btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Mais Infos
+      </a>
     </div>
+  </div>
+
+  <!-- Navegação do hero -->
+  <div class="hero-arrows" role="group" aria-label="Navegar destaques">
+    <button class="hero-arrow" id="heroPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="hero-arrow" id="heroNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="hero-dots" id="heroDots" role="tablist"></div>
+</section>
+
+<!-- ═══ AD 468x60 ═══ -->
+<div class="ad-section" style="padding-top:1.5rem;padding-bottom:0">
+  <div class="ad-wrap ad-468x60">
+    <script>
+      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
+    </script>
+    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
+  </div>
+</div>
+
+<!-- ═══ CATEGORIAS ═══ -->
+<section class="categories-section">
+  <div class="section-header">
+    <h2 class="section-title">Explorar Categorias</h2>
+  </div>
+  <div class="cat-scroll-wrap">
+    <div class="cat-scroll" id="catScroll"></div>
   </div>
 </section>
 
-<!-- ================================================
-     MAIN CONTENT
-================================================ -->
-<main class="main-content" role="main">
-
-  <!-- ═══════════════════════════════
-       SEÇÃO: MAIS RECENTES
-  ═══════════════════════════════ -->
-  <section class="section" id="recentes">
-    <div class="section-header">
-      <h2 class="section-title">🕐 Mais Recentes</h2>
-      <span id="recentesCount" style="color:var(--text-muted);font-size:0.82rem"></span>
-    </div>
-
-    <!-- Skeleton -->
-    <div class="skeleton-row" id="recentesSkeleton">
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-    </div>
-
-    <!-- Grid -->
-    <div class="cards-grid" id="recentesGrid" style="display:none"></div>
-
-    <!-- Carregar mais -->
-    <button class="load-more-btn hidden" id="recentesLoadMore">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-      Carregar mais
+<!-- ═══ FILMES RECENTES ═══ -->
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">Filmes Recentes</h2>
+    <a href="catalogo.html?tipo=filmes" class="see-all-link">
+      Ver todos
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="filmePrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-  </section>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════
-       SEÇÃO: FILMES
-  ═══════════════════════════════ -->
-  <section class="section" id="filmes">
-    <div class="section-header">
-      <h2 class="section-title">🎬 Filmes</h2>
-      <button class="section-link" id="filmesVerTudo" aria-expanded="false">
-        Ver catálogo completo
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
-      </button>
-    </div>
-
     <!-- Skeleton -->
-    <div class="skeleton-row" id="filmesSkeleton">
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
+    <div class="carousel-track" id="filmesTrack" aria-label="Filmes recentes">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
     </div>
+    <button class="carousel-arrow next" id="filmeNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
 
-    <!-- Preview: 15 aleatórios -->
-    <div class="cards-grid" id="filmesPreviewGrid" style="display:none"></div>
-
-    <!-- Catálogo completo (expandível) -->
-    <div class="catalogo-full" id="filmesCatalogo">
-      <div class="section-header" style="margin-top:1.5rem">
-        <span id="filmesCount" style="color:var(--text-muted);font-size:0.82rem"></span>
-      </div>
-      <div class="cards-grid" id="filmesFullGrid"></div>
-      <nav class="pagination" id="filmesPagination" aria-label="Paginação de filmes"></nav>
-    </div>
-  </section>
-
-  <div class="section-divider"></div>
-
-  <!-- ═══════════════════════════════
-       SEÇÃO: SÉRIES
-  ═══════════════════════════════ -->
-  <section class="section" id="series">
-    <div class="section-header">
-      <h2 class="section-title">📺 Séries</h2>
-      <button class="section-link" id="seriesVerTudo" aria-expanded="false">
-        Ver catálogo completo
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Skeleton -->
-    <div class="skeleton-row" id="seriesSkeleton">
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-      <div class="skeleton"></div><div class="skeleton"></div>
-    </div>
-
-    <!-- Preview: 15 aleatórios -->
-    <div class="cards-grid" id="seriesPreviewGrid" style="display:none"></div>
-
-    <!-- Catálogo completo (expandível) -->
-    <div class="catalogo-full" id="seriesCatalogo">
-      <div class="section-header" style="margin-top:1.5rem">
-        <span id="seriesCount" style="color:var(--text-muted);font-size:0.82rem"></span>
-      </div>
-      <div class="cards-grid" id="seriesFullGrid"></div>
-      <nav class="pagination" id="seriesPagination" aria-label="Paginação de séries"></nav>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════
-       AD NATIVE — após todas as seções
-  ═══════════════════════════════ -->
-  <div class="ad-native-bottom">
+<!-- ═══ AD 300x250 entre seções ═══ -->
+<div class="ad-section">
+  <div class="ad-wrap ad-300x250">
+    <script>
+      atOptions = { 'key':'cc3696d612a9f3e92f49193e4b3418e6','format':'iframe','height':250,'width':300,'params':{} };
+    </script>
+    <script src="https://www.highperformanceformat.com/cc3696d612a9f3e92f49193e4b3418e6/invoke.js"></script>
+  </div>
+  <!-- Native Banner -->
+  <div style="flex:1;max-width:468px">
     <script async data-cfasync="false"
       src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
     <div id="container-cccc7245f0c46289c4b3a2911da39bca"></div>
   </div>
+</div>
 
-</main>
+<!-- ═══ SÉRIES RECENTES ═══ -->
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">Séries em Destaque</h2>
+    <a href="catalogo.html?tipo=series" class="see-all-link">
+      Ver todas
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="seriePrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="seriesTrack" aria-label="Séries em destaque">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+    </div>
+    <button class="carousel-arrow next" id="serieNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
 
-<!-- ================================================
-     FOOTER
-================================================ -->
-<footer class="footer" role="contentinfo">
-  <div class="footer-logo">PIPOCA<span>FLIX</span></div>
-  <p class="footer-text">
-    O melhor catálogo de filmes e séries online. Assista quando quiser, onde quiser.
-    Qualidade HD e experiência cinematográfica no seu dispositivo.
-  </p>
-  <div class="ad-footer">
+<!-- ═══ AD 468x60 antes do footer ═══ -->
+<div class="ad-section">
+  <div class="ad-wrap ad-468x60">
+    <script>
+      atOptions = { 'key':'c7b645a0a4ac7dc79a9417f5852ebe16','format':'iframe','height':60,'width':468,'params':{} };
+    </script>
+    <script src="https://www.highperformanceformat.com/c7b645a0a4ac7dc79a9417f5852ebe16/invoke.js"></script>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="footer-logo">PipocaFlix</div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online. Assista quando quiser, onde quiser — experiência cinematográfica no seu dispositivo.</p>
+  <div class="ad-section" style="padding:0 0 1.5rem">
     <script async data-cfasync="false"
       src="https://pl28456427.effectivegatecpm.com/cccc7245f0c46289c4b3a2911da39bca/invoke.js"></script>
     <div id="container-cccc7245f0c46289c4b3a2911da39bca-footer"></div>
   </div>
   <div class="footer-bottom">
     <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
-    <span>Feito com ❤️ para fãs de cinema</span>
+    <span style="color:var(--red)">Feito com ❤️ para fãs de cinema</span>
   </div>
 </footer>
 
-<!-- Toast -->
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<!-- ================================================
-     SCRIPTS
-================================================ -->
+<!-- ═══ SCRIPTS ═══ -->
 <script src="../assets/js/security.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/search.js"></script>
-
 <script>
-// ═══════════════════════════════════════════════════════════════
-//   PIPOCAFLIX v2 — index.js (inline)
-//   Arquitetura: fetch único + memória separada + render lazy
-// ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
+   PIPOCAFLIX INDEX.JS
+   - Hero aleatório com carrossel automático
+   - Carrosséis de filmes e séries (horizontal)
+   - Categorias dinâmicas
+   - Busca com overlay
+   - Sem paginação na home (ver catálogo vai pra outra página)
+═══════════════════════════════════════════════════════ */
 
-// ─── Estado global ───────────────────────────────────────────
-const STATE = {
-  allFilmes:  [],
-  allSeries:  [],
-  allContent: [],
-
-  // Recentes
-  recentesPage: 0,
-  recentesPerPage: 15,
-
-  // Filmes catálogo completo
-  filmesPage: 1,
-  filmesPerPage: 15,
-  filmesOpen: false,
-
-  // Séries catálogo completo
-  seriesPage: 1,
-  seriesPerPage: 15,
-  seriesOpen: false,
-
-  // Hero rotação
-  heroIdx: 0,
-  heroPool: [],
-  heroTimer: null
+// ── Categorias com emojis e gradientes ──
+const CAT_CONFIG = {
+  'ação':       { emoji:'⚡', gradient:'linear-gradient(135deg,#1a1a2e,#e94560)' },
+  'acao':       { emoji:'⚡', gradient:'linear-gradient(135deg,#1a1a2e,#e94560)' },
+  'romance':    { emoji:'💕', gradient:'linear-gradient(135deg,#2d1b1b,#c94b4b)' },
+  'terror':     { emoji:'👻', gradient:'linear-gradient(135deg,#0d0d0d,#3a1c71)' },
+  'horror':     { emoji:'🩸', gradient:'linear-gradient(135deg,#0d0d0d,#3a1c71)' },
+  'comédia':    { emoji:'😂', gradient:'linear-gradient(135deg,#1a2a1a,#f7971e)' },
+  'comedia':    { emoji:'😂', gradient:'linear-gradient(135deg,#1a2a1a,#f7971e)' },
+  'drama':      { emoji:'🎭', gradient:'linear-gradient(135deg,#1a1a2e,#4a4a8a)' },
+  'ficção':     { emoji:'🚀', gradient:'linear-gradient(135deg,#001a33,#0077b6)' },
+  'ficcao':     { emoji:'🚀', gradient:'linear-gradient(135deg,#001a33,#0077b6)' },
+  'animação':   { emoji:'✨', gradient:'linear-gradient(135deg,#1a0a2e,#7b2d8b)' },
+  'animacao':   { emoji:'✨', gradient:'linear-gradient(135deg,#1a0a2e,#7b2d8b)' },
+  'aventura':   { emoji:'🗺️', gradient:'linear-gradient(135deg,#1a2010,#56ab2f)' },
+  'thriller':   { emoji:'🔪', gradient:'linear-gradient(135deg,#0d0d10,#434343)' },
+  'crime':      { emoji:'🔫', gradient:'linear-gradient(135deg,#0d0d10,#434343)' },
+  'fantasia':   { emoji:'🧙', gradient:'linear-gradient(135deg,#1a0a30,#8360c3)' },
+  'documentário':{ emoji:'📽️', gradient:'linear-gradient(135deg,#101820,#2c5364)' },
+  'documentario':{ emoji:'📽️', gradient:'linear-gradient(135deg,#101820,#2c5364)' },
+  'faroeste':   { emoji:'🤠', gradient:'linear-gradient(135deg,#1a1005,#c79200)' },
+  'guerra':     { emoji:'⚔️', gradient:'linear-gradient(135deg,#0d0d0d,#5c5c5c)' },
+  'musical':    { emoji:'🎵', gradient:'linear-gradient(135deg,#0d0020,#8b0000)' },
+  'família':    { emoji:'👨‍👩‍👧', gradient:'linear-gradient(135deg,#001a20,#00b4db)' },
+  'familia':    { emoji:'👨‍👩‍👧', gradient:'linear-gradient(135deg,#001a20,#00b4db)' },
 };
+function getCatConfig(cat) {
+  const k = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for (const key of Object.keys(CAT_CONFIG)) {
+    if (k.includes(key) || key.includes(k)) return CAT_CONFIG[key];
+  }
+  return { emoji:'🎬', gradient:'linear-gradient(135deg,#1a1a24,#ff2d43)' };
+}
 
-// ─── Utilidades ──────────────────────────────────────────────
-
-function showToast(msg, ms = 2500) {
+// ── Helpers ──
+function norm(s) {
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').trim();
+}
+function showToast(msg, ms=2500) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), ms);
 }
 
-/** Fisher-Yates shuffle imutável */
-function shuffled(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+// ── Header scroll ──
+const header = document.getElementById('mainHeader');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 60);
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+}, {passive:true});
+document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+
+// ── Mobile search ──
+const mobileOverlay = document.getElementById('mobileSearchOverlay');
+const mobileInput   = document.getElementById('mobileSearchInput');
+document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+  mobileOverlay.classList.add('open');
+  document.getElementById('mobileSearchToggle').setAttribute('aria-expanded','true');
+  setTimeout(() => mobileInput.focus(), 80);
+});
+document.getElementById('mobileSearchClose').addEventListener('click', () => {
+  mobileOverlay.classList.remove('open');
+  document.getElementById('searchResultsOverlay').classList.remove('active');
+  mobileInput.value = '';
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    mobileOverlay.classList.remove('open');
+    document.getElementById('searchResultsOverlay').classList.remove('active');
+    document.getElementById('desktopSearchInput').value = '';
+    mobileInput.value = '';
   }
-  return a;
-}
+});
 
-// ─── Render Card ─────────────────────────────────────────────
-function renderCard(item) {
-  const div  = document.createElement('div');
+// ── Render card (carrossel) ──
+function mkCard(item) {
+  const div = document.createElement('div');
   div.className = 'card';
-  div.setAttribute('role', 'article');
-  div.setAttribute('aria-label', item.nome);
-  div.setAttribute('tabindex', '0');
-
   const page = item.isSerie ? 'serie.html' : 'filme.html';
-  const href = `${page}?nome=${encodeURIComponent(item.nome)}`;
-
   div.innerHTML = `
-    <img class="card-thumb"
-      src="${item.capa || ''}"
-      alt="${item.nome}"
-      loading="lazy"
-      onerror="this.src='https://placehold.co/300x450/181818/555?text=Sem+Capa'">
-    <span class="card-type-badge">${item.isSerie ? 'Série' : 'Filme'}</span>
-    <div class="card-play-btn">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </div>
-    <div class="card-info">
-      <div class="card-title">${item.nome}</div>
-      <div class="card-meta">
-        <span>${item.ano || ''}</span>
-        ${item.categoria ? `<span>· ${item.categoria.split(',')[0].trim()}</span>` : ''}
+    <div class="card-thumb-wrap">
+      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+        onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
+      <span class="card-badge">${item.isSerie?'Série':'Filme'}</span>
+      <div class="card-play">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </div>
     </div>
-  `;
-
-  const go = () => { location.href = href; };
-  div.addEventListener('click', go);
-  div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') go(); });
+    <div class="card-info">
+      <div class="card-name">${item.nome}</div>
+      <div class="card-meta-row">
+        ${item.ano ? `<span>${item.ano}</span>`:''}
+        ${item.categoria ? `<span>· ${item.categoria.split(',')[0].trim()}</span>`:''}
+      </div>
+    </div>`;
+  div.addEventListener('click', () => { location.href = `${page}?nome=${encodeURIComponent(item.nome)}`; });
+  div.setAttribute('role','button'); div.setAttribute('tabindex','0');
+  div.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') div.click(); });
   return div;
 }
 
-/** Renderiza array de items em um grid usando DocumentFragment */
-function fillGrid(gridEl, items) {
-  const frag = document.createDocumentFragment();
-  items.forEach(item => frag.appendChild(renderCard(item)));
-  gridEl.innerHTML = '';
-  gridEl.appendChild(frag);
+// ── Carousel scroll helpers ──
+function setupCarouselArrows(trackId, prevId, nextId) {
+  const track = document.getElementById(trackId);
+  const prev  = document.getElementById(prevId);
+  const next  = document.getElementById(nextId);
+  if (!track||!prev||!next) return;
+  const STEP = 680;
+  prev.addEventListener('click', () => track.scrollBy({left:-STEP,behavior:'smooth'}));
+  next.addEventListener('click', () => track.scrollBy({left:STEP,behavior:'smooth'}));
 }
 
-// ─── Paginação genérica ───────────────────────────────────────
-function buildPagination(containerId, total, perPage, current, onPageChange) {
-  const container = document.getElementById(containerId);
-  const pages = Math.ceil(total / perPage);
-  container.innerHTML = '';
-  if (pages <= 1) return;
+// ── Hero carrossel ──
+let heroItems = [];
+let heroIdx   = 0;
+let heroTimer = null;
 
-  const mk = (label, page, disabled, active) => {
-    const btn = document.createElement('button');
-    btn.className = 'page-btn' + (active ? ' active' : '');
-    btn.textContent = label;
-    btn.disabled = disabled;
-    if (active) btn.setAttribute('aria-current', 'page');
-    btn.addEventListener('click', () => onPageChange(page));
-    return btn;
-  };
+function heroGoTo(idx) {
+  heroIdx = (idx + heroItems.length) % heroItems.length;
+  const item = heroItems[heroIdx];
+  const page = item.isSerie ? 'serie.html' : 'filme.html';
 
-  container.appendChild(mk('‹', current - 1, current === 1, false));
+  // BG
+  document.getElementById('heroSlides').querySelectorAll('.hero-slide').forEach((s,i) => {
+    s.classList.toggle('active', i === heroIdx);
+    const bg = s.querySelector('.hero-slide-bg');
+    if (bg) bg.style.backgroundImage = `url(${item.capa||''})`;
+  });
 
-  const info = document.createElement('span');
-  info.className = 'page-info';
-  info.textContent = `${current} / ${pages}`;
-  container.appendChild(info);
+  // Content
+  document.getElementById('heroTitle').textContent = item.nome || '';
+  document.getElementById('heroSynopsis').textContent = item.sinopse || '';
+  document.getElementById('heroMeta').innerHTML = [
+    item.ano      ? `<span class="hero-meta-tag">📅 ${item.ano}</span>` : '',
+    item.duracao  ? `<span class="hero-meta-tag">⏱ ${item.duracao}</span>` : '',
+    item.categoria? `<span class="hero-meta-tag">🎭 ${item.categoria.split(',')[0].trim()}</span>` : '',
+    item.audio    ? `<span class="hero-meta-tag">🔊 ${item.audio}</span>` : '',
+  ].join('');
+  document.getElementById('heroWatchBtn').href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+  document.getElementById('heroInfoBtn').href  = `${page}?nome=${encodeURIComponent(item.nome)}`;
 
-  let s = Math.max(1, current - 2);
-  let e = Math.min(pages, s + 4);
-  s = Math.max(1, e - 4);
-
-  if (s > 1) container.appendChild(mk('1', 1, false, false));
-  if (s > 2) { const d = document.createElement('span'); d.className = 'page-info'; d.textContent = '…'; container.appendChild(d); }
-
-  for (let i = s; i <= e; i++) container.appendChild(mk(i, i, false, i === current));
-
-  if (e < pages - 1) { const d = document.createElement('span'); d.className = 'page-info'; d.textContent = '…'; container.appendChild(d); }
-  if (e < pages) container.appendChild(mk(pages, pages, false, false));
-
-  container.appendChild(mk('›', current + 1, current === pages, false));
+  // Dots
+  document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===heroIdx));
 }
 
-// ─── HERO ────────────────────────────────────────────────────
-function setupHero(items) {
-  const pool = items.filter(c => c.capa).slice(0, 15);
-  if (!pool.length) return;
-  STATE.heroPool = shuffled(pool);
+function heroStart() {
+  clearInterval(heroTimer);
+  heroTimer = setInterval(() => heroGoTo(heroIdx + 1), 7000);
+}
 
-  function applyHero(it) {
-    const bg = document.getElementById('heroBg');
-    bg.style.backgroundImage = `url(${it.capa})`;
-    document.getElementById('heroTitle').textContent = it.nome;
-    document.getElementById('heroSynopsis').textContent = it.sinopse || '';
-    document.getElementById('heroMeta').innerHTML = `
-      ${it.ano      ? `<span>📅 ${it.ano}</span>`                                    : ''}
-      ${it.duracao  ? `<span>⏱ ${it.duracao}</span>`                                : ''}
-      ${it.categoria? `<span>🎭 ${it.categoria.split(',')[0].trim()}</span>`         : ''}
-      ${it.audio    ? `<span>🔊 ${it.audio}</span>`                                  : ''}
-    `;
-    const page = it.isSerie ? 'serie.html' : 'filme.html';
-    document.getElementById('heroWatchBtn').href = `${page}?nome=${encodeURIComponent(it.nome)}`;
-  }
+function setupHero(allContent) {
+  // Pega até 10 itens COM capa, embaralhados
+  const pool = allContent.filter(c => c.capa && c.sinopse)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 10);
 
-  applyHero(STATE.heroPool[0]);
+  heroItems = pool.length > 0 ? pool : allContent.filter(c=>c.capa).slice(0,5);
+  if (heroItems.length === 0) return;
 
-  if (STATE.heroPool.length > 1) {
-    STATE.heroTimer = setInterval(() => {
-      STATE.heroIdx = (STATE.heroIdx + 1) % STATE.heroPool.length;
-      applyHero(STATE.heroPool[STATE.heroIdx]);
-    }, 8000);
-  }
+  // Cria slides
+  const slidesEl = document.getElementById('heroSlides');
+  slidesEl.innerHTML = '';
+  heroItems.forEach((item, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'hero-slide' + (i===0?' active':'');
+    slide.innerHTML = `<div class="hero-slide-bg" style="background-image:url('${item.capa||''}')"></div>`;
+    slidesEl.appendChild(slide);
+  });
 
-  document.getElementById('heroInfoBtn').addEventListener('click', () => {
-    const it = STATE.heroPool[STATE.heroIdx];
-    const page = it.isSerie ? 'serie.html' : 'filme.html';
-    location.href = `${page}?nome=${encodeURIComponent(it.nome)}`;
+  // Dots
+  const dotsEl = document.getElementById('heroDots');
+  dotsEl.innerHTML = '';
+  heroItems.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'hero-dot' + (i===0?' active':'');
+    dot.setAttribute('role','tab');
+    dot.setAttribute('aria-label', `Slide ${i+1}`);
+    dot.addEventListener('click', () => { heroGoTo(i); heroStart(); });
+    dotsEl.appendChild(dot);
+  });
+
+  // Arrows
+  document.getElementById('heroPrev').addEventListener('click', () => { heroGoTo(heroIdx-1); heroStart(); });
+  document.getElementById('heroNext').addEventListener('click', () => { heroGoTo(heroIdx+1); heroStart(); });
+
+  heroGoTo(0);
+  heroStart();
+}
+
+// ── Categorias ──
+function setupCategories(allContent) {
+  const catMap = {};
+  allContent.forEach(item => {
+    if (!item.categoria) return;
+    item.categoria.split(',').forEach(c => {
+      const k = c.trim();
+      if (!k) return;
+      if (!catMap[k]) catMap[k] = 0;
+      catMap[k]++;
+    });
+  });
+
+  const cats = Object.entries(catMap)
+    .sort((a,b) => b[1]-a[1])
+    .slice(0, 16);
+
+  const scroll = document.getElementById('catScroll');
+  scroll.innerHTML = '';
+  cats.forEach(([cat, count]) => {
+    const cfg = getCatConfig(cat);
+    const div = document.createElement('div');
+    div.className = 'cat-card';
+    div.innerHTML = `
+      <div class="cat-card-bg" style="background:${cfg.gradient}">${cfg.emoji}</div>
+      <div class="cat-card-overlay">
+        <div class="cat-card-name">${cat}</div>
+        <div class="cat-card-count">${count} títulos</div>
+      </div>`;
+    div.setAttribute('role','button');
+    div.setAttribute('tabindex','0');
+    div.setAttribute('aria-label',`Ver categoria ${cat}`);
+    div.addEventListener('click', () => {
+      location.href = `catalogo.html?cat=${encodeURIComponent(cat)}`;
+    });
+    div.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') div.click(); });
+    scroll.appendChild(div);
   });
 }
 
-// ─── SEÇÃO: MAIS RECENTES ────────────────────────────────────
-function initRecentes() {
-  // "Mais recentes" = últimos adicionados = fim do array (sem embaralhar)
-  const todos  = STATE.allContent;          // ordem original do Sheets = ordem de adição
-  const total  = todos.length;
-  const perPg  = STATE.recentesPerPage;
-
-  const skeleton = document.getElementById('recentesSkeleton');
-  const grid     = document.getElementById('recentesGrid');
-  const loadMore = document.getElementById('recentesLoadMore');
-  const counter  = document.getElementById('recentesCount');
-
-  // Mostra os primeiros 15
-  STATE.recentesPage = 1;
-
-  function renderPage() {
-    const end   = STATE.recentesPage * perPg;
-    const slice = todos.slice(0, end);
-
-    skeleton.style.display = 'none';
-    grid.style.display = 'grid';
-    fillGrid(grid, slice);
-
-    counter.textContent = `${Math.min(end, total)} de ${total} conteúdos`;
-
-    if (end >= total) {
-      loadMore.classList.add('hidden');
-    } else {
-      loadMore.classList.remove('hidden');
-    }
-  }
-
-  renderPage();
-
-  loadMore.addEventListener('click', () => {
-    STATE.recentesPage++;
-    renderPage();
-    // Scroll suave para o último card novo
-    grid.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
+// ── Render carousel track ──
+function fillTrack(trackId, items, max=20) {
+  const track = document.getElementById(trackId);
+  track.innerHTML = '';
+  items.slice(0, max).forEach(item => track.appendChild(mkCard(item)));
 }
 
-// ─── SEÇÃO: FILMES (preview + catálogo completo) ─────────────
+// ── Search ──
+function setupSearch(allContent) {
+  PipocaSearch.indexContent(allContent);
 
-function initFilmesSection() {
-  const skeleton  = document.getElementById('filmesSkeleton');
-  const preview   = document.getElementById('filmesPreviewGrid');
-  const catalogo  = document.getElementById('filmesCatalogo');
-  const fullGrid  = document.getElementById('filmesFullGrid');
-  const counter   = document.getElementById('filmesCount');
-  const verTudoBtn= document.getElementById('filmesVerTudo');
-
-  skeleton.style.display = 'none';
-  preview.style.display  = 'grid';
-
-  // Preview: 15 aleatórios
-  const preview15 = shuffled(STATE.allFilmes).slice(0, 15);
-  fillGrid(preview, preview15);
-
-  // Botão "Ver catálogo completo"
-  verTudoBtn.addEventListener('click', () => {
-    STATE.filmesOpen = !STATE.filmesOpen;
-    if (STATE.filmesOpen) {
-      catalogo.classList.add('is-open');
-      verTudoBtn.setAttribute('aria-expanded', 'true');
-      verTudoBtn.querySelector('svg').style.transform = 'rotate(90deg)';
-      STATE.filmesPage = 1;
-      renderFilmesCatalogo();
-      // Scroll até a seção
-      setTimeout(() => {
-        document.getElementById('filmes').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 80);
-    } else {
-      catalogo.classList.remove('is-open');
-      verTudoBtn.setAttribute('aria-expanded', 'false');
-      verTudoBtn.querySelector('svg').style.transform = '';
-    }
-  });
-}
-
-function renderFilmesCatalogo() {
-  const total   = STATE.allFilmes.length;
-  const perPg   = STATE.filmesPerPage;
-  const pg      = STATE.filmesPage;
-  const start   = (pg - 1) * perPg;
-  const slice   = STATE.allFilmes.slice(start, start + perPg);
-
-  const fullGrid = document.getElementById('filmesFullGrid');
-  const counter  = document.getElementById('filmesCount');
-
-  fillGrid(fullGrid, slice);
-  counter.textContent = `${total} filmes · página ${pg} de ${Math.ceil(total / perPg)}`;
-
-  buildPagination('filmesPagination', total, perPg, pg, (newPage) => {
-    STATE.filmesPage = newPage;
-    renderFilmesCatalogo();
-    document.getElementById('filmesCatalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-}
-
-// ─── SEÇÃO: SÉRIES (preview + catálogo completo) ─────────────
-
-function initSeriesSection() {
-  const skeleton  = document.getElementById('seriesSkeleton');
-  const preview   = document.getElementById('seriesPreviewGrid');
-  const catalogo  = document.getElementById('seriesCatalogo');
-  const verTudoBtn= document.getElementById('seriesVerTudo');
-
-  skeleton.style.display = 'none';
-  preview.style.display  = 'grid';
-
-  // Preview: 15 aleatórios
-  const preview15 = shuffled(STATE.allSeries).slice(0, 15);
-  fillGrid(preview, preview15);
-
-  // Botão "Ver catálogo completo"
-  verTudoBtn.addEventListener('click', () => {
-    STATE.seriesOpen = !STATE.seriesOpen;
-    if (STATE.seriesOpen) {
-      catalogo.classList.add('is-open');
-      verTudoBtn.setAttribute('aria-expanded', 'true');
-      verTudoBtn.querySelector('svg').style.transform = 'rotate(90deg)';
-      STATE.seriesPage = 1;
-      renderSeriesCatalogo();
-      setTimeout(() => {
-        document.getElementById('series').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 80);
-    } else {
-      catalogo.classList.remove('is-open');
-      verTudoBtn.setAttribute('aria-expanded', 'false');
-      verTudoBtn.querySelector('svg').style.transform = '';
-    }
-  });
-}
-
-function renderSeriesCatalogo() {
-  const total   = STATE.allSeries.length;
-  const perPg   = STATE.seriesPerPage;
-  const pg      = STATE.seriesPage;
-  const start   = (pg - 1) * perPg;
-  const slice   = STATE.allSeries.slice(start, start + perPg);
-
-  const fullGrid = document.getElementById('seriesFullGrid');
-  const counter  = document.getElementById('seriesCount');
-
-  fillGrid(fullGrid, slice);
-  counter.textContent = `${total} séries · página ${pg} de ${Math.ceil(total / perPg)}`;
-
-  buildPagination('seriesPagination', total, perPg, pg, (newPage) => {
-    STATE.seriesPage = newPage;
-    renderSeriesCatalogo();
-    document.getElementById('seriesCatalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-}
-
-// ─── BUSCA ───────────────────────────────────────────────────
-function setupSearch() {
-  const desktopInput   = document.getElementById('desktopSearchInput');
-  const mobileInput    = document.getElementById('mobileSearchInput');
   const resultsOverlay = document.getElementById('searchResultsOverlay');
   const resultsGrid    = document.getElementById('searchResultsGrid');
-  const noResults      = document.getElementById('noResults');
   const queryLabel     = document.getElementById('searchQueryLabel');
-  const mobileToggle   = document.getElementById('mobileSearchToggle');
-  const mobileOverlay  = document.getElementById('mobileSearchOverlay');
-  const mobileClose    = document.getElementById('mobileSearchClose');
+  const noResults      = document.getElementById('searchNoResults');
 
-  function doSearch(query) {
-    if (!query || query.trim().length < 2) {
+  function doSearch(q) {
+    if (!q || q.trim().length < 2) {
       resultsOverlay.classList.remove('active');
       return;
     }
-    const results = PipocaSearch.search(query, 24);
-    queryLabel.textContent  = `"${query}"`;
-    noResults.style.display = results.length === 0 ? 'block' : 'none';
-    const frag = document.createDocumentFragment();
-    results.forEach(item => frag.appendChild(renderCard(item)));
-    resultsGrid.innerHTML = '';
-    resultsGrid.appendChild(frag);
+    const res = PipocaSearch.search(q, 30);
+    queryLabel.textContent = q;
+    resultsGrid.innerHTML  = '';
+    noResults.style.display = res.length === 0 ? 'block' : 'none';
+    res.forEach(item => resultsGrid.appendChild(mkCard(item)));
     resultsOverlay.classList.add('active');
   }
 
-  const debouncedSearch = PipocaSearch.debounce(doSearch, 280);
-
-  desktopInput.addEventListener('input', e => debouncedSearch(e.target.value));
-  mobileInput.addEventListener('input',  e => debouncedSearch(e.target.value));
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      resultsOverlay.classList.remove('active');
-      desktopInput.value = '';
-      mobileInput.value  = '';
-      mobileOverlay.classList.remove('open');
-      mobileToggle.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  mobileToggle.addEventListener('click', () => {
-    mobileOverlay.classList.add('open');
-    mobileToggle.setAttribute('aria-expanded', 'true');
-    setTimeout(() => mobileInput.focus(), 100);
-  });
-
-  mobileClose.addEventListener('click', () => {
-    mobileOverlay.classList.remove('open');
-    mobileToggle.setAttribute('aria-expanded', 'false');
-    resultsOverlay.classList.remove('active');
-    mobileInput.value = '';
-  });
-
+  const deb = PipocaSearch.debounce(doSearch, 250);
+  document.getElementById('desktopSearchInput').addEventListener('input', e => deb(e.target.value));
+  mobileInput.addEventListener('input', e => deb(e.target.value));
   resultsOverlay.addEventListener('click', e => {
     if (e.target === resultsOverlay) {
       resultsOverlay.classList.remove('active');
-      desktopInput.value = '';
-      mobileInput.value  = '';
+      document.getElementById('desktopSearchInput').value = '';
+      mobileInput.value = '';
     }
   });
 }
 
-// ─── HEADER SCROLL ───────────────────────────────────────────
-window.addEventListener('scroll', () => {
-  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 50);
-}, { passive: true });
-
-// ─── Intersection Observer para seções lazy ──────────────────
-function observeSection(sectionId, callback) {
-  const el = document.getElementById(sectionId);
-  if (!el) return;
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        callback();
-        obs.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.05, rootMargin: '200px 0px' });
-  obs.observe(el);
-}
-
-// ─── INIT ────────────────────────────────────────────────────
+// ── INIT ──
 async function init() {
   try {
-    // Fetch único em paralelo — apenas uma chamada por tipo
     const [filmes, series] = await Promise.all([
       PipocaAPI.getFilmes(),
       PipocaAPI.getSeries()
     ]);
+    const allContent = [...filmes, ...series];
 
-    // Popula estado global
-    STATE.allFilmes  = filmes;
-    STATE.allSeries  = series;
-    // allContent: merge com series por último (assim recentes mostram o fim = últimos adicionados)
-    STATE.allContent = [...filmes, ...series];
+    // Hero aleatório
+    setupHero(allContent);
 
-    // Indexa busca
-    PipocaSearch.indexContent(STATE.allContent);
+    // Categorias
+    setupCategories(allContent);
 
-    // Hero com pool misto
-    setupHero(STATE.allContent);
+    // Filmes carrossel (embaralhado para variar)
+    const filmesShuffled = [...filmes].sort(() => Math.random() - 0.5);
+    fillTrack('filmesTrack', filmesShuffled, 24);
+    setupCarouselArrows('filmesTrack','filmePrev','filmeNext');
 
-    // Busca
-    setupSearch();
+    // Séries carrossel
+    const seriesShuffled = [...series].sort(() => Math.random() - 0.5);
+    fillTrack('seriesTrack', seriesShuffled, 24);
+    setupCarouselArrows('seriesTrack','seriePrev','serieNext');
 
-    // Mais Recentes — renderiza imediatamente (acima da dobra)
-    initRecentes();
+    // Search
+    setupSearch(allContent);
 
-    // Filmes + Séries — Intersection Observer (só renderiza quando entra na tela)
-    observeSection('filmes', initFilmesSection);
-    observeSection('series', initSeriesSection);
-
-  } catch (err) {
-    console.error('[PipocaFlix] Erro ao carregar:', err);
-    // Esconde skeletons e mostra erro
-    ['recentesSkeleton','filmesSkeleton','seriesSkeleton'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = '<p style="grid-column:1/-1;color:var(--text-muted);text-align:center;padding:2rem 0">⚠️ Erro ao carregar conteúdo. Tente novamente.</p>';
-    });
+  } catch(err) {
+    console.error('[PipocaFlix]', err);
+    showToast('⚠️ Erro ao carregar conteúdo. Verifique sua conexão.');
   }
 }
 
