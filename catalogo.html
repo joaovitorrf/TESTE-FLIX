@@ -29,6 +29,8 @@
     <a href="catalogo.html" class="active">Catálogo</a>
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="elenco.html">Elenco</a>
+    <a href="download.html">Download</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -37,12 +39,23 @@
     <input type="search" class="search-bar" id="desktopSearchInput"
       placeholder="Buscar..." autocomplete="off" spellcheck="false">
   </div>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
   </button>
 </header>
+
+<!-- ═══ MOBILE NAV MENU ═══ -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  <a href="download.html">⬇️ Downloads</a>
+</div>
 
 <!-- Search results -->
 <div class="search-results-overlay" id="searchResultsOverlay">
@@ -94,6 +107,38 @@
     <nav class="pagination" id="pagination" aria-label="Paginação"></nav>
   </div>
 </div>
+
+<!-- ═══ DISCLAIMER LEGAL ═══ -->
+<section class="disclaimer-section">
+  <div class="disclaimer-wrap">
+    <div class="disclaimer-icon">⚖️</div>
+    <div class="disclaimer-body">
+      <h3 class="disclaimer-title">Aviso Legal — Sobre o Conteúdo do PipocaFlix</h3>
+      <p class="disclaimer-text">
+        O PipocaFlix <strong>não hospeda, armazena nem distribui</strong> qualquer arquivo de vídeo em seus servidores.
+        Todo o conteúdo exibido neste site — filmes, séries e episódios — é obtido a partir de
+        <strong>links publicamente disponíveis na internet</strong>, indexados e organizados exclusivamente
+        para fins informativos e de curadoria.
+      </p>
+      <p class="disclaimer-text">
+        Atuamos como um <strong>agregador e intermediário de conteúdo</strong>: nosso player incorpora
+        (<em>embed</em>) streams já acessíveis publicamente, da mesma forma que mecanismos de busca indexam
+        e exibem conteúdo de terceiros. <strong>Nenhum arquivo é hospedado, reproduzido localmente ou
+        redistribuído por nós.</strong>
+      </p>
+      <p class="disclaimer-text">
+        Caso você seja detentor de direitos autorais e identifique algum conteúdo que viole sua propriedade
+        intelectual, entre em contato conosco para que o link seja imediatamente removido de nossa base de dados.
+        Respeitamos e cumprimos as diretrizes estabelecidas pela <strong>Lei nº 9.610/98 (Lei de Direitos Autorais)</strong>
+        e pelas normativas internacionais de proteção intelectual.
+      </p>
+      <p class="disclaimer-text disclaimer-small">
+        🔒 PipocaFlix é um serviço de curadoria de conteúdo público. Ao utilizar esta plataforma, você concorda
+        que é responsável por verificar a legalidade do acesso ao conteúdo em sua jurisdição.
+      </p>
+    </div>
+  </div>
+</section>
 
 <!-- Footer -->
 <footer class="footer">
@@ -329,6 +374,33 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ── Hamburger menu ──
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileNavMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open.toString());
+  });
+  // Fechar ao clicar em link
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    });
+  });
+  // Fechar ao clicar fora
+  document.addEventListener('click', e => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+})();
+
 </script>
   <script>(function(s){s.dataset.zone='10671370',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
