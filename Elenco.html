@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elenco — PipocaFlix</title>
+<meta name="description" content="Explore os atores e atrizes do catálogo PipocaFlix. Veja biografias e filmografias.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../assets/css/style.css">
+<script src="https://5gvci.com/act/files/tag.min.js?z=10671361" data-cfasync="false" async></script>
+<style>
+/* ════════════════════════════════════════
+   ELENCO PAGE — ESTILOS EXCLUSIVOS
+════════════════════════════════════════ */
+
+/* Hero da página */
+.elenco-page-hero {
+  background: linear-gradient(160deg, #0c0c10 0%, #1a0a28 60%, #0d0d14 100%);
+  padding: 3rem clamp(1rem, 5vw, 3.5rem) 2.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.elenco-page-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 30%, var(--red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.4rem;
+  line-height: 1.1;
+}
+.elenco-page-sub {
+  color: var(--text-3);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+.elenco-busca-wrap {
+  max-width: 480px;
+  position: relative;
+}
+.elenco-busca-input {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 0.75rem 1.2rem 0.75rem 3rem;
+  color: var(--text-1);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all var(--t-normal);
+  box-sizing: border-box;
+}
+.elenco-busca-input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px var(--red-soft);
+  background: var(--card);
+}
+.elenco-busca-input::placeholder { color: var(--text-3); }
+.elenco-busca-icon {
+  position: absolute;
+  left: 1rem; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+  width: 16px; height: 16px;
+}
+.elenco-stats {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-3);
+}
+.elenco-stats strong { color: var(--red); }
+
+/* Grid de atores */
+.atores-container {
+  padding: 2rem clamp(1rem, 5vw, 3.5rem) 1rem;
+}
+.atores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1.25rem;
+}
+@media (min-width: 600px)  { .atores-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+@media (min-width: 1024px) { .atores-grid { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); } }
+
+.ator-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--t-normal);
+}
+.ator-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255,45,67,0.45);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.ator-card:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.ator-foto-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--panel);
+}
+.ator-foto {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  display: block;
+}
+.ator-card:hover .ator-foto { transform: scale(1.07); }
+.ator-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem;
+  color: var(--text-3);
+  background: linear-gradient(135deg, var(--panel), #1a1a2a);
+}
+.ator-info { padding: 0.8rem 0.6rem 0.9rem; }
+.ator-nome {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ator-filmes-count {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  margin-top: 0.25rem;
+}
+
+/* Paginação */
+.atores-paginacao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.5rem clamp(1rem, 5vw, 3.5rem) 2.5rem;
+  flex-wrap: wrap;
+}
+
+/* Sem resultados */
+.sem-atores {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-3);
+  grid-column: 1 / -1;
+}
+.sem-atores-emoji { font-size: 3.5rem; display: block; margin-bottom: 0.75rem; }
+
+/* ════════════════════════════════════════
+   MODAL DO ATOR
+════════════════════════════════════════ */
+.ator-modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 3000;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.ator-modal-bg.open { display: block; }
+
+.ator-modal-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  max-width: 860px;
+  margin: 2rem auto;
+  overflow: hidden;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.8);
+  animation: atorModalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes atorModalIn {
+  from { transform: scale(0.92) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Header do modal */
+.ator-modal-top {
+  position: relative;
+  display: flex;
+  gap: 1.75rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(255,45,67,0.06) 0%, var(--panel) 100%);
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.ator-modal-fechar {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  width: 34px; height: 34px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--t-fast);
+  z-index: 10;
+}
+.ator-modal-fechar:hover { background: var(--red-soft); color: var(--red); border-color: rgba(255,45,67,0.4); }
+
+.ator-modal-avatar {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--red);
+  flex-shrink: 0;
+  background: var(--panel);
+}
+.ator-modal-avatar-placeholder {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--panel), #1a0a28);
+  border: 3px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem;
+  flex-shrink: 0;
+}
+.ator-modal-dados { flex: 1; min-width: 0; padding-right: 2.5rem; }
+.ator-modal-nome {
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-weight: 800;
+  color: var(--text-1);
+  margin-bottom: 0.6rem;
+  line-height: 1.2;
+}
+.ator-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+}
+.ator-modal-tag {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 0.2rem 0.8rem;
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+.ator-modal-bio {
+  font-size: 0.84rem;
+  color: var(--text-2);
+  line-height: 1.75;
+  max-height: 110px;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  position: relative;
+}
+.ator-modal-bio.expanded { max-height: 800px; }
+.ator-bio-btn {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 0.3rem 0;
+  display: block;
+  margin-top: 0.2rem;
+}
+.ator-bio-btn:hover { text-decoration: underline; }
+
+/* Corpo do modal */
+.ator-modal-corpo {
+  padding: 1.75rem 2rem 2rem;
+}
+.ator-modal-secao-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ator-filmo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 1rem;
+}
+.ator-filmo-item {
+  cursor: pointer;
+  transition: transform var(--t-fast);
+  text-decoration: none;
+}
+.ator-filmo-item:hover { transform: translateY(-3px); }
+.ator-filmo-capa {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  background: var(--panel);
+  display: block;
+  border: 1px solid var(--border);
+  transition: border-color var(--t-fast);
+}
+.ator-filmo-item:hover .ator-filmo-capa { border-color: rgba(255,45,67,0.5); }
+.ator-filmo-titulo {
+  font-size: 0.74rem;
+  color: var(--text-2);
+  margin-top: 0.4rem;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+.ator-filmo-badge {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 0.15rem;
+}
+.ator-filmo-vazio {
+  color: var(--text-3);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 2rem;
+  grid-column: 1 / -1;
+}
+
+/* Loading spinner no modal */
+.ator-modal-loading {
+  text-align: center;
+  padding: 3.5rem 2rem;
+  color: var(--text-3);
+}
+.modal-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: giro 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes giro { to { transform: rotate(360deg); } }
+
+@media (max-width: 580px) {
+  .ator-modal-top { flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 1rem; }
+  .ator-modal-dados { padding-right: 0; }
+  .ator-modal-tags { justify-content: center; }
+  .ator-modal-corpo { padding: 1.25rem 1rem 1.5rem; }
+  .ator-filmo-grid { grid-template-columns: repeat(3, 1fr); }
+  .ator-modal-avatar, .ator-modal-avatar-placeholder { width: 100px; height: 100px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mobile search overlay -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog" aria-label="Busca">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar ator..." autocomplete="off" spellcheck="false">
+  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- Header -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home">PipocaFlix</a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html">Catálogo</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="elenco.html" class="active">Elenco</a>
+    <a href="download.html">Download</a>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar..." autocomplete="off" spellcheck="false" aria-label="Buscar">
+  </div>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- Mobile nav menu -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="elenco.html" class="active">🎭 Elenco</a>
+  <a href="download.html">⬇️ Downloads</a>
+</div>
+
+<!-- Hero -->
+<div class="elenco-page-hero">
+  <h1 class="elenco-page-title">🎭 Elenco</h1>
+  <p class="elenco-page-sub">Explore os atores e atrizes presentes no nosso catálogo. Clique para ver bio e filmografia.</p>
+  <div class="elenco-busca-wrap">
+    <svg class="elenco-busca-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="elenco-busca-input" id="atorBuscaInput"
+      placeholder="Buscar ator por nome..." autocomplete="off" spellcheck="false" aria-label="Buscar ator">
+  </div>
+  <p class="elenco-stats" id="atorStats">Carregando elenco...</p>
+</div>
+
+<!-- Grid de atores -->
+<div class="atores-container">
+  <div class="atores-grid" id="atoresGrid">
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+    <div class="skeleton" style="height:220px;border-radius:12px"></div>
+  </div>
+</div>
+
+<!-- Paginação -->
+<div class="atores-paginacao" id="atoresPaginacao" aria-label="Paginação"></div>
+
+<!-- Modal do ator -->
+<div class="ator-modal-bg" id="atorModalBg" role="dialog" aria-modal="true" aria-label="Perfil do ator">
+  <div class="ator-modal-box" id="atorModalBox">
+
+    <!-- Loading state -->
+    <div class="ator-modal-loading" id="atorModalLoading">
+      <div class="modal-spinner"></div>
+      <p>Buscando informações...</p>
+    </div>
+
+    <!-- Conteúdo do modal -->
+    <div id="atorModalConteudo" style="display:none">
+      <div class="ator-modal-top">
+        <button class="ator-modal-fechar" id="atorModalFechar" aria-label="Fechar">✕</button>
+        <div id="atorAvatarWrap"></div>
+        <div class="ator-modal-dados">
+          <h2 class="ator-modal-nome" id="atorModalNome"></h2>
+          <div class="ator-modal-tags" id="atorModalTags"></div>
+          <p class="ator-modal-bio" id="atorModalBio">Carregando biografia...</p>
+          <button class="ator-bio-btn" id="atorBioBtn" style="display:none">Ver mais ↓</button>
+        </div>
+      </div>
+      <div class="ator-modal-corpo">
+        <h3 class="ator-modal-secao-titulo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+          No PipocaFlix
+        </h3>
+        <div class="ator-filmo-grid" id="atorFilmoGrid"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-logo">PipocaFlix</div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="native-banner-footer">
+    <script>(function(s){s.dataset.zone='10671364',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix.</span>
+    <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/js/security.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/search.js"></script>
+<script>
+/* ════════════════════════════════════════════════════════
+   PIPOCAFLIX — elenco.html
+   - Constrói lista de atores a partir do Google Sheets
+   - Busca em tempo real por nome
+   - Paginação (20 por página)
+   - Modal com bio via TMDB + filmografia filtrada do site
+════════════════════════════════════════════════════════ */
+
+const TMDB_KEY  = '0190e7210b5144f871451e39cac4a78f';
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+const TMDB_IMG  = 'https://image.tmdb.org/t/p/w300';
+const PER_PAGE  = 20;
+
+let todosAtores    = [];  // array de objetos { nome, foto, aparicoes[] }
+let filtradosAtores= [];
+let paginaAtual    = 1;
+
+// ── Utilities ──
+function normStr(s) {
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Scroll / back-to-top ──
+window.addEventListener('scroll', () => {
+  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 60);
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+}, {passive:true});
+document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+
+// ── Mobile search ──
+document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('mobileSearchInput').focus(), 80);
+});
+document.getElementById('mobileSearchClose').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.remove('open');
+  document.getElementById('mobileSearchInput').value = '';
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('mobileSearchOverlay').classList.remove('open');
+    fecharModal();
+  }
+});
+
+// ── Hamburger ──
+(function(){
+  const btn  = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileNavMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', e => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+})();
+
+// ══════════════════════════════════════════════
+// CONSTRUIR MAPA DE ATORES
+// ══════════════════════════════════════════════
+function buildAtores(filmes, series) {
+  const map = {}; // normNome -> { nome, foto, aparicoes }
+
+  [...filmes, ...series].forEach(item => {
+    if (!item.nomeElenco) return;
+    const nomes = item.nomeElenco.split(',').map(s => s.trim()).filter(Boolean);
+    const fotos = item.fotoElenco ? item.fotoElenco.split(',').map(s => s.trim()) : [];
+
+    nomes.forEach((nome, idx) => {
+      const chave = normStr(nome);
+      if (!map[chave]) {
+        map[chave] = { nome, foto: fotos[idx] || '', aparicoes: [], _set: new Set() };
+      }
+      // Foto: pegar a primeira válida encontrada
+      if (!map[chave].foto && fotos[idx]) map[chave].foto = fotos[idx];
+      // Evitar duplicatas
+      if (!map[chave]._set.has(item.nome)) {
+        map[chave]._set.add(item.nome);
+        map[chave].aparicoes.push(item);
+      }
+    });
+  });
+
+  // Converter para array, ordenar por quantidade de aparições desc
+  return Object.values(map)
+    .map(({ nome, foto, aparicoes }) => ({ nome, foto, aparicoes }))
+    .sort((a, b) => b.aparicoes.length - a.aparicoes.length || a.nome.localeCompare(b.nome, 'pt'));
+}
+
+// ══════════════════════════════════════════════
+// CARDS DE ATORES
+// ══════════════════════════════════════════════
+function criarCardAtor(ator) {
+  const div = document.createElement('div');
+  div.className = 'ator-card';
+  div.setAttribute('role', 'button');
+  div.setAttribute('tabindex', '0');
+  div.setAttribute('aria-label', `Ver perfil de ${ator.nome}`);
+
+  div.innerHTML = `
+    <div class="ator-foto-wrap">
+      ${ator.foto
+        ? `<img class="ator-foto" src="${ator.foto}" alt="${ator.nome}" loading="lazy"
+             onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\\'ator-placeholder\\'>🎭</div>'">`
+        : `<div class="ator-placeholder">🎭</div>`}
+    </div>
+    <div class="ator-info">
+      <div class="ator-nome">${ator.nome}</div>
+      <div class="ator-filmes-count">${ator.aparicoes.length} título${ator.aparicoes.length !== 1 ? 's' : ''}</div>
+    </div>`;
+
+  const abrir = () => abrirModal(ator);
+  div.addEventListener('click', abrir);
+  div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+  return div;
+}
+
+// ══════════════════════════════════════════════
+// RENDERIZAÇÃO DA PÁGINA
+// ══════════════════════════════════════════════
+function renderizarPagina() {
+  const grid = document.getElementById('atoresGrid');
+  grid.innerHTML = '';
+
+  const inicio = (paginaAtual - 1) * PER_PAGE;
+  const fatia  = filtradosAtores.slice(inicio, inicio + PER_PAGE);
+
+  if (fatia.length === 0) {
+    grid.innerHTML = `<div class="sem-atores">
+      <span class="sem-atores-emoji">🔍</span>
+      <p>Nenhum ator encontrado para essa busca.</p>
+    </div>`;
+    document.getElementById('atoresPaginacao').innerHTML = '';
+    document.getElementById('atorStats').innerHTML = '0 atores encontrados.';
+    return;
+  }
+
+  fatia.forEach(ator => grid.appendChild(criarCardAtor(ator)));
+  renderizarPaginacao();
+
+  const total = Math.ceil(filtradosAtores.length / PER_PAGE);
+  document.getElementById('atorStats').innerHTML =
+    `<strong>${filtradosAtores.length}</strong> atores · Página ${paginaAtual} de ${total}`;
+}
+
+function renderizarPaginacao() {
+  const total = Math.ceil(filtradosAtores.length / PER_PAGE);
+  const nav   = document.getElementById('atoresPaginacao');
+  nav.innerHTML = '';
+  if (total <= 1) return;
+
+  function mkBtn(label, pag, disabled, active) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (active ? ' active' : '');
+    btn.textContent = label;
+    btn.disabled = disabled;
+    if (active) btn.setAttribute('aria-current','page');
+    btn.addEventListener('click', () => {
+      paginaAtual = pag;
+      renderizarPagina();
+      window.scrollTo({ top: document.querySelector('.elenco-page-hero').offsetTop - 70, behavior: 'smooth' });
+    });
+    return btn;
+  }
+  function mkReticencias() {
+    const s = document.createElement('span');
+    s.className = 'page-ellipsis'; s.textContent = '…';
+    return s;
+  }
+
+  nav.appendChild(mkBtn('‹', paginaAtual - 1, paginaAtual === 1, false));
+  const ini = Math.max(1, Math.min(paginaAtual - 2, total - 4));
+  const fim = Math.min(total, ini + 4);
+  if (ini > 1) { nav.appendChild(mkBtn('1', 1, false, false)); if (ini > 2) nav.appendChild(mkReticencias()); }
+  for (let i = ini; i <= fim; i++) nav.appendChild(mkBtn(i, i, false, i === paginaAtual));
+  if (fim < total) { if (fim < total - 1) nav.appendChild(mkReticencias()); nav.appendChild(mkBtn(total, total, false, false)); }
+  nav.appendChild(mkBtn('›', paginaAtual + 1, paginaAtual === total, false));
+}
+
+// ══════════════════════════════════════════════
+// BUSCA EM TEMPO REAL
+// ══════════════════════════════════════════════
+function setupBusca() {
+  let timer;
+  document.getElementById('atorBuscaInput').addEventListener('input', e => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const q = normStr(e.target.value);
+      filtradosAtores = q.length < 2
+        ? [...todosAtores]
+        : todosAtores.filter(a => normStr(a.nome).includes(q));
+      paginaAtual = 1;
+      renderizarPagina();
+    }, 220);
+  });
+
+  // Busca no mobile search overlay também
+  document.getElementById('mobileSearchInput').addEventListener('input', e => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const q = normStr(e.target.value);
+      filtradosAtores = q.length < 2
+        ? [...todosAtores]
+        : todosAtores.filter(a => normStr(a.nome).includes(q));
+      paginaAtual = 1;
+      renderizarPagina();
+    }, 220);
+  });
+}
+
+// ══════════════════════════════════════════════
+// TMDB — buscar bio e foto oficial
+// ══════════════════════════════════════════════
+async function buscarTMDB(nome) {
+  try {
+    const r1 = await fetch(
+      `${TMDB_BASE}/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(nome)}&language=pt-BR`
+    );
+    if (!r1.ok) return null;
+    const d1 = await r1.json();
+    if (!d1.results || d1.results.length === 0) return null;
+    const pessoa = d1.results[0];
+
+    const r2 = await fetch(
+      `${TMDB_BASE}/person/${pessoa.id}?api_key=${TMDB_KEY}&language=pt-BR`
+    );
+    if (!r2.ok) return null;
+    const detalhe = await r2.json();
+
+    return {
+      foto:        pessoa.profile_path ? `${TMDB_IMG}${pessoa.profile_path}` : null,
+      bio:         detalhe.biography   || '',
+      nascimento:  detalhe.birthday    || '',
+      local:       detalhe.place_of_birth || '',
+      popularidade:detalhe.popularity  || 0
+    };
+  } catch { return null; }
+}
+
+// ══════════════════════════════════════════════
+// MODAL DO ATOR
+// ══════════════════════════════════════════════
+function fecharModal() {
+  document.getElementById('atorModalBg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function abrirModal(ator) {
+  const bg       = document.getElementById('atorModalBg');
+  const loading  = document.getElementById('atorModalLoading');
+  const conteudo = document.getElementById('atorModalConteudo');
+
+  bg.classList.add('open');
+  loading.style.display = 'block';
+  conteudo.style.display = 'none';
+  document.body.style.overflow = 'hidden';
+
+  // Buscar TMDB em paralelo
+  const tmdb = await buscarTMDB(ator.nome);
+
+  // ── Avatar ──
+  const fotoUrl = (tmdb && tmdb.foto) ? tmdb.foto : ator.foto;
+  document.getElementById('atorAvatarWrap').innerHTML = fotoUrl
+    ? `<img class="ator-modal-avatar" src="${fotoUrl}" alt="${ator.nome}"
+         onerror="this.outerHTML='<div class=\\'ator-modal-avatar-placeholder\\'>🎭</div>'">`
+    : `<div class="ator-modal-avatar-placeholder">🎭</div>`;
+
+  // ── Nome ──
+  document.getElementById('atorModalNome').textContent = ator.nome;
+
+  // ── Tags de meta ──
+  const tagsEl = document.getElementById('atorModalTags');
+  tagsEl.innerHTML = '';
+  if (tmdb && tmdb.nascimento) {
+    const t = document.createElement('span');
+    t.className = 'ator-modal-tag';
+    t.textContent = `📅 ${tmdb.nascimento}`;
+    tagsEl.appendChild(t);
+  }
+  if (tmdb && tmdb.local) {
+    const t = document.createElement('span');
+    t.className = 'ator-modal-tag';
+    t.textContent = `📍 ${tmdb.local}`;
+    tagsEl.appendChild(t);
+  }
+  const tCount = document.createElement('span');
+  tCount.className = 'ator-modal-tag';
+  tCount.textContent = `🎬 ${ator.aparicoes.length} título${ator.aparicoes.length !== 1 ? 's' : ''} no PipocaFlix`;
+  tagsEl.appendChild(tCount);
+
+  // ── Biografia ──
+  const bioEl  = document.getElementById('atorModalBio');
+  const bioBtn = document.getElementById('atorBioBtn');
+  const bioTexto = (tmdb && tmdb.bio) ? tmdb.bio : 'Biografia não disponível para este ator no momento.';
+  bioEl.textContent = bioTexto;
+  bioEl.classList.remove('expanded');
+
+  if (bioTexto.length > 280) {
+    bioBtn.style.display = 'block';
+    bioBtn.textContent = 'Ver mais ↓';
+    bioBtn.onclick = () => {
+      const expanded = bioEl.classList.toggle('expanded');
+      bioBtn.textContent = expanded ? 'Ver menos ↑' : 'Ver mais ↓';
+    };
+  } else {
+    bioBtn.style.display = 'none';
+  }
+
+  // ── Filmografia no site ──
+  const filmoGrid = document.getElementById('atorFilmoGrid');
+  filmoGrid.innerHTML = '';
+
+  if (ator.aparicoes.length === 0) {
+    filmoGrid.innerHTML = `<p class="ator-filmo-vazio">Nenhum título encontrado no catálogo.</p>`;
+  } else {
+    ator.aparicoes.forEach(item => {
+      const pagina = item.isSerie ? 'serie.html' : 'filme.html';
+      const card = document.createElement('a');
+      card.className = 'ator-filmo-item';
+      card.href = `${pagina}?nome=${encodeURIComponent(item.nome)}`;
+      card.innerHTML = `
+        <img class="ator-filmo-capa"
+          src="${item.capa || 'https://placehold.co/200x300/13131a/333?text=Sem+Capa'}"
+          alt="${item.nome}" loading="lazy"
+          onerror="this.src='https://placehold.co/200x300/13131a/333?text=Sem+Capa'">
+        <div class="ator-filmo-titulo">${item.nome}</div>
+        <div class="ator-filmo-badge">${item.isSerie ? '📺 Série' : '🎬 Filme'}${item.ano ? ' · ' + item.ano : ''}</div>`;
+      card.addEventListener('click', () => fecharModal());
+      filmoGrid.appendChild(card);
+    });
+  }
+
+  loading.style.display = 'none';
+  conteudo.style.display = 'block';
+}
+
+// Fechar modal
+document.getElementById('atorModalFechar').addEventListener('click', fecharModal);
+document.getElementById('atorModalBg').addEventListener('click', e => {
+  if (e.target === document.getElementById('atorModalBg')) fecharModal();
+});
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+async function init() {
+  try {
+    const [filmes, series] = await Promise.all([
+      PipocaAPI.getFilmes(),
+      PipocaAPI.getSeries()
+    ]);
+
+    todosAtores    = buildAtores(filmes, series);
+    filtradosAtores = [...todosAtores];
+
+    document.getElementById('atorStats').innerHTML =
+      `<strong>${todosAtores.length}</strong> atores no catálogo`;
+
+    renderizarPagina();
+    setupBusca();
+
+    // Se a URL tiver ?ator=, abrir modal direto
+    const param = new URLSearchParams(location.search).get('ator');
+    if (param) {
+      const alvo = todosAtores.find(a => normStr(a.nome) === normStr(param));
+      if (alvo) abrirModal(alvo);
+    }
+
+  } catch (err) {
+    console.error('[PipocaFlix Elenco]', err);
+    document.getElementById('atoresGrid').innerHTML =
+      `<div class="sem-atores"><span class="sem-atores-emoji">⚠️</span><p>Erro ao carregar. Verifique sua conexão.</p></div>`;
+    document.getElementById('atorStats').textContent = 'Erro ao carregar.';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<script>(function(s){s.dataset.zone='10671370',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+</body>
+</html>
