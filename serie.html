@@ -29,6 +29,8 @@
     <a href="catalogo.html">Catálogo</a>
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="elenco.html">Elenco</a>
+    <a href="download.html">Download</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -36,12 +38,23 @@
     </svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
   </div>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
   </button>
 </header>
+
+<!-- ═══ MOBILE NAV MENU ═══ -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  <a href="download.html">⬇️ Downloads</a>
+</div>
 
 <!-- Search results -->
 <div class="search-results-overlay" id="searchResultsOverlay">
@@ -68,6 +81,7 @@
           Ver Episódios
         </button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
+        <a id="btnBaixarSerie" href="download.html" class="btn-secondary" style="color:#22c55e;border-color:rgba(34,197,94,.4)">⬇ Baixar Série</a>
       </div>
     </div>
   </div>
@@ -117,6 +131,16 @@
 <div class="ad-section">
 </div>
 
+<!-- Telegram -->
+<a href="https://t.me/pipocaflixx" target="_blank" rel="noopener" class="telegram-block">
+  <div class="telegram-icon">📢</div>
+  <div class="telegram-body">
+    <div class="telegram-title">Entre no nosso Telegram!</div>
+    <div class="telegram-desc">Fique por dentro de novidades, lançamentos e muito mais.</div>
+  </div>
+  <div class="telegram-arrow">→</div>
+</a>
+
 <!-- Trailer -->
 <section class="trailer-section" id="trailerSection" style="display:none">
   <div class="section-header" style="padding:0;margin-bottom:1rem">
@@ -149,6 +173,38 @@
 </section>
 
 <!-- 300x250 -->
+
+<!-- ═══ DISCLAIMER LEGAL ═══ -->
+<section class="disclaimer-section">
+  <div class="disclaimer-wrap">
+    <div class="disclaimer-icon">⚖️</div>
+    <div class="disclaimer-body">
+      <h3 class="disclaimer-title">Aviso Legal — Sobre o Conteúdo do PipocaFlix</h3>
+      <p class="disclaimer-text">
+        O PipocaFlix <strong>não hospeda, armazena nem distribui</strong> qualquer arquivo de vídeo em seus servidores.
+        Todo o conteúdo exibido neste site — filmes, séries e episódios — é obtido a partir de
+        <strong>links publicamente disponíveis na internet</strong>, indexados e organizados exclusivamente
+        para fins informativos e de curadoria.
+      </p>
+      <p class="disclaimer-text">
+        Atuamos como um <strong>agregador e intermediário de conteúdo</strong>: nosso player incorpora
+        (<em>embed</em>) streams já acessíveis publicamente, da mesma forma que mecanismos de busca indexam
+        e exibem conteúdo de terceiros. <strong>Nenhum arquivo é hospedado, reproduzido localmente ou
+        redistribuído por nós.</strong>
+      </p>
+      <p class="disclaimer-text">
+        Caso você seja detentor de direitos autorais e identifique algum conteúdo que viole sua propriedade
+        intelectual, entre em contato conosco para que o link seja imediatamente removido de nossa base de dados.
+        Respeitamos e cumprimos as diretrizes estabelecidas pela <strong>Lei nº 9.610/98 (Lei de Direitos Autorais)</strong>
+        e pelas normativas internacionais de proteção intelectual.
+      </p>
+      <p class="disclaimer-text disclaimer-small">
+        🔒 PipocaFlix é um serviço de curadoria de conteúdo público. Ao utilizar esta plataforma, você concorda
+        que é responsável por verificar a legalidade do acesso ao conteúdo em sua jurisdição.
+      </p>
+    </div>
+  </div>
+</section>
 
 <!-- Footer -->
 <footer class="footer">
@@ -216,9 +272,14 @@ function renderCast(nomes, fotos) {
     const foto=fs[i]||`https://placehold.co/84x84/1a1a24/555?text=${encodeURIComponent(n[0]||'?')}`;
     const div=document.createElement('div');
     div.className='cast-item';
+    div.style.cursor='pointer';
+    div.title=`Ver perfil de ${n}`;
     div.innerHTML=`<img class="cast-avatar" src="${foto}" alt="${n}"
       onerror="this.src='https://placehold.co/84x84/1a1a24/555?text=${encodeURIComponent(n[0]||'?')}'">
       <div class="cast-name">${n}</div>`;
+    div.addEventListener('click', () => {
+      location.href = `elenco.html?ator=${encodeURIComponent(n)}`;
+    });
     wrap.appendChild(div);
   });
   document.getElementById('castSection').style.display='block';
@@ -271,6 +332,7 @@ function renderEpisodios() {
 
 function tocar(ep) {
   PipocaAPI.openSmartlink();
+  if(window.PipocaPush) window.PipocaPush.showModal();
   const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
   if (seriePlayer) seriePlayer.loadEpisode(ep.linkMP4, titulo);
 }
@@ -353,6 +415,10 @@ async function init() {
     document.getElementById('detailSynopsis').style.display='';
     document.getElementById('detailBtns').style.display='flex';
 
+    // Atualizar botão de download com nome da série
+    const btnBaixarS = document.getElementById('btnBaixarSerie');
+    if (btnBaixarS) btnBaixarS.href = `download.html?nome=${encodeURIComponent(item.nome)}`;
+
     document.getElementById('scrollToEpsBtn').addEventListener('click',()=>
       document.getElementById('seasonsSection').scrollIntoView({behavior:'smooth'}));
 
@@ -387,6 +453,99 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ═══════════════════════════════════════════════════════════
+// PUSH NOTIFICATION — modal inteligente após "Assistir"
+// ═══════════════════════════════════════════════════════════
+window.PipocaPush = (function() {
+  const LS_KEY = 'pflix_push_status';
+  const LS_DATE = 'pflix_push_date';
+  const RETRY_DAYS = 7;
+
+  function shouldShow() {
+    const status = localStorage.getItem(LS_KEY);
+    if (status === 'granted') return false;
+    if (status === 'denied') {
+      const d = parseInt(localStorage.getItem(LS_DATE) || '0');
+      const diffDays = (Date.now() - d) / (1000 * 60 * 60 * 24);
+      return diffDays >= RETRY_DAYS;
+    }
+    return true;
+  }
+
+  function showModal() {
+    if (!shouldShow()) return;
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      localStorage.setItem(LS_KEY, 'granted');
+      return;
+    }
+
+    let overlay = document.getElementById('pushModalOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'pushModalOverlay';
+      overlay.className = 'push-modal-overlay';
+      overlay.innerHTML = `
+        <div class="push-modal">
+          <div class="push-modal-icon">🎬</div>
+          <div class="push-modal-title">Quer ser avisado dos lançamentos?</div>
+          <div class="push-modal-desc">
+            Ative as notificações e receba <strong>novos filmes e séries</strong>
+            direto no seu navegador, sem precisar voltar ao site.
+          </div>
+          <div class="push-modal-btns">
+            <button class="push-modal-accept" id="pushAccept">✅ Ativar notificações</button>
+            <button class="push-modal-decline" id="pushDecline">❌ Agora não</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      document.getElementById('pushAccept').addEventListener('click', () => {
+        Notification.requestPermission().then(perm => {
+          localStorage.setItem(LS_KEY, perm);
+          localStorage.setItem(LS_DATE, Date.now().toString());
+          overlay.classList.remove('open');
+        });
+      });
+      document.getElementById('pushDecline').addEventListener('click', () => {
+        localStorage.setItem(LS_KEY, 'denied');
+        localStorage.setItem(LS_DATE, Date.now().toString());
+        overlay.classList.remove('open');
+      });
+    }
+    setTimeout(() => overlay.classList.add('open'), 400);
+  }
+
+  return { showModal };
+})();
+
+// ── Hamburger menu ──
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileNavMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open.toString());
+  });
+  // Fechar ao clicar em link
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    });
+  });
+  // Fechar ao clicar fora
+  document.addEventListener('click', e => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+})();
+
 </script>
 
   <div class="native-banner-footer"><script>(function(s){s.dataset.zone='10671364',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
