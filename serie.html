@@ -547,6 +547,29 @@ window.PipocaPush = (function() {
 })();
 
 </script>
+  <script>
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const nome   = params.get('nome');
+  if (!nome) return;
+
+  const isSerie = location.pathname.includes('serie');
+  
+  document.title = isSerie
+    ? `${nome} - Assistir Série Online | PipocaFlix`
+    : `${nome} - Assistir Online | PipocaFlix`;
+
+  let meta = document.querySelector('meta[name="description"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'description';
+    document.head.appendChild(meta);
+  }
+  meta.content = isSerie
+    ? `Assista ${nome} online no PipocaFlix. Episódios completos em HD.`
+    : `Assista ${nome} online em HD no PipocaFlix. Veja filmes completos grátis.`;
+})();
+</script>
 
   <div class="native-banner-footer"><script>(function(s){s.dataset.zone='10671364',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
   <script>(function(s){s.dataset.zone='10671370',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
