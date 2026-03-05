@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://www.pipocaflix.fun/</loc>
+  </url>
+
+  <url>
+    <loc>https://www.pipocaflix.fun/catalogo.html</loc>
+  </url>
+
+  <url>
+    <loc>https://www.pipocaflix.fun/catalogo.html?tipo=filmes</loc>
+  </url>
+
+  <url>
+    <loc>https://www.pipocaflix.fun/catalogo.html?tipo=series</loc>
+  </url>
+
+  <url>
+    <loc>https://www.pipocaflix.fun/elenco.html</loc>
+  </url>
+
+  <!-- EXEMPLOS DE FILMES -->
+  <url>
+    <loc>https://www.pipocaflix.fun/filme.html?nome=Pas%C3%A1rgada%20(2024)</loc>
+  </url>
+
+  <url>
+    <loc>https://www.pipocaflix.fun/filme.html?nome=A%20Casa%20da%20%C3%81rvore%20(2023)</loc>
+  </url>
+
+  <url>
+    <loc>https://www.pipocaflix.fun/filme.html?nome=No%C3%A9%20-%20Uma%20Adapta%C3%A7%C3%A3o%20da%20Novela%20G%C3%AAnesis%20(2021)</loc>
+  </url>
+
+</urlset>
