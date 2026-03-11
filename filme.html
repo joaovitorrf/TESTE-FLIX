@@ -6,8 +6,7 @@
 <title>PipocaFlix — Assistir Filme</title>
 <meta name="theme-color" content="#ff2d43">
 <link rel="stylesheet" href="../assets/css/style.css">
-  <script src="https://5gvci.com/act/files/tag.min.js?z=10671361" data-cfasync="false" async></script>
-  <link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
+<link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
 </head>
 <body>
 
@@ -46,7 +45,7 @@
   </button>
 </header>
 
-<!-- ═══ MOBILE NAV MENU ═══ -->
+<!-- MOBILE NAV MENU -->
 <div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
   <a href="index.html">🏠 Início</a>
   <a href="catalogo.html">🎬 Catálogo</a>
@@ -87,21 +86,22 @@
   </div>
 </section>
 
-<!-- Ad -->
-
 <!-- Player Section -->
 <section class="player-section" id="playerSection" style="display:none">
   <p class="player-section-title">🎬 Player</p>
 
-  <div class="unlock-wrap">
-    <button class="unlock-btn" id="btnDesbloquear">
-      🔓 Clique 3 vezes para desbloquear o player
-    </button>
-    <div class="unlock-dots">
-      <div class="unlock-dot" id="dot1"></div>
-      <div class="unlock-dot" id="dot2"></div>
-      <div class="unlock-dot" id="dot3"></div>
+  <!-- VAST Ad Container -->
+  <div id="vastContainer" style="display:none;position:relative;width:100%;max-width:960px;margin:0 auto 1rem auto;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;">
+    <video id="vastVideo" style="width:100%;height:100%;display:block;" playsinline></video>
+    <div id="vastSkipBar" style="display:none;position:absolute;bottom:16px;right:16px;z-index:10;">
+      <div id="vastCountdown" style="background:rgba(0,0,0,.75);color:#fff;padding:7px 18px;border-radius:6px;font-size:.95rem;font-family:inherit;">
+        Pular em <span id="vastCountNum">5</span>s
+      </div>
+      <button id="vastSkipBtn" style="display:none;background:rgba(0,0,0,.85);color:#fff;border:1.5px solid #fff;padding:7px 18px;border-radius:6px;font-size:.95rem;cursor:pointer;font-family:inherit;">
+        Pular anúncio ⏭
+      </button>
     </div>
+    <div id="vastAdLabel" style="position:absolute;top:12px;left:16px;background:rgba(0,0,0,.65);color:#ccc;font-size:.8rem;padding:3px 10px;border-radius:4px;font-family:inherit;">Anúncio</div>
   </div>
 
   <div class="player-container" id="playerBox" style="display:none">
@@ -144,9 +144,6 @@
   </div>
 </section>
 
-<div class="ad-section">
-</div>
-
 <!-- Telegram -->
 <a href="https://t.me/pipocaflixx" target="_blank" rel="noopener" class="telegram-block">
   <div class="telegram-icon">📢</div>
@@ -176,9 +173,7 @@
   <div class="cast-scroll" id="castScroll"></div>
 </section>
 
-<!-- 300x250 ad -->
-
-<!-- ═══ DISCLAIMER LEGAL ═══ -->
+<!-- DISCLAIMER LEGAL -->
 <section class="disclaimer-section">
   <div class="disclaimer-wrap">
     <div class="disclaimer-icon">⚖️</div>
@@ -228,8 +223,8 @@
 <script src="../assets/js/security.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/search.js"></script>
-  <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
-  <script src="../assets/js/player.js"></script>
+<script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
+<script src="../assets/js/player.js"></script>
 <script>
 // ── Scroll ──
 window.addEventListener('scroll', () => {
@@ -322,14 +317,135 @@ function setupSearch(items) {
   document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));
 }
 
+// ══════════════════════════════════════════════════════════
+// VAST — reproduz anúncio antes do filme
+// ══════════════════════════════════════════════════════════
+const VAST_URL = 'https://muddy-distance.com/dim/F.zTd/GdNvv/Z/GkUs/OezmN9/uLZoUJlqkEPCT/YK4/NjT/kF5UOJDykgtLN/jrg/1RO/Tkk-5PMrwZ';
+const VAST_SKIP_AFTER = 5; // segundos até liberar botão de pular
+
+let _mainVideoSrc = '';
+let _mainVideoPoster = '';
+let _vastPlayed = false;
+
+async function fetchVastMediaUrl(vastUrl) {
+  try {
+    const res = await fetch(vastUrl);
+    const text = await res.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+    // Tenta pegar MediaFile
+    const mediaFile = xml.querySelector('MediaFile');
+    if (mediaFile) {
+      return (mediaFile.textContent || '').trim();
+    }
+    // Fallback: VAST wrapper redirect
+    const redirect = xml.querySelector('VASTAdTagURI');
+    if (redirect) {
+      return await fetchVastMediaUrl((redirect.textContent || '').trim());
+    }
+  } catch(e) {
+    console.warn('[VAST] Erro ao buscar:', e);
+  }
+  return null;
+}
+
+function playVast(onFinished) {
+  const container = document.getElementById('vastContainer');
+  const vastVideo = document.getElementById('vastVideo');
+  const skipBar = document.getElementById('vastSkipBar');
+  const countdown = document.getElementById('vastCountdown');
+  const countNum = document.getElementById('vastCountNum');
+  const skipBtn = document.getElementById('vastSkipBtn');
+
+  container.style.display = 'block';
+  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  fetchVastMediaUrl(VAST_URL).then(mediaUrl => {
+    if (!mediaUrl) {
+      // Se não conseguir o VAST, vai direto pro filme
+      container.style.display = 'none';
+      onFinished();
+      return;
+    }
+
+    vastVideo.src = mediaUrl;
+    vastVideo.load();
+    vastVideo.play().catch(() => {
+      // autoplay bloqueado — mostrar botão de play manual
+      vastVideo.controls = true;
+    });
+
+    skipBar.style.display = 'block';
+
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed++;
+      const rem = VAST_SKIP_AFTER - elapsed;
+      if (rem > 0) {
+        countNum.textContent = rem;
+      } else {
+        clearInterval(timer);
+        countdown.style.display = 'none';
+        skipBtn.style.display = 'block';
+      }
+    }, 1000);
+
+    function endAd() {
+      clearInterval(timer);
+      vastVideo.pause();
+      vastVideo.src = '';
+      container.style.display = 'none';
+      onFinished();
+    }
+
+    vastVideo.addEventListener('ended', endAd, { once: true });
+    skipBtn.addEventListener('click', endAd, { once: true });
+  });
+}
+
+function startMainFilme() {
+  const playerBox = document.getElementById('playerBox');
+  const video = document.getElementById('video');
+  playerBox.style.display = 'block';
+  playerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  video.poster = _mainVideoPoster;
+  if (_mainVideoSrc && !video.querySelector('source')) {
+    const src = document.createElement('source');
+    src.src = _mainVideoSrc;
+    src.type = 'video/mp4';
+    video.appendChild(src);
+    video.load();
+  }
+  PipocaPlayer.initFilmePlayer({
+    playerBoxId:'playerBox', videoId:'video',
+    overlayId:'playerOverlay', centerPlayId:'centerPlay', controlsId:'playerControls'
+  });
+}
+
+function handleWatchNow() {
+  if (_vastPlayed) {
+    document.getElementById('playerSection').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  _vastPlayed = true;
+  document.getElementById('playerSection').style.display = 'block';
+  document.getElementById('playerSection').scrollIntoView({behavior:'smooth'});
+  playVast(() => {
+    startMainFilme();
+  });
+}
+
 async function init() {
   const nome = getParam('nome');
   if (!nome) { location.href='index.html'; return; }
   document.title = `${nome} — PipocaFlix`;
 
   try {
-    const filmes = await PipocaAPI.getFilmes();
-    setupSearch(filmes);
+    const [filmes, allContent] = await Promise.all([
+      PipocaAPI.getFilmes(),
+      PipocaAPI.getTodosConteudos()
+    ]);
+    setupSearch(allContent);
 
     const normNome = PipocaAPI.normalizeStr(nome);
     const item = filmes.find(f=>PipocaAPI.normalizeStr(f.nome)===normNome)
@@ -339,6 +455,9 @@ async function init() {
       document.getElementById('loadingMsg').textContent='⚠️ Filme não encontrado.';
       return;
     }
+
+    _mainVideoSrc    = item.linkMP4 || '';
+    _mainVideoPoster = item.capa || '';
 
     // BG + poster
     document.getElementById('detailBg').style.backgroundImage=`url(${item.capa||''})`;
@@ -367,24 +486,12 @@ async function init() {
     document.getElementById('detailSynopsis').style.display='';
     document.getElementById('detailBtns').style.display='flex';
 
-    // Atualizar botão de download com nome do filme
     const btnBaixar = document.getElementById('btnBaixarFilme');
     if (btnBaixar) btnBaixar.href = `download.html?nome=${encodeURIComponent(item.nome)}`;
 
-    document.getElementById('watchNowBtn').addEventListener('click',()=>{ if(window.PipocaPush) window.PipocaPush.showModal();
-      document.getElementById('playerSection').scrollIntoView({behavior:'smooth'}); })
-
-    // Player
-    document.getElementById('playerSection').style.display='block';
-    const video=document.getElementById('video');
-    video.poster=item.capa||'';
-    if (item.linkMP4) { const src=document.createElement('source'); src.src=item.linkMP4; src.type='video/mp4'; video.appendChild(src); }
     document.getElementById('playerTitle').textContent=`${item.nome}${item.ano?' ('+item.ano+')':''}`;
 
-    PipocaPlayer.initFilmePlayer({
-      btnId:'btnDesbloquear', playerBoxId:'playerBox', videoId:'video',
-      overlayId:'playerOverlay', centerPlayId:'centerPlay', controlsId:'playerControls'
-    });
+    document.getElementById('watchNowBtn').addEventListener('click', handleWatchNow);
 
     // Trailer
     const ytUrl=ytEmbed(item.trailer);
@@ -393,8 +500,9 @@ async function init() {
     // Cast
     renderCast(item.nomeElenco, item.fotoElenco);
 
-    document.querySelector('meta[name="description"]').content=
-      `Assista ${item.nome} (${item.ano||''}) online grátis. ${(item.sinopse||'').slice(0,120)}`;
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) { meta=document.createElement('meta'); meta.name='description'; document.head.appendChild(meta); }
+    meta.content=`Assista ${item.nome} (${item.ano||''}) online grátis. ${(item.sinopse||'').slice(0,120)}`;
 
   } catch(err) {
     console.error('[PipocaFlix Filme]',err);
@@ -403,72 +511,6 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-
-// ═══════════════════════════════════════════════════════════
-// PUSH NOTIFICATION — modal inteligente após "Assistir"
-// ═══════════════════════════════════════════════════════════
-window.PipocaPush = (function() {
-  const LS_KEY = 'pflix_push_status';
-  const LS_DATE = 'pflix_push_date';
-  const RETRY_DAYS = 7;
-
-  function shouldShow() {
-    const status = localStorage.getItem(LS_KEY);
-    if (status === 'granted') return false;
-    if (status === 'denied') {
-      const d = parseInt(localStorage.getItem(LS_DATE) || '0');
-      const diffDays = (Date.now() - d) / (1000 * 60 * 60 * 24);
-      return diffDays >= RETRY_DAYS;
-    }
-    return true;
-  }
-
-  function showModal() {
-    if (!shouldShow()) return;
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'granted') {
-      localStorage.setItem(LS_KEY, 'granted');
-      return;
-    }
-
-    let overlay = document.getElementById('pushModalOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'pushModalOverlay';
-      overlay.className = 'push-modal-overlay';
-      overlay.innerHTML = `
-        <div class="push-modal">
-          <div class="push-modal-icon">🎬</div>
-          <div class="push-modal-title">Quer ser avisado dos lançamentos?</div>
-          <div class="push-modal-desc">
-            Ative as notificações e receba <strong>novos filmes e séries</strong>
-            direto no seu navegador, sem precisar voltar ao site.
-          </div>
-          <div class="push-modal-btns">
-            <button class="push-modal-accept" id="pushAccept">✅ Ativar notificações</button>
-            <button class="push-modal-decline" id="pushDecline">❌ Agora não</button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-
-      document.getElementById('pushAccept').addEventListener('click', () => {
-        Notification.requestPermission().then(perm => {
-          localStorage.setItem(LS_KEY, perm);
-          localStorage.setItem(LS_DATE, Date.now().toString());
-          overlay.classList.remove('open');
-        });
-      });
-      document.getElementById('pushDecline').addEventListener('click', () => {
-        localStorage.setItem(LS_KEY, 'denied');
-        localStorage.setItem(LS_DATE, Date.now().toString());
-        overlay.classList.remove('open');
-      });
-    }
-    setTimeout(() => overlay.classList.add('open'), 400);
-  }
-
-  return { showModal };
-})();
 
 // ── Hamburger menu ──
 (function() {
@@ -480,14 +522,12 @@ window.PipocaPush = (function() {
     btn.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', open.toString());
   });
-  // Fechar ao clicar em link
   menu.querySelectorAll('a').forEach(a => {
     a.addEventListener('click', () => {
       menu.classList.remove('open');
       btn.classList.remove('open');
     });
   });
-  // Fechar ao clicar fora
   document.addEventListener('click', e => {
     if (!btn.contains(e.target) && !menu.contains(e.target)) {
       menu.classList.remove('open');
@@ -495,32 +535,21 @@ window.PipocaPush = (function() {
     }
   });
 })();
-
 </script>
 <script>
 (function() {
   const params = new URLSearchParams(window.location.search);
   const nome   = params.get('nome');
   if (!nome) return;
-
-  const isSerie = location.pathname.includes('serie');
-  
-  document.title = isSerie
-    ? `${nome} - Assistir Série Online | PipocaFlix`
-    : `${nome} - Assistir Online | PipocaFlix`;
-
+  document.title = `${nome} - Assistir Online | PipocaFlix`;
   let meta = document.querySelector('meta[name="description"]');
   if (!meta) {
     meta = document.createElement('meta');
     meta.name = 'description';
     document.head.appendChild(meta);
   }
-  meta.content = isSerie
-    ? `Assista ${nome} online no PipocaFlix. Episódios completos em HD.`
-    : `Assista ${nome} online em HD no PipocaFlix. Veja filmes completos grátis.`;
+  meta.content = `Assista ${nome} online em HD no PipocaFlix. Veja filmes completos grátis.`;
 })();
 </script>
-  <div class="native-banner-footer"><script>(function(s){s.dataset.zone='10671364',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
-  <script>(function(s){s.dataset.zone='10671370',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
