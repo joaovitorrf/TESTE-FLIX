@@ -19,7 +19,6 @@ const ROUTES = {
   EPISODIOS: "/episodios"
 };
 
-const SMARTLINK = "https://omg10.com/4/10670410";
 
 // Cache em memória para evitar fetches repetidos durante a sessão
 const _cache = {};
@@ -215,9 +214,6 @@ function normalizeStr(str) {
     .trim();
 }
 
-function openSmartlink() {
-  window.open(SMARTLINK, '_blank');
-}
 
 // Exporta para uso global
 window.PipocaAPI = {
@@ -226,7 +222,5 @@ window.PipocaAPI = {
   getEpisodios,
   getTodosConteudos,
   getEpisodiosPorSerie,
-  openSmartlink,
   normalizeStr,
-  SMARTLINK
 };
