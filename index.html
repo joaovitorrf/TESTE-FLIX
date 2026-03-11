@@ -6,6 +6,7 @@
 <title>PipocaFlix — Assistir Série</title>
 <meta name="theme-color" content="#ff2d43">
 <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="https://5gvci.com/act/files/tag.min.js?z=10671361" data-cfasync="false" async></script>
   <link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
 </head>
 <body>
@@ -91,20 +92,6 @@
 <!-- Player -->
 <section class="player-section" id="playerSection" style="display:none">
   <p class="player-section-title" id="playerSectionTitle">🎬 Player</p>
-  <!-- VAST Ad Container -->
-  <div id="vastContainer" style="display:none;position:relative;width:100%;max-width:960px;margin:0 auto 1rem auto;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;">
-    <video id="vastVideo" style="width:100%;height:100%;display:block;" playsinline></video>
-    <div id="vastSkipBar" style="display:none;position:absolute;bottom:16px;right:16px;z-index:10;">
-      <div id="vastCountdown" style="background:rgba(0,0,0,.75);color:#fff;padding:7px 18px;border-radius:6px;font-size:.95rem;font-family:inherit;">
-        Pular em <span id="vastCountNum">5</span>s
-      </div>
-      <button id="vastSkipBtn" style="display:none;background:rgba(0,0,0,.85);color:#fff;border:1.5px solid #fff;padding:7px 18px;border-radius:6px;font-size:.95rem;cursor:pointer;font-family:inherit;">
-        Pular anúncio ⏭
-      </button>
-    </div>
-    <div id="vastAdLabel" style="position:absolute;top:12px;left:16px;background:rgba(0,0,0,.65);color:#ccc;font-size:.8rem;padding:3px 10px;border-radius:4px;font-family:inherit;">Anúncio</div>
-  </div>
-
 
   <div class="player-container" id="playerBox" style="display:none">
     <video id="video" class="video-js" preload="metadata" playsinline></video>
@@ -141,7 +128,8 @@
   </div>
 </section>
 
-
+<div class="ad-section">
+</div>
 
 <!-- Telegram -->
 <a href="https://t.me/pipocaflixx" target="_blank" rel="noopener" class="telegram-block">
@@ -342,83 +330,11 @@ function renderEpisodios() {
   });
 }
 
-
-// ══════════════════════════════════════════════════════════
-// VAST — reproduz anúncio antes de cada episódio
-// ══════════════════════════════════════════════════════════
-const VAST_URL = 'https://muddy-distance.com/dim/F.zTd/GdNvv/Z/GkUs/OezmN9/uLZoUJlqkEPCT/YK4/NjT/kF5UOJDykgtLN/jrg/1RO/Tkk-5PMrwZ';
-const VAST_SKIP_AFTER = 5;
-
-async function fetchVastMediaUrl(vastUrl) {
-  try {
-    const res = await fetch(vastUrl);
-    const text = await res.text();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, 'text/xml');
-    const mediaFile = xml.querySelector('MediaFile');
-    if (mediaFile) return (mediaFile.textContent || '').trim();
-    const redirect = xml.querySelector('VASTAdTagURI');
-    if (redirect) return await fetchVastMediaUrl((redirect.textContent || '').trim());
-  } catch(e) { console.warn('[VAST]', e); }
-  return null;
-}
-
-function playVast(onFinished) {
-  const container = document.getElementById('vastContainer');
-  const vastVideo = document.getElementById('vastVideo');
-  const skipBar   = document.getElementById('vastSkipBar');
-  const countdown = document.getElementById('vastCountdown');
-  const countNum  = document.getElementById('vastCountNum');
-  let skipBtn     = document.getElementById('vastSkipBtn');
-
-  skipBar.style.display = 'none';
-  countdown.style.display = 'block';
-  skipBtn.style.display = 'none';
-  countNum.textContent = VAST_SKIP_AFTER;
-  vastVideo.src = '';
-
-  container.style.display = 'block';
-  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  fetchVastMediaUrl(VAST_URL).then(mediaUrl => {
-    if (!mediaUrl) { container.style.display = 'none'; onFinished(); return; }
-
-    vastVideo.src = mediaUrl;
-    vastVideo.load();
-    vastVideo.play().catch(() => { vastVideo.controls = true; });
-    skipBar.style.display = 'block';
-
-    let elapsed = 0;
-    const timer = setInterval(() => {
-      elapsed++;
-      const rem = VAST_SKIP_AFTER - elapsed;
-      if (rem > 0) { countNum.textContent = rem; }
-      else { clearInterval(timer); countdown.style.display = 'none'; skipBtn.style.display = 'block'; }
-    }, 1000);
-
-    // Clonar skipBtn para evitar listeners duplicados
-    const newSkipBtn = skipBtn.cloneNode(true);
-    skipBtn.parentNode.replaceChild(newSkipBtn, skipBtn);
-    skipBtn = newSkipBtn;
-
-    function endAd() {
-      clearInterval(timer);
-      vastVideo.pause();
-      vastVideo.src = '';
-      container.style.display = 'none';
-      onFinished();
-    }
-    vastVideo.addEventListener('ended', endAd, { once: true });
-    skipBtn.addEventListener('click', endAd, { once: true });
-  });
-}
-
 function tocar(ep) {
-  const titulo = `${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
-  document.getElementById('playerSection').style.display = 'block';
-  playVast(() => {
-    if (seriePlayer) seriePlayer.loadEpisode(ep.linkMP4, titulo);
-  });
+  PipocaAPI.openSmartlink();
+  if(window.PipocaPush) window.PipocaPush.showModal();
+  const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
+  if (seriePlayer) seriePlayer.loadEpisode(ep.linkMP4, titulo);
 }
 
 function setupSearch(allItems) {
@@ -654,5 +570,8 @@ window.PipocaPush = (function() {
     : `Assista ${nome} online em HD no PipocaFlix. Veja filmes completos grátis.`;
 })();
 </script>
+
+  <div class="native-banner-footer"><script>(function(s){s.dataset.zone='10671364',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
+  <script>(function(s){s.dataset.zone='10671370',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
