@@ -116,8 +116,8 @@ input { font-family: var(--font-body); }
   border-bottom: 1px solid transparent;
 }
 .header.scrolled {
-  background: rgba(5,5,7,0.92);
-  backdrop-filter: blur(24px) saturate(180%);
+  background: rgba(5,5,7,0.85);
+  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom-color: var(--border);
 }
@@ -532,7 +532,9 @@ input { font-family: var(--font-body); }
 /* Category scroll */
 .cat-scroll-wrap {
   position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0;
 }
 .cat-scroll {
   display: flex;
@@ -542,8 +544,34 @@ input { font-family: var(--font-body); }
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  flex: 1;
 }
 .cat-scroll::-webkit-scrollbar { display: none; }
+
+/* Category scroll arrows — desktop only */
+.cat-scroll-wrap .carousel-arrow {
+  position: static;
+  transform: none;
+  flex-shrink: 0;
+}
+.cat-scroll-wrap .carousel-arrow.prev { margin-right: 6px; }
+.cat-scroll-wrap .carousel-arrow.next { margin-left: 6px; }
+@media (max-width: 768px) {
+  .cat-scroll-wrap .carousel-arrow { display: none !important; }
+}
+
+/* Card year badge */
+.card-year-badge {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 4px 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+  text-align: right;
+  letter-spacing: 0.3px;
+}
 
 .cat-card {
   flex: 0 0 auto;
