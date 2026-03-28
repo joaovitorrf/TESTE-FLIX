@@ -3,18 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
-<script>
-(function(exgk){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = exgk || {};
-s.src = "//simplisticpride.com/bjX.V/sadvGWlT0EYFWzcs/qevmQ9/uzZyUvlvk/PPTOYM4cNnjLAM0zNZDukbt/Nlj/gg2VMbDaQU1NM/wY";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PipocaFlix — Filmes e Séries Online</title>
 <meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo em HD.">
@@ -44,7 +33,6 @@ l.parentNode.insertBefore(s, l);
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
     <a href="elenco.html">Elenco</a>
-    <a href="download.html">Download</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -68,7 +56,6 @@ l.parentNode.insertBefore(s, l);
   <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
   <a href="catalogo.html?tipo=series">📺 Séries</a>
   <a href="elenco.html">🎭 Elenco</a>
-  <a href="download.html">⬇️ Downloads</a>
 </div>
 
 <!-- ═══ SEARCH RESULTS ═══ -->
@@ -126,7 +113,13 @@ l.parentNode.insertBefore(s, l);
     <h2 class="section-title">Explorar Categorias</h2>
   </div>
   <div class="cat-scroll-wrap">
+    <button class="carousel-arrow prev" id="catPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <div class="cat-scroll" id="catScroll"></div>
+    <button class="carousel-arrow next" id="catNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
   </div>
 </section>
 
@@ -454,12 +447,12 @@ function mkCard(item) {
       <div class="card-play">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </div>
+      ${item.ano ? `<div class="card-year-badge">${item.ano}</div>` : ''}
     </div>
     <div class="card-info">
       <div class="card-name">${item.nome}</div>
       <div class="card-meta-row">
-        ${item.ano ? `<span>${item.ano}</span>`:''}
-        ${item.categoria ? `<span>· ${item.categoria.split(',')[0].trim()}</span>`:''}
+        ${item.categoria ? `<span>${item.categoria.split(',')[0].trim()}</span>`:''}
       </div>
     </div>`;
   div.addEventListener('click', () => { location.href = `${page}?nome=${encodeURIComponent(item.nome)}`; });
@@ -477,6 +470,28 @@ function setupCarouselArrows(trackId, prevId, nextId) {
   const STEP = 680;
   prev.addEventListener('click', () => track.scrollBy({left:-STEP,behavior:'smooth'}));
   next.addEventListener('click', () => track.scrollBy({left:STEP,behavior:'smooth'}));
+}
+
+// ── Category arrows ──
+function setupCatArrows() {
+  const scroll = document.getElementById('catScroll');
+  const prev   = document.getElementById('catPrev');
+  const next   = document.getElementById('catNext');
+  if (!scroll || !prev || !next) return;
+  const STEP = 300;
+
+  function updateArrows() {
+    prev.style.opacity = scroll.scrollLeft <= 0 ? '0.3' : '1';
+    prev.style.pointerEvents = scroll.scrollLeft <= 0 ? 'none' : 'auto';
+    const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 2;
+    next.style.opacity = atEnd ? '0.3' : '1';
+    next.style.pointerEvents = atEnd ? 'none' : 'auto';
+  }
+
+  prev.addEventListener('click', () => { scroll.scrollBy({left:-STEP,behavior:'smooth'}); });
+  next.addEventListener('click', () => { scroll.scrollBy({left:STEP,behavior:'smooth'}); });
+  scroll.addEventListener('scroll', updateArrows, {passive:true});
+  updateArrows();
 }
 
 // ── Hero carrossel ──
@@ -673,72 +688,6 @@ function filterByCategory(items, cat, max) {
 
 
 // ═══════════════════════════════════════════════════════════
-// PUSH NOTIFICATION — modal inteligente após "Assistir"
-// ═══════════════════════════════════════════════════════════
-window.PipocaPush = (function() {
-  const LS_KEY = 'pflix_push_status';
-  const LS_DATE = 'pflix_push_date';
-  const RETRY_DAYS = 7;
-
-  function shouldShow() {
-    const status = localStorage.getItem(LS_KEY);
-    if (status === 'granted') return false;
-    if (status === 'denied') {
-      const d = parseInt(localStorage.getItem(LS_DATE) || '0');
-      const diffDays = (Date.now() - d) / (1000 * 60 * 60 * 24);
-      return diffDays >= RETRY_DAYS;
-    }
-    return true;
-  }
-
-  function showModal() {
-    if (!shouldShow()) return;
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'granted') {
-      localStorage.setItem(LS_KEY, 'granted');
-      return;
-    }
-
-    let overlay = document.getElementById('pushModalOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'pushModalOverlay';
-      overlay.className = 'push-modal-overlay';
-      overlay.innerHTML = `
-        <div class="push-modal">
-          <div class="push-modal-icon">🎬</div>
-          <div class="push-modal-title">Quer ser avisado dos lançamentos?</div>
-          <div class="push-modal-desc">
-            Ative as notificações e receba <strong>novos filmes e séries</strong>
-            direto no seu navegador, sem precisar voltar ao site.
-          </div>
-          <div class="push-modal-btns">
-            <button class="push-modal-accept" id="pushAccept">✅ Ativar notificações</button>
-            <button class="push-modal-decline" id="pushDecline">❌ Agora não</button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-
-      document.getElementById('pushAccept').addEventListener('click', () => {
-        Notification.requestPermission().then(perm => {
-          localStorage.setItem(LS_KEY, perm);
-          localStorage.setItem(LS_DATE, Date.now().toString());
-          overlay.classList.remove('open');
-        });
-      });
-      document.getElementById('pushDecline').addEventListener('click', () => {
-        localStorage.setItem(LS_KEY, 'denied');
-        localStorage.setItem(LS_DATE, Date.now().toString());
-        overlay.classList.remove('open');
-      });
-    }
-    setTimeout(() => overlay.classList.add('open'), 400);
-  }
-
-  return { showModal };
-})();
-
-
 // ── Hamburger menu ──
 (function() {
   const btn = document.getElementById('hamburgerBtn');
@@ -817,6 +766,7 @@ async function init() {
 
     // Categorias
     setupCategories(allContent);
+    setupCatArrows();
 
     // Filmes carrossel (embaralhado para variar)
     const filmesShuffled = [...filmes].sort(() => Math.random() - 0.5);
@@ -860,18 +810,6 @@ document.addEventListener('DOMContentLoaded', init);
   ⭐ Gostou do PipocaFlix?&nbsp;<strong>Ctrl + D</strong>&nbsp;para salvar nos favoritos!
   <button class="fav-hint-close" id="favHintClose" aria-label="Fechar">×</button>
 </div>
- <script>
-(function(eb){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = eb || {};
-s.src = "\/\/simplisticpride.com\/bJXFV\/s.dkG\/lE0LYlWDcl\/Wejm\/9HuuZSUTlQktPIT\/YN4AN-jqk\/0iMgTec\/tNNQjWgZ2vOJT\/QZyVMQQo";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
