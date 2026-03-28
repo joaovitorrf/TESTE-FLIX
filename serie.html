@@ -2,18 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<script>
-(function(exgk){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = exgk || {};
-s.src = "//simplisticpride.com/bjX.V/sadvGWlT0EYFWzcs/qevmQ9/uzZyUvlvk/PPTOYM4cNnjLAM0zNZDukbt/Nlj/gg2VMbDaQU1NM/wY";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
+<meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PipocaFlix — Assistir Série</title>
 <meta name="theme-color" content="#ff2d43">
@@ -41,7 +30,6 @@ l.parentNode.insertBefore(s, l);
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
     <a href="elenco.html">Elenco</a>
-    <a href="download.html">Download</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -64,7 +52,6 @@ l.parentNode.insertBefore(s, l);
   <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
   <a href="catalogo.html?tipo=series">📺 Séries</a>
   <a href="elenco.html">🎭 Elenco</a>
-  <a href="download.html">⬇️ Downloads</a>
 </div>
 
 <!-- Search results -->
@@ -92,7 +79,6 @@ l.parentNode.insertBefore(s, l);
           Ver Episódios
         </button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
-        <a id="btnBaixarSerie" href="download.html" class="btn-secondary" style="color:#22c55e;border-color:rgba(34,197,94,.4)">⬇ Baixar Série</a>
       </div>
     </div>
   </div>
@@ -330,8 +316,29 @@ function showVASTPlayer(mp4Url, doc, onComplete) {
   var skipDelay = 5; // segundos antes de poder pular
   var canSkip = false;
 
-  // Contagem regressiva para pular
+  // Impression + start: disparar assim que o ad começar
+  var impressionFired = false;
+  adVideo.addEventListener('play', function() {
+    if (impressionFired) return;
+    impressionFired = true;
+    try {
+      doc.querySelectorAll('Impression').forEach(function(imp) {
+        var url = imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if (url) new Image().src = url;
+      });
+      doc.querySelectorAll('Tracking[event="start"]').forEach(function(t) {
+        var url = t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if (url) new Image().src = url;
+      });
+    } catch(e) {}
+  });
+
+  // Quartis via timeupdate
+  var quartilsFired = { firstQuartile: false, midpoint: false, thirdQuartile: false };
   adVideo.addEventListener('timeupdate', function() {
+    if (!adVideo.duration) return;
+    var pct = adVideo.currentTime / adVideo.duration;
+    // Countdown para skip
     var remaining = Math.ceil(skipDelay - adVideo.currentTime);
     if (remaining > 0) {
       skipBtn.textContent = 'Pular em ' + remaining + 's';
@@ -342,23 +349,30 @@ function showVASTPlayer(mp4Url, doc, onComplete) {
       skipBtn.style.cursor = 'pointer';
       skipBtn.style.background = 'rgba(255,255,255,0.25)';
     }
+    // Quartis
+    [
+      { key: 'firstQuartile', threshold: 0.25 },
+      { key: 'midpoint',      threshold: 0.50 },
+      { key: 'thirdQuartile', threshold: 0.75 }
+    ].forEach(function(ev) {
+      if (!quartilsFired[ev.key] && pct >= ev.threshold) {
+        quartilsFired[ev.key] = true;
+        doc.querySelectorAll('Tracking[event="' + ev.key + '"]').forEach(function(t) {
+          var url = t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+          if (url) new Image().src = url;
+        });
+      }
+    });
   });
 
   function encerrarAd() {
-    // Rastrear impressão VAST (tracking pixels)
+    // Apenas complete aqui
     try {
-      var impressions = doc.querySelectorAll('Impression');
-      impressions.forEach(function(imp) {
-        var url = imp.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
-        if (url) new Image().src = url;
-      });
-      var completes = doc.querySelectorAll('Tracking[event="complete"]');
-      completes.forEach(function(t) {
+      doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t) {
         var url = t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
         if (url) new Image().src = url;
       });
     } catch(e) {}
-
     adVideo.pause();
     adOverlay.remove();
     onComplete();
@@ -486,7 +500,37 @@ function tocar(ep) {
   if(window.PipocaPush) window.PipocaPush.showModal();
   const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
   runVAST(function() {
-    if (seriePlayer) seriePlayer.loadEpisode(ep.linkMP4, titulo);
+    if (seriePlayer) {
+      seriePlayer.loadEpisode(ep.linkMP4, titulo);
+
+      // Configurar callback de próximo episódio
+      const eps = temporadasData[ep.temporada] || [];
+      const idxAtual = eps.findIndex(e => e.episodio === ep.episodio);
+      const proxEp = eps[idxAtual + 1];
+
+      if (proxEp) {
+        seriePlayer.setNextEpCallback(function() { tocar(proxEp); });
+      } else {
+        // Verificar próxima temporada
+        const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
+        const idxTemp = nums.indexOf(ep.temporada);
+        const proxTemp = nums[idxTemp + 1];
+        if (proxTemp && temporadasData[proxTemp] && temporadasData[proxTemp].length > 0) {
+          seriePlayer.setNextEpCallback(function() {
+            temporadaAtual = proxTemp;
+            document.querySelectorAll('.season-tab').forEach(b => {
+              const isActive = parseInt(b.textContent.replace('Temporada ','')) === proxTemp;
+              b.classList.toggle('active', isActive);
+              b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+            renderEpisodios();
+            tocar(temporadasData[proxTemp][0]);
+          });
+        } else {
+          seriePlayer.setNextEpCallback(null);
+        }
+      }
+    }
   });
 }
 
@@ -503,6 +547,7 @@ function setupSearch(allItems) {
         onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
       <span class="card-badge">${item.isSerie?'Série':'Filme'}</span>
       <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      ${item.ano ? `<div class="card-year-badge">${item.ano}</div>` : ''}
     </div>
     <div class="card-info"><div class="card-name">${item.nome}</div>
     <div class="card-meta-row"><span>${item.ano||''}</span></div></div>`;
@@ -567,10 +612,6 @@ async function init() {
     document.getElementById('detailSynopsis').textContent=item.sinopse||'Sinopse não disponível.';
     document.getElementById('detailSynopsis').style.display='';
     document.getElementById('detailBtns').style.display='flex';
-
-    // Atualizar botão de download com nome da série
-    const btnBaixarS = document.getElementById('btnBaixarSerie');
-    if (btnBaixarS) btnBaixarS.href = `download.html?nome=${encodeURIComponent(item.nome)}`;
 
     document.getElementById('scrollToEpsBtn').addEventListener('click',()=>
       document.getElementById('seasonsSection').scrollIntoView({behavior:'smooth'}));
