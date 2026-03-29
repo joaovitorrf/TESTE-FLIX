@@ -60,6 +60,7 @@ async function fetchCSV(tab, retries = 3, delay = 1200) {
 
 /* ─────────────────────────────────────────────
    fetchEpisodeTab — busca uma aba de episódios
+   O Worker 1 (shy-dream) exige Origin + Referer
 ───────────────────────────────────────────── */
 async function fetchEpisodeTab(route) {
   const cacheKey = 'ep_tab_' + route;
@@ -71,15 +72,23 @@ async function fetchEpisodeTab(route) {
     const timer = setTimeout(() => ctrl.abort(), 15000);
     const res = await fetch(EPISODES_WORKER + route, {
       signal: ctrl.signal,
-      headers: { 'Accept': 'text/csv, text/plain, */*' }
+      headers: {
+        'Accept':  'text/csv, text/plain, */*',
+        'Origin':  location.origin,
+        'Referer': location.href
+      }
     });
     clearTimeout(timer);
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.warn('[API] fetchEpisodeTab', route, 'retornou', res.status);
+      return [];
+    }
     const text = await res.text();
-    const data = parseCSV(text);
+    const data = parseCSVEpisodios(text);   // parser dedicado — não descarta por col A
     _cache[cacheKey] = { data, ts: Date.now() };
     return data;
-  } catch {
+  } catch (err) {
+    console.warn('[API] fetchEpisodeTab', route, 'erro:', err.message);
     return [];
   }
 }
@@ -157,10 +166,34 @@ function mapSerie(row) {
   };
 }
 
+/* ─────────────────────────────────────────────
+   parseCSVEpisodios — parser dedicado para a
+   planilha de episódios.
+   Filtra por coluna B (linkMP4) — não por col A,
+   pois col A pode estar vazia em algumas linhas.
+───────────────────────────────────────────── */
+function parseCSVEpisodios(text) {
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const rows = [];
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    rows.push(parseCSVLine(line));
+  }
+  // Pula o header (linha 1) e filtra por col B (índice 1) não vazia
+  return rows.slice(1).filter(r => r && r[1] && r[1].trim());
+}
+
 function mapEpisodio(row) {
+  // Estrutura da planilha de episódios:
+  // Coluna A (row[0]) = Nome da Série
+  // Coluna B (row[1]) = Link do Worker de reprodução (usado pelo player)
+  // Coluna C (row[2]) = Temporada
+  // Coluna D (row[3]) = Episódio
+  // Coluna E (row[4]) = Link MP4 real (usado internamente pelo Worker de reprodução)
+  var link = (row[1] || '').trim().replace(/^["']|["']$/g, '');
   return {
-    serie:     row[0] || '',
-    linkMP4:   row[1] || '',   // Coluna B (índice 1) — link do episódio
+    serie:     (row[0] || '').trim(),
+    linkMP4:   link,          // Link da col B — URL do Worker de reprodução
     temporada: parseInt(row[2]) || 1,
     episodio:  parseInt(row[3]) || 1
   };
@@ -179,11 +212,14 @@ async function getSeries() {
   return rows.map(mapSerie).filter(s => s.nome);
 }
 
-/* getEpisodios — busca todas as abas em paralelo e mescla */
+/* getEpisodios — busca todas as 7 abas em paralelo e mescla */
 async function getEpisodios() {
   const results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
   const all = results.flat();
-  return all.map(mapEpisodio).filter(e => e.serie);
+  // Filtra: precisa ter linkMP4 (col B) preenchido
+  const mapped = all.map(mapEpisodio).filter(e => e.linkMP4);
+  console.log('[API] getEpisodios: total de episódios carregados:', mapped.length);
+  return mapped;
 }
 
 async function getTodosConteudos() {
