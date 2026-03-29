@@ -91,7 +91,7 @@
   <p class="player-section-title" id="playerSectionTitle">🎬 Player</p>
 
   <div class="player-container" id="playerBox" style="display:none">
-    <video id="video" class="video-js" preload="metadata" playsinline></video>
+    <video id="video" class="video-js" preload="metadata" playsinline crossorigin="anonymous"></video>
     <div class="player-overlay" id="playerOverlay">
       <img src="https://i.ibb.co/6Jbf2TRY/transferir-1.jpg" class="player-overlay-logo" alt="PipocaFlix"
         onerror="this.style.display='none'">
@@ -496,39 +496,63 @@ function renderEpisodios() {
   });
 }
 
+// ─────────────────────────────────────────────────────────────
+// resolveVideoUrl — garante URL absoluta para o player
+// O link da coluna B pode ser:
+//   1. URL completa: https://worker.../E1234  → usa direto
+//   2. Caminho relativo: /E1234               → monta URL do Worker
+// ─────────────────────────────────────────────────────────────
+const REPRODUCTION_WORKER = 'https://shy-dream-7986.slacarambafdsosobrenome.workers.dev';
+
+function resolveVideoUrl(raw) {
+  if (!raw) return '';
+  raw = raw.trim();
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+  // Caminho relativo — monta URL completa
+  return REPRODUCTION_WORKER + (raw.startsWith('/') ? raw : '/' + raw);
+}
+
 function tocar(ep) {
   if(window.PipocaPush) window.PipocaPush.showModal();
-  const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
+  const titulo = `${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
+  const videoUrl = resolveVideoUrl(ep.linkMP4);
+
+  console.log('[PipocaFlix] Reproduzindo:', titulo, '→', videoUrl);
+
+  if (!videoUrl) {
+    console.error('[PipocaFlix] linkMP4 vazio para ep:', ep);
+    return;
+  }
+
   runVAST(function() {
-    if (seriePlayer) {
-      seriePlayer.loadEpisode(ep.linkMP4, titulo);
+    if (!seriePlayer) { console.error('[PipocaFlix] seriePlayer não inicializado'); return; }
 
-      // Configurar callback de próximo episódio
-      const eps = temporadasData[ep.temporada] || [];
-      const idxAtual = eps.findIndex(e => e.episodio === ep.episodio);
-      const proxEp = eps[idxAtual + 1];
+    seriePlayer.loadEpisode(videoUrl, titulo);
 
-      if (proxEp) {
-        seriePlayer.setNextEpCallback(function() { tocar(proxEp); });
-      } else {
-        // Verificar próxima temporada
-        const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
-        const idxTemp = nums.indexOf(ep.temporada);
-        const proxTemp = nums[idxTemp + 1];
-        if (proxTemp && temporadasData[proxTemp] && temporadasData[proxTemp].length > 0) {
-          seriePlayer.setNextEpCallback(function() {
-            temporadaAtual = proxTemp;
-            document.querySelectorAll('.season-tab').forEach(b => {
-              const isActive = parseInt(b.textContent.replace('Temporada ','')) === proxTemp;
-              b.classList.toggle('active', isActive);
-              b.setAttribute('aria-selected', isActive ? 'true' : 'false');
-            });
-            renderEpisodios();
-            tocar(temporadasData[proxTemp][0]);
+    // Próximo episódio
+    const eps = temporadasData[ep.temporada] || [];
+    const idxAtual = eps.findIndex(e => e.episodio === ep.episodio);
+    const proxEp = eps[idxAtual + 1];
+
+    if (proxEp) {
+      seriePlayer.setNextEpCallback(function() { tocar(proxEp); });
+    } else {
+      const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
+      const idxTemp = nums.indexOf(ep.temporada);
+      const proxTemp = nums[idxTemp + 1];
+      if (proxTemp && temporadasData[proxTemp] && temporadasData[proxTemp].length > 0) {
+        seriePlayer.setNextEpCallback(function() {
+          temporadaAtual = proxTemp;
+          document.querySelectorAll('.season-tab').forEach(b => {
+            const isActive = parseInt(b.textContent.replace('Temporada ','')) === proxTemp;
+            b.classList.toggle('active', isActive);
+            b.setAttribute('aria-selected', isActive ? 'true' : 'false');
           });
-        } else {
-          seriePlayer.setNextEpCallback(null);
-        }
+          renderEpisodios();
+          tocar(temporadasData[proxTemp][0]);
+        });
+      } else {
+        seriePlayer.setNextEpCallback(null);
       }
     }
   });
