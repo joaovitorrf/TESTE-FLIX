@@ -80,7 +80,6 @@ window.PipocaPlayer = (function () {
       '.ctrl-vol-wrap:hover .ctrl-vol-slider{display:flex;}',
       '.ctrl-vol-slider input[type=range]{',
         'writing-mode:vertical-lr;direction:rtl;',
-        '-webkit-appearance:slider-vertical;',
         'width:4px;height:70px;',
         'accent-color:var(--red,#ff2d43);cursor:pointer;',
       '}',
@@ -557,15 +556,37 @@ window.PipocaPlayer = (function () {
     return {
       loadEpisode: function (src, titulo) {
         playerBox.style.display = 'block';
+
+        // Para o vídeo anterior e limpa o src antes de trocar
+        // (evita que o browser mantenha o stream antigo em memória)
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+
+        // Seta o novo src
         video.src = src;
         video.load();
+
         if (titleEl) titleEl.textContent = titulo || '';
+
+        // Reseta overlay para estado inicial
         overlay.classList.remove('hidden');
+        var overlayText = overlay.querySelector('.player-overlay-text');
+        if (overlayText) overlayText.textContent = 'Clique para reproduzir';
         centerPlay.style.opacity = '1';
         centerPlay.style.pointerEvents = '';
         controls.classList.add('hidden');
         nextEpCard.style.display = 'none';
         playerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Handler de erro — exibe mensagem no overlay em vez de silenciar
+        video.onerror = function () {
+          var code = video.error ? video.error.code : '?';
+          var msg  = video.error ? video.error.message : 'Erro desconhecido';
+          console.error('[PipocaPlayer] Erro ao carregar vídeo. Código:', code, '| Src:', src, '| Msg:', msg);
+          overlay.classList.remove('hidden');
+          if (overlayText) overlayText.textContent = '⚠️ Não foi possível carregar. Tente outro episódio.';
+        };
       },
       setNextEpCallback: function (fn) {
         _onNextEp = fn;
