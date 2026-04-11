@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elenco — PipocaFlix</title>
 <meta name="description" content="Explore os atores e atrizes do catálogo PipocaFlix. Veja biografias e filmografias.">
 <meta name="theme-color" content="#ff2d43">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css">
 <style>
 /* ════════════════════════════════════════
    ELENCO PAGE — ESTILOS EXCLUSIVOS
@@ -389,6 +392,7 @@
     <input type="search" class="search-bar" id="desktopSearchInput"
       placeholder="Buscar..." autocomplete="off" spellcheck="false" aria-label="Buscar">
   </div>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
@@ -494,9 +498,10 @@
 </button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="../assets/js/security.js"></script>
-<script src="../assets/js/api.js"></script>
-<script src="../assets/js/search.js"></script>
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
 <script>
 /* ════════════════════════════════════════════════════════
    PIPOCAFLIX — elenco.html
@@ -858,6 +863,7 @@ async function init() {
   try {
     const [filmes, series] = await Promise.all([
       PipocaAPI.getFilmes(),
+      PipocaAPI.getSeries(),
       PipocaAPI.getSeries()
     ]);
 
