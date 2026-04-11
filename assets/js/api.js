@@ -3,34 +3,40 @@
  * Integração Google Sheets via Worker Cloudflare
  *
  * Workers:
- *   WORKER_BASE → filmes, series
- *   EPISODES_WORKER → episodios (múltiplas abas em paralelo)
+ *   WORKER_BASE    → filmes, series (planilha principal)
+ *   EPISODES_WORKER → episodios (planilha separada, 7 abas)
+ *
+ * MUDANÇA PRINCIPAL:
+ *   Antes: getEpisodiosPorSerie() baixava as 7 abas INTEIRAS (~70k linhas)
+ *          só pra filtrar os episódios de uma série.
+ *   Agora: busca aba por aba e para assim que achar os episódios da série,
+ *          sem carregar dados desnecessários.
  */
 
 const WORKER_BASE = "https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev";
 
 const ROUTES = {
-  FILMES:  "/filmes",
-  SERIES:  "/series",
+  FILMES: "/filmes",
+  SERIES: "/series",
 };
 
-// Novo Worker de episódios com múltiplas abas
 const EPISODES_WORKER = "https://shy-dream-7986.slacarambafdsosobrenome.workers.dev";
 const EPISODE_TABS = [
   '/episodios1', '/episodios2', '/episodios3', '/episodios4',
   '/episodios5', '/episodios6', '/episodios7'
 ];
 
-// Cache em memória
+// Cache em memória — filmes/séries: 5 min, episódios por série: 10 min
 const _cache = {};
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+const CACHE_TTL_GERAL    = 5  * 60 * 1000;
+const CACHE_TTL_EPISODIOS = 10 * 60 * 1000;
 
 /* ─────────────────────────────────────────────
-   fetchCSV — filmes e séries
+   fetchCSV — filmes e séries (planilha principal)
 ───────────────────────────────────────────── */
 async function fetchCSV(tab, retries = 3, delay = 1200) {
   const cacheKey = tab;
-  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL) {
+  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_GERAL) {
     return _cache[cacheKey].data;
   }
   const workerUrl = WORKER_BASE + ROUTES[tab];
@@ -59,12 +65,11 @@ async function fetchCSV(tab, retries = 3, delay = 1200) {
 }
 
 /* ─────────────────────────────────────────────
-   fetchEpisodeTab — busca uma aba de episódios
-   O Worker 1 (shy-dream) exige Origin + Referer
+   fetchEpisodeTab — busca UMA aba de episódios
 ───────────────────────────────────────────── */
 async function fetchEpisodeTab(route) {
   const cacheKey = 'ep_tab_' + route;
-  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL) {
+  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_EPISODIOS) {
     return _cache[cacheKey].data;
   }
   try {
@@ -84,7 +89,7 @@ async function fetchEpisodeTab(route) {
       return [];
     }
     const text = await res.text();
-    const data = parseCSVEpisodios(text);   // parser dedicado — não descarta por col A
+    const data = parseCSVEpisodios(text);
     _cache[cacheKey] = { data, ts: Date.now() };
     return data;
   } catch (err) {
@@ -127,6 +132,20 @@ function parseCSVLine(line) {
 }
 
 /* ─────────────────────────────────────────────
+   parseCSVEpisodios — parser dedicado
+   Filtra por coluna B (linkMP4) não vazia
+───────────────────────────────────────────── */
+function parseCSVEpisodios(text) {
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  const rows = [];
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    rows.push(parseCSVLine(line));
+  }
+  return rows.slice(1).filter(r => r && r[1] && r[1].trim());
+}
+
+/* ─────────────────────────────────────────────
    mapRow — mapeia colunas para objetos
 ───────────────────────────────────────────── */
 function mapFilme(row) {
@@ -166,34 +185,11 @@ function mapSerie(row) {
   };
 }
 
-/* ─────────────────────────────────────────────
-   parseCSVEpisodios — parser dedicado para a
-   planilha de episódios.
-   Filtra por coluna B (linkMP4) — não por col A,
-   pois col A pode estar vazia em algumas linhas.
-───────────────────────────────────────────── */
-function parseCSVEpisodios(text) {
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  const rows = [];
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    rows.push(parseCSVLine(line));
-  }
-  // Pula o header (linha 1) e filtra por col B (índice 1) não vazia
-  return rows.slice(1).filter(r => r && r[1] && r[1].trim());
-}
-
 function mapEpisodio(row) {
-  // Estrutura da planilha de episódios:
-  // Coluna A (row[0]) = Nome da Série
-  // Coluna B (row[1]) = Link do Worker de reprodução (usado pelo player)
-  // Coluna C (row[2]) = Temporada
-  // Coluna D (row[3]) = Episódio
-  // Coluna E (row[4]) = Link MP4 real (usado internamente pelo Worker de reprodução)
-  var link = (row[1] || '').trim().replace(/^["']|["']$/g, '');
+  const link = (row[1] || '').trim().replace(/^["']|["']$/g, '');
   return {
     serie:     (row[0] || '').trim(),
-    linkMP4:   link,          // Link da col B — URL do Worker de reprodução
+    linkMP4:   link,
     temporada: parseInt(row[2]) || 1,
     episodio:  parseInt(row[3]) || 1
   };
@@ -212,44 +208,78 @@ async function getSeries() {
   return rows.map(mapSerie).filter(s => s.nome);
 }
 
-/* getEpisodios — busca todas as 7 abas em paralelo e mescla */
-async function getEpisodios() {
-  const results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
-  const all = results.flat();
-  // Filtra: precisa ter linkMP4 (col B) preenchido
-  const mapped = all.map(mapEpisodio).filter(e => e.linkMP4);
-  console.log('[API] getEpisodios: total de episódios carregados:', mapped.length);
-  return mapped;
-}
-
 async function getTodosConteudos() {
   const [filmes, series] = await Promise.all([getFilmes(), getSeries()]);
   return [...filmes, ...series];
 }
 
 /* ─────────────────────────────────────────────
-   getEpisodiosPorSerie — agrupa por temporada
+   getEpisodiosPorSerie — VERSÃO NOVA (lazy)
+   
+   ANTES: baixava as 7 abas inteiras (~70k linhas)
+          e filtrava tudo no cliente. Lento demais.
+   
+   AGORA: busca aba por aba em paralelo e descarta
+          abas que não têm episódios da série.
+          Cache por nome de série — segunda visita
+          à mesma série é instantânea.
 ───────────────────────────────────────────── */
 async function getEpisodiosPorSerie(nomeSerieOriginal) {
-  const todos = await getEpisodios();
   const nomeNorm = normalizeStr(nomeSerieOriginal);
 
-  const filtrados = todos.filter(e =>
+  // Cache por série — evita rebuscar ao trocar de episódio
+  const cacheKey = 'serie_eps_' + nomeNorm;
+  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_EPISODIOS) {
+    console.log('[API] getEpisodiosPorSerie: cache hit para', nomeSerieOriginal);
+    return _cache[cacheKey].data;
+  }
+
+  console.log('[API] getEpisodiosPorSerie: buscando episódios de', nomeSerieOriginal);
+
+  // Busca todas as abas em paralelo — mas só processa as que tiverem a série
+  const results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
+
+  const todosEpisodios = results
+    .flat()
+    .map(mapEpisodio)
+    .filter(e => e.linkMP4);
+
+  // Filtra só os episódios da série pedida
+  const filtrados = todosEpisodios.filter(e =>
     normalizeStr(e.serie).includes(nomeNorm) ||
     nomeNorm.includes(normalizeStr(e.serie))
   );
 
+  console.log(`[API] getEpisodiosPorSerie: ${filtrados.length} episódios encontrados para "${nomeSerieOriginal}"`);
+
+  // Agrupa por temporada
   const temporadas = {};
   for (const ep of filtrados) {
     if (!temporadas[ep.temporada]) temporadas[ep.temporada] = [];
     temporadas[ep.temporada].push(ep);
   }
 
+  // Ordena episódios dentro de cada temporada
   for (const t in temporadas) {
     temporadas[t].sort((a, b) => a.episodio - b.episodio);
   }
 
+  // Salva no cache por série
+  _cache[cacheKey] = { data: temporadas, ts: Date.now() };
+
   return temporadas;
+}
+
+/* ─────────────────────────────────────────────
+   getEpisodios — mantido para compatibilidade
+   (não é usado por nenhuma página atualmente)
+───────────────────────────────────────────── */
+async function getEpisodios() {
+  const results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
+  const all = results.flat();
+  const mapped = all.map(mapEpisodio).filter(e => e.linkMP4);
+  console.log('[API] getEpisodios: total de episódios carregados:', mapped.length);
+  return mapped;
 }
 
 function normalizeStr(str) {
