@@ -1,7 +1,7 @@
 /**
- * PIPOCAFLIX - player.js v3.0
- * Melhorias: volume, velocidade, barra aprimorada, buffering,
- * PiP, atalhos de teclado, gradiente, próximo episódio (série)
+ * PIPOCAFLIX — player.js v4.0
+ * + Salvar/retomar progresso (Tarefa 1)
+ * + Volume, velocidade, PiP, atalhos, spinner, próximo ep
  */
 
 window.PipocaPlayer = (function () {
@@ -14,7 +14,6 @@ window.PipocaPlayer = (function () {
     var s = Math.floor(t % 60);
     return m + ':' + (s < 10 ? '0' : '') + s;
   }
-
   function volIcon(vol, muted) {
     if (muted || vol === 0) return '🔇';
     if (vol < 0.5)          return '🔉';
@@ -27,16 +26,7 @@ window.PipocaPlayer = (function () {
     if (!t) {
       t = document.createElement('div');
       t.className = 'player-toast-inner';
-      t.style.cssText = [
-        'position:absolute','top:50%','left:50%',
-        'transform:translate(-50%,-50%)',
-        'background:rgba(0,0,0,0.75)','color:#fff',
-        'padding:10px 22px','border-radius:30px',
-        'font-size:1rem','font-weight:600',
-        'pointer-events:none','z-index:200',
-        'opacity:0','transition:opacity 0.2s',
-        'white-space:nowrap'
-      ].join(';');
+      t.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:10px 22px;border-radius:30px;font-size:1rem;font-weight:600;pointer-events:none;z-index:200;opacity:0;transition:opacity 0.2s;white-space:nowrap';
       container.appendChild(t);
     }
     t.textContent = msg;
@@ -45,130 +35,88 @@ window.PipocaPlayer = (function () {
     t._timer = setTimeout(function () { t.style.opacity = '0'; }, 1500);
   }
 
-  /* ─── Spinner de buffering ─── */
+  /* ─── Progress save/restore ─── */
+  function progressKey(titulo) {
+    return 'pflix_progress_' + (titulo||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_');
+  }
+  function saveProgress(titulo, video, capa, tipo) {
+    if (!titulo || !video.duration) return;
+    var pct = video.currentTime / video.duration;
+    if (pct >= 0.95) { try { localStorage.removeItem(progressKey(titulo)); } catch{} return; }
+    if (video.currentTime < 10) return;
+    try {
+      localStorage.setItem(progressKey(titulo), JSON.stringify({
+        titulo: titulo, currentTime: video.currentTime, duration: video.duration,
+        pct: pct, capa: capa||'', tipo: tipo||'filme', ts: Date.now()
+      }));
+    } catch {}
+  }
+  function getProgress(titulo) {
+    try { var v = localStorage.getItem(progressKey(titulo)); return v ? JSON.parse(v) : null; } catch { return null; }
+  }
+
+  /* ─── Toast retomar progresso ─── */
+  function showResumeToast(titulo, prog, onResume, onRestart) {
+    var existing = document.getElementById('resumeToast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.id = 'resumeToast';
+    toast.className = 'resume-toast';
+    toast.innerHTML = '<span class="resume-toast-text">▶ Retomar de ' + formatTime(prog.currentTime) + '</span>' +
+      '<div class="resume-toast-btns">' +
+      '<button class="btn-resume">Retomar</button>' +
+      '<button class="btn-restart">Do início</button>' +
+      '</div>';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.classList.add('show'); }, 50);
+    var timer = setTimeout(function() { toast.classList.remove('show'); setTimeout(function(){toast.remove();},350); }, 8000);
+    toast.querySelector('.btn-resume').addEventListener('click', function() {
+      clearTimeout(timer); toast.classList.remove('show'); setTimeout(function(){toast.remove();},350);
+      if (onResume) onResume();
+    });
+    toast.querySelector('.btn-restart').addEventListener('click', function() {
+      clearTimeout(timer); toast.classList.remove('show'); setTimeout(function(){toast.remove();},350);
+      if (onRestart) onRestart();
+    });
+  }
+
+  /* ─── CSS Inject ─── */
   function injectSpinnerCSS() {
     if (document.getElementById('pipoca-spinner-css')) return;
     var s = document.createElement('style');
     s.id = 'pipoca-spinner-css';
     s.textContent = [
       '@keyframes pipoca-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}',
-      '.player-buffer-spinner{',
-        'position:absolute;top:50%;left:50%;',
-        'width:52px;height:52px;',
-        'border:4px solid rgba(255,255,255,0.15);',
-        'border-top-color:var(--red,#ff2d43);',
-        'border-radius:50%;',
-        'transform:translate(-50%,-50%);',
-        'animation:pipoca-spin 0.8s linear infinite;',
-        'pointer-events:none;z-index:50;',
-        'display:none;',
-      '}',
-      /* Volume slider */
+      '.player-buffer-spinner{position:absolute;top:50%;left:50%;width:52px;height:52px;border:4px solid rgba(255,255,255,0.15);border-top-color:var(--red,#ff2d43);border-radius:50%;transform:translate(-50%,-50%);animation:pipoca-spin 0.8s linear infinite;pointer-events:none;z-index:50;display:none;}',
       '.ctrl-vol-wrap{position:relative;display:flex;align-items:center;gap:4px;}',
-      '.ctrl-vol-slider{',
-        'display:none;position:absolute;bottom:110%;left:50%;',
-        'transform:translateX(-50%);',
-        'width:32px;height:90px;',
-        'background:rgba(13,13,20,0.92);',
-        'border:1px solid rgba(255,255,255,0.12);',
-        'border-radius:20px;padding:8px 0;',
-        'align-items:center;justify-content:center;',
-        'flex-direction:column;',
-        'box-shadow:0 8px 32px rgba(0,0,0,0.7);',
-        'z-index:100;',
-      '}',
+      '.ctrl-vol-slider{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);width:32px;height:90px;background:rgba(13,13,20,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:8px 0;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:100;}',
       '.ctrl-vol-wrap:hover .ctrl-vol-slider{display:flex;}',
-      '.ctrl-vol-slider input[type=range]{',
-        'writing-mode:vertical-lr;direction:rtl;',
-        'width:4px;height:70px;',
-        'accent-color:var(--red,#ff2d43);cursor:pointer;',
-      '}',
-      /* Speed menu */
+      '.ctrl-vol-slider input[type=range]{writing-mode:vertical-lr;direction:rtl;width:4px;height:70px;accent-color:var(--red,#ff2d43);cursor:pointer;}',
       '.ctrl-speed-wrap{position:relative;}',
-      '.ctrl-speed-btn{',
-        'background:rgba(255,255,255,0.08);',
-        'border:1px solid rgba(255,255,255,0.15);',
-        'color:#fff;padding:3px 8px;border-radius:6px;',
-        'font-size:0.7rem;font-weight:700;cursor:pointer;',
-        'font-family:inherit;white-space:nowrap;',
-        'transition:background 0.15s;',
-      '}',
+      '.ctrl-speed-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background 0.15s;}',
       '.ctrl-speed-btn:hover{background:var(--red,#ff2d43);}',
-      '.ctrl-speed-menu{',
-        'display:none;position:absolute;bottom:110%;left:50%;',
-        'transform:translateX(-50%);',
-        'background:rgba(13,13,20,0.95);',
-        'border:1px solid rgba(255,255,255,0.12);',
-        'border-radius:10px;overflow:hidden;',
-        'min-width:80px;',
-        'box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:100;',
-      '}',
+      '.ctrl-speed-menu{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:rgba(13,13,20,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;min-width:80px;box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:100;}',
       '.ctrl-speed-wrap.open .ctrl-speed-menu{display:block;}',
-      '.ctrl-speed-option{',
-        'display:block;width:100%;padding:7px 16px;',
-        'background:none;border:none;color:#ccc;',
-        'font-size:0.8rem;cursor:pointer;text-align:center;',
-        'transition:background 0.1s,color 0.1s;font-family:inherit;',
-      '}',
-      '.ctrl-speed-option:hover,.ctrl-speed-option.active{',
-        'background:var(--red,#ff2d43);color:#fff;',
-      '}',
-      /* Progress thumb */
+      '.ctrl-speed-option{display:block;width:100%;padding:7px 16px;background:none;border:none;color:#ccc;font-size:0.8rem;cursor:pointer;text-align:center;transition:background 0.1s,color 0.1s;font-family:inherit;}',
+      '.ctrl-speed-option:hover,.ctrl-speed-option.active{background:var(--red,#ff2d43);color:#fff;}',
       '.player-progress{cursor:pointer;position:relative;}',
-      '.player-progress-thumb{',
-        'position:absolute;top:50%;right:calc(100% - var(--pct,0%) - 6px);',
-        'width:12px;height:12px;',
-        'background:var(--red,#ff2d43);border-radius:50%;',
-        'transform:translateY(-50%);',
-        'opacity:0;transition:opacity 0.15s;pointer-events:none;',
-        'box-shadow:0 0 8px var(--red-glow,rgba(255,45,67,.5));',
-      '}',
+      '.player-progress-thumb{position:absolute;top:50%;width:12px;height:12px;background:var(--red,#ff2d43);border-radius:50%;transform:translateY(-50%);opacity:0;transition:opacity 0.15s;pointer-events:none;box-shadow:0 0 8px var(--red-glow,rgba(255,45,67,.5));}',
       '.player-progress:hover .player-progress-thumb{opacity:1;}',
-      /* Time tooltip */
-      '.player-progress-tooltip{',
-        'position:absolute;bottom:calc(100% + 8px);',
-        'background:rgba(0,0,0,0.85);color:#fff;',
-        'font-size:0.7rem;padding:3px 8px;border-radius:5px;',
-        'pointer-events:none;opacity:0;transition:opacity 0.15s;',
-        'white-space:nowrap;transform:translateX(-50%);',
-        'z-index:10;',
-      '}',
+      '.player-progress-tooltip{position:absolute;bottom:calc(100% + 8px);background:rgba(0,0,0,0.85);color:#fff;font-size:0.7rem;padding:3px 8px;border-radius:5px;pointer-events:none;opacity:0;transition:opacity 0.15s;white-space:nowrap;transform:translateX(-50%);z-index:10;}',
       '.player-progress:hover .player-progress-tooltip{opacity:1;}',
-      /* Controls gradient */
-      '.player-controls{',
-        'background:linear-gradient(0deg,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.55) 60%,transparent 100%) !important;',
-        'padding-top:24px !important;',
-      '}',
-      /* PiP button */
+      '.player-controls{background:linear-gradient(0deg,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.55) 60%,transparent 100%) !important;padding-top:24px !important;}',
       '.ctrl-pip-btn{display:none;}',
-      /* Next episode card */
-      '.next-ep-card{',
-        'position:absolute;bottom:80px;right:16px;',
-        'background:rgba(13,13,20,0.95);',
-        'border:1px solid rgba(255,255,255,0.15);',
-        'border-radius:12px;padding:12px 16px;',
-        'display:none;flex-direction:column;gap:8px;',
-        'min-width:200px;max-width:260px;',
-        'z-index:90;box-shadow:0 8px 32px rgba(0,0,0,0.7);',
-        'animation:card-in 0.3s ease both;',
-      '}',
+      '.next-ep-card{position:absolute;bottom:80px;right:16px;background:rgba(13,13,20,0.95);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px 16px;display:none;flex-direction:column;gap:8px;min-width:200px;max-width:260px;z-index:90;box-shadow:0 8px 32px rgba(0,0,0,0.7);}',
       '.next-ep-label{font-size:0.7rem;color:rgba(255,255,255,0.5);letter-spacing:0.5px;}',
-      '.next-ep-btn{',
-        'background:var(--red,#ff2d43);border:none;',
-        'color:#fff;padding:8px 14px;border-radius:8px;',
-        'font-size:0.8rem;font-weight:700;cursor:pointer;',
-        'font-family:inherit;transition:transform 0.15s;',
-      '}',
+      '.next-ep-btn{background:var(--red,#ff2d43);border:none;color:#fff;padding:8px 14px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:transform 0.15s;}',
       '.next-ep-btn:hover{transform:scale(1.04);}',
     ].join('');
     document.head.appendChild(s);
   }
 
-  /* ─── Construção dos controles extras ─── */
-  function buildExtraControls(ctrlRow, video, playerBox, isSerieCtx) {
+  /* ─── Extra controls (volume, speed, PiP, spinner) ─── */
+  function buildExtraControls(ctrlRow, video, playerBox) {
     injectSpinnerCSS();
-
-    // Spinner buffering
     var spinner = document.createElement('div');
     spinner.className = 'player-buffer-spinner';
     playerBox.appendChild(spinner);
@@ -177,126 +125,55 @@ window.PipocaPlayer = (function () {
     video.addEventListener('canplay',  function () { spinner.style.display = 'none'; });
 
     // Volume
-    var volWrap = document.createElement('div');
-    volWrap.className = 'ctrl-vol-wrap';
-    var volBtn = document.createElement('button');
-    volBtn.className = 'ctrl-btn';
-    volBtn.style.fontSize = '1rem';
-    volBtn.innerHTML = volIcon(video.volume, video.muted);
-    volBtn.title = 'Volume';
+    var volWrap = document.createElement('div'); volWrap.className = 'ctrl-vol-wrap';
+    var volBtn = document.createElement('button'); volBtn.className = 'ctrl-btn'; volBtn.style.fontSize = '1rem'; volBtn.innerHTML = volIcon(video.volume, video.muted); volBtn.title = 'Volume';
+    var volSliderWrap = document.createElement('div'); volSliderWrap.className = 'ctrl-vol-slider';
+    var volRange = document.createElement('input'); volRange.type='range'; volRange.min='0'; volRange.max='1'; volRange.step='0.05'; volRange.value=video.volume;
+    volSliderWrap.appendChild(volRange); volWrap.appendChild(volBtn); volWrap.appendChild(volSliderWrap);
+    function updateVolIcon() { volBtn.innerHTML = volIcon(video.volume, video.muted); }
+    volBtn.addEventListener('click', function () { video.muted = !video.muted; updateVolIcon(); });
+    volRange.addEventListener('input', function () { video.volume = parseFloat(volRange.value); video.muted = video.volume === 0; updateVolIcon(); });
+    video.addEventListener('volumechange', function () { volRange.value = video.muted ? 0 : video.volume; updateVolIcon(); });
 
-    var volSliderWrap = document.createElement('div');
-    volSliderWrap.className = 'ctrl-vol-slider';
-    var volRange = document.createElement('input');
-    volRange.type = 'range';
-    volRange.min = '0'; volRange.max = '1'; volRange.step = '0.05';
-    volRange.value = video.volume;
-    volSliderWrap.appendChild(volRange);
-    volWrap.appendChild(volBtn);
-    volWrap.appendChild(volSliderWrap);
-
-    function updateVolIcon() {
-      volBtn.innerHTML = volIcon(video.volume, video.muted);
-    }
-    volBtn.addEventListener('click', function () {
-      video.muted = !video.muted;
-      updateVolIcon();
-    });
-    volRange.addEventListener('input', function () {
-      video.volume = parseFloat(volRange.value);
-      video.muted = video.volume === 0;
-      updateVolIcon();
-    });
-    video.addEventListener('volumechange', function () {
-      volRange.value = video.muted ? 0 : video.volume;
-      updateVolIcon();
-    });
-
-    // Velocidade
-    var speedWrap = document.createElement('div');
-    speedWrap.className = 'ctrl-speed-wrap';
-    var speedBtn = document.createElement('button');
-    speedBtn.className = 'ctrl-speed-btn';
-    speedBtn.textContent = '1x';
-    var speedMenu = document.createElement('div');
-    speedMenu.className = 'ctrl-speed-menu';
+    // Speed
+    var speedWrap = document.createElement('div'); speedWrap.className = 'ctrl-speed-wrap';
+    var speedBtn = document.createElement('button'); speedBtn.className = 'ctrl-speed-btn'; speedBtn.textContent = '1x';
+    var speedMenu = document.createElement('div'); speedMenu.className = 'ctrl-speed-menu';
     [0.5, 0.75, 1, 1.25, 1.5, 2].forEach(function (rate) {
-      var opt = document.createElement('button');
-      opt.className = 'ctrl-speed-option' + (rate === 1 ? ' active' : '');
-      opt.textContent = rate + 'x';
-      opt.addEventListener('click', function () {
-        video.playbackRate = rate;
-        speedBtn.textContent = rate + 'x';
-        speedMenu.querySelectorAll('.ctrl-speed-option').forEach(function (o) { o.classList.remove('active'); });
-        opt.classList.add('active');
-        speedWrap.classList.remove('open');
-      });
+      var opt = document.createElement('button'); opt.className = 'ctrl-speed-option' + (rate===1?' active':''); opt.textContent = rate + 'x';
+      opt.addEventListener('click', function () { video.playbackRate=rate; speedBtn.textContent=rate+'x'; speedMenu.querySelectorAll('.ctrl-speed-option').forEach(function(o){o.classList.remove('active');}); opt.classList.add('active'); speedWrap.classList.remove('open'); });
       speedMenu.appendChild(opt);
     });
-    speedBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      speedWrap.classList.toggle('open');
-    });
+    speedBtn.addEventListener('click', function (e) { e.stopPropagation(); speedWrap.classList.toggle('open'); });
     document.addEventListener('click', function () { speedWrap.classList.remove('open'); });
-    speedWrap.appendChild(speedBtn);
-    speedWrap.appendChild(speedMenu);
+    speedWrap.appendChild(speedBtn); speedWrap.appendChild(speedMenu);
 
     // PiP
-    var pipBtn = document.createElement('button');
-    pipBtn.className = 'ctrl-btn ctrl-pip-btn';
-    pipBtn.title = 'Picture-in-Picture';
-    pipBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7H5a2 2 0 00-2 2v6a2 2 0 002 2h2v-4h8v4h4a2 2 0 002-2V9a2 2 0 00-2-2z"/><rect x="11" y="13" width="8" height="5" rx="1"/></svg>';
+    var pipBtn = document.createElement('button'); pipBtn.className = 'ctrl-btn ctrl-pip-btn'; pipBtn.title = 'Picture-in-Picture';
+    pipBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19 7H5a2 2 0 00-2 2v6a2 2 0 002 2h2v-4h8v4h4a2 2 0 002-2V9a2 2 0 00-2-2z"/><rect x="11" y="13" width="8" height="5" rx="1"/></svg>';
     if (document.pictureInPictureEnabled) {
       pipBtn.style.display = 'flex';
       pipBtn.addEventListener('click', function () {
-        if (document.pictureInPictureElement) {
-          document.exitPictureInPicture().catch(function(){});
-        } else {
-          video.requestPictureInPicture().catch(function(){});
-        }
+        if (document.pictureInPictureElement) document.exitPictureInPicture().catch(function(){});
+        else video.requestPictureInPicture().catch(function(){});
       });
     }
 
-    // Inserir na ctrlRow: volWrap + speedWrap + pipBtn antes do fullscreen
     var fsBtn = ctrlRow.querySelector('#fullscreenBtn');
-    if (fsBtn) {
-      ctrlRow.insertBefore(pipBtn, fsBtn);
-      ctrlRow.insertBefore(speedWrap, pipBtn);
-      ctrlRow.insertBefore(volWrap, speedWrap);
-    } else {
-      ctrlRow.appendChild(volWrap);
-      ctrlRow.appendChild(speedWrap);
-      ctrlRow.appendChild(pipBtn);
-    }
-
-    return { spinner: spinner };
+    if (fsBtn) { ctrlRow.insertBefore(pipBtn, fsBtn); ctrlRow.insertBefore(speedWrap, pipBtn); ctrlRow.insertBefore(volWrap, speedWrap); }
+    else { ctrlRow.appendChild(volWrap); ctrlRow.appendChild(speedWrap); ctrlRow.appendChild(pipBtn); }
   }
 
-  /* ─── Barra de progresso aprimorada ─── */
+  /* ─── Enhanced progress bar ─── */
   function enhanceProgressBar(progress, progressFilled, video, container) {
-    // Thumb
-    var thumb = document.createElement('div');
-    thumb.className = 'player-progress-thumb';
-    progress.appendChild(thumb);
-
-    // Tooltip
-    var tooltip = document.createElement('div');
-    tooltip.className = 'player-progress-tooltip';
-    tooltip.textContent = '0:00';
-    progress.appendChild(tooltip);
-
-    // Atualizar thumb position
+    var thumb = document.createElement('div'); thumb.className = 'player-progress-thumb'; progress.appendChild(thumb);
+    var tooltip = document.createElement('div'); tooltip.className = 'player-progress-tooltip'; tooltip.textContent = '0:00'; progress.appendChild(tooltip);
     video.addEventListener('timeupdate', function () {
       if (!video.duration) return;
       var pct = (video.currentTime / video.duration) * 100;
       progressFilled.style.width = pct + '%';
-      thumb.style.setProperty('--pct', pct + '%');
-      // reposição real
-      thumb.style.left = 'calc(' + pct + '% - 6px)';
-      thumb.style.right = 'auto';
+      thumb.style.left = 'calc(' + pct + '% - 6px)'; thumb.style.right = 'auto';
     });
-
-    // Tooltip on hover
     progress.addEventListener('mousemove', function (e) {
       if (!video.duration) return;
       var rect = progress.getBoundingClientRect();
@@ -304,96 +181,45 @@ window.PipocaPlayer = (function () {
       tooltip.textContent = formatTime(pos * video.duration);
       tooltip.style.left = (pos * rect.width) + 'px';
     });
-
-    // Drag support
     var dragging = false;
-    function seek(e) {
-      if (!video.duration) return;
-      var rect = progress.getBoundingClientRect();
-      var pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      video.currentTime = pos * video.duration;
-    }
-    progress.addEventListener('mousedown', function (e) { dragging = true; seek(e); });
-    document.addEventListener('mousemove', function (e) { if (dragging) seek(e); });
-    document.addEventListener('mouseup',   function ()  { dragging = false; });
+    function seek(e) { if (!video.duration) return; var rect=progress.getBoundingClientRect(); video.currentTime=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width))*video.duration; }
+    progress.addEventListener('mousedown', function (e) { dragging=true; seek(e); });
+    document.addEventListener('mousemove', function (e) { if(dragging) seek(e); });
+    document.addEventListener('mouseup',   function ()  { dragging=false; });
   }
 
-  /* ─── Atalhos de teclado ─── */
+  /* ─── Keyboard shortcuts ─── */
   function setupKeyboardShortcuts(video, playerBox, fullscreenFn) {
     document.addEventListener('keydown', function (e) {
-      // Não disparar se foco em input/textarea
-      var tag = (document.activeElement || {}).tagName || '';
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if (playerBox.style.display === 'none') return;
-
+      var tag = (document.activeElement||{}).tagName||'';
+      if (tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+      if (playerBox.style.display==='none') return;
       switch (e.key) {
-        case ' ':
-        case 'k':
-          e.preventDefault();
-          if (video.paused) { video.play(); showPlayerToast(playerBox, '▶ Play'); }
-          else              { video.pause(); showPlayerToast(playerBox, '⏸ Pausa'); }
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          video.currentTime = Math.max(0, video.currentTime - 10);
-          showPlayerToast(playerBox, '⏪ −10s');
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          video.currentTime = Math.min(video.duration || 0, video.currentTime + 10);
-          showPlayerToast(playerBox, '⏩ +10s');
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          video.volume = Math.min(1, video.volume + 0.1);
-          video.muted = false;
-          showPlayerToast(playerBox, '🔊 ' + Math.round(video.volume * 100) + '%');
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          video.volume = Math.max(0, video.volume - 0.1);
-          showPlayerToast(playerBox, '🔉 ' + Math.round(video.volume * 100) + '%');
-          break;
-        case 'f':
-        case 'F':
-          e.preventDefault();
-          if (fullscreenFn) fullscreenFn();
-          showPlayerToast(playerBox, '⛶ Tela Cheia');
-          break;
-        case 'm':
-        case 'M':
-          e.preventDefault();
-          video.muted = !video.muted;
-          showPlayerToast(playerBox, video.muted ? '🔇 Mudo' : '🔊 Som');
-          break;
+        case ' ': case 'k': e.preventDefault(); if(video.paused){video.play();showPlayerToast(playerBox,'▶ Play');}else{video.pause();showPlayerToast(playerBox,'⏸ Pausa');} break;
+        case 'ArrowLeft':  e.preventDefault(); video.currentTime=Math.max(0,video.currentTime-10); showPlayerToast(playerBox,'⏪ −10s'); break;
+        case 'ArrowRight': e.preventDefault(); video.currentTime=Math.min(video.duration||0,video.currentTime+10); showPlayerToast(playerBox,'⏩ +10s'); break;
+        case 'ArrowUp':    e.preventDefault(); video.volume=Math.min(1,video.volume+0.1); video.muted=false; showPlayerToast(playerBox,'🔊 '+Math.round(video.volume*100)+'%'); break;
+        case 'ArrowDown':  e.preventDefault(); video.volume=Math.max(0,video.volume-0.1); showPlayerToast(playerBox,'🔉 '+Math.round(video.volume*100)+'%'); break;
+        case 'f': case 'F': e.preventDefault(); if(fullscreenFn)fullscreenFn(); showPlayerToast(playerBox,'⛶ Tela Cheia'); break;
+        case 'm': case 'M': e.preventDefault(); video.muted=!video.muted; showPlayerToast(playerBox,video.muted?'🔇 Mudo':'🔊 Som'); break;
       }
     });
   }
 
-  /* ─── Fullscreen helper ─── */
+  /* ─── Fullscreen ─── */
   function makeFullscreenToggle(playerBox) {
     var isFs = false;
     function toggle() {
-      if (!isFs) {
-        var req = playerBox.requestFullscreen || playerBox.webkitRequestFullscreen || playerBox.mozRequestFullScreen;
-        if (req) req.call(playerBox);
-        if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(function(){});
-        }
-        isFs = true;
-      } else {
-        var ex = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
-        if (ex) ex.call(document);
-        isFs = false;
-      }
+      if (!isFs) { var req=playerBox.requestFullscreen||playerBox.webkitRequestFullscreen||playerBox.mozRequestFullScreen; if(req)req.call(playerBox); if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){}); isFs=true; }
+      else { var ex=document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen; if(ex)ex.call(document); isFs=false; }
     }
-    document.addEventListener('fullscreenchange',       function () { if (!document.fullscreenElement)       isFs = false; });
-    document.addEventListener('webkitfullscreenchange', function () { if (!document.webkitFullscreenElement) isFs = false; });
+    document.addEventListener('fullscreenchange', function(){if(!document.fullscreenElement)isFs=false;});
+    document.addEventListener('webkitfullscreenchange', function(){if(!document.webkitFullscreenElement)isFs=false;});
     return toggle;
   }
 
   /* ─────────────────────────────────────────────
-     initControls — usado após VAST em filme.html
+     initControls — filme.html (após VAST)
   ───────────────────────────────────────────── */
   function initControls(opts) {
     injectSpinnerCSS();
@@ -407,13 +233,23 @@ window.PipocaPlayer = (function () {
     var progressFilled = document.getElementById('progressFilled');
     var currentTimeEl  = document.getElementById('currentTime');
     var totalTimeEl    = document.getElementById('totalTime');
+    var titulo = opts.titulo || '';
+    var capa   = opts.capa   || '';
 
     function iniciar() {
       overlay.classList.add('hidden');
-      centerPlay.style.opacity = '0';
-      centerPlay.style.pointerEvents = 'none';
+      centerPlay.style.opacity='0'; centerPlay.style.pointerEvents='none';
       controls.classList.remove('hidden');
-      video.play().catch(function(){});
+      // Verificar progresso salvo
+      var prog = titulo ? getProgress(titulo) : null;
+      if (prog && prog.currentTime > 10) {
+        showResumeToast(titulo, prog,
+          function() { video.currentTime = prog.currentTime; video.play().catch(function(){}); },
+          function() { video.currentTime = 0; video.play().catch(function(){}); }
+        );
+      } else {
+        video.play().catch(function(){});
+      }
     }
     overlay.addEventListener('click', iniciar);
     centerPlay.addEventListener('click', iniciar);
@@ -421,54 +257,41 @@ window.PipocaPlayer = (function () {
     var playPauseBtn  = document.getElementById('playPause');
     var playPausePath = document.getElementById('playPausePath');
     if (playPauseBtn) {
-      playPauseBtn.addEventListener('click', function () {
-        if (video.paused) { video.play(); }
-        else              { video.pause(); }
-      });
-      video.addEventListener('play',  function () { if(playPausePath) playPausePath.setAttribute('d','M6 5h4v14H6V5zm8 0h4v14h-4V5z'); });
-      video.addEventListener('pause', function () { if(playPausePath) playPausePath.setAttribute('d','M8 5v14l11-7z'); });
+      playPauseBtn.addEventListener('click', function(){if(video.paused)video.play();else video.pause();});
+      video.addEventListener('play',  function(){if(playPausePath)playPausePath.setAttribute('d','M6 5h4v14H6V5zm8 0h4v14h-4V5z');});
+      video.addEventListener('pause', function(){if(playPausePath)playPausePath.setAttribute('d','M8 5v14l11-7z');});
     }
 
-    var back10 = document.getElementById('back10');
-    var fwd10  = document.getElementById('forward10');
-    if (back10) back10.onclick = function () { video.currentTime = Math.max(0, video.currentTime - 10); };
-    if (fwd10)  fwd10.onclick  = function () { video.currentTime = Math.min(video.duration||0, video.currentTime + 10); };
+    var back10=document.getElementById('back10'); var fwd10=document.getElementById('forward10');
+    if(back10) back10.onclick=function(){video.currentTime=Math.max(0,video.currentTime-10);};
+    if(fwd10)  fwd10.onclick=function(){video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
 
-    video.addEventListener('timeupdate', function () {
-      if (!video.duration) return;
-      currentTimeEl.textContent = formatTime(video.currentTime);
-      totalTimeEl.textContent   = formatTime(video.duration);
+    // Progress save (a cada 10s)
+    var _saveTimer = 0;
+    video.addEventListener('timeupdate', function(){
+      if(!video.duration) return;
+      currentTimeEl.textContent=formatTime(video.currentTime);
+      totalTimeEl.textContent=formatTime(video.duration);
+      _saveTimer++;
+      if(_saveTimer%150===0 && titulo) saveProgress(titulo, video, capa, 'filme');
     });
+    video.addEventListener('pause', function(){ if(titulo) saveProgress(titulo,video,capa,'filme'); });
 
-    // Barra de progresso aprimorada
-    if (progress && progressFilled) {
-      enhanceProgressBar(progress, progressFilled, video, playerBox);
-    }
+    if(progress&&progressFilled) enhanceProgressBar(progress,progressFilled,video,playerBox);
 
-    var toggleFs = makeFullscreenToggle(playerBox);
-    var fullscreenBtn = document.getElementById('fullscreenBtn');
-    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFs);
+    var toggleFs=makeFullscreenToggle(playerBox);
+    var fsBtn=document.getElementById('fullscreenBtn');
+    if(fsBtn) fsBtn.addEventListener('click',toggleFs);
+    if(ctrlRow) buildExtraControls(ctrlRow,video,playerBox);
+    setupKeyboardShortcuts(video,playerBox,toggleFs);
 
-    // Controles extras
-    if (ctrlRow) buildExtraControls(ctrlRow, video, playerBox, false);
-
-    // Atalhos de teclado
-    setupKeyboardShortcuts(video, playerBox, toggleFs);
-
-    // Auto-hide
     var hideTimer;
-    playerBox.addEventListener('mousemove', function () {
-      controls.classList.remove('hidden');
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(function () { controls.classList.add('hidden'); }, 2500);
-    });
-    playerBox.addEventListener('mouseleave', function () {
-      if (!video.paused) controls.classList.add('hidden');
-    });
+    playerBox.addEventListener('mousemove', function(){controls.classList.remove('hidden');clearTimeout(hideTimer);hideTimer=setTimeout(function(){controls.classList.add('hidden');},2500);});
+    playerBox.addEventListener('mouseleave', function(){if(!video.paused)controls.classList.add('hidden');});
   }
 
   /* ─────────────────────────────────────────────
-     initSeriePlayer — séries com próximo episódio
+     initSeriePlayer — serie.html
   ───────────────────────────────────────────── */
   function initSeriePlayer(opts) {
     injectSpinnerCSS();
@@ -479,206 +302,123 @@ window.PipocaPlayer = (function () {
     var playerBox  = document.getElementById(opts.playerBoxId  || 'playerBox');
     var titleEl    = document.getElementById(opts.titleId      || 'playerTitle');
     var ctrlRow    = controls.querySelector('.player-ctrl-row');
-
-    var playPauseBtn   = document.getElementById('playPause');
     var progress       = document.getElementById('progressBar');
     var progressFilled = document.getElementById('progressFilled');
     var currentTimeEl  = document.getElementById('currentTime');
     var totalTimeEl    = document.getElementById('totalTime');
+    var playPauseBtn   = document.getElementById('playPause');
 
-    // Próximo episódio card
-    var nextEpCard = document.createElement('div');
-    nextEpCard.className = 'next-ep-card';
+    // Next episode card
+    var nextEpCard = document.createElement('div'); nextEpCard.className = 'next-ep-card';
     nextEpCard.innerHTML = '<div class="next-ep-label">A SEGUIR</div><button class="next-ep-btn" id="nextEpBtn">Próximo Episódio →</button>';
     playerBox.appendChild(nextEpCard);
+    var _onNextEp = null;
+    document.getElementById('nextEpBtn').addEventListener('click', function(){nextEpCard.style.display='none';if(_onNextEp)_onNextEp();});
 
-    var _onNextEp = null; // callback definido externamente
-    document.getElementById('nextEpBtn').addEventListener('click', function () {
-      nextEpCard.style.display = 'none';
-      if (_onNextEp) _onNextEp();
-    });
+    var _curTitulo = '', _curCapa = '';
 
     function iniciar() {
       overlay.classList.add('hidden');
-      centerPlay.style.opacity = '0';
-      centerPlay.style.pointerEvents = 'none';
+      centerPlay.style.opacity='0'; centerPlay.style.pointerEvents='none';
       controls.classList.remove('hidden');
-      video.play().catch(function(){});
+      var prog = _curTitulo ? getProgress(_curTitulo) : null;
+      if (prog && prog.currentTime > 10) {
+        showResumeToast(_curTitulo, prog,
+          function(){ video.currentTime=prog.currentTime; video.play().catch(function(){}); },
+          function(){ video.currentTime=0; video.play().catch(function(){}); }
+        );
+      } else {
+        video.play().catch(function(){});
+      }
     }
     overlay.addEventListener('click', iniciar);
     centerPlay.addEventListener('click', iniciar);
 
     if (playPauseBtn) {
-      playPauseBtn.onclick = function () {
-        if (video.paused) { video.play(); }
-        else              { video.pause(); nextEpCard.style.display = 'none'; }
-      };
-      video.addEventListener('play',  function () { playPauseBtn.innerHTML = '&#9646;&#9646;'; });
-      video.addEventListener('pause', function () { playPauseBtn.innerHTML = '&#9654;'; });
+      playPauseBtn.onclick = function(){if(video.paused)video.play();else{video.pause();nextEpCard.style.display='none';}};
+      video.addEventListener('play',  function(){playPauseBtn.innerHTML='&#9646;&#9646;';});
+      video.addEventListener('pause', function(){playPauseBtn.innerHTML='&#9654;';});
     }
 
-    document.getElementById('back10').onclick    = function () { video.currentTime = Math.max(0, video.currentTime - 10); };
-    document.getElementById('forward10').onclick = function () { video.currentTime = Math.min(video.duration||0, video.currentTime + 10); };
+    document.getElementById('back10').onclick    = function(){video.currentTime=Math.max(0,video.currentTime-10);};
+    document.getElementById('forward10').onclick = function(){video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
 
-    video.addEventListener('timeupdate', function () {
-      if (!video.duration) return;
-      currentTimeEl.textContent = formatTime(video.currentTime);
-      totalTimeEl.textContent   = formatTime(video.duration);
-
-      // Próximo episódio: exibir 30s antes do fim
-      var remaining = video.duration - video.currentTime;
-      if (remaining <= 30 && remaining > 0 && !video.paused && _onNextEp) {
-        nextEpCard.style.display = 'flex';
-      } else if (video.paused) {
-        nextEpCard.style.display = 'none';
-      }
+    var _saveTimer2 = 0;
+    video.addEventListener('timeupdate', function(){
+      if(!video.duration) return;
+      currentTimeEl.textContent=formatTime(video.currentTime);
+      totalTimeEl.textContent=formatTime(video.duration);
+      _saveTimer2++;
+      if(_saveTimer2%150===0 && _curTitulo) saveProgress(_curTitulo,video,_curCapa,'serie');
+      // Próximo episódio 30s antes do fim
+      var remaining=video.duration-video.currentTime;
+      if(remaining<=30&&remaining>0&&!video.paused&&_onNextEp) nextEpCard.style.display='flex';
+      else if(video.paused) nextEpCard.style.display='none';
     });
+    video.addEventListener('pause', function(){if(_curTitulo)saveProgress(_curTitulo,video,_curCapa,'serie');});
 
-    if (progress && progressFilled) {
-      enhanceProgressBar(progress, progressFilled, video, playerBox);
-    }
+    if(progress&&progressFilled) enhanceProgressBar(progress,progressFilled,video,playerBox);
 
-    var toggleFs = makeFullscreenToggle(playerBox);
-    var fullscreenBtn = document.getElementById('fullscreenBtn');
-    if (fullscreenBtn) fullscreenBtn.onclick = toggleFs;
-
-    if (ctrlRow) buildExtraControls(ctrlRow, video, playerBox, true);
-
-    setupKeyboardShortcuts(video, playerBox, toggleFs);
+    var toggleFs=makeFullscreenToggle(playerBox);
+    var fsBtn=document.getElementById('fullscreenBtn');
+    if(fsBtn) fsBtn.onclick=toggleFs;
+    if(ctrlRow) buildExtraControls(ctrlRow,video,playerBox);
+    setupKeyboardShortcuts(video,playerBox,toggleFs);
 
     var hideTimer;
-    playerBox.addEventListener('mousemove', function () {
-      controls.classList.remove('hidden');
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(function () { controls.classList.add('hidden'); }, 2500);
-    });
+    playerBox.addEventListener('mousemove', function(){controls.classList.remove('hidden');clearTimeout(hideTimer);hideTimer=setTimeout(function(){controls.classList.add('hidden');},2500);});
 
     return {
-      loadEpisode: function (src, titulo) {
-        playerBox.style.display = 'block';
-
-        // Para o vídeo anterior e limpa o src antes de trocar
-        // (evita que o browser mantenha o stream antigo em memória)
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-
-        // Seta o novo src
-        video.src = src;
-        video.load();
-
-        if (titleEl) titleEl.textContent = titulo || '';
-
-        // Reseta overlay para estado inicial
+      loadEpisode: function(src, titulo, capa) {
+        _curTitulo = titulo || '';
+        _curCapa   = capa   || '';
+        playerBox.style.display='block';
+        video.pause(); video.removeAttribute('src'); video.load();
+        video.src=src; video.load();
+        if(titleEl) titleEl.textContent=titulo||'';
         overlay.classList.remove('hidden');
-        var overlayText = overlay.querySelector('.player-overlay-text');
-        if (overlayText) overlayText.textContent = 'Clique para reproduzir';
-        centerPlay.style.opacity = '1';
-        centerPlay.style.pointerEvents = '';
+        var overlayText=overlay.querySelector('.player-overlay-text');
+        if(overlayText) overlayText.textContent='Clique para reproduzir';
+        centerPlay.style.opacity='1'; centerPlay.style.pointerEvents='';
         controls.classList.add('hidden');
-        nextEpCard.style.display = 'none';
-        playerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-        // Handler de erro — exibe mensagem no overlay em vez de silenciar
-        video.onerror = function () {
-          var code = video.error ? video.error.code : '?';
-          var msg  = video.error ? video.error.message : 'Erro desconhecido';
-          console.error('[PipocaPlayer] Erro ao carregar vídeo. Código:', code, '| Src:', src, '| Msg:', msg);
+        nextEpCard.style.display='none';
+        playerBox.scrollIntoView({behavior:'smooth',block:'nearest'});
+        video.onerror=function(){
           overlay.classList.remove('hidden');
-          if (overlayText) overlayText.textContent = '⚠️ Não foi possível carregar. Tente outro episódio.';
+          if(overlayText) overlayText.textContent='⚠️ Não foi possível carregar. Tente outro episódio.';
         };
       },
-      setNextEpCallback: function (fn) {
-        _onNextEp = fn;
-      }
+      setNextEpCallback: function(fn){ _onNextEp=fn; }
     };
   }
 
   /* ─────────────────────────────────────────────
-     initFilmePlayer — mantido para compatibilidade
+     initFilmePlayer — compatibilidade
   ───────────────────────────────────────────── */
   function initFilmePlayer(opts) {
-    var clickCount = 0;
-    var required   = 3;
-    var btn        = document.getElementById(opts.btnId       || 'btnDesbloquear');
     var playerBox  = document.getElementById(opts.playerBoxId || 'playerBox');
     var video      = document.getElementById(opts.videoId     || 'video');
     var overlay    = document.getElementById(opts.overlayId   || 'playerOverlay');
     var centerPlay = document.getElementById(opts.centerPlayId|| 'centerPlay');
     var controls   = document.getElementById(opts.controlsId  || 'playerControls');
-    var unlockDots = document.querySelectorAll('.unlock-dot');
-
-    btn.addEventListener('click', function () {
-      clickCount++;
-      window.open(PipocaAPI.SMARTLINK, '_blank');
-      unlockDots.forEach(function (d, i) { if (i < clickCount) d.classList.add('filled'); });
-      if (clickCount < required) {
-        btn.textContent = '🔓 ' + (required - clickCount) + ' clique(s) restantes para desbloquear';
-      } else {
-        btn.textContent = '✅ Player Desbloqueado!';
-        btn.disabled = true;
-        btn.style.background = 'linear-gradient(135deg,#1a7a1a,#0e5e0e)';
-        playerBox.style.display = 'block';
-        playerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-
-    function iniciar() {
-      overlay.classList.add('hidden');
-      centerPlay.style.opacity = '0';
-      centerPlay.style.pointerEvents = 'none';
-      controls.classList.remove('hidden');
-      video.play().catch(function(){});
-    }
-    overlay.addEventListener('click', iniciar);
-    centerPlay.addEventListener('click', iniciar);
-
-    var playPauseBtn  = document.getElementById('playPause');
-    var playPausePath = document.getElementById('playPausePath');
-    playPauseBtn.addEventListener('click', function () {
-      if (video.paused) { video.play(); }
-      else              { video.pause(); }
-    });
-    video.addEventListener('play',  function () { if(playPausePath) playPausePath.setAttribute('d','M6 5h4v14H6V5zm8 0h4v14h-4V5z'); });
-    video.addEventListener('pause', function () { if(playPausePath) playPausePath.setAttribute('d','M8 5v14l11-7z'); });
-
-    document.getElementById('back10').onclick    = function () { video.currentTime = Math.max(0, video.currentTime - 10); };
-    document.getElementById('forward10').onclick = function () { video.currentTime = Math.min(video.duration||0, video.currentTime + 10); };
-
-    var progress       = document.getElementById('progressBar');
-    var progressFilled = document.getElementById('progressFilled');
-    var currentTimeEl  = document.getElementById('currentTime');
-    var totalTimeEl    = document.getElementById('totalTime');
-    video.addEventListener('timeupdate', function () {
-      if (!video.duration) return;
-      currentTimeEl.textContent = formatTime(video.currentTime);
-      totalTimeEl.textContent   = formatTime(video.duration);
-    });
-    if (progress && progressFilled) enhanceProgressBar(progress, progressFilled, video, playerBox);
-
-    var toggleFs = makeFullscreenToggle(playerBox);
-    var fullscreenBtn = document.getElementById('fullscreenBtn');
-    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFs);
-
-    var ctrlRow = controls.querySelector('.player-ctrl-row');
-    if (ctrlRow) buildExtraControls(ctrlRow, video, playerBox, false);
-    setupKeyboardShortcuts(video, playerBox, toggleFs);
-
-    var hideTimer;
-    playerBox.addEventListener('mousemove', function () {
-      controls.classList.remove('hidden');
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(function () { controls.classList.add('hidden'); }, 2500);
-    });
-    playerBox.addEventListener('mouseleave', function () {
-      if (!video.paused) controls.classList.add('hidden');
-    });
+    function iniciar(){overlay.classList.add('hidden');centerPlay.style.opacity='0';centerPlay.style.pointerEvents='none';controls.classList.remove('hidden');video.play().catch(function(){});}
+    overlay.addEventListener('click',iniciar); centerPlay.addEventListener('click',iniciar);
+    var ppBtn=document.getElementById('playPause'), ppPath=document.getElementById('playPausePath');
+    if(ppBtn){ppBtn.addEventListener('click',function(){if(video.paused)video.play();else video.pause();});video.addEventListener('play',function(){if(ppPath)ppPath.setAttribute('d','M6 5h4v14H6V5zm8 0h4v14h-4V5z');});video.addEventListener('pause',function(){if(ppPath)ppPath.setAttribute('d','M8 5v14l11-7z');});}
+    var b10=document.getElementById('back10'),f10=document.getElementById('forward10');
+    if(b10)b10.onclick=function(){video.currentTime=Math.max(0,video.currentTime-10);};
+    if(f10)f10.onclick=function(){video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
+    var pr=document.getElementById('progressBar'),pf=document.getElementById('progressFilled'),ct=document.getElementById('currentTime'),tt=document.getElementById('totalTime');
+    video.addEventListener('timeupdate',function(){if(!video.duration)return;ct.textContent=formatTime(video.currentTime);tt.textContent=formatTime(video.duration);});
+    if(pr&&pf)enhanceProgressBar(pr,pf,video,playerBox);
+    var toggleFs=makeFullscreenToggle(playerBox),fsBtn=document.getElementById('fullscreenBtn');
+    if(fsBtn)fsBtn.addEventListener('click',toggleFs);
+    var cr=controls.querySelector('.player-ctrl-row');
+    if(cr)buildExtraControls(cr,video,playerBox);
+    setupKeyboardShortcuts(video,playerBox,toggleFs);
+    var ht;playerBox.addEventListener('mousemove',function(){controls.classList.remove('hidden');clearTimeout(ht);ht=setTimeout(function(){controls.classList.add('hidden');},2500);});
+    playerBox.addEventListener('mouseleave',function(){if(!video.paused)controls.classList.add('hidden');});
   }
 
-  return {
-    initFilmePlayer,
-    initSeriePlayer,
-    initControls,
-    formatTime
-  };
+  return { initFilmePlayer, initSeriePlayer, initControls, formatTime };
 })();
