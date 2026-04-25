@@ -45,6 +45,7 @@
     <a href="catalogo.html?tipo=series">Séries</a>
     <a href="elenco.html">Elenco</a>
     <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
+    <a href="assistidos.html">✅ Assistidos</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -70,6 +71,7 @@
   <a href="catalogo.html?tipo=series">📺 Séries</a>
   <a href="elenco.html">🎭 Elenco</a>
   <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
+  <a href="assistidos.html">✅ Assistidos</a>
 </div>
 
 <!-- ═══ SEARCH RESULTS ═══ -->
@@ -335,22 +337,6 @@
 </script>
 </div>
 
-<!-- MultiTag Banner 300x100 mobile -->
-<div class="ad-multitag-wrap">
-<script>
-(function(qnc){
-var d = document,
-    s = d.createElement("script"),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = qnc || {};
-s.src = "//sophisticatedpin.com/b.X-V/sYdMGgls0RYpWwcm/TeAmI9xubZZUklrk/PpTKY/5cO/DNcJ2cM-jSkWtqNajdkL4XNCzGY-z/M/wH";
-s.async = true;
-s.referrerPolicy = "no-referrer-when-downgrade";
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
-</div>
-
 <footer class="footer">
   <div class="footer-logo">PipocaFlix</div>
   <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
@@ -407,28 +393,35 @@ window.PipocaProgress = (function() {
     return out.sort((a,b) => b.ts - a.ts);
   }
   function remove(titulo) { try { localStorage.removeItem(_key(titulo)); } catch {} }
-  // saveWithKey: salva com chave = nome da série, mas guarda titulo do episódio para exibição
-  function saveWithKey(chave, titulo, currentTime, duration, capa, tipo) {
-    if (!chave || !duration) return;
-    const pct = currentTime / duration;
-    if (pct >= 0.95) { remove(chave); return; }
-    if (currentTime < 10) return;
-    try {
-      localStorage.setItem(_key(chave), JSON.stringify({
-        titulo: chave,            // usa nome da série como título exibido
-        tituloEp: titulo,         // guarda título do episódio separado
-        currentTime, duration, pct,
-        capa: capa||'', tipo: tipo||'serie', ts: Date.now()
-      }));
-    } catch {}
-  }
   function clear() {
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(PREFIX)) keys.push(k); }
     keys.forEach(k => localStorage.removeItem(k));
   }
-  return { save, saveWithKey, get, getAll, remove, clear };
+  return { save, get, getAll, remove, clear };
 })();
+
+// ── PipocaWatched — salva filmes/séries marcados como assistidos ──
+window.PipocaWatched = (function() {
+  const KEY = 'pflix_watched_list';
+  function getAll() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+  }
+  function add(item) {
+    // item = { nome, capa, tipo, ts }
+    const all = getAll().filter(i => i.nome !== item.nome);
+    all.unshift({ ...item, ts: Date.now() });
+    try { localStorage.setItem(KEY, JSON.stringify(all.slice(0, 500))); } catch {}
+  }
+  function remove(nome) {
+    const all = getAll().filter(i => i.nome !== nome);
+    try { localStorage.setItem(KEY, JSON.stringify(all)); } catch {}
+  }
+  function has(nome) { return getAll().some(i => i.nome === nome); }
+  function clear() { try { localStorage.removeItem(KEY); } catch {} }
+  return { add, remove, has, getAll, clear };
+})();
+
 
 // ── Clicks tracking (Tarefa 7) ──
 const CLICKS_KEY = 'pflix_clicks';
@@ -635,33 +628,35 @@ function setupCarouselArrows(trackId, prevId, nextId) {
   if (!track||!prev||!next) return;
   const STEP = 680;
 
-  // Setas com update dinâmico
-  function updateArrows() {
-    prev.style.opacity = track.scrollLeft <= 0 ? '0.3' : '1';
-    prev.style.pointerEvents = track.scrollLeft <= 0 ? 'none' : 'auto';
-    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
-    next.style.opacity = atEnd ? '0.3' : '1';
-    next.style.pointerEvents = atEnd ? 'none' : 'auto';
+  // Atualiza visibilidade das setas
+  function updArrows() {
+    const atStart = track.scrollLeft <= 2;
+    const atEnd   = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    prev.style.opacity        = atStart ? '0.3' : '1';
+    prev.style.pointerEvents  = atStart ? 'none' : 'auto';
+    next.style.opacity        = atEnd   ? '0.3' : '1';
+    next.style.pointerEvents  = atEnd   ? 'none' : 'auto';
   }
-  prev.addEventListener('click', () => { track.scrollBy({left:-STEP,behavior:'smooth'}); setTimeout(updateArrows,350); });
-  next.addEventListener('click', () => { track.scrollBy({left:STEP,behavior:'smooth'}); setTimeout(updateArrows,350); });
-  track.addEventListener('scroll', updateArrows, {passive:true});
-  updateArrows();
+  prev.addEventListener('click', () => { track.scrollBy({left:-STEP,behavior:'smooth'}); setTimeout(updArrows,350); });
+  next.addEventListener('click', () => { track.scrollBy({left:STEP,behavior:'smooth'});  setTimeout(updArrows,350); });
+  track.addEventListener('scroll', updArrows, {passive:true});
+  updArrows();
 
-  // Drag com mouse (desktop)
-  let isDragging=false, startX=0, scrollLeft=0;
+  // Drag com mouse no desktop
+  let dragging=false, startX=0, startScroll=0;
   track.addEventListener('mousedown', e => {
-    isDragging=true; track.classList.add('is-dragging');
-    startX=e.pageX-track.offsetLeft; scrollLeft=track.scrollLeft;
+    dragging=true; startX=e.pageX; startScroll=track.scrollLeft;
+    track.classList.add('dragging');
     e.preventDefault();
   });
-  document.addEventListener('mouseup', () => { isDragging=false; track.classList.remove('is-dragging'); });
+  document.addEventListener('mouseup',    () => { dragging=false; track.classList.remove('dragging'); });
+  document.addEventListener('mouseleave', () => { dragging=false; track.classList.remove('dragging'); });
   track.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    const x = e.pageX - track.offsetLeft;
-    track.scrollLeft = scrollLeft - (x - startX);
+    if (!dragging) return;
+    track.scrollLeft = startScroll - (e.pageX - startX);
   });
-  track.addEventListener('mouseleave', () => { isDragging=false; track.classList.remove('is-dragging'); });
+  // Impede click acidental após drag
+  track.addEventListener('click', e => { if (Math.abs(track.scrollLeft - startScroll) > 4) e.stopPropagation(); }, true);
 }
 
 function setupCatArrows() {
@@ -705,20 +700,22 @@ function renderContinueSection() {
       categoria: '', ano: '', sinopse: '', audio: ''
     };
     const card = mkCard(item, { pct: prog.pct });
-    // Botão "Já assisti" no card de continuar assistindo
-    const watchedBtn = document.createElement('button');
-    watchedBtn.className = 'btn-watched-overlay';
-    watchedBtn.title = 'Marcar como assistido';
-    watchedBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>';
-    watchedBtn.style.cssText = 'position:absolute;top:6px;right:6px;z-index:5;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;backdrop-filter:blur(4px);';
-    watchedBtn.addEventListener('click', e => {
+    // Botão ✓ para marcar como assistido
+    const ovBtn = document.createElement('button');
+    ovBtn.className = 'btn-watched-overlay';
+    ovBtn.title = 'Marcar como assistido';
+    ovBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
+    ovBtn.addEventListener('click', e => {
       e.stopPropagation();
+      // Remove do progresso
       window.PipocaProgress.remove(prog.titulo);
+      // Adiciona aos assistidos
+      window.PipocaWatched.add({ nome: prog.titulo, capa: prog.capa, tipo: prog.tipo || 'filme' });
       renderContinueSection();
       showToast('✅ Marcado como assistido');
     });
-    const thumbWrap = card.querySelector('.card-thumb-wrap');
-    if (thumbWrap) thumbWrap.appendChild(watchedBtn);
+    const tw = card.querySelector('.card-thumb-wrap');
+    if (tw) { tw.style.position='relative'; tw.appendChild(ovBtn); }
     track.appendChild(card);
   });
   setupCarouselArrows('continueTrack', 'continuePrev', 'continueNext');
