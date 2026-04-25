@@ -75,6 +75,14 @@
         </button>
         <button class="btn-secondary" id="favDetailBtn">🤍 Favoritar</button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
+
+    <!-- Botão marcar como assistido -->
+    <button class="btn-watched" id="watchedBtn" style="display:none">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+      Marcar como assistido
+    </button>
       </div>
     </div>
   </div>
@@ -269,6 +277,23 @@ async function init(){
     document.getElementById('detailSynopsis').style.display='';
     document.getElementById('detailBtns').style.display='flex';
 
+  // ── Botão "Marcar como assistido" (série) ──
+  const watchedBtn = document.getElementById('watchedBtn');
+  if (watchedBtn) {
+    watchedBtn.style.display = 'inline-flex';
+    const prog = window.PipocaProgress ? window.PipocaProgress.get(item.nome) : null;
+    if (!prog) {
+      watchedBtn.classList.add('is-watched');
+      watchedBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓';
+    }
+    watchedBtn.addEventListener('click', () => {
+      if (window.PipocaProgress) window.PipocaProgress.remove(item.nome);
+      watchedBtn.classList.add('is-watched');
+      watchedBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓';
+      showToast('✅ Removido do Continuar Assistindo');
+    });
+  }
+
     // Botão favorito no detalhe
     const favBtn=document.getElementById('favDetailBtn');
     if(favBtn&&window.PipocaFavoritos){const updateFavBtn=()=>{const isFav=window.PipocaFavoritos.has(item.nome);favBtn.textContent=isFav?'❤️ Na lista':'🤍 Favoritar';};updateFavBtn();favBtn.addEventListener('click',()=>{const added=window.PipocaFavoritos.toggle(item);showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');updateFavBtn();});}
@@ -317,6 +342,21 @@ s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})
 </script>
+<!-- MultiTag Banner 300x100 — mobile only -->
+<div class="ad-multitag-wrap">
+<script>
+(function(qnc){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = qnc || {};
+s.src = "//sophisticatedpin.com/b.X-V/sYdMGgls0RYpWwcm/TeAmI9xubZZUklrk/PpTKY/5cO/DNcJ2cM-jSkWtqNajdkL4XNCzGY-z/M/wH";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
 </body>
 </html>
