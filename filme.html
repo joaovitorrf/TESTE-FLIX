@@ -31,6 +31,7 @@
     <a href="catalogo.html?tipo=series">Séries</a>
     <a href="elenco.html">Elenco</a>
     <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
+    <a href="assistidos.html">✅ Assistidos</a>
   </nav>
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -50,6 +51,7 @@
   <a href="catalogo.html?tipo=series">📺 Séries</a>
   <a href="elenco.html">🎭 Elenco</a>
   <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
+  <a href="assistidos.html">✅ Assistidos</a>
 </div>
 
 <div class="search-results-overlay" id="searchResultsOverlay">
@@ -75,14 +77,10 @@
         </button>
         <button class="btn-secondary" id="favDetailBtn">🤍 Favoritar</button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
-
-    <!-- Botão marcar como assistido -->
-    <button class="btn-watched" id="watchedBtn" style="display:none">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M20 6L9 17l-5-5"/>
-      </svg>
-      Marcar como assistido
-    </button>
+        <button class="btn-watched" id="watchedBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          Marcar como assistido
+        </button>
       </div>
     </div>
   </div>
@@ -320,24 +318,30 @@ async function init() {
     document.getElementById('detailSynopsis').style.display='';
     document.getElementById('detailBtns').style.display='flex';
 
-  // ── Botão "Marcar como assistido" ──
-  const watchedBtn = document.getElementById('watchedBtn');
-  if (watchedBtn) {
-    // Mostra só se tiver progresso salvo
-    const prog = window.PipocaProgress ? window.PipocaProgress.get(item.nome) : null;
-    watchedBtn.style.display = 'inline-flex';
-    const isWatched = !prog; // sem progresso = já foi removido = assistido
-    if (isWatched) {
-      watchedBtn.classList.add('is-watched');
-      watchedBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓';
-    }
-    watchedBtn.addEventListener('click', () => {
-      if (window.PipocaProgress) window.PipocaProgress.remove(item.nome);
-      watchedBtn.classList.add('is-watched');
-      watchedBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓';
-      showToast('✅ Removido do Continuar Assistindo');
-    });
-  }
+    // ── Botão "Marcar como assistido" ──
+    (function() {
+      const wBtn = document.getElementById('watchedBtn');
+      if (!wBtn) return;
+      function syncBtn() {
+        const isW = window.PipocaWatched && window.PipocaWatched.has(item.nome);
+        wBtn.classList.toggle('is-watched', !!isW);
+        wBtn.innerHTML = isW
+          ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓'
+          : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como assistido';
+      }
+      syncBtn();
+      wBtn.addEventListener('click', () => {
+        if (!window.PipocaWatched) return;
+        if (window.PipocaWatched.has(item.nome)) {
+          window.PipocaWatched.remove(item.nome);
+        } else {
+          window.PipocaWatched.add({ nome: item.nome, capa: item.capa, tipo: 'filme' });
+          if (window.PipocaProgress) window.PipocaProgress.remove(item.nome);
+        }
+        syncBtn();
+        showToast(window.PipocaWatched.has(item.nome) ? '✅ Adicionado aos Assistidos' : '↩️ Removido dos Assistidos');
+      });
+    })();
 
     // Botão favorito no detalhe
     const favBtn=document.getElementById('favDetailBtn');
@@ -402,21 +406,6 @@ s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})
 </script>
-<!-- MultiTag Banner 300x100 — mobile only -->
-<div class="ad-multitag-wrap">
-<script>
-(function(qnc){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = qnc || {};
-s.src = "//sophisticatedpin.com/b.X-V/sYdMGgls0RYpWwcm/TeAmI9xubZZUklrk/PpTKY/5cO/DNcJ2cM-jSkWtqNajdkL4XNCzGY-z/M/wH";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
-</div>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
 </body>
 </html>
