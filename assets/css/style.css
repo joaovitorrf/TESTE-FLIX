@@ -2162,3 +2162,77 @@ input { font-family: var(--font-body); }
 .resume-toast-btns .btn-restart { background: var(--panel); border: 1px solid var(--border-light); color: var(--text-2); }
 .resume-toast-btns .btn-resume:hover { background: var(--red-dim); }
 .resume-toast-btns .btn-restart:hover { background: var(--card-hover); }
+
+
+/* ═══════════════════════════════════════════════════
+   FIX CARROSSEL — setas visíveis + drag funcional
+═══════════════════════════════════════════════════ */
+/* Permite setas saírem do container sem serem cortadas */
+.carousel-wrap {
+  position: relative;
+  padding: 0 24px;      /* espaço para as setas */
+  margin: 0 -24px;      /* compensa o padding visualmente */
+}
+/* Garante que overflow não corte as setas */
+.section-content {
+  overflow: visible !important;
+}
+/* Setas: posição correta dentro do padding */
+.carousel-arrow.prev { left: 0; }
+.carousel-arrow.next { right: 0; }
+
+/* Cursor drag nos carrosséis */
+.carousel-track {
+  cursor: grab;
+  user-select: none;
+}
+.carousel-track.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto !important;
+}
+/* No mobile esconde setas */
+@media (max-width: 768px) {
+  .carousel-wrap { padding: 0; margin: 0; }
+  .carousel-arrow { display: none !important; }
+  .carousel-track { cursor: default; }
+}
+
+/* ═══════════════════════════════════════════════════
+   MultiTag Banner 300x100 — somente mobile
+═══════════════════════════════════════════════════ */
+.ad-multitag-wrap {
+  display: none;           /* escondido no desktop */
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+@media (max-width: 768px) {
+  .ad-multitag-wrap { display: flex; }
+}
+
+/* ═══════════════════════════════════════════════════
+   Botão "Marcar como Assistido"
+═══════════════════════════════════════════════════ */
+.btn-watched {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.2rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-pill);
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.btn-watched:hover {
+  background: rgba(34,197,94,0.12);
+  border-color: rgba(34,197,94,0.4);
+  color: #22c55e;
+}
+.btn-watched.is-watched {
+  background: rgba(34,197,94,0.15);
+  border-color: rgba(34,197,94,0.5);
+  color: #22c55e;
+}
