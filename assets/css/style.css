@@ -2164,75 +2164,118 @@ input { font-family: var(--font-body); }
 .resume-toast-btns .btn-restart:hover { background: var(--card-hover); }
 
 
-/* ═══════════════════════════════════════════════════
-   FIX CARROSSEL — setas visíveis + drag funcional
-═══════════════════════════════════════════════════ */
-/* Permite setas saírem do container sem serem cortadas */
-.carousel-wrap {
-  position: relative;
-  padding: 0 24px;      /* espaço para as setas */
-  margin: 0 -24px;      /* compensa o padding visualmente */
-}
-/* Garante que overflow não corte as setas */
-.section-content {
-  overflow: visible !important;
-}
-/* Setas: posição correta dentro do padding */
-.carousel-arrow.prev { left: 0; }
-.carousel-arrow.next { right: 0; }
+/* ══════════════════════════════════════════════════════
+   FIX CAROUSEL — setas e drag no desktop
+══════════════════════════════════════════════════════ */
 
-/* Cursor drag nos carrosséis */
-.carousel-track {
-  cursor: grab;
-  user-select: none;
+/* O body tem overflow-x:hidden que corta as setas (-16px).
+   Solução: a .carousel-wrap usa overflow:visible com clip via
+   pseudo-element. As setas ficam DENTRO do padding do section. */
+.content-section {
+  overflow: visible;  /* permite setas saírem sem ser cortadas */
 }
-.carousel-track.is-dragging {
-  cursor: grabbing;
-  scroll-behavior: auto !important;
-}
-/* No mobile esconde setas */
-@media (max-width: 768px) {
-  .carousel-wrap { padding: 0; margin: 0; }
-  .carousel-arrow { display: none !important; }
-  .carousel-track { cursor: default; }
-}
+/* Reposicionar setas para dentro do espaço do section */
+.carousel-arrow.prev { left: -4px; }
+.carousel-arrow.next { right: -4px; }
 
-/* ═══════════════════════════════════════════════════
-   MultiTag Banner 300x100 — somente mobile
-═══════════════════════════════════════════════════ */
-.ad-multitag-wrap {
-  display: none;           /* escondido no desktop */
-  justify-content: center;
-  padding: 0.75rem 0;
-}
-@media (max-width: 768px) {
-  .ad-multitag-wrap { display: flex; }
-}
+/* Drag cursor no desktop */
+.carousel-track        { cursor: grab; }
+.carousel-track.dragging { cursor: grabbing; scroll-behavior: auto !important; }
 
-/* ═══════════════════════════════════════════════════
-   Botão "Marcar como Assistido"
-═══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   BOTÃO ASSISTIDO — CSS completo e bonito
+══════════════════════════════════════════════════════ */
 .btn-watched {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1.2rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border-light);
+  gap: 0.45rem;
+  padding: 0.6rem 1.25rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: var(--r-pill);
   color: var(--text-2);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--t-fast);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
 }
+.btn-watched svg { flex-shrink: 0; transition: stroke 0.2s; }
 .btn-watched:hover {
   background: rgba(34,197,94,0.12);
-  border-color: rgba(34,197,94,0.4);
-  color: #22c55e;
-}
-.btn-watched.is-watched {
-  background: rgba(34,197,94,0.15);
   border-color: rgba(34,197,94,0.5);
   color: #22c55e;
+  box-shadow: 0 0 16px rgba(34,197,94,0.15);
 }
+.btn-watched.is-watched {
+  background: rgba(34,197,94,0.14);
+  border-color: rgba(34,197,94,0.55);
+  color: #22c55e;
+  box-shadow: 0 0 12px rgba(34,197,94,0.12);
+}
+/* Mobile: garante visibilidade */
+@media (max-width: 768px) {
+  .btn-watched {
+    font-size: 0.78rem;
+    padding: 0.55rem 1rem;
+  }
+  .hero-btns {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+/* Overlay do card no "Continuar Assistindo" */
+.btn-watched-overlay {
+  position: absolute;
+  top: 6px; right: 6px;
+  z-index: 5;
+  background: rgba(0,0,0,0.72);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s, border-color 0.2s;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+.card:hover .btn-watched-overlay { opacity: 1; }
+.btn-watched-overlay:hover {
+  background: rgba(34,197,94,0.85);
+  border-color: #22c55e;
+}
+
+/* ══════════════════════════════════════════════════════
+   PÁGINA ASSISTIDOS — seção dedicada
+══════════════════════════════════════════════════════ */
+.assistidos-page-hero {
+  padding: 2.5rem clamp(1rem,5vw,3.5rem) 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(160deg, var(--void) 0%, #0d1a14 100%);
+}
+.assistidos-page-title {
+  font-size: clamp(1.8rem,4vw,2.6rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 30%, #22c55e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.3rem;
+}
+.assistidos-page-sub { color: var(--text-3); font-size: 0.88rem; }
+.assistidos-container { padding: 1.5rem clamp(1rem,5vw,3.5rem) 3rem; }
+.assistidos-empty {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: var(--text-3);
+}
+.assistidos-empty-icon { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+.assistidos-empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text-2); margin-bottom: 0.5rem; }
+
+/* MultiTag Banner 300x100 — só mobile */
+.ad-multitag-wrap { display: none; justify-content: center; padding: 0.75rem 0; }
+@media (max-width: 768px) { .ad-multitag-wrap { display: flex; } }
