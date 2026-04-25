@@ -39,7 +39,7 @@ window.PipocaPlayer = (function () {
   function progressKey(titulo) {
     return 'pflix_progress_' + (titulo||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_');
   }
-  function saveProgress(titulo, video, capa, tipo) {
+  function saveProgress(titulo, video, capa, tipo, serieNome) {
     if (!titulo || !video.duration) return;
     var pct = video.currentTime / video.duration;
     if (pct >= 0.95) { try { localStorage.removeItem(progressKey(titulo)); } catch{} return; }
@@ -349,13 +349,13 @@ window.PipocaPlayer = (function () {
       currentTimeEl.textContent=formatTime(video.currentTime);
       totalTimeEl.textContent=formatTime(video.duration);
       _saveTimer2++;
-      if(_saveTimer2%150===0 && _curTitulo) saveProgress(_curTitulo,video,_curCapa,'serie');
+      if(_saveTimer2%150===0 && _curTitulo) saveProgress(_curTitulo,video,_curCapa,'serie',_serieNome||'');
       // Próximo episódio 30s antes do fim
       var remaining=video.duration-video.currentTime;
       if(remaining<=30&&remaining>0&&!video.paused&&_onNextEp) nextEpCard.style.display='flex';
       else if(video.paused) nextEpCard.style.display='none';
     });
-    video.addEventListener('pause', function(){if(_curTitulo)saveProgress(_curTitulo,video,_curCapa,'serie');});
+    video.addEventListener('pause', function(){if(_curTitulo)saveProgress(_curTitulo,video,_curCapa,'serie',_serieNome||'');});
 
     if(progress&&progressFilled) enhanceProgressBar(progress,progressFilled,video,playerBox);
 
@@ -372,6 +372,8 @@ window.PipocaPlayer = (function () {
       loadEpisode: function(src, titulo, capa) {
         _curTitulo = titulo || '';
         _curCapa   = capa   || '';
+        // Extrai nome da série: "Série — T1 EP2" → "Série"
+        _serieNome = titulo ? (titulo.split(' — ')[0] || titulo) : '';
         playerBox.style.display='block';
         video.pause(); video.removeAttribute('src'); video.load();
         video.src=src; video.load();
