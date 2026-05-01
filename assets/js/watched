@@ -1,0 +1,15 @@
+/**
+ * PIPOCAFLIX — watched.js
+ * Gerencia a lista de assistidos do usuário via localStorage
+ * Deve ser incluído em TODAS as páginas que usam PipocaWatched
+ */
+(function () {
+  'use strict';
+  const KEY = 'pflix_watched_list';
+  function getAll() { try { return JSON.parse(localStorage.getItem(KEY)||'[]'); } catch { return []; } }
+  function add(item) { const a=getAll().filter(i=>i.nome!==item.nome); a.unshift({...item,ts:Date.now()}); try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,500)));}catch{} }
+  function remove(nome) { const a=getAll().filter(i=>i.nome!==nome); try{localStorage.setItem(KEY,JSON.stringify(a));}catch{} }
+  function has(nome) { return getAll().some(i=>i.nome===nome); }
+  function clear() { try{localStorage.removeItem(KEY);}catch{} }
+  window.PipocaWatched = { add, remove, has, getAll, clear };
+})();
