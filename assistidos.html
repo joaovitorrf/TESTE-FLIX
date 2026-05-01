@@ -80,6 +80,9 @@
 </div>
 
 <!-- Lista de assistidos -->
+<div class="ad-mid-content" style="margin-bottom:0.5rem">
+<script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+</div>
 <div class="assistidos-container">
   <div id="assistidosGrid" class="cards-grid"></div>
 </div>
@@ -119,19 +122,11 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/security.js" defer></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
 <script src="assets/js/api.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script>
-// ── PipocaWatched ──
-window.PipocaWatched = (function() {
-  const KEY = 'pflix_watched_list';
-  function getAll() { try { return JSON.parse(localStorage.getItem(KEY)||'[]'); } catch { return []; } }
-  function add(item) { const a=getAll().filter(i=>i.nome!==item.nome); a.unshift({...item,ts:Date.now()}); try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,500)));}catch{} }
-  function remove(nome) { const a=getAll().filter(i=>i.nome!==nome); try{localStorage.setItem(KEY,JSON.stringify(a));}catch{} }
-  function has(nome) { return getAll().some(i=>i.nome===nome); }
-  function clear() { try{localStorage.removeItem(KEY);}catch{} }
-  return { add, remove, has, getAll, clear };
-})();
 
 // ── Scroll / back-to-top ──
 window.addEventListener('scroll', () => {
@@ -283,5 +278,17 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
+<!-- Page Push -->
+<script>
+(function(ojll){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = ojll || {};
+s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
 </body>
 </html>
