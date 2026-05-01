@@ -2279,3 +2279,120 @@ input { font-family: var(--font-body); }
 /* MultiTag Banner 300x100 — só mobile */
 .ad-multitag-wrap { display: none; justify-content: center; padding: 0.75rem 0; }
 @media (max-width: 768px) { .ad-multitag-wrap { display: flex; } }
+
+/* ══════════════════════════════════════════════════════
+   FILTRO POR LETRA — catalogo.html
+══════════════════════════════════════════════════════ */
+.letter-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.letter-btn {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 5px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.letter-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: var(--text-1);
+}
+.letter-btn.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+  box-shadow: 0 0 10px var(--red-glow);
+}
+
+/* ══════════════════════════════════════════════════════
+   AD MID-CONTENT — filme.html / serie.html
+══════════════════════════════════════════════════════ */
+.ad-mid-content {
+  margin: 1.5rem auto;
+  max-width: 728px;
+  text-align: center;
+  min-height: 60px;
+  padding: 0 1rem;
+}
+
+/* ══════════════════════════════════════════════════════
+   DESKTOP CAROUSEL — melhoria visual de seta e drag
+══════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+  /* Setas sempre visíveis no desktop */
+  .carousel-arrow {
+    display: flex !important;
+    opacity: 1;
+  }
+  /* Fade nas bordas para indicar que há mais conteúdo */
+  .carousel-wrap::before,
+  .carousel-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 40px;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.3s;
+  }
+  .carousel-wrap::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg-card, #0e0e0e) 0%, transparent 100%);
+  }
+  .carousel-wrap::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg-card, #0e0e0e) 0%, transparent 100%);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   CHROMECAST BUTTON
+══════════════════════════════════════════════════════ */
+.ctrl-cast-btn { color: var(--text-2); }
+.ctrl-cast-btn:hover { color: #fff; }
+.ctrl-cast-btn.casting {
+  color: var(--red);
+  animation: cast-pulse 2s ease-in-out infinite;
+}
+@keyframes cast-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ══════════════════════════════════════════════════════
+   FIX DESKTOP ARROWS — visibilidade garantida
+══════════════════════════════════════════════════════ */
+@media (min-width: 769px) {
+  /* Garante que as setas fiquem visíveis no desktop */
+  .content-section {
+    padding-left: clamp(1.5rem, 5vw, 3.5rem);
+    padding-right: clamp(1.5rem, 5vw, 3.5rem);
+  }
+  .carousel-wrap {
+    /* Expande lateralmente para as setas não ficarem cortadas */
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: visible;
+  }
+  .carousel-arrow.prev { left: 2px; }
+  .carousel-arrow.next { right: 2px; }
+  .carousel-arrow {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+}
