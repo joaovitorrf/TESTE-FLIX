@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
 <link rel="stylesheet" href="assets/css/style.css">
 <link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
+<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
@@ -105,6 +106,7 @@
         <button class="ctrl-btn" id="forward10" aria-label="+10s"><svg viewBox="0 0 24 24"><path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/></svg></button>
         <div class="player-title" id="playerTitle"></div>
         <button class="ctrl-btn" id="fullscreenBtn" aria-label="Tela cheia"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0v6h-2V6h-4V4h6zm0 14h-6v-2h4v-4h2v6zm-14 0v-6h2v4h4v2H4z"/></svg></button>
+        <button class="ctrl-btn ctrl-cast-btn" id="castBtn" aria-label="Chromecast" title="Enviar para TV" style="display:none"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M1 18v3h3a3 3 0 00-3-3zm0-4v2a7 7 0 017 7h2a9 9 0 00-9-9zm0-4v2a13 13 0 0113 13h2C16 12.95 9.05 6 1 10zm20-6H3C1.9 4 1 4.9 1 6v3h2V6h18v12h-7v2h7c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg></button>
       </div>
       <div class="player-progress-row">
         <span class="player-time" id="currentTime">0:00</span>
@@ -139,6 +141,9 @@
 </section>
 
 <!-- Recomendações (Tarefa 8) -->
+<div class="ad-mid-content">
+<script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+</div>
 <section class="recommendations-section" id="recsSection" style="display:none">
   <div class="section-header" style="padding:0;margin-bottom:1rem">
     <h2 class="section-title">🎯 Você também pode gostar</h2>
@@ -169,6 +174,7 @@
 
 <script src="assets/js/security.js"></script>
 <script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
@@ -407,5 +413,17 @@ l.parentNode.insertBefore(s, l);
 })({})
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<!-- Page Push -->
+<script>
+(function(ojll){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = ojll || {};
+s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
 </body>
 </html>
