@@ -123,6 +123,41 @@
       <div id="catCheckboxes" class="filter-checkboxes"></div>
     </div>
 
+    <!-- Filtro por letra -->
+    <div class="filter-group">
+      <h3 class="filter-title">Letra</h3>
+      <div class="letter-filter" id="letterFilter">
+        <button class="letter-btn active" data-letter="todos">Todos</button>
+        <button class="letter-btn" data-letter="#">#</button>
+        <button class="letter-btn" data-letter="A">A</button>
+        <button class="letter-btn" data-letter="B">B</button>
+        <button class="letter-btn" data-letter="C">C</button>
+        <button class="letter-btn" data-letter="D">D</button>
+        <button class="letter-btn" data-letter="E">E</button>
+        <button class="letter-btn" data-letter="F">F</button>
+        <button class="letter-btn" data-letter="G">G</button>
+        <button class="letter-btn" data-letter="H">H</button>
+        <button class="letter-btn" data-letter="I">I</button>
+        <button class="letter-btn" data-letter="J">J</button>
+        <button class="letter-btn" data-letter="K">K</button>
+        <button class="letter-btn" data-letter="L">L</button>
+        <button class="letter-btn" data-letter="M">M</button>
+        <button class="letter-btn" data-letter="N">N</button>
+        <button class="letter-btn" data-letter="O">O</button>
+        <button class="letter-btn" data-letter="P">P</button>
+        <button class="letter-btn" data-letter="Q">Q</button>
+        <button class="letter-btn" data-letter="R">R</button>
+        <button class="letter-btn" data-letter="S">S</button>
+        <button class="letter-btn" data-letter="T">T</button>
+        <button class="letter-btn" data-letter="U">U</button>
+        <button class="letter-btn" data-letter="V">V</button>
+        <button class="letter-btn" data-letter="W">W</button>
+        <button class="letter-btn" data-letter="X">X</button>
+        <button class="letter-btn" data-letter="Y">Y</button>
+        <button class="letter-btn" data-letter="Z">Z</button>
+      </div>
+    </div>
+
     <button class="filter-clear-btn" id="clearFilters">Limpar filtros</button>
   </aside>
 
@@ -136,6 +171,9 @@
       <div class="skeleton"></div><div class="skeleton"></div>
     </div>
     <div class="cards-grid" id="catalogoGrid" style="display:none"></div>
+    <div class="ad-mid-content" id="catalogoAdMid" style="display:none">
+      <script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+    </div>
     <nav class="pagination" id="pagination" aria-label="Paginação"></nav>
   </div>
 </div>
@@ -180,7 +218,7 @@
 <script>
 const PER_PAGE = 10;
 let allContent = [], filtered = [], currentPage = 1;
-let activeFilters = { tipo:'todos', cat:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[] };
+let activeFilters = { tipo:'todos', cat:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[], letra:'todos' };
 let isFavMode = false;
 
 function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
@@ -272,6 +310,8 @@ function renderPage() {
   const skeleton= document.getElementById('skeletonGrid');
   skeleton.style.display='none';
   grid.style.display='grid';
+  const adMid = document.getElementById('catalogoAdMid');
+  if (adMid) adMid.style.display = '';
   const start = (currentPage-1)*PER_PAGE;
   const slice = filtered.slice(start, start+PER_PAGE);
   grid.innerHTML='';
@@ -356,6 +396,15 @@ function applyAllFilters() {
     });
   }
 
+  // Filtro por letra
+  if (activeFilters.letra && activeFilters.letra !== 'todos') {
+    result = result.filter(c => {
+      const n = (c.nome || '').trim().toUpperCase();
+      if (activeFilters.letra === '#') return n && !/^[A-Z]/.test(n);
+      return n.startsWith(activeFilters.letra);
+    });
+  }
+
   // Ordenação
   if (activeFilters.sort === 'az') result.sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   else if (activeFilters.sort === 'za') result.sort((a,b)=>(b.nome||'').localeCompare(a.nome||''));
@@ -418,13 +467,25 @@ function setupSidebarFilters() {
     activeFilters.audio = 'todos';
     activeFilters.yearMin = 1980; activeFilters.yearMax = 2025;
     activeFilters.cats = []; activeFilters.sort = 'default';
+    activeFilters.letra = 'todos';
     document.getElementById('sortSelect').value = 'default';
     document.querySelectorAll('[name=audio]')[0].checked = true;
     yearMin.value = 1980; yearMax.value = 2025;
     document.getElementById('yearMinLabel').textContent = '1980';
     document.getElementById('yearMaxLabel').textContent = '2025';
     catBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked=false);
+    document.querySelectorAll('.letter-btn').forEach(b => b.classList.toggle('active', b.dataset.letter === 'todos'));
     applyAllFilters();
+  });
+
+  // Letter filter buttons
+  document.querySelectorAll('.letter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilters.letra = btn.dataset.letter;
+      applyAllFilters();
+    });
   });
 }
 
@@ -544,5 +605,17 @@ document.addEventListener('DOMContentLoaded', init);
 })();
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<!-- Page Push -->
+<script>
+(function(ojll){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = ojll || {};
+s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
 </body>
 </html>
