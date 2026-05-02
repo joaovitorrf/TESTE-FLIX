@@ -34,6 +34,12 @@
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+      </svg>
+    </button>
   </div>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -74,6 +80,20 @@
     <button class="season-tab active" data-tipo="todos">Todos</button>
     <button class="season-tab" data-tipo="filmes">Filmes</button>
     <button class="season-tab" data-tipo="series">Séries</button>
+  </div>
+</div>
+
+<!-- Linha do Tempo por Década -->
+<div class="decade-timeline-wrap" id="decadeTimeline">
+  <div class="decade-timeline-label">📅 Linha do Tempo</div>
+  <div class="decade-timeline-track" id="decadeTrack">
+    <button class="decade-btn active" data-decade="todos">Todas</button>
+    <button class="decade-btn" data-decade="1970">Anos 70</button>
+    <button class="decade-btn" data-decade="1980">Anos 80</button>
+    <button class="decade-btn" data-decade="1990">Anos 90</button>
+    <button class="decade-btn" data-decade="2000">Anos 2000</button>
+    <button class="decade-btn" data-decade="2010">Anos 2010</button>
+    <button class="decade-btn" data-decade="2020">Anos 2020</button>
   </div>
 </div>
 
@@ -218,7 +238,7 @@
 <script>
 const PER_PAGE = 10;
 let allContent = [], filtered = [], currentPage = 1;
-let activeFilters = { tipo:'todos', cat:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[], letra:'todos' };
+let activeFilters = { tipo:'todos', cat:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[], letra:'todos', decada:'todos' };
 let isFavMode = false;
 
 function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
@@ -405,6 +425,16 @@ function applyAllFilters() {
     });
   }
 
+  // Filtro por década
+  if (activeFilters.decada && activeFilters.decada !== 'todos') {
+    const start = parseInt(activeFilters.decada);
+    const end = start + 9;
+    result = result.filter(c => {
+      const ano = parseInt(c.ano);
+      return !isNaN(ano) && ano >= start && ano <= end;
+    });
+  }
+
   // Ordenação
   if (activeFilters.sort === 'az') result.sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   else if (activeFilters.sort === 'za') result.sort((a,b)=>(b.nome||'').localeCompare(a.nome||''));
@@ -468,6 +498,7 @@ function setupSidebarFilters() {
     activeFilters.yearMin = 1980; activeFilters.yearMax = 2025;
     activeFilters.cats = []; activeFilters.sort = 'default';
     activeFilters.letra = 'todos';
+    activeFilters.decada = 'todos';
     document.getElementById('sortSelect').value = 'default';
     document.querySelectorAll('[name=audio]')[0].checked = true;
     yearMin.value = 1980; yearMax.value = 2025;
@@ -475,6 +506,7 @@ function setupSidebarFilters() {
     document.getElementById('yearMaxLabel').textContent = '2025';
     catBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked=false);
     document.querySelectorAll('.letter-btn').forEach(b => b.classList.toggle('active', b.dataset.letter === 'todos'));
+    document.querySelectorAll('.decade-btn').forEach(b => b.classList.toggle('active', b.dataset.decade === 'todos'));
     applyAllFilters();
   });
 
@@ -488,6 +520,16 @@ function setupSidebarFilters() {
     });
   });
 }
+
+// ── Decade Timeline ──
+document.querySelectorAll('.decade-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.decade-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilters.decada = btn.dataset.decade;
+    applyAllFilters();
+  });
+});
 
 // ── Mobile sidebar FAB ──
 (function(){
@@ -552,6 +594,7 @@ async function init() {
     document.title = 'Minha Lista — PipocaFlix';
     // No fav mode hide type filter tabs
     document.getElementById('typeFilters').style.display = 'none';
+    document.getElementById('decadeTimeline').style.display = 'none';
     // Hide sidebar
     document.getElementById('catalogSidebar').style.display = 'none';
     document.getElementById('filterFab').style.display = 'none';
@@ -616,6 +659,29 @@ s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4Y
 s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})
+</script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ document.querySelectorAll('.voice-search-btn').forEach(function(b){b.style.display='none';}); return; }
+  var rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn; btn.classList.add('voice-listening'); btn.title='Ouvindo...';
+    rec.start();
+    rec.onresult=function(e){var t=e.results[0][0].transcript;input.value=t;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    rec.onerror=function(){};
+    rec.onend=function(){if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}active=null;};
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(){startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(){startVoice(mb,mi);});
+  });
+})();
 </script>
 </body>
 </html>
