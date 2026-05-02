@@ -17,7 +17,10 @@
 <div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
   <input type="search" class="mobile-search-input" id="mobileSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
-  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
 </div>
 
 <header class="header" id="mainHeader">
@@ -34,11 +37,8 @@
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
-    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-        <rect x="9" y="2" width="6" height="11" rx="3"/>
-        <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
-      </svg>
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
@@ -85,8 +85,8 @@
 
 <!-- Linha do Tempo por Década -->
 <div class="decade-timeline-wrap" id="decadeTimeline">
-  <div class="decade-timeline-label">📅 Linha do Tempo</div>
-  <div class="decade-timeline-track" id="decadeTrack">
+  <div class="decade-timeline-label">📅 Década</div>
+  <div class="decade-timeline-track">
     <button class="decade-btn active" data-decade="todos">Todas</button>
     <button class="decade-btn" data-decade="1970">Anos 70</button>
     <button class="decade-btn" data-decade="1980">Anos 80</button>
@@ -97,7 +97,6 @@
   </div>
 </div>
 
-<!-- Layout com sidebar -->
 <div style="padding:1.25rem clamp(1rem,5vw,3.5rem) 2rem;display:grid;grid-template-columns:240px 1fr;gap:2rem;align-items:start" id="mainLayout">
 
   <!-- Sidebar de filtros -->
@@ -428,10 +427,9 @@ function applyAllFilters() {
   // Filtro por década
   if (activeFilters.decada && activeFilters.decada !== 'todos') {
     const start = parseInt(activeFilters.decada);
-    const end = start + 9;
     result = result.filter(c => {
       const ano = parseInt(c.ano);
-      return !isNaN(ano) && ano >= start && ano <= end;
+      return !isNaN(ano) && ano >= start && ano <= start + 9;
     });
   }
 
@@ -521,7 +519,7 @@ function setupSidebarFilters() {
   });
 }
 
-// ── Decade Timeline ──
+// ── Decade timeline ──
 document.querySelectorAll('.decade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.decade-btn').forEach(b => b.classList.remove('active'));
@@ -663,23 +661,36 @@ l.parentNode.insertBefore(s, l);
 <script>
 // ── Pesquisa por Voz (Web Speech API) ──
 (function(){
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ document.querySelectorAll('.voice-search-btn').forEach(function(b){b.style.display='none';}); return; }
-  var rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function hideMicBtns(){ document.querySelectorAll('.voice-search-btn,[id^=voiceSearch]').forEach(function(b){b.style.display='none';}); }
+  if(!SR){ hideMicBtns(); return; }
+  var rec=new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
   var active=null;
   function startVoice(btn,input){
     if(active){rec.stop();return;}
-    active=btn; btn.classList.add('voice-listening'); btn.title='Ouvindo...';
-    rec.start();
-    rec.onresult=function(e){var t=e.results[0][0].transcript;input.value=t;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    active=btn;
+    btn.classList.add('voice-listening');
+    btn.title='Ouvindo...';
+    try{ rec.start(); } catch(e){ active=null; return; }
+    rec.onresult=function(e){
+      var t=e.results[0][0].transcript;
+      input.value=t;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      // no mobile, abre o overlay de busca automaticamente
+      var overlay=document.getElementById('mobileSearchOverlay');
+      if(overlay && !overlay.classList.contains('open')) overlay.classList.add('open');
+    };
     rec.onerror=function(){};
-    rec.onend=function(){if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}active=null;};
+    rec.onend=function(){
+      if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}
+      active=null;
+    };
   }
   window.addEventListener('DOMContentLoaded',function(){
     var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
     var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
-    if(db&&di) db.addEventListener('click',function(){startVoice(db,di);});
-    if(mb&&mi) mb.addEventListener('click',function(){startVoice(mb,mi);});
+    if(db&&di) db.addEventListener('click',function(e){e.preventDefault();startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(e){e.preventDefault();startVoice(mb,mi);});
   });
 })();
 </script>
