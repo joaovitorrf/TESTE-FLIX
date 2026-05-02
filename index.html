@@ -32,6 +32,12 @@
   </svg>
   <input type="search" class="mobile-search-input" id="mobileSearchInput"
     placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+  <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+      <rect x="9" y="2" width="6" height="11" rx="3"/>
+      <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+    </svg>
+  </button>
   <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
 </div>
 
@@ -53,6 +59,12 @@
     </svg>
     <input type="search" class="search-bar" id="desktopSearchInput"
       placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+      </svg>
+    </button>
   </div>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -992,5 +1004,50 @@ l.parentNode.insertBefore(s, l);
 })({})
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.querySelectorAll('.voice-search-btn').forEach(function(b){ b.style.display='none'; });
+    return;
+  }
+  var recognition = new SpeechRecognition();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  var activeBtn = null;
+
+  function startVoice(btn, targetInput) {
+    if (activeBtn) { recognition.stop(); return; }
+    activeBtn = btn;
+    btn.classList.add('voice-listening');
+    btn.title = 'Ouvindo... fale o nome';
+    recognition.start();
+    recognition.onresult = function(e) {
+      var transcript = e.results[0][0].transcript;
+      targetInput.value = transcript;
+      targetInput.dispatchEvent(new Event('input', {bubbles:true}));
+    };
+    recognition.onerror = function(e) {
+      console.warn('Voice error', e.error);
+    };
+    recognition.onend = function() {
+      if(activeBtn){ activeBtn.classList.remove('voice-listening'); activeBtn.title = 'Busca por voz'; }
+      activeBtn = null;
+    };
+  }
+
+  var desktopBtn = document.getElementById('voiceSearchBtn');
+  var desktopInput = document.getElementById('desktopSearchInput');
+  var mobileBtn = document.getElementById('voiceSearchBtnMobile');
+  var mobileInput = document.getElementById('mobileSearchInput');
+
+  if(desktopBtn && desktopInput) desktopBtn.addEventListener('click', function(){ startVoice(desktopBtn, desktopInput); });
+  if(mobileBtn && mobileInput)   mobileBtn.addEventListener('click',  function(){ startVoice(mobileBtn, mobileInput); });
+})();
+</script>
 </body>
 </html>
