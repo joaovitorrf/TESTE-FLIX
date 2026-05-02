@@ -37,6 +37,12 @@
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+      </svg>
+    </button>
   </div>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -288,7 +294,7 @@ function setupSearch(allItems) {
 }
 
 // ── Push ──
-window.PipocaPush=(function(){const LS_KEY='pflix_push_status',LS_DATE='pflix_push_date',RETRY_DAYS=7;function shouldShow(){const status=localStorage.getItem(LS_KEY);if(status==='granted')return false;if(status==='denied'){const d=parseInt(localStorage.getItem(LS_DATE)||'0');return(Date.now()-d)/(1000*60*60*24)>=RETRY_DAYS;}return true;}function showModal(){if(!shouldShow())return;if(!('Notification'in window))return;if(Notification.permission==='granted'){localStorage.setItem(LS_KEY,'granted');return;}let overlay=document.getElementById('pushModalOverlay');if(!overlay){overlay=document.createElement('div');overlay.id='pushModalOverlay';overlay.className='push-modal-overlay';overlay.innerHTML=`<div class="push-modal"><div class="push-modal-icon">🎬</div><div class="push-modal-title">Quer ser avisado dos lançamentos?</div><div class="push-modal-desc">Ative as notificações e receba <strong>novos filmes e séries</strong> direto no seu navegador.</div><div class="push-modal-btns"><button class="push-modal-accept" id="pushAccept">✅ Ativar</button><button class="push-modal-decline" id="pushDecline">❌ Não</button></div></div>`;document.body.appendChild(overlay);document.getElementById('pushAccept').addEventListener('click',()=>{Notification.requestPermission().then(perm=>{localStorage.setItem(LS_KEY,perm);localStorage.setItem(LS_DATE,Date.now().toString());overlay.classList.remove('open');});});document.getElementById('pushDecline').addEventListener('click',()=>{localStorage.setItem(LS_KEY,'denied');localStorage.setItem(LS_DATE,Date.now().toString());overlay.classList.remove('open');});}setTimeout(()=>overlay.classList.add('open'),400);}return{showModal};})();
+// PipocaPush removido
 
 // ── INIT ──
 async function init() {
@@ -358,7 +364,7 @@ async function init() {
     }
 
     document.getElementById('watchNowBtn').addEventListener('click',function(){
-      if(window.PipocaPush) window.PipocaPush.showModal();
+      
       document.getElementById('playerSection').style.display='block';
       document.getElementById('playerSection').scrollIntoView({behavior:'smooth'});
       runVAST(function(){
@@ -424,6 +430,29 @@ s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4Y
 s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})
+</script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ document.querySelectorAll('.voice-search-btn').forEach(function(b){b.style.display='none';}); return; }
+  var rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn; btn.classList.add('voice-listening'); btn.title='Ouvindo...';
+    rec.start();
+    rec.onresult=function(e){var t=e.results[0][0].transcript;input.value=t;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    rec.onerror=function(){};
+    rec.onend=function(){if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}active=null;};
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(){startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(){startVoice(mb,mi);});
+  });
+})();
 </script>
 </body>
 </html>
