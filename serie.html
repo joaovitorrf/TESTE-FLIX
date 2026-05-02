@@ -20,7 +20,10 @@
 <div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
   <input type="search" class="mobile-search-input" id="mobileSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
-  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
 </div>
 
 <header class="header" id="mainHeader">
@@ -37,11 +40,8 @@
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
-    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-        <rect x="9" y="2" width="6" height="11" rx="3"/>
-        <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
-      </svg>
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
@@ -199,37 +199,83 @@ function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textC
 
 // ── VAST ──
 var VAST_TAG_URL="https://muddy-distance.com/dpmtF.z/dWGAN/vZZZGkUR/je_m/9nuQZ/USlZknPATRYe4XN-TEke5UOODRkQtnNej/gP1/OQTGkV5HMbwU";
-function runVAST(onComplete){fetch(VAST_TAG_URL).then(function(r){return r.text();}).then(function(xml){var parser=new DOMParser(),doc=parser.parseFromString(xml,'text/xml'),mp4Url='';doc.querySelectorAll('MediaFile').forEach(function(mf){var type=(mf.getAttribute('type')||'').toLowerCase();if(!mp4Url&&(type==='video/mp4'||type.includes('mp4')))mp4Url=mf.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();});if(!mp4Url){onComplete();return;}showVASTPlayer(mp4Url,doc,onComplete);}).catch(function(){onComplete();});}
-function showVASTPlayer(mp4Url,doc,onComplete){
+function runVAST(onComplete){
   var isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  var adOverlay=document.createElement('div');adOverlay.id='vastAdOverlay';
+  // No mobile sem gesto do usuário, pula o VAST direto pro player
+  // (o gesto vem do clique no episódio, mas iOS bloqueia o fetch->play chain)
+  // Tentamos mostrar o ad; se falhar silenciosamente, onComplete é chamado
+  fetch(VAST_TAG_URL)
+    .then(function(r){return r.text();})
+    .then(function(xml){
+      var parser=new DOMParser(),doc=parser.parseFromString(xml,'text/xml'),mp4Url='';
+      doc.querySelectorAll('MediaFile').forEach(function(mf){
+        var type=(mf.getAttribute('type')||'').toLowerCase();
+        if(!mp4Url&&(type==='video/mp4'||type.includes('mp4')))
+          mp4Url=mf.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+      });
+      if(!mp4Url){onComplete();return;}
+      showVASTPlayer(mp4Url,doc,onComplete,isMobile);
+    })
+    .catch(function(){onComplete();});
+}
+function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
+  var adOverlay=document.createElement('div');
+  adOverlay.id='vastAdOverlay';
   adOverlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
   var adVideo=document.createElement('video');
   adVideo.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
-  adVideo.src=mp4Url;adVideo.autoplay=true;adVideo.muted=false;adVideo.playsInline=true;adVideo.controls=false;
-  var adBar=document.createElement('div');adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:1';
-  var adLabel=document.createElement('span');adLabel.textContent='Anúncio';adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
-  var skipBtn=document.createElement('button');skipBtn.textContent='Aguarde...';skipBtn.disabled=true;skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:5px 14px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
-  adBar.appendChild(adLabel);adBar.appendChild(skipBtn);adOverlay.appendChild(adBar);adOverlay.appendChild(adVideo);
-  // Mobile: tap-to-start overlay (iOS autoplay policy)
+  adVideo.src=mp4Url;adVideo.playsInline=true;adVideo.controls=false;
+  var adBar=document.createElement('div');
+  adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:1';
+  var adLabel=document.createElement('span');adLabel.textContent='Anúncio';
+  adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
+  var skipBtn=document.createElement('button');skipBtn.textContent='Aguarde...';skipBtn.disabled=true;
+  skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:5px 14px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
+  adBar.appendChild(adLabel);adBar.appendChild(skipBtn);
+  adOverlay.appendChild(adBar);adOverlay.appendChild(adVideo);
+  // Mobile: mostra tela de toque para iniciar (iOS precisa de gesto direto)
   if(isMobile){
-    var tapStart=document.createElement('div');
-    tapStart.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);z-index:2;gap:12px';
-    tapStart.innerHTML='<div style="font-size:52px;line-height:1">▶</div><div style="color:#fff;font-size:15px;font-family:sans-serif">Toque para iniciar</div>';
-    adOverlay.appendChild(tapStart);
-    tapStart.addEventListener('click',function(){tapStart.remove();adVideo.muted=false;adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});});
+    var tapScreen=document.createElement('div');
+    tapScreen.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;gap:16px;cursor:pointer;background:rgba(0,0,0,0.5)';
+    tapScreen.innerHTML='<div style="width:72px;height:72px;border-radius:50%;background:rgba(255,45,67,0.9);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="white" width="32" height="32"><path d="M8 5v14l11-7z"/></svg></div><div style="color:#fff;font-size:16px;font-weight:600;font-family:sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.8)">Toque para assistir o anúncio</div><div style="color:rgba(255,255,255,0.6);font-size:12px;font-family:sans-serif">O vídeo começará em seguida</div>';
+    adOverlay.appendChild(tapScreen);
+    tapScreen.addEventListener('click',function(){
+      tapScreen.remove();
+      adVideo.muted=false;
+      adVideo.play().catch(function(){ adVideo.muted=true; adVideo.play().catch(function(){adOverlay.remove();onComplete();}); });
+    });
   }
   document.body.appendChild(adOverlay);
   var skipDelay=5,canSkip=false,impressionFired=false;
-  adVideo.addEventListener('play',function(){if(impressionFired)return;impressionFired=true;try{doc.querySelectorAll('Impression').forEach(function(imp){var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});doc.querySelectorAll('Tracking[event="start"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}});
+  adVideo.addEventListener('play',function(){
+    if(impressionFired)return;impressionFired=true;
+    try{
+      doc.querySelectorAll('Impression').forEach(function(imp){var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});
+      doc.querySelectorAll('Tracking[event="start"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});
+    }catch(e){}
+  });
   var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};
-  adVideo.addEventListener('timeupdate',function(){if(!adVideo.duration)return;var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}[{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}});});
-  function encerrarAd(){try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}adVideo.pause();adOverlay.remove();onComplete();}
+  adVideo.addEventListener('timeupdate',function(){
+    if(!adVideo.duration)return;
+    var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);
+    if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}
+    else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}
+    [{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){
+      if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}
+    });
+  });
+  function encerrarAd(){
+    try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}
+    adVideo.pause();adOverlay.remove();onComplete();
+  }
   skipBtn.addEventListener('click',function(){if(canSkip)encerrarAd();});
   adVideo.addEventListener('ended',encerrarAd);
   adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});
-  if(!isMobile){adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});}
-}
+  if(!isMobile){
+    adVideo.muted=false;
+    adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});
+  }
+});var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};adVideo.addEventListener('timeupdate',function(){if(!adVideo.duration)return;var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}[{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}});});function encerrarAd(){try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}adVideo.pause();adOverlay.remove();onComplete();}skipBtn.addEventListener('click',function(){if(canSkip)encerrarAd();});adVideo.addEventListener('ended',encerrarAd);adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});}
 
 let seriePlayer=null, temporadaAtual=1, temporadasData={}, nomeSerie='';
 
@@ -276,7 +322,7 @@ function renderRecs(item,allContent){const recs=getRecommendations(item,allConte
 function setupSearch(allItems){PipocaSearch.indexContent(allItems);const overlay=document.getElementById('searchResultsOverlay'),grid=document.getElementById('searchResultsGrid'),label=document.getElementById('searchQueryLabel');function mkCard(item){const d=document.createElement('div');d.className='card';const page=item.isSerie?'serie.html':'filme.html';d.innerHTML=`<div class="card-thumb-wrap"><img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy" onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'"><span class="card-badge">${item.isSerie?'Série':'Filme'}</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>${item.ano?`<div class="card-year-badge">${item.ano}</div>`:''}</div><div class="card-info"><div class="card-name">${item.nome}</div><div class="card-meta-row"><span>${item.ano||''}</span></div></div>`;d.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(item.nome)}`);return d;}function doSearch(q){if(!q||q.length<2){overlay.classList.remove('active');return;}const res=PipocaSearch.search(q,30);label.textContent=q;grid.innerHTML='';res.forEach(i=>grid.appendChild(mkCard(i)));overlay.classList.add('active');}const deb=PipocaSearch.debounce(doSearch,250);document.getElementById('desktopSearchInput').addEventListener('input',e=>deb(e.target.value));document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));}
 
 // Push
-// PipocaPush removido
+// notificacoes removidas
 
 var _serieItem = null;
 
@@ -405,23 +451,36 @@ l.parentNode.insertBefore(s, l);
 <script>
 // ── Pesquisa por Voz (Web Speech API) ──
 (function(){
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ document.querySelectorAll('.voice-search-btn').forEach(function(b){b.style.display='none';}); return; }
-  var rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function hideMicBtns(){ document.querySelectorAll('.voice-search-btn,[id^=voiceSearch]').forEach(function(b){b.style.display='none';}); }
+  if(!SR){ hideMicBtns(); return; }
+  var rec=new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
   var active=null;
   function startVoice(btn,input){
     if(active){rec.stop();return;}
-    active=btn; btn.classList.add('voice-listening'); btn.title='Ouvindo...';
-    rec.start();
-    rec.onresult=function(e){var t=e.results[0][0].transcript;input.value=t;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    active=btn;
+    btn.classList.add('voice-listening');
+    btn.title='Ouvindo...';
+    try{ rec.start(); } catch(e){ active=null; return; }
+    rec.onresult=function(e){
+      var t=e.results[0][0].transcript;
+      input.value=t;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      // no mobile, abre o overlay de busca automaticamente
+      var overlay=document.getElementById('mobileSearchOverlay');
+      if(overlay && !overlay.classList.contains('open')) overlay.classList.add('open');
+    };
     rec.onerror=function(){};
-    rec.onend=function(){if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}active=null;};
+    rec.onend=function(){
+      if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}
+      active=null;
+    };
   }
   window.addEventListener('DOMContentLoaded',function(){
     var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
     var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
-    if(db&&di) db.addEventListener('click',function(){startVoice(db,di);});
-    if(mb&&mi) mb.addEventListener('click',function(){startVoice(mb,mi);});
+    if(db&&di) db.addEventListener('click',function(e){e.preventDefault();startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(e){e.preventDefault();startVoice(mb,mi);});
   });
 })();
 </script>
