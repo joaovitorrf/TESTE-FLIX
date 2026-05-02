@@ -37,6 +37,12 @@
   <div class="search-wrapper">
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <rect x="9" y="2" width="6" height="11" rx="3"/>
+        <path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/>
+      </svg>
+    </button>
   </div>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -194,7 +200,36 @@ function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textC
 // ── VAST ──
 var VAST_TAG_URL="https://muddy-distance.com/dpmtF.z/dWGAN/vZZZGkUR/je_m/9nuQZ/USlZknPATRYe4XN-TEke5UOODRkQtnNej/gP1/OQTGkV5HMbwU";
 function runVAST(onComplete){fetch(VAST_TAG_URL).then(function(r){return r.text();}).then(function(xml){var parser=new DOMParser(),doc=parser.parseFromString(xml,'text/xml'),mp4Url='';doc.querySelectorAll('MediaFile').forEach(function(mf){var type=(mf.getAttribute('type')||'').toLowerCase();if(!mp4Url&&(type==='video/mp4'||type.includes('mp4')))mp4Url=mf.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();});if(!mp4Url){onComplete();return;}showVASTPlayer(mp4Url,doc,onComplete);}).catch(function(){onComplete();});}
-function showVASTPlayer(mp4Url,doc,onComplete){var adOverlay=document.createElement('div');adOverlay.id='vastAdOverlay';adOverlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';var adVideo=document.createElement('video');adVideo.style.cssText='width:100%;max-height:100vh;display:block;background:#000';adVideo.src=mp4Url;adVideo.autoplay=true;adVideo.muted=false;adVideo.playsInline=true;adVideo.controls=false;var adBar=document.createElement('div');adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:1';var adLabel=document.createElement('span');adLabel.textContent='Anúncio';adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';var skipBtn=document.createElement('button');skipBtn.textContent='Aguarde...';skipBtn.disabled=true;skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:5px 14px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';adBar.appendChild(adLabel);adBar.appendChild(skipBtn);adOverlay.appendChild(adBar);adOverlay.appendChild(adVideo);document.body.appendChild(adOverlay);var skipDelay=5,canSkip=false,impressionFired=false;adVideo.addEventListener('play',function(){if(impressionFired)return;impressionFired=true;try{doc.querySelectorAll('Impression').forEach(function(imp){var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});doc.querySelectorAll('Tracking[event="start"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}});var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};adVideo.addEventListener('timeupdate',function(){if(!adVideo.duration)return;var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}[{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}});});function encerrarAd(){try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}adVideo.pause();adOverlay.remove();onComplete();}skipBtn.addEventListener('click',function(){if(canSkip)encerrarAd();});adVideo.addEventListener('ended',encerrarAd);adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});}
+function showVASTPlayer(mp4Url,doc,onComplete){
+  var isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  var adOverlay=document.createElement('div');adOverlay.id='vastAdOverlay';
+  adOverlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+  var adVideo=document.createElement('video');
+  adVideo.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
+  adVideo.src=mp4Url;adVideo.autoplay=true;adVideo.muted=false;adVideo.playsInline=true;adVideo.controls=false;
+  var adBar=document.createElement('div');adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:1';
+  var adLabel=document.createElement('span');adLabel.textContent='Anúncio';adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
+  var skipBtn=document.createElement('button');skipBtn.textContent='Aguarde...';skipBtn.disabled=true;skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:5px 14px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
+  adBar.appendChild(adLabel);adBar.appendChild(skipBtn);adOverlay.appendChild(adBar);adOverlay.appendChild(adVideo);
+  // Mobile: tap-to-start overlay (iOS autoplay policy)
+  if(isMobile){
+    var tapStart=document.createElement('div');
+    tapStart.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);z-index:2;gap:12px';
+    tapStart.innerHTML='<div style="font-size:52px;line-height:1">▶</div><div style="color:#fff;font-size:15px;font-family:sans-serif">Toque para iniciar</div>';
+    adOverlay.appendChild(tapStart);
+    tapStart.addEventListener('click',function(){tapStart.remove();adVideo.muted=false;adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});});
+  }
+  document.body.appendChild(adOverlay);
+  var skipDelay=5,canSkip=false,impressionFired=false;
+  adVideo.addEventListener('play',function(){if(impressionFired)return;impressionFired=true;try{doc.querySelectorAll('Impression').forEach(function(imp){var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});doc.querySelectorAll('Tracking[event="start"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}});
+  var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};
+  adVideo.addEventListener('timeupdate',function(){if(!adVideo.duration)return;var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}[{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}});});
+  function encerrarAd(){try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}adVideo.pause();adOverlay.remove();onComplete();}
+  skipBtn.addEventListener('click',function(){if(canSkip)encerrarAd();});
+  adVideo.addEventListener('ended',encerrarAd);
+  adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});
+  if(!isMobile){adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});}
+}
 
 let seriePlayer=null, temporadaAtual=1, temporadasData={}, nomeSerie='';
 
@@ -217,7 +252,7 @@ const REPRODUCTION_WORKER='https://shy-dream-7986.slacarambafdsosobrenome.worker
 function resolveVideoUrl(raw){if(!raw)return'';raw=raw.trim();if(raw.startsWith('http://')||raw.startsWith('https://'))return raw;return REPRODUCTION_WORKER+(raw.startsWith('/')?raw:'/'+raw);}
 
 function tocar(ep){
-  if(window.PipocaPush) window.PipocaPush.showModal();
+  
   const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
   const videoUrl=resolveVideoUrl(ep.linkMP4);
   if(!videoUrl){console.error('[PipocaFlix] linkMP4 vazio');return;}
@@ -241,7 +276,7 @@ function renderRecs(item,allContent){const recs=getRecommendations(item,allConte
 function setupSearch(allItems){PipocaSearch.indexContent(allItems);const overlay=document.getElementById('searchResultsOverlay'),grid=document.getElementById('searchResultsGrid'),label=document.getElementById('searchQueryLabel');function mkCard(item){const d=document.createElement('div');d.className='card';const page=item.isSerie?'serie.html':'filme.html';d.innerHTML=`<div class="card-thumb-wrap"><img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy" onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'"><span class="card-badge">${item.isSerie?'Série':'Filme'}</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>${item.ano?`<div class="card-year-badge">${item.ano}</div>`:''}</div><div class="card-info"><div class="card-name">${item.nome}</div><div class="card-meta-row"><span>${item.ano||''}</span></div></div>`;d.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(item.nome)}`);return d;}function doSearch(q){if(!q||q.length<2){overlay.classList.remove('active');return;}const res=PipocaSearch.search(q,30);label.textContent=q;grid.innerHTML='';res.forEach(i=>grid.appendChild(mkCard(i)));overlay.classList.add('active');}const deb=PipocaSearch.debounce(doSearch,250);document.getElementById('desktopSearchInput').addEventListener('input',e=>deb(e.target.value));document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));}
 
 // Push
-window.PipocaPush=(function(){const LS_KEY='pflix_push_status',LS_DATE='pflix_push_date',RETRY_DAYS=7;function shouldShow(){const status=localStorage.getItem(LS_KEY);if(status==='granted')return false;if(status==='denied'){const d=parseInt(localStorage.getItem(LS_DATE)||'0');return(Date.now()-d)/(1000*60*60*24)>=RETRY_DAYS;}return true;}function showModal(){if(!shouldShow())return;if(!('Notification'in window))return;if(Notification.permission==='granted'){localStorage.setItem(LS_KEY,'granted');return;}let overlay=document.getElementById('pushModalOverlay');if(!overlay){overlay=document.createElement('div');overlay.id='pushModalOverlay';overlay.className='push-modal-overlay';overlay.innerHTML=`<div class="push-modal"><div class="push-modal-icon">🎬</div><div class="push-modal-title">Quer ser avisado dos lançamentos?</div><div class="push-modal-desc">Ative as notificações e receba <strong>novos filmes e séries</strong> direto no seu navegador.</div><div class="push-modal-btns"><button class="push-modal-accept" id="pushAccept">✅ Ativar</button><button class="push-modal-decline" id="pushDecline">❌ Não</button></div></div>`;document.body.appendChild(overlay);document.getElementById('pushAccept').addEventListener('click',()=>{Notification.requestPermission().then(perm=>{localStorage.setItem(LS_KEY,perm);localStorage.setItem(LS_DATE,Date.now().toString());overlay.classList.remove('open');});});document.getElementById('pushDecline').addEventListener('click',()=>{localStorage.setItem(LS_KEY,'denied');localStorage.setItem(LS_DATE,Date.now().toString());overlay.classList.remove('open');});}setTimeout(()=>overlay.classList.add('open'),400);}return{showModal};})();
+// PipocaPush removido
 
 var _serieItem = null;
 
@@ -366,6 +401,29 @@ s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4Y
 s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})
+</script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ document.querySelectorAll('.voice-search-btn').forEach(function(b){b.style.display='none';}); return; }
+  var rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn; btn.classList.add('voice-listening'); btn.title='Ouvindo...';
+    rec.start();
+    rec.onresult=function(e){var t=e.results[0][0].transcript;input.value=t;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    rec.onerror=function(){};
+    rec.onend=function(){if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}active=null;};
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(){startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(){startVoice(mb,mi);});
+  });
+})();
 </script>
 </body>
 </html>
