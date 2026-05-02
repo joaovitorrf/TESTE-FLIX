@@ -380,11 +380,22 @@ window.PipocaPlayer = (function () {
         if(titleEl) titleEl.textContent=titulo||'';
         overlay.classList.remove('hidden');
         var overlayText=overlay.querySelector('.player-overlay-text');
-        if(overlayText) overlayText.textContent='Clique para reproduzir';
+        var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        if(overlayText) overlayText.textContent = isMobile ? '▶ Toque para assistir' : 'Clique para reproduzir';
         centerPlay.style.opacity='1'; centerPlay.style.pointerEvents='';
         controls.classList.add('hidden');
         nextEpCard.style.display='none';
-        playerBox.scrollIntoView({behavior:'smooth',block:'nearest'});
+        // Scroll agressivo para o player — funciona em iOS
+        setTimeout(function(){
+          playerBox.scrollIntoView({behavior:'smooth', block:'start'});
+          // Fallback para iOS Safari que ignora smooth
+          setTimeout(function(){
+            var rect = playerBox.getBoundingClientRect();
+            if(rect.top < -10 || rect.top > window.innerHeight * 0.3){
+              window.scrollTo({top: window.scrollY + rect.top - 60, behavior:'smooth'});
+            }
+          }, 300);
+        }, 50);
         video.onerror=function(){
           overlay.classList.remove('hidden');
           if(overlayText) overlayText.textContent='⚠️ Não foi possível carregar. Tente outro episódio.';
