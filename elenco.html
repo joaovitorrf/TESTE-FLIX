@@ -912,5 +912,28 @@ l.parentNode.insertBefore(s, l);
 </script>
 
 
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ document.querySelectorAll('.voice-search-btn').forEach(function(b){b.style.display='none';}); return; }
+  var rec = new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn; btn.classList.add('voice-listening'); btn.title='Ouvindo...';
+    rec.start();
+    rec.onresult=function(e){var t=e.results[0][0].transcript;input.value=t;input.dispatchEvent(new Event('input',{bubbles:true}));};
+    rec.onerror=function(){};
+    rec.onend=function(){if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}active=null;};
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(){startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(){startVoice(mb,mi);});
+  });
+})();
+</script>
 </body>
 </html>
