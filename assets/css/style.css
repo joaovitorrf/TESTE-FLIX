@@ -2544,3 +2544,28 @@ input { font-family: var(--font-body); }
   .carousel-arrow.prev { left: 4px; }
   .carousel-arrow.next { right: 4px; }
 }
+
+/* ══════════════════════════════════════════════════
+   BANNER MOBILE AD — fixo no rodapé, só mobile
+══════════════════════════════════════════════════ */
+.mobile-banner-ad {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-banner-ad {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    text-align: center;
+    min-height: 50px;
+    background: rgba(5,5,7,0.95);
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  /* Empurra o conteúdo pra cima para não ficar atrás do banner */
+  body {
+    padding-bottom: 60px;
+  }
+}
