@@ -43,7 +43,7 @@ async function fetchCSV(tab, retries = 3, delay = 1200) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const ctrl  = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 15000);
+      const timer = setTimeout(() => ctrl.abort(), 10000);
       const res = await fetch(workerUrl, {
         signal:  ctrl.signal,
         headers: { 'Accept': 'text/csv, text/plain, */*' }
@@ -74,7 +74,7 @@ async function fetchEpisodeTab(route) {
   }
   try {
     const ctrl  = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const timer = setTimeout(() => ctrl.abort(), 8000);
     const res = await fetch(EPISODES_WORKER + route, {
       signal: ctrl.signal,
       headers: {
