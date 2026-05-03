@@ -207,8 +207,8 @@ function runVAST(onComplete){
     .then(function(xml){
       var parser=new DOMParser(),doc=parser.parseFromString(xml,'text/xml'),mp4Url='';
       doc.querySelectorAll('MediaFile').forEach(function(mf){
-        var type=(mf.getAttribute('type')||'').toLowerCase();
-        if(!mp4Url&&(type==='video/mp4'||type.includes('mp4')))
+        var t=(mf.getAttribute('type')||'').toLowerCase();
+        if(!mp4Url&&(t==='video/mp4'||t.includes('mp4')))
           mp4Url=mf.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
       });
       if(!mp4Url){onComplete();return;}
@@ -218,117 +218,107 @@ function runVAST(onComplete){
 }
 
 function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
-  var adOverlay=document.createElement('div');
-  adOverlay.id='vastAdOverlay';
-  adOverlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+  /* ── Overlay de tela cheia ── */
+  var ov=document.createElement('div');
+  ov.id='vastAdOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
 
-  var adVideo=document.createElement('video');
-  adVideo.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
-  adVideo.src=mp4Url;
-  adVideo.playsInline=true;
-  adVideo.controls=false;
+  /* ── Vídeo ── */
+  var vid=document.createElement('video');
+  vid.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
+  vid.src=mp4Url; vid.playsInline=true; vid.controls=false;
 
-  var adBar=document.createElement('div');
-  adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+  /* ── Barra superior ── */
+  var bar=document.createElement('div');
+  bar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+  var lbl=document.createElement('span');
+  lbl.textContent='Anúncio';
+  lbl.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
+  var skip=document.createElement('button');
+  skip.textContent='Aguarde...'; skip.disabled=true;
+  skip.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
+  bar.appendChild(lbl); bar.appendChild(skip);
+  ov.appendChild(bar); ov.appendChild(vid);
 
-  var adLabel=document.createElement('span');
-  adLabel.textContent='Anúncio';
-  adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.05em';
-
-  var skipBtn=document.createElement('button');
-  skipBtn.textContent='Aguarde...';
-  skipBtn.disabled=true;
-  skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
-
-  adBar.appendChild(adLabel);
-  adBar.appendChild(skipBtn);
-  adOverlay.appendChild(adBar);
-  adOverlay.appendChild(adVideo);
-
-  /* Tela de toque para mobile (iOS bloqueia autoplay sem gesto direto) */
+  /* ── Tela de toque para mobile (iOS bloqueia autoplay sem gesto direto) ── */
   if(isMobile){
-    var tapScreen=document.createElement('div');
-    tapScreen.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
-    tapScreen.innerHTML='<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(255,45,67,0.5)"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
+    var tap=document.createElement('div');
+    tap.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
+    tap.innerHTML='<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(255,45,67,0.5)"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
       +'<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.8)">Toque para continuar</div>'
       +'<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o episódio começará</div>';
-    adOverlay.appendChild(tapScreen);
-    tapScreen.addEventListener('click',function(){
-      tapScreen.style.display='none';
-      adVideo.muted=false;
-      adVideo.play().catch(function(){
-        adVideo.muted=true;
-        adVideo.play().catch(function(){adOverlay.remove();onComplete();});
-      });
+    ov.appendChild(tap);
+    tap.addEventListener('click',function(){
+      tap.style.display='none';
+      vid.muted=false;
+      vid.play().catch(function(){ vid.muted=true; vid.play().catch(function(){ov.remove();onComplete();}); });
     });
   }
 
-  document.body.appendChild(adOverlay);
+  document.body.appendChild(ov);
 
-  var skipDelay=5, canSkip=false, impressionFired=false;
+  /* ── Rastreamento ── */
+  var skipDelay=5, canSkip=false, impFired=false;
 
-  function fireTracking(event){
+  function track(evt){
     try{
-      doc.querySelectorAll('Tracking[event="'+event+'"]').forEach(function(t){
-        var url=t.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
-        if(url) new Image().src=url;
+      doc.querySelectorAll('Tracking[event="'+evt+'"]').forEach(function(n){
+        var u=n.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if(u) new Image().src=u;
       });
     }catch(e){}
   }
 
-  adVideo.addEventListener('play',function(){
-    if(impressionFired)return;
-    impressionFired=true;
+  vid.addEventListener('play',function(){
+    if(impFired)return; impFired=true;
     try{
-      doc.querySelectorAll('Impression').forEach(function(imp){
-        var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
-        if(url) new Image().src=url;
+      doc.querySelectorAll('Impression').forEach(function(n){
+        var u=n.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if(u) new Image().src=u;
       });
     }catch(e){}
-    fireTracking('start');
+    track('start');
   });
 
-  var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};
-  adVideo.addEventListener('timeupdate',function(){
-    if(!adVideo.duration)return;
-    var pct=adVideo.currentTime/adVideo.duration;
-    var remaining=Math.ceil(skipDelay-adVideo.currentTime);
-    if(remaining>0){
-      skipBtn.textContent='Pular em '+remaining+'s';
+  var qf={firstQuartile:false,midpoint:false,thirdQuartile:false};
+  vid.addEventListener('timeupdate',function(){
+    if(!vid.duration) return;
+    var pct=vid.currentTime/vid.duration;
+    var rem=Math.ceil(skipDelay-vid.currentTime);
+    if(rem>0){
+      skip.textContent='Pular em '+rem+'s';
     } else if(!canSkip){
       canSkip=true;
-      skipBtn.textContent='⏭ Pular anúncio';
-      skipBtn.disabled=false;
-      skipBtn.style.cursor='pointer';
-      skipBtn.style.background='rgba(255,255,255,0.25)';
+      skip.textContent='⏭ Pular anúncio';
+      skip.disabled=false; skip.style.cursor='pointer';
+      skip.style.background='rgba(255,255,255,0.25)';
     }
-    [{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.5},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){
-      if(!quartilsFired[ev.key]&&pct>=ev.threshold){
-        quartilsFired[ev.key]=true;
-        fireTracking(ev.key);
-      }
+    [{k:'firstQuartile',t:0.25},{k:'midpoint',t:0.5},{k:'thirdQuartile',t:0.75}].forEach(function(ev){
+      if(!qf[ev.k]&&pct>=ev.t){ qf[ev.k]=true; track(ev.k); }
     });
   });
 
   function encerrarAd(){
-    fireTracking('complete');
-    adVideo.pause();
-    adOverlay.remove();
+    track('complete');
+    vid.pause();
+    ov.remove();
     onComplete();
   }
 
-  skipBtn.addEventListener('click',function(){if(canSkip) encerrarAd();});
-  adVideo.addEventListener('ended',encerrarAd);
-  adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});
+  skip.addEventListener('click',function(){ if(canSkip) encerrarAd(); });
+  vid.addEventListener('ended', encerrarAd);
+  vid.addEventListener('error',function(){ ov.remove(); onComplete(); });
 
+  /* Desktop: tenta tocar com som, fallback mudo */
   if(!isMobile){
-    adVideo.muted=false;
-    adVideo.play().catch(function(){
-      adVideo.muted=true;
-      adVideo.play().catch(function(){adOverlay.remove();onComplete();});
+    vid.muted=false;
+    vid.play().catch(function(){
+      vid.muted=true;
+      vid.play().catch(function(){ ov.remove(); onComplete(); });
     });
   }
 }
+
 
 let seriePlayer=null, temporadaAtual=1, temporadasData={}, nomeSerie='';
 
@@ -459,41 +449,15 @@ async function init(){
       controlsId:'playerControls',playerBoxId:'playerBox',titleId:'playerTitle'
     });
 
-    // Mostrar loading nos episódios enquanto carrega
-    const seasonsSection = document.getElementById('seasonsSection');
-    const episodesList   = document.getElementById('episodesList');
-    seasonsSection.style.display='block';
-    if(episodesList) episodesList.innerHTML='<p style="color:var(--text-3);padding:1.5rem 0;text-align:center">⏳ Carregando episódios...</p>';
-
-    // Tenta carregar episódios com retry automático
-    let tentativas = 0;
-    const MAX_TENTATIVAS = 3;
-    while(tentativas < MAX_TENTATIVAS){
-      try{
-        tentativas++;
-        temporadasData = await PipocaAPI.getEpisodiosPorSerie(item.nome);
-        break; // sucesso
-      }catch(e){
-        console.warn('[PipocaFlix] Tentativa',tentativas,'falhou:',e.message);
-        if(tentativas >= MAX_TENTATIVAS) throw e;
-        await new Promise(r=>setTimeout(r, 1500 * tentativas)); // espera antes de retry
-      }
-    }
-
+    temporadasData=await PipocaAPI.getEpisodiosPorSerie(item.nome);
     const nums=Object.keys(temporadasData).map(Number);
     temporadaAtual=nums.length>0?Math.min(...nums):1;
+    document.getElementById('seasonsSection').style.display='block';
     renderTemporadas();
-
-    if(nums.length===0){
-      if(episodesList) episodesList.innerHTML='<p style="color:var(--text-3);padding:1.5rem 0;text-align:center">⚠️ Nenhum episódio encontrado para esta série.</p>';
-    }
 
   }catch(err){
     console.error('[PipocaFlix Série]',err);
-    const el=document.getElementById('loadingMsg');
-    if(el && el.style.display!=='none') el.textContent='⚠️ Erro ao carregar a série.';
-    const episodesList=document.getElementById('episodesList');
-    if(episodesList) episodesList.innerHTML='<p style="color:var(--text-3);padding:1.5rem 0;text-align:center">⚠️ Erro ao carregar episódios. <button onclick="location.reload()" style="background:var(--red);border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;margin-left:8px">Tentar novamente</button></p>';
+    document.getElementById('loadingMsg').textContent='⚠️ Erro ao carregar a série.';
   }
 }
 
@@ -563,33 +527,5 @@ l.parentNode.insertBefore(s, l);
   });
 })();
 </script>
-<!-- Video Slide Ad -->
-<script>
-(function(dmiy){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = dmiy || {};
-s.src = "//sophisticatedpin.com/bfX.VJsYdZGJls0hYSWJcM/PehmL9gupZLU/lNkiPCTDYE4XNOjhkG0kM_TFcltiNXjSgp2AOJTzQ/yfMEQc";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
-<!-- Banner Mobile Ad -->
-<div class="mobile-banner-ad">
-<script>
-(function(dmiy){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = dmiy || {};
-s.src = "//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
-</div>
 </body>
 </html>
