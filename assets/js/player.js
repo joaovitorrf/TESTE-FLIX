@@ -380,7 +380,8 @@ window.PipocaPlayer = (function () {
         if(titleEl) titleEl.textContent=titulo||'';
         overlay.classList.remove('hidden');
         var overlayText=overlay.querySelector('.player-overlay-text');
-        if(overlayText) overlayText.textContent='Clique para reproduzir';
+        var isMob=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        if(overlayText) overlayText.textContent=isMob?'▶ Toque aqui para assistir':'▶ Clique para reproduzir';
         centerPlay.style.opacity='1'; centerPlay.style.pointerEvents='';
         controls.classList.add('hidden');
         nextEpCard.style.display='none';
