@@ -198,12 +198,10 @@ function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textC
 (function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
 
 // ── VAST ──
-var VAST_TAG_URL="https://muddy-distance.com/dpmtF.z/dWGAN/vZZZGkUR/je_m/9nuQZ/USlZknPATRYe4XN-TEke5UOODRkQtnNej/gP1/OQTGkV5HMbwU";
+var VAST_TAG_URL="https://tiny-ambition.com/d.mmFzzzdPGVNtvdZvGOUp/veZm-9Cu/ZYUulZkVPgTNYr4ZNGTvkq5zOyDikHtRNujTgI1gOvT/kB5TMFwI";
+
 function runVAST(onComplete){
   var isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  // No mobile sem gesto do usuário, pula o VAST direto pro player
-  // (o gesto vem do clique no episódio, mas iOS bloqueia o fetch->play chain)
-  // Tentamos mostrar o ad; se falhar silenciosamente, onComplete é chamado
   fetch(VAST_TAG_URL)
     .then(function(r){return r.text();})
     .then(function(xml){
@@ -218,64 +216,119 @@ function runVAST(onComplete){
     })
     .catch(function(){onComplete();});
 }
+
 function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
   var adOverlay=document.createElement('div');
   adOverlay.id='vastAdOverlay';
   adOverlay.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+
   var adVideo=document.createElement('video');
   adVideo.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
-  adVideo.src=mp4Url;adVideo.playsInline=true;adVideo.controls=false;
+  adVideo.src=mp4Url;
+  adVideo.playsInline=true;
+  adVideo.controls=false;
+
   var adBar=document.createElement('div');
-  adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:1';
-  var adLabel=document.createElement('span');adLabel.textContent='Anúncio';
-  adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
-  var skipBtn=document.createElement('button');skipBtn.textContent='Aguarde...';skipBtn.disabled=true;
-  skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:5px 14px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
-  adBar.appendChild(adLabel);adBar.appendChild(skipBtn);
-  adOverlay.appendChild(adBar);adOverlay.appendChild(adVideo);
-  // Mobile: mostra tela de toque para iniciar (iOS precisa de gesto direto)
+  adBar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+
+  var adLabel=document.createElement('span');
+  adLabel.textContent='Anúncio';
+  adLabel.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.05em';
+
+  var skipBtn=document.createElement('button');
+  skipBtn.textContent='Aguarde...';
+  skipBtn.disabled=true;
+  skipBtn.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
+
+  adBar.appendChild(adLabel);
+  adBar.appendChild(skipBtn);
+  adOverlay.appendChild(adBar);
+  adOverlay.appendChild(adVideo);
+
+  /* Tela de toque para mobile (iOS bloqueia autoplay sem gesto direto) */
   if(isMobile){
     var tapScreen=document.createElement('div');
-    tapScreen.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5;gap:16px;cursor:pointer;background:rgba(0,0,0,0.5)';
-    tapScreen.innerHTML='<div style="width:72px;height:72px;border-radius:50%;background:rgba(255,45,67,0.9);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="white" width="32" height="32"><path d="M8 5v14l11-7z"/></svg></div><div style="color:#fff;font-size:16px;font-weight:600;font-family:sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.8)">Toque para assistir o anúncio</div><div style="color:rgba(255,255,255,0.6);font-size:12px;font-family:sans-serif">O vídeo começará em seguida</div>';
+    tapScreen.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
+    tapScreen.innerHTML='<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(255,45,67,0.5)"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
+      +'<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.8)">Toque para continuar</div>'
+      +'<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o episódio começará</div>';
     adOverlay.appendChild(tapScreen);
     tapScreen.addEventListener('click',function(){
-      tapScreen.remove();
+      tapScreen.style.display='none';
       adVideo.muted=false;
-      adVideo.play().catch(function(){ adVideo.muted=true; adVideo.play().catch(function(){adOverlay.remove();onComplete();}); });
+      adVideo.play().catch(function(){
+        adVideo.muted=true;
+        adVideo.play().catch(function(){adOverlay.remove();onComplete();});
+      });
     });
   }
+
   document.body.appendChild(adOverlay);
-  var skipDelay=5,canSkip=false,impressionFired=false;
-  adVideo.addEventListener('play',function(){
-    if(impressionFired)return;impressionFired=true;
+
+  var skipDelay=5, canSkip=false, impressionFired=false;
+
+  function fireTracking(event){
     try{
-      doc.querySelectorAll('Impression').forEach(function(imp){var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});
-      doc.querySelectorAll('Tracking[event="start"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});
+      doc.querySelectorAll('Tracking[event="'+event+'"]').forEach(function(t){
+        var url=t.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if(url) new Image().src=url;
+      });
     }catch(e){}
+  }
+
+  adVideo.addEventListener('play',function(){
+    if(impressionFired)return;
+    impressionFired=true;
+    try{
+      doc.querySelectorAll('Impression').forEach(function(imp){
+        var url=imp.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if(url) new Image().src=url;
+      });
+    }catch(e){}
+    fireTracking('start');
   });
+
   var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};
   adVideo.addEventListener('timeupdate',function(){
     if(!adVideo.duration)return;
-    var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);
-    if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}
-    else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}
-    [{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){
-      if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}
+    var pct=adVideo.currentTime/adVideo.duration;
+    var remaining=Math.ceil(skipDelay-adVideo.currentTime);
+    if(remaining>0){
+      skipBtn.textContent='Pular em '+remaining+'s';
+    } else if(!canSkip){
+      canSkip=true;
+      skipBtn.textContent='⏭ Pular anúncio';
+      skipBtn.disabled=false;
+      skipBtn.style.cursor='pointer';
+      skipBtn.style.background='rgba(255,255,255,0.25)';
+    }
+    [{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.5},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){
+      if(!quartilsFired[ev.key]&&pct>=ev.threshold){
+        quartilsFired[ev.key]=true;
+        fireTracking(ev.key);
+      }
     });
   });
+
   function encerrarAd(){
-    try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}
-    adVideo.pause();adOverlay.remove();onComplete();
+    fireTracking('complete');
+    adVideo.pause();
+    adOverlay.remove();
+    onComplete();
   }
-  skipBtn.addEventListener('click',function(){if(canSkip)encerrarAd();});
+
+  skipBtn.addEventListener('click',function(){if(canSkip) encerrarAd();});
   adVideo.addEventListener('ended',encerrarAd);
   adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});
+
   if(!isMobile){
     adVideo.muted=false;
-    adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});
+    adVideo.play().catch(function(){
+      adVideo.muted=true;
+      adVideo.play().catch(function(){adOverlay.remove();onComplete();});
+    });
   }
-});var quartilsFired={firstQuartile:false,midpoint:false,thirdQuartile:false};adVideo.addEventListener('timeupdate',function(){if(!adVideo.duration)return;var pct=adVideo.currentTime/adVideo.duration,remaining=Math.ceil(skipDelay-adVideo.currentTime);if(remaining>0){skipBtn.textContent='Pular em '+remaining+'s';}else if(!canSkip){canSkip=true;skipBtn.textContent='⏭ Pular anúncio';skipBtn.disabled=false;skipBtn.style.cursor='pointer';skipBtn.style.background='rgba(255,255,255,0.25)';}[{key:'firstQuartile',threshold:0.25},{key:'midpoint',threshold:0.50},{key:'thirdQuartile',threshold:0.75}].forEach(function(ev){if(!quartilsFired[ev.key]&&pct>=ev.threshold){quartilsFired[ev.key]=true;doc.querySelectorAll('Tracking[event="'+ev.key+'"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}});});function encerrarAd(){try{doc.querySelectorAll('Tracking[event="complete"]').forEach(function(t){var url=t.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();if(url)new Image().src=url;});}catch(e){}adVideo.pause();adOverlay.remove();onComplete();}skipBtn.addEventListener('click',function(){if(canSkip)encerrarAd();});adVideo.addEventListener('ended',encerrarAd);adVideo.addEventListener('error',function(){adOverlay.remove();onComplete();});adVideo.play().catch(function(){adVideo.muted=true;adVideo.play().catch(function(){adOverlay.remove();onComplete();});});}
+}
 
 let seriePlayer=null, temporadaAtual=1, temporadasData={}, nomeSerie='';
 
@@ -406,15 +459,41 @@ async function init(){
       controlsId:'playerControls',playerBoxId:'playerBox',titleId:'playerTitle'
     });
 
-    temporadasData=await PipocaAPI.getEpisodiosPorSerie(item.nome);
+    // Mostrar loading nos episódios enquanto carrega
+    const seasonsSection = document.getElementById('seasonsSection');
+    const episodesList   = document.getElementById('episodesList');
+    seasonsSection.style.display='block';
+    if(episodesList) episodesList.innerHTML='<p style="color:var(--text-3);padding:1.5rem 0;text-align:center">⏳ Carregando episódios...</p>';
+
+    // Tenta carregar episódios com retry automático
+    let tentativas = 0;
+    const MAX_TENTATIVAS = 3;
+    while(tentativas < MAX_TENTATIVAS){
+      try{
+        tentativas++;
+        temporadasData = await PipocaAPI.getEpisodiosPorSerie(item.nome);
+        break; // sucesso
+      }catch(e){
+        console.warn('[PipocaFlix] Tentativa',tentativas,'falhou:',e.message);
+        if(tentativas >= MAX_TENTATIVAS) throw e;
+        await new Promise(r=>setTimeout(r, 1500 * tentativas)); // espera antes de retry
+      }
+    }
+
     const nums=Object.keys(temporadasData).map(Number);
     temporadaAtual=nums.length>0?Math.min(...nums):1;
-    document.getElementById('seasonsSection').style.display='block';
     renderTemporadas();
+
+    if(nums.length===0){
+      if(episodesList) episodesList.innerHTML='<p style="color:var(--text-3);padding:1.5rem 0;text-align:center">⚠️ Nenhum episódio encontrado para esta série.</p>';
+    }
 
   }catch(err){
     console.error('[PipocaFlix Série]',err);
-    document.getElementById('loadingMsg').textContent='⚠️ Erro ao carregar a série.';
+    const el=document.getElementById('loadingMsg');
+    if(el && el.style.display!=='none') el.textContent='⚠️ Erro ao carregar a série.';
+    const episodesList=document.getElementById('episodesList');
+    if(episodesList) episodesList.innerHTML='<p style="color:var(--text-3);padding:1.5rem 0;text-align:center">⚠️ Erro ao carregar episódios. <button onclick="location.reload()" style="background:var(--red);border:none;color:#fff;padding:4px 12px;border-radius:6px;cursor:pointer;margin-left:8px">Tentar novamente</button></p>';
   }
 }
 
@@ -484,5 +563,33 @@ l.parentNode.insertBefore(s, l);
   });
 })();
 </script>
+<!-- Video Slide Ad -->
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bfX.VJsYdZGJls0hYSWJcM/PehmL9gupZLU/lNkiPCTDYE4XNOjhkG0kM_TFcltiNXjSgp2AOJTzQ/yfMEQc";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<!-- Banner Mobile Ad -->
+<div class="mobile-banner-ad">
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
 </body>
 </html>
