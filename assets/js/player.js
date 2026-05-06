@@ -372,32 +372,37 @@ window.PipocaPlayer = (function () {
       loadEpisode: function(src, titulo, capa) {
         _curTitulo = titulo || '';
         _curCapa   = capa   || '';
-        // Extrai nome da série: "Série — T1 EP2" → "Série"
         _serieNome = titulo ? (titulo.split(' — ')[0] || titulo) : '';
-        playerBox.style.display='block';
-        video.pause(); video.removeAttribute('src'); video.load();
-        video.src=src; video.load();
-        if(titleEl) titleEl.textContent=titulo||'';
+
+        // Garantir visível (caso ainda esteja none)
+        playerBox.style.display = 'block';
+
+        // Trocar fonte
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        video.src = src;
+        video.load();
+
+        if(titleEl) titleEl.textContent = titulo || '';
+
+        // Mostrar overlay de "clique para reproduzir"
         overlay.classList.remove('hidden');
-        var overlayText=overlay.querySelector('.player-overlay-text');
-        var isMob=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-        if(overlayText) overlayText.textContent=isMob?'▶ Toque aqui para assistir':'▶ Clique para reproduzir';
-        centerPlay.style.opacity='1'; centerPlay.style.pointerEvents='';
+        var overlayText = overlay.querySelector('.player-overlay-text');
+        var isMob = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+        if(overlayText) overlayText.textContent = isMob ? '▶ Toque para assistir' : '▶ Clique para reproduzir';
+        centerPlay.style.opacity = '1';
+        centerPlay.style.pointerEvents = '';
         controls.classList.add('hidden');
-        nextEpCard.style.display='none';
-        // Scroll robusto para mobile/iOS
-        setTimeout(function(){
-          playerBox.scrollIntoView({behavior:'smooth', block:'start'});
-          setTimeout(function(){
-            var rect = playerBox.getBoundingClientRect();
-            if(rect.top > 80 || rect.top < -10){
-              window.scrollTo({top: window.pageYOffset + rect.top - 70, behavior:'smooth'});
-            }
-          }, 250);
-        }, 60);
-        video.onerror=function(){
+        nextEpCard.style.display = 'none';
+
+        // Scroll imediato para o player — sem setTimeout que falha no iOS
+        var top = playerBox.getBoundingClientRect().top + window.pageYOffset - 70;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+
+        video.onerror = function(){
           overlay.classList.remove('hidden');
-          if(overlayText) overlayText.textContent='⚠️ Não foi possível carregar. Tente outro episódio.';
+          if(overlayText) overlayText.textContent = '⚠️ Não foi possível carregar. Tente outro episódio.';
         };
       },
       setNextEpCallback: function(fn){ _onNextEp=fn; }
