@@ -1,0 +1,242 @@
+/**
+ * PIPOCAFLIX — Gerador de Páginas SEO Estáticas
+ * ================================================
+ * Uso: node generate-seo-pages.js
+ *
+ * O que faz:
+ *  1. Busca todos os filmes e séries do Worker Cloudflare
+ *  2. Gera uma página HTML estática por item em /filmes/ e /series/
+ *  3. Cada página tem title, description, og:tags e canonical únicos
+ *  4. O Google indexa cada página individualmente → tráfego orgânico
+ *
+ * Deploy no Vercel:
+ *  - Commit a pasta /filmes/ e /series/ gerada
+ *  - Vercel serve os arquivos estáticos automaticamente
+ *  - Adicione as URLs ao sitemap.xml
+ *
+ * Requisitos: Node.js 18+ (fetch nativo)
+ */
+
+const fs   = require('fs');
+const path = require('path');
+
+const WORKER_BASE = 'https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev';
+const SITE_URL    = 'https://www.pipocaflix.fun';
+
+// ── Utilitários ─────────────────────────────────────────
+function slugify(str) {
+  return (str || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function truncate(str, len) {
+  str = (str || '').trim();
+  return str.length > len ? str.slice(0, len - 3) + '...' : str;
+}
+
+// ── Template HTML ────────────────────────────────────────
+function buildPage(item, tipo) {
+  const slug      = slugify(item.nome);
+  const pageUrl   = `${SITE_URL}/${tipo}/${slug}`;
+  const dynUrl    = `${SITE_URL}/${tipo === 'filmes' ? 'filme' : 'serie'}.html?nome=${encodeURIComponent(item.nome)}`;
+  const title     = `${escHtml(item.nome)}${item.ano ? ' (' + item.ano + ')' : ''} — Assistir Online Grátis | PipocaFlix`;
+  const desc      = truncate(
+    item.sinopse
+      ? `Assista ${item.nome} online grátis. ${item.sinopse}`
+      : `Assista ${item.nome}${item.ano ? ' (' + item.ano + ')' : ''} online grátis no PipocaFlix. ${item.categoria || ''}`,
+    160
+  );
+  const capa      = escHtml(item.capa || `${SITE_URL}/assets/img/og-default.jpg`);
+  const categoria = escHtml(item.categoria || '');
+  const ano       = escHtml(item.ano || '');
+  const audio     = escHtml(item.audio || '');
+  const tipoLabel = tipo === 'filmes' ? 'Filme' : 'Série';
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<meta name="description" content="${escHtml(desc)}">
+
+<!-- Open Graph -->
+<meta property="og:type"        content="${tipo === 'filmes' ? 'video.movie' : 'video.tv_show'}">
+<meta property="og:title"       content="${title}">
+<meta property="og:description" content="${escHtml(desc)}">
+<meta property="og:image"       content="${capa}">
+<meta property="og:url"         content="${pageUrl}">
+<meta property="og:site_name"   content="PipocaFlix">
+<meta property="og:locale"      content="pt_BR">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="${title}">
+<meta name="twitter:description" content="${escHtml(desc)}">
+<meta name="twitter:image"       content="${capa}">
+
+<!-- Canonical -->
+<link rel="canonical" href="${pageUrl}">
+
+<!-- Schema.org JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "${tipo === 'filmes' ? 'Movie' : 'TVSeries'}",
+  "name": "${escHtml(item.nome)}",
+  "description": "${escHtml(desc)}",
+  "image": "${capa}",
+  "datePublished": "${ano}",
+  "genre": "${categoria}",
+  "url": "${pageUrl}",
+  "inLanguage": "pt-BR"
+}
+</script>
+
+<meta name="theme-color" content="#ff2d43">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0f;color:#f0f0f6;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem}
+  .card{max-width:480px;width:100%;text-align:center}
+  img{width:100%;max-width:300px;border-radius:12px;box-shadow:0 8px 40px rgba(255,45,67,0.3);margin-bottom:1.5rem}
+  h1{font-size:clamp(1.4rem,4vw,2rem);font-weight:800;margin-bottom:.5rem;line-height:1.2}
+  .meta{color:#888;font-size:.85rem;margin-bottom:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+  .badge{background:rgba(255,45,67,.15);border:1px solid rgba(255,45,67,.3);color:#ff4d5e;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
+  p{color:#aaa;font-size:.9rem;line-height:1.6;margin-bottom:1.5rem;max-width:420px}
+  a.btn{display:inline-block;background:#ff2d43;color:#fff;text-decoration:none;padding:.8rem 2rem;border-radius:30px;font-weight:700;font-size:1rem;box-shadow:0 4px 20px rgba(255,45,67,.4);transition:transform .15s,box-shadow .15s}
+  a.btn:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(255,45,67,.5)}
+  .logo{font-size:1.1rem;font-weight:800;color:#ff2d43;margin-bottom:2rem;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🍿 PipocaFlix</div>
+  ${capa && item.capa ? `<img src="${capa}" alt="${escHtml(item.nome)}" loading="eager">` : ''}
+  <h1>${escHtml(item.nome)}${ano ? ' <span style="color:#666;font-size:.7em">('+ano+')</span>' : ''}</h1>
+  <div class="meta">
+    <span class="badge">${tipoLabel}</span>
+    ${categoria ? `<span class="badge">${categoria}</span>` : ''}
+    ${audio ? `<span class="badge">${audio}</span>` : ''}
+  </div>
+  ${item.sinopse ? `<p>${escHtml(truncate(item.sinopse, 200))}</p>` : ''}
+  <a class="btn" href="${dynUrl}">▶ Assistir Agora Grátis</a>
+</div>
+<!-- Redireciona para página dinâmica após 0.5s para usuários diretos -->
+<script>
+  // Se veio do Google (não tem referrer interno), redireciona para a página completa
+  setTimeout(function(){
+    if(!document.referrer || !document.referrer.includes('pipocaflix.fun')){
+      window.location.replace('${dynUrl}');
+    }
+  }, 500);
+</script>
+</body>
+</html>`;
+}
+
+// ── Gerador principal ────────────────────────────────────
+async function fetchItems(route) {
+  const url = WORKER_BASE + route;
+  console.log(`  Buscando ${url} ...`);
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} em ${url}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.data || data.items || []);
+}
+
+async function generate() {
+  console.log('\n🍿 PipocaFlix — Gerador de Páginas SEO\n' + '='.repeat(42));
+
+  let filmes = [], series = [];
+  try {
+    filmes = await fetchItems('/filmes');
+    console.log(`  ✓ ${filmes.length} filmes carregados`);
+  } catch(e) { console.error('  ✗ Erro ao buscar filmes:', e.message); }
+
+  try {
+    series = await fetchItems('/series');
+    console.log(`  ✓ ${series.length} séries carregadas`);
+  } catch(e) { console.error('  ✗ Erro ao buscar séries:', e.message); }
+
+  // Criar pastas
+  ['filmes','series'].forEach(d => {
+    if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+  });
+
+  let gerados = 0, erros = 0;
+  const sitemapUrls = [];
+
+  // Gerar páginas de filmes
+  for (const item of filmes) {
+    if (!item.nome) continue;
+    try {
+      const slug = slugify(item.nome);
+      const html = buildPage(item, 'filmes');
+      fs.writeFileSync(path.join('filmes', slug + '.html'), html, 'utf8');
+      sitemapUrls.push({ url: `${SITE_URL}/filmes/${slug}`, tipo: 'filme', nome: item.nome });
+      gerados++;
+    } catch(e) { erros++; console.error('  ✗ Erro em', item.nome, ':', e.message); }
+  }
+
+  // Gerar páginas de séries
+  for (const item of series) {
+    if (!item.nome) continue;
+    try {
+      const slug = slugify(item.nome);
+      const html = buildPage(item, 'series');
+      fs.writeFileSync(path.join('series', slug + '.html'), html, 'utf8');
+      sitemapUrls.push({ url: `${SITE_URL}/series/${slug}`, tipo: 'serie', nome: item.nome });
+      gerados++;
+    } catch(e) { erros++; console.error('  ✗ Erro em', item.nome, ':', e.message); }
+  }
+
+  // Gerar sitemap.xml atualizado
+  const today = new Date().toISOString().slice(0,10);
+  const staticUrls = [
+    { url: SITE_URL + '/',               priority: '1.0', freq: 'daily'   },
+    { url: SITE_URL + '/catalogo.html',  priority: '0.9', freq: 'daily'   },
+    { url: SITE_URL + '/assistidos.html',priority: '0.6', freq: 'weekly'  },
+  ];
+
+  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticUrls.map(u => `  <url>
+    <loc>${u.url}</loc>
+    <changefreq>${u.freq}</changefreq>
+    <priority>${u.priority}</priority>
+    <lastmod>${today}</lastmod>
+  </url>`).join('\n')}
+${sitemapUrls.map(u => `  <url>
+    <loc>${u.url}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>${today}</lastmod>
+  </url>`).join('\n')}
+</urlset>`;
+
+  fs.writeFileSync('sitemap.xml', sitemapXml, 'utf8');
+
+  console.log(`\n✅ Concluído!`);
+  console.log(`   Páginas geradas : ${gerados}`);
+  console.log(`   Erros           : ${erros}`);
+  console.log(`   Filmes          : ${filmes.length} → /filmes/`);
+  console.log(`   Séries          : ${series.length} → /series/`);
+  console.log(`   sitemap.xml     : atualizado com ${sitemapUrls.length + staticUrls.length} URLs`);
+  console.log('\n📋 Próximos passos:');
+  console.log('   1. git add filmes/ series/ sitemap.xml');
+  console.log('   2. git commit -m "SEO: páginas estáticas geradas"');
+  console.log('   3. git push → Vercel faz deploy automático');
+  console.log('   4. Google Search Console → Enviar sitemap.xml');
+}
+
+generate().catch(e => { console.error('\n💥 Erro fatal:', e.message); process.exit(1); });
