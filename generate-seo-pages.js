@@ -156,7 +156,7 @@ async function generate() {
     if (!item.nome) continue;
     const slug = slugify(item.nome);
     fs.writeFileSync(path.join('filmes', slug+'.html'), buildPage(item,'filmes'), 'utf8');
-    sitemapUrls.push(`${SITE_URL}/filmes/${slug}`);
+    sitemapUrls.push(`${SITE_URL}/filmes/${slug}.html`);
     gerados++;
   }
 
@@ -164,7 +164,7 @@ async function generate() {
     if (!item.nome) continue;
     const slug = slugify(item.nome);
     fs.writeFileSync(path.join('series', slug+'.html'), buildPage(item,'series'), 'utf8');
-    sitemapUrls.push(`${SITE_URL}/series/${slug}`);
+    sitemapUrls.push(`${SITE_URL}/series/${slug}.html`);
     gerados++;
   }
 
