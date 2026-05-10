@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Como Usar — PipocaFlix</title>
+<meta name="description" content="Aprenda a usar o PipocaFlix: assista filmes e séries online grátis, sem cadastro.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+.guide-hero{text-align:center;padding:4rem 1rem 2rem;background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,45,67,.12) 0%, transparent 70%)}
+.guide-hero h1{font-family:var(--font-display);font-size:clamp(2rem,6vw,3.5rem);font-weight:800;margin-bottom:.75rem}
+.guide-hero p{color:var(--text-2);font-size:1.1rem;max-width:560px;margin:0 auto}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;padding:2rem clamp(1rem,5vw,3.5rem) 4rem;max-width:1200px;margin:0 auto}
+.guide-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.75rem;transition:transform .2s,border-color .2s;position:relative;overflow:hidden}
+.guide-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),#ff6b6b)}
+.guide-card:hover{transform:translateY(-4px);border-color:var(--red-dim)}
+.guide-card-icon{font-size:2.5rem;margin-bottom:1rem;display:block}
+.guide-card h2{font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:.75rem;color:var(--text-1)}
+.guide-card p,.guide-card li{color:var(--text-2);font-size:.92rem;line-height:1.7}
+.guide-card ol,.guide-card ul{padding-left:1.2rem}
+.guide-card li{margin-bottom:.35rem}
+.guide-card strong{color:var(--red)}
+.guide-tip{background:rgba(255,45,67,.08);border:1px solid rgba(255,45,67,.2);border-radius:var(--r-md);padding:1rem 1.25rem;margin-top:1rem;font-size:.85rem;color:var(--text-2)}
+.guide-tip strong{color:var(--red)}
+.back-btn{display:inline-flex;align-items:center;gap:.5rem;background:var(--red);color:#fff;padding:.65rem 1.5rem;border-radius:var(--r-pill);font-weight:700;text-decoration:none;margin:0 clamp(1rem,5vw,3.5rem) 1rem;transition:opacity .2s}
+.back-btn:hover{opacity:.85}
+</style>
+</head>
+<body>
+
+<!-- Nav reutilizado -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo-link">
+      <span class="logo-text">🍿 PipocaFlix</span>
+    </a>
+  </div>
+</header>
+
+<div class="guide-hero">
+  <h1>📖 Como Usar o PipocaFlix</h1>
+  <p>Tudo o que você precisa saber para aproveitar ao máximo. Sem cadastro, sem complicação.</p>
+</div>
+
+<a href="index.html" class="back-btn">← Voltar ao Início</a>
+
+<div class="guide-grid">
+
+  <div class="guide-card">
+    <span class="guide-card-icon">🏠</span>
+    <h2>Página Inicial</h2>
+    <p>A home mostra os destaques mais recentes divididos por categorias:</p>
+    <ul>
+      <li><strong>Continuar Assistindo</strong> — retoma de onde parou</li>
+      <li><strong>Minha Lista</strong> — seus favoritos salvos</li>
+      <li><strong>Filmes Recentes</strong> e <strong>Séries em Destaque</strong></li>
+      <li>Categorias por gênero: Ação, Romance, Terror...</li>
+    </ul>
+    <div class="guide-tip">💡 <strong>Dica:</strong> No PC, use as setas ← → para navegar nos carrosséis.</div>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">🔍</span>
+    <h2>Buscar Conteúdo</h2>
+    <ol>
+      <li>Clique na lupa ou no campo de busca no topo</li>
+      <li>Digite o nome do filme ou série</li>
+      <li>Clique no resultado para abrir a página</li>
+    </ol>
+    <p>Você também pode usar a <strong>busca por voz</strong> 🎤 clicando no microfone ao lado da barra de busca e falando o nome.</p>
+    <div class="guide-tip">💡 <strong>Dica:</strong> Acesse <strong>Catálogo</strong> para filtrar por gênero, ano, áudio e letra.</div>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">🎬</span>
+    <h2>Assistir um Filme</h2>
+    <ol>
+      <li>Encontre o filme e clique nele</li>
+      <li>Na página do filme, aguarde o anúncio terminar (ou pule após 5s)</li>
+      <li>Clique em <strong>▶ Clique para reproduzir</strong> no player</li>
+      <li>Aproveite!</li>
+    </ol>
+    <div class="guide-tip">📱 <strong>No celular:</strong> toque na tela de anúncio e depois no player para iniciar.</div>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">📺</span>
+    <h2>Assistir uma Série</h2>
+    <ol>
+      <li>Abra a página da série</li>
+      <li>Escolha a <strong>temporada</strong> clicando nas abas</li>
+      <li>Clique no episódio desejado</li>
+      <li>Aguarde o anúncio e clique para reproduzir</li>
+    </ol>
+    <p>O progresso de cada episódio é salvo automaticamente!</p>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">🎮</span>
+    <h2>Controles do Player</h2>
+    <ul>
+      <li>▶/⏸ — Play/Pausa (ou barra de espaço)</li>
+      <li>⏩ — Avançar 10s (→ no teclado)</li>
+      <li>⏪ — Voltar 10s (← no teclado)</li>
+      <li>🔊 — Volume + slider (↑↓ no teclado)</li>
+      <li>⚡ <strong>1x</strong> — Velocidade de reprodução</li>
+      <li>⬛ <strong>PiP</strong> — Picture-in-Picture (mini tela)</li>
+      <li>🔊 <strong>Boost</strong> — Amplifica o volume até 2.5x</li>
+      <li>📸 <strong>Screenshot</strong> — Salva o frame atual</li>
+      <li>⛶ — Tela cheia (F no teclado)</li>
+    </ul>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">❤️</span>
+    <h2>Minha Lista & Assistidos</h2>
+    <p>Em qualquer filme ou série você pode:</p>
+    <ul>
+      <li>Clicar em <strong>❤️</strong> para adicionar/remover da sua lista</li>
+      <li>Clicar em <strong>✓ Assistido</strong> para marcar como visto</li>
+    </ul>
+    <p>Tudo fica salvo localmente no seu navegador. Acesse em <strong>Assistidos</strong> no menu.</p>
+    <div class="guide-tip">💡 Funciona sem cadastro — os dados ficam no seu dispositivo.</div>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">🗂️</span>
+    <h2>Catálogo & Filtros</h2>
+    <p>No <strong>Catálogo</strong> você pode filtrar por:</p>
+    <ul>
+      <li><strong>Tipo</strong>: Filmes ou Séries</li>
+      <li><strong>Letra</strong>: A–Z para busca alfabética</li>
+      <li><strong>Década</strong>: Anos 70, 80, 90, 2000, 2010, 2020</li>
+      <li><strong>Gênero</strong>: Ação, Comédia, Terror, Romance...</li>
+      <li><strong>Áudio</strong>: Dublado ou Legendado</li>
+      <li><strong>Ano</strong>: Range de 1980 até o presente</li>
+    </ul>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">🌙</span>
+    <h2>Tema Claro/Escuro</h2>
+    <p>Clique no ícone 🌙/☀️ no canto do cabeçalho para alternar entre o tema escuro e claro.</p>
+    <p>A preferência é salva automaticamente para a próxima visita.</p>
+    <div class="guide-tip">💡 O tema escuro é o padrão — mais confortável para assistir no escuro.</div>
+  </div>
+
+  <div class="guide-card">
+    <span class="guide-card-icon">❓</span>
+    <h2>Problemas Comuns</h2>
+    <ul>
+      <li><strong>Vídeo não carrega:</strong> aguarde alguns segundos ou recarregue a página</li>
+      <li><strong>Sem áudio:</strong> verifique se não está no modo mudo e aumente o volume no player</li>
+      <li><strong>Player não abre:</strong> toque/clique na área central do player</li>
+      <li><strong>Série demorando:</strong> a primeira abertura é mais lenta — as seguintes são rápidas</li>
+    </ul>
+    <div class="guide-tip">📌 O PipocaFlix não hospeda vídeos — usa links públicos disponíveis na internet.</div>
+  </div>
+
+</div>
+
+<script src="assets/js/security.js" defer></script>
+</body>
+</html>
