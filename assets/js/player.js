@@ -159,9 +159,62 @@ window.PipocaPlayer = (function () {
       });
     }
 
+    // Volume Boost (até 3x)
+    var boostActive = false;
+    var audioCtx = null, gainNode = null, srcNode = null;
+    var boostBtn = document.createElement('button');
+    boostBtn.className = 'ctrl-btn ctrl-boost-btn';
+    boostBtn.title = 'Volume Boost (até 3x)';
+    boostBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0013 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+    boostBtn.addEventListener('click', function(){
+      if(!boostActive){
+        try{
+          if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+          if(!srcNode){ srcNode = audioCtx.createMediaElementSource(video); gainNode = audioCtx.createGain(); srcNode.connect(gainNode); gainNode.connect(audioCtx.destination); }
+          gainNode.gain.value = 2.5;
+          boostActive = true;
+          boostBtn.style.color = 'var(--red)';
+          boostBtn.title = 'Boost ON (2.5x) — clique para desligar';
+          showPlayerToast(playerBox, '🔊 Volume Boost ON');
+        }catch(e){ showPlayerToast(playerBox,'⚠️ Boost não suportado'); }
+      } else {
+        if(gainNode) gainNode.gain.value = 1;
+        boostActive = false;
+        boostBtn.style.color = '';
+        boostBtn.title = 'Volume Boost';
+        showPlayerToast(playerBox,'🔉 Volume Boost OFF');
+      }
+    });
+
+    // Screenshot do frame atual
+    var shotBtn = document.createElement('button');
+    shotBtn.className = 'ctrl-btn ctrl-shot-btn';
+    shotBtn.title = 'Capturar cena';
+    shotBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 15.2A3.2 3.2 0 018.8 12 3.2 3.2 0 0112 8.8 3.2 3.2 0 0115.2 12 3.2 3.2 0 0112 15.2M9 2L7.17 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2h-3.17L15 2H9m3 14a5 5 0 010-10 5 5 0 010 10z"/></svg>';
+    shotBtn.addEventListener('click', function(){
+      try{
+        var canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        var a = document.createElement('a');
+        a.download = 'pipocaflix-cena-' + Date.now() + '.jpg';
+        a.href = canvas.toDataURL('image/jpeg', 0.92);
+        a.click();
+        showPlayerToast(playerBox, '📸 Cena salva!');
+      }catch(e){ showPlayerToast(playerBox,'⚠️ Screenshot falhou (CORS)'); }
+    });
+
     var fsBtn = ctrlRow.querySelector('#fullscreenBtn');
-    if (fsBtn) { ctrlRow.insertBefore(pipBtn, fsBtn); ctrlRow.insertBefore(speedWrap, pipBtn); ctrlRow.insertBefore(volWrap, speedWrap); }
-    else { ctrlRow.appendChild(volWrap); ctrlRow.appendChild(speedWrap); ctrlRow.appendChild(pipBtn); }
+    if (fsBtn) {
+      ctrlRow.insertBefore(shotBtn, fsBtn);
+      ctrlRow.insertBefore(boostBtn, shotBtn);
+      ctrlRow.insertBefore(pipBtn, boostBtn);
+      ctrlRow.insertBefore(speedWrap, pipBtn);
+      ctrlRow.insertBefore(volWrap, speedWrap);
+    } else {
+      ctrlRow.appendChild(volWrap); ctrlRow.appendChild(speedWrap); ctrlRow.appendChild(pipBtn);
+      ctrlRow.appendChild(boostBtn); ctrlRow.appendChild(shotBtn);
+    }
   }
 
   /* ─── Enhanced progress bar ─── */
