@@ -236,8 +236,27 @@ async function getEpisodiosPorSerie(nomeSerieOriginal) {
 
   console.log('[API] getEpisodiosPorSerie: buscando episódios de', nomeSerieOriginal);
 
-  // Busca todas as abas em paralelo — mas só processa as que tiverem a série
-  const results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
+  // Tentar sessionStorage primeiro — evita re-buscar 7 abas em cada página
+  let results;
+  try {
+    const sess = sessionStorage.getItem('pflix_eps_session');
+    if (sess) {
+      const {ts, tabs} = JSON.parse(sess);
+      if (Date.now() - ts < CACHE_TTL_EPISODIOS) {
+        console.log('[API] getEpisodiosPorSerie: usando cache de sessão (rápido)');
+        results = tabs;
+      }
+    }
+  } catch(e) {}
+
+  if (!results) {
+    // Busca todas as abas em paralelo
+    results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
+    // Salvar no sessionStorage para próximas séries
+    try {
+      sessionStorage.setItem('pflix_eps_session', JSON.stringify({ts: Date.now(), tabs: results}));
+    } catch(e) {}
+  }
 
   const todosEpisodios = results
     .flat()
