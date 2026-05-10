@@ -2569,3 +2569,411 @@ input { font-family: var(--font-body); }
     padding-bottom: 60px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   🍿 PIPOCAFLIX — CSS DOS DEUSES (Atualização Final)
+   Visual premium, animações suaves, UX impecável
+══════════════════════════════════════════════════════════════ */
+
+/* ── Variáveis de gradiente e glow aprimorados ── */
+:root {
+  --red-gradient: linear-gradient(135deg, #ff2d43 0%, #ff6b35 100%);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,.15);
+  --card-shine: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 60%);
+  --blur-glass: blur(20px) saturate(1.8);
+}
+
+/* ── Seleção de texto com cor da marca ── */
+::selection { background: var(--red); color: #fff; }
+
+/* ── App Banner ── */
+#pflix-app-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 2000;
+  background: linear-gradient(90deg, #1a0a0f 0%, #2a0d16 100%);
+  border-bottom: 2px solid var(--red);
+  transition: transform .3s ease, opacity .3s ease;
+  box-shadow: 0 4px 24px rgba(255,45,67,.25);
+}
+.pflix-app-inner {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem clamp(1rem,5vw,3.5rem);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.pflix-app-icon { font-size: 1.3rem; flex-shrink: 0; }
+.pflix-app-msg {
+  flex: 1;
+  font-size: .85rem;
+  color: #fff;
+  font-weight: 500;
+}
+.pflix-app-close {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+  border-radius: 50%;
+  width: 24px; height: 24px;
+  cursor: pointer;
+  font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.pflix-app-close:hover { background: var(--red); }
+
+/* ── Header glassmorphism premium ── */
+.header {
+  background: rgba(5,5,7,0.88) !important;
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border-bottom: 1px solid rgba(255,45,67,0.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,.03), 0 4px 32px rgba(0,0,0,.5);
+}
+.header.scrolled {
+  background: rgba(5,5,7,0.97) !important;
+  border-bottom-color: rgba(255,45,67,0.15);
+}
+
+/* ── Logo com gradiente animado ── */
+.logo-text {
+  background: var(--red-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+/* ── Nav links com underline animado ── */
+.nav a {
+  position: relative;
+  transition: color .2s;
+}
+.nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 2px;
+  background: var(--red-gradient);
+  border-radius: 2px;
+  transition: width .25s ease;
+}
+.nav a:hover::after,
+.nav a.active::after { width: 100%; }
+
+/* ── Cards com shine interno ── */
+.card {
+  background: var(--card);
+  position: relative;
+  overflow: hidden;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--card-shine);
+  pointer-events: none;
+  border-radius: inherit;
+}
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:
+      0 24px 56px rgba(0,0,0,.75),
+      0 0 0 1px var(--red-dim),
+      0 0 40px rgba(255,45,67,.08);
+  }
+}
+
+/* ── Hero banner com parallax visual ── */
+.hero-slide {
+  transition: transform 8s ease-out;
+}
+.hero-content {
+  background: linear-gradient(
+    90deg,
+    rgba(5,5,7,0.98) 0%,
+    rgba(5,5,7,0.75) 55%,
+    transparent 100%
+  );
+}
+.hero-title {
+  font-size: clamp(1.8rem, 5vw, 3.5rem) !important;
+  text-shadow: 0 2px 24px rgba(0,0,0,.9), 0 0 80px rgba(255,45,67,.1);
+  line-height: 1.1 !important;
+}
+.hero-badge {
+  background: var(--red-gradient);
+  box-shadow: 0 2px 12px rgba(255,45,67,.4);
+}
+
+/* ── Section titles com gradiente ── */
+.section-title {
+  background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,.65) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Player premium ── */
+.player-container {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.05),
+    0 0 80px rgba(255,45,67,.15),
+    var(--shadow-float);
+}
+.player-controls {
+  background: linear-gradient(0deg, rgba(0,0,0,.98) 0%, rgba(0,0,0,.5) 80%, transparent 100%) !important;
+  padding-bottom: 1.25rem !important;
+}
+.ctrl-btn {
+  transition: color .18s, background .18s, transform .15s !important;
+}
+.ctrl-btn:hover {
+  color: #fff !important;
+  transform: scale(1.12);
+}
+.ctrl-boost-btn { color: var(--text-3); }
+.ctrl-boost-btn:hover,
+.ctrl-boost-btn.active { color: var(--red) !important; }
+.ctrl-shot-btn { color: var(--text-3); }
+.ctrl-shot-btn:hover { color: var(--gold) !important; }
+
+/* ── Progress bar com glow ── */
+.progress-bar-fill {
+  background: var(--red-gradient) !important;
+  box-shadow: 0 0 8px rgba(255,45,67,.6);
+}
+.progress-bar::-webkit-slider-thumb {
+  box-shadow: 0 0 12px rgba(255,45,67,.8) !important;
+}
+
+/* ── Volume slider ── */
+.volume-slider::-webkit-slider-thumb {
+  background: var(--red) !important;
+}
+
+/* ── Buttons premium ── */
+.btn-primary {
+  background: var(--red-gradient) !important;
+  box-shadow: 0 4px 24px rgba(255,45,67,.4), inset 0 1px 0 rgba(255,255,255,.15) !important;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  transition: left .5s ease;
+}
+.btn-primary:hover::before { left: 100%; }
+.btn-primary:hover {
+  box-shadow: 0 6px 32px rgba(255,45,67,.55), inset 0 1px 0 rgba(255,255,255,.2) !important;
+  transform: translateY(-2px);
+}
+
+/* ── Badges melhorados ── */
+.card-badge {
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.12);
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+
+/* ── Skeleton shimmer premium ── */
+@keyframes shimmer-god {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,.03) 0%,
+    rgba(255,255,255,.08) 40%,
+    rgba(255,255,255,.03) 80%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer-god 1.8s ease-in-out infinite !important;
+}
+
+/* ── Detail page hero ── */
+.detail-hero {
+  position: relative;
+}
+.detail-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--bg) 0%, transparent 50%),
+              linear-gradient(90deg, rgba(5,5,7,.9) 0%, transparent 60%);
+}
+.detail-content { position: relative; z-index: 1; }
+
+/* ── Elenco cards ── */
+.cast-item {
+  transition: transform .22s ease;
+}
+.cast-item:hover { transform: translateY(-6px); }
+.cast-avatar {
+  border: 2px solid transparent;
+  background: linear-gradient(var(--card), var(--card)) padding-box,
+              var(--red-gradient) border-box;
+  transition: border-color .2s;
+}
+
+/* ── Temporadas tabs ── */
+.season-tab.active {
+  background: var(--red-gradient) !important;
+  box-shadow: 0 4px 16px rgba(255,45,67,.35), inset 0 1px 0 rgba(255,255,255,.2) !important;
+}
+.season-tab:hover:not(.active) { transform: translateY(-2px); }
+
+/* ── Toast premium ── */
+.player-toast {
+  background: rgba(10,10,15,.92) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 0 1px rgba(255,45,67,.15) !important;
+  border-radius: var(--r-lg) !important;
+}
+
+/* ── Footer gradiente ── */
+footer {
+  background: linear-gradient(180deg, transparent 0%, rgba(255,45,67,.03) 50%, rgba(5,5,7,0.8) 100%);
+  border-top: 1px solid rgba(255,45,67,.1);
+}
+
+/* ── Disqus section ── */
+.disqus-section {
+  padding: 2rem clamp(1rem,5vw,3.5rem) 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.disqus-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+}
+.disqus-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+}
+
+/* ── Scrollbar personalizada dos deuses ── */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--red-gradient);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+  * { scrollbar-width: thin; scrollbar-color: var(--red) transparent; }
+}
+
+/* ── Animações de entrada ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-content,
+.detail-content { animation: fade-up .6s ease both; }
+
+/* ── Focus visible acessível ── */
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Mobile banner fixo bottom ── */
+.mobile-banner-ad {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-banner-ad {
+    display: block;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 900;
+    background: rgba(5,5,7,.97);
+    border-top: 1px solid rgba(255,45,67,.15);
+    min-height: 50px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+  }
+  body { padding-bottom: 60px; }
+}
+
+/* ── Letter/Decade filter buttons ── */
+.letter-btn,
+.decade-btn {
+  transition: all .15s ease !important;
+}
+.letter-btn.active,
+.decade-btn.active {
+  background: var(--red-gradient) !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(255,45,67,.4) !important;
+}
+
+/* ── Pagination premium ── */
+.page-btn {
+  transition: all .18s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+.page-btn.active {
+  background: var(--red-gradient) !important;
+  box-shadow: 0 4px 16px rgba(255,45,67,.35) !important;
+}
+.page-btn:hover:not(.active) { transform: translateY(-2px); }
+
+/* ── Catalog sidebar filter accent ── */
+.filter-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px; height: 14px;
+  background: var(--red-gradient);
+  border-radius: 2px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ── Carousel arrows premium ── */
+.carousel-arrow {
+  background: rgba(10,10,15,.85) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.6), 0 0 0 1px rgba(255,45,67,.1) !important;
+  transition: background .2s, border-color .2s, transform .15s !important;
+}
+.carousel-arrow:hover {
+  background: var(--red) !important;
+  border-color: var(--red) !important;
+  transform: translateY(-60%) scale(1.1) !important;
+}
+
+/* ── Guide page cards ── */
+.guide-card {
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.guide-card:hover {
+  box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,45,67,.2);
+}
+
