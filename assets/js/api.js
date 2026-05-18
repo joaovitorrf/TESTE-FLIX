@@ -150,19 +150,24 @@ function parseCSVEpisodios(text) {
 ───────────────────────────────────────────── */
 function mapFilme(row) {
   return {
-    nome:       row[0]  || '',
-    linkMP4:    row[1]  || '',
-    sinopse:    row[2]  || '',
-    capa:       row[3]  || '',
-    categoria:  row[4]  || '',
-    ano:        row[5]  || '',
-    duracao:    row[6]  || '',
-    trailer:    row[7]  || '',
-    nomeElenco: row[8]  || '',
-    fotoElenco: row[9]  || '',
-    tipo:       row[11] || 'Filme',
-    audio:      row[12] || '',
-    isSerie:    false
+    nome:         row[0]  || '',
+    linkMP4:      row[1]  || '',
+    sinopse:      row[2]  || '',
+    capa:         row[3]  || '',
+    categoria:    row[4]  || '',
+    ano:          row[5]  || '',
+    duracao:      row[6]  || '',
+    trailer:      row[7]  || '',
+    nomeElenco:   row[8]  || '',
+    fotoElenco:   row[9]  || '',
+    tipo:         row[11] || 'Filme',
+    audio:        row[12] || '',
+    playerStatus: row[15] || '',  // coluna P — se vazia, player 1 não funciona
+    player2:      row[16] || '',  // coluna Q — player alternativo 2 (iframe)
+    player3:      row[17] || '',  // coluna R — player alternativo 3 (iframe)
+    player4:      row[18] || '',  // coluna S — player alternativo 4 (iframe)
+    player5:      row[19] || '',  // coluna T — player alternativo 5 (iframe)
+    isSerie:      false
   };
 }
 
@@ -191,7 +196,12 @@ function mapEpisodio(row) {
     serie:     (row[0] || '').trim(),
     linkMP4:   link,
     temporada: parseInt(row[2]) || 1,
-    episodio:  parseInt(row[3]) || 1
+    episodio:  parseInt(row[3]) || 1,
+    player2:   (row[5] || '').trim(),   // coluna F
+    player3:   (row[6] || '').trim(),   // coluna G
+    player4:   (row[7] || '').trim(),   // coluna H
+    player5:   (row[8] || '').trim(),   // coluna I
+    player6:   (row[9] || '').trim(),   // coluna J
   };
 }
 
@@ -245,10 +255,12 @@ async function getEpisodiosPorSerie(nomeSerieOriginal) {
     .filter(e => e.linkMP4);
 
   // Filtra só os episódios da série pedida
-  const filtrados = todosEpisodios.filter(e =>
-    normalizeStr(e.serie).includes(nomeNorm) ||
-    nomeNorm.includes(normalizeStr(e.serie))
-  );
+  const filtrados = todosEpisodios.filter(e => {
+    const serieNorm = normalizeStr(e.serie);
+    return serieNorm.includes(nomeNorm)
+      || nomeNorm.includes(serieNorm)
+      || e.serie.toLowerCase() === nomeSerieOriginal.toLowerCase();
+  });
 
   console.log(`[API] getEpisodiosPorSerie: ${filtrados.length} episódios encontrados para "${nomeSerieOriginal}"`);
 
@@ -291,6 +303,33 @@ function normalizeStr(str) {
     .trim();
 }
 
+/* ─────────────────────────────────────────────
+   getFeedNoticias — busca a aba Feed da planilha
+   Coluna A: titulo | B: ativo (sim/nao) | C: conteudo | D: fotoPersonagem | E: imagemNoticia
+───────────────────────────────────────────── */
+const FEED_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=923245815';
+
+async function getFeedNoticias() {
+  try {
+    const res = await fetch(FEED_SHEET_URL);
+    const text = await res.text();
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+    const rows = lines.slice(1).map(parseCSVLine).filter(r => r && r[0] && r[0].trim());
+    return rows
+      .map(row => ({
+        titulo:         (row[0] || '').trim(),
+        ativo:          (row[1] || '').trim().toLowerCase(),
+        conteudo:       (row[2] || '').trim(),
+        fotoPersonagem: (row[3] || '').trim(),
+        imagemNoticia:  (row[4] || '').trim(),
+      }))
+      .filter(n => n.ativo === 'sim' && n.titulo);
+  } catch(e) {
+    console.error('[API] Feed error:', e);
+    return [];
+  }
+}
+
 // Exporta para uso global
 window.PipocaAPI = {
   getFilmes,
@@ -298,5 +337,6 @@ window.PipocaAPI = {
   getEpisodios,
   getTodosConteudos,
   getEpisodiosPorSerie,
+  getFeedNoticias,
   normalizeStr,
 };
