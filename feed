@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feed de Notícias — PipocaFlix</title>
+<meta name="description" content="Fique por dentro das novidades e notícias do PipocaFlix.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+  <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+  </button>
+  <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo">PipocaFlix</a>
+  <nav class="nav">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html">Catálogo</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="feed.html" class="active">📰 Feed</a>
+    <a href="elenco.html">Elenco</a>
+    <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
+    <a href="assistidos.html">✅ Assistidos</a>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  </button>
+</header>
+
+<div class="mobile-nav-menu" id="mobileNavMenu">
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="feed.html" class="active">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
+  <a href="assistidos.html">✅ Assistidos</a>
+</div>
+
+<div class="search-results-overlay" id="searchResultsOverlay">
+  <div class="search-results-header">
+    <span>Resultados para: <strong id="searchQueryLabel"></strong></span>
+    <button class="search-results-close" id="searchResultsClose">✕ Fechar</button>
+  </div>
+  <div class="card-grid" id="searchResultsGrid"></div>
+</div>
+
+<!-- ═══ FEED ═══ -->
+<section class="feed-section">
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">📰 Feed de Notícias</h1>
+      <p class="feed-subtitle">Fique por dentro das novidades do PipocaFlix</p>
+    </div>
+  </div>
+
+  <div class="feed-grid" id="feedGrid">
+    <div class="skeleton feed-skeleton"></div>
+    <div class="skeleton feed-skeleton"></div>
+    <div class="skeleton feed-skeleton"></div>
+  </div>
+
+  <p id="feedEmpty" style="display:none; color:var(--text-3); text-align:center; padding:3rem 0; font-size:1.1rem">
+    😔 Nenhuma notícia disponível no momento. Volte em breve!
+  </p>
+</section>
+
+<footer class="footer">
+  <div class="footer-logo">PipocaFlix</div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix.</span>
+    <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
+
+<script>
+// ── Toast ──
+function showToast(msg, dur) {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function() { t.classList.remove('show'); }, dur || 3000);
+}
+
+// ── Tema ──
+(function() {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('pflix_theme', t);
+  }
+  btn.addEventListener('click', function() {
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+})();
+
+// ── Hamburger ──
+(function() {
+  var btn = document.getElementById('hamburgerBtn'), menu = document.getElementById('mobileNavMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', function() {
+    var open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open.toString());
+  });
+  menu.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', function() { menu.classList.remove('open'); btn.classList.remove('open'); });
+  });
+  document.addEventListener('click', function(e) {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) { menu.classList.remove('open'); btn.classList.remove('open'); }
+  });
+})();
+
+// ── Back to top ──
+(function() {
+  var btn = document.getElementById('backToTop');
+  if (!btn) return;
+  window.addEventListener('scroll', function() { btn.classList.toggle('visible', window.scrollY > 400); });
+  btn.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+})();
+
+// ── Search ──
+(function() {
+  var overlay = document.getElementById('searchResultsOverlay');
+  var grid = document.getElementById('searchResultsGrid');
+  var label = document.getElementById('searchQueryLabel');
+  var closeBtn = document.getElementById('searchResultsClose');
+  var mobileToggle = document.getElementById('mobileSearchToggle');
+  var mobileOverlay = document.getElementById('mobileSearchOverlay');
+  var mobileClose = document.getElementById('mobileSearchClose');
+
+  if (closeBtn) closeBtn.addEventListener('click', function() { overlay.classList.remove('active'); });
+  if (mobileToggle && mobileOverlay) {
+    mobileToggle.addEventListener('click', function() { mobileOverlay.classList.add('active'); document.getElementById('mobileSearchInput').focus(); });
+    if (mobileClose) mobileClose.addEventListener('click', function() { mobileOverlay.classList.remove('active'); });
+  }
+
+  async function setupSearch() {
+    try {
+      var all = await PipocaAPI.getTodosConteudos();
+      PipocaSearch.indexContent(all);
+      function mkCard(item) {
+        var d = document.createElement('div'); d.className = 'card';
+        var page = item.isSerie ? 'serie.html' : 'filme.html';
+        d.innerHTML = '<div class="card-thumb-wrap"><img class="card-thumb" src="' + (item.capa||'') + '" alt="' + item.nome + '" loading="lazy" onerror="this.src=\'https://placehold.co/300x450/13131a/333?text=Sem+Capa\'"><span class="card-badge">' + (item.isSerie ? 'Série' : 'Filme') + '</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="card-info"><div class="card-name">' + item.nome + '</div><div class="card-meta-row"><span>' + (item.ano||'') + '</span></div></div>';
+        d.addEventListener('click', function() { location.href = page + '?nome=' + encodeURIComponent(item.nome); });
+        return d;
+      }
+      function doSearch(q) {
+        if (!q || q.length < 2) { overlay.classList.remove('active'); return; }
+        var res = PipocaSearch.search(q, 30);
+        if (label) label.textContent = q;
+        if (grid) { grid.innerHTML = ''; res.forEach(function(i) { grid.appendChild(mkCard(i)); }); }
+        overlay.classList.add('active');
+      }
+      var deb = PipocaSearch.debounce(doSearch, 250);
+      var dInput = document.getElementById('desktopSearchInput');
+      var mInput = document.getElementById('mobileSearchInput');
+      if (dInput) dInput.addEventListener('input', function(e) { deb(e.target.value); });
+      if (mInput) mInput.addEventListener('input', function(e) { deb(e.target.value); });
+    } catch(e) { console.warn('[Feed] Search setup failed:', e); }
+  }
+  setupSearch();
+})();
+
+// ── FEED INIT ──
+async function initFeed() {
+  var grid = document.getElementById('feedGrid');
+  var empty = document.getElementById('feedEmpty');
+
+  try {
+    var noticias = await PipocaAPI.getFeedNoticias();
+    grid.innerHTML = '';
+
+    if (!noticias || !noticias.length) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    noticias.forEach(function(n) {
+      var card = document.createElement('article');
+      card.className = 'feed-card';
+
+      var imgHTML = n.imagemNoticia
+        ? '<div class="feed-card-img-wrap"><img src="' + n.imagemNoticia + '" alt="' + n.titulo + '" class="feed-card-img" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>'
+        : '';
+
+      var avatarHTML = n.fotoPersonagem
+        ? '<img src="' + n.fotoPersonagem + '" alt="" class="feed-card-avatar" loading="lazy" onerror="this.style.display=\'none\'">'
+        : '';
+
+      card.innerHTML = imgHTML +
+        '<div class="feed-card-body">' +
+          '<div class="feed-card-header">' +
+            avatarHTML +
+            '<h2 class="feed-card-title">' + n.titulo + '</h2>' +
+          '</div>' +
+          '<p class="feed-card-content">' + n.conteudo + '</p>' +
+        '</div>';
+
+      grid.appendChild(card);
+    });
+
+  } catch(e) {
+    console.error('[Feed] Erro ao carregar notícias:', e);
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initFeed);
+</script>
+
+<!-- Page Push (somente desktop) -->
+<script>
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
+  (function(ojll){
+  var d = document,
+      s = d.createElement('script'),
+      l = d.scripts[d.scripts.length - 1];
+  s.settings = ojll || {};
+  s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+  s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+  l.parentNode.insertBefore(s, l);
+  })({});
+})();
+</script>
+
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
+
+<!-- Banner Mobile -->
+<div class="mobile-banner-ad" id="mobileBannerAdNew">
+<script>
+(function(xev){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = xev || {};
+s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+
+</body>
+</html>
