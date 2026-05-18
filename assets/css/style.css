@@ -2606,3 +2606,253 @@ input { font-family: var(--font-body); }
   color: var(--text-1) !important;
 }
 .search-bar:focus::placeholder { opacity: 0.45; }
+
+/* ═══════════════════════════════════════════════
+   PIPOCAFLIX — NOVOS ESTILOS (Atualização)
+═══════════════════════════════════════════════ */
+
+/* ── Player Buttons Container ── */
+.player-btns-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 1.5rem;
+  justify-content: center;
+  background: var(--card-bg);
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+.player-select-btn {
+  background: var(--card-bg2, rgba(255,255,255,0.05));
+  border: 2px solid var(--border);
+  color: var(--text-1);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.player-select-btn:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.player-select-btn--primary {
+  border-color: var(--red);
+  color: var(--red);
+}
+.player-badge {
+  background: var(--red);
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+.no-player-msg {
+  color: var(--text-3);
+  text-align: center;
+  padding: 2rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+/* ── Iframe Player Alternativo ── */
+.alt-player-wrap {
+  width: 100%;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  margin-top: 1rem;
+}
+.alt-player-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--border);
+}
+.alt-player-nome {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.alt-player-actions { display: flex; gap: 8px; }
+.alt-player-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: var(--text-1);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.alt-player-btn:hover { background: var(--red); }
+.alt-player-iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border: none;
+  min-height: 300px;
+}
+@media (max-width: 600px) {
+  .alt-player-iframe { min-height: 220px; }
+}
+
+/* ── Top 10 ── */
+.top10-track .card { position: relative; }
+.top10-rank {
+  position: absolute;
+  bottom: -4px;
+  left: -10px;
+  font-size: 5rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.08);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  font-family: 'Arial Black', sans-serif;
+  user-select: none;
+}
+.top10-sub {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* ── Feed de Notícias ── */
+.feed-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+.feed-subtitle {
+  color: var(--text-3);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.feed-skeleton { height: 280px; border-radius: 12px; }
+.feed-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.feed-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.feed-card-img-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.feed-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.feed-card:hover .feed-card-img { transform: scale(1.04); }
+.feed-card-body { padding: 1.2rem; }
+.feed-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.8rem;
+}
+.feed-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--red);
+}
+.feed-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0;
+  line-height: 1.4;
+}
+.feed-card-content {
+  font-size: 0.88rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .feed-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Card NOVO badge ── */
+.card-new-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #00c853;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  z-index: 3;
+}
+
+/* ── Hero overlay cinematográfico ── */
+.hero-slide-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(10,10,18,0.95) 0%, rgba(10,10,18,0.6) 50%, rgba(10,10,18,0.1) 100%),
+    linear-gradient(to top, rgba(10,10,18,1) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* ── Poster Play Button ── */
+.detail-poster-wrap { position: relative; display: inline-block; }
+.poster-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255,45,67,0.9);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+}
+.detail-poster-wrap:hover .poster-play-btn {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+.poster-play-btn svg { width: 28px; height: 28px; fill: #fff; margin-left: 4px; }
