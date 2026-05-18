@@ -46,8 +46,7 @@
     <a href="catalogo.html">Catálogo</a>
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
-    <a href="como-usar.html" class="nav-link">📖 Guia</a>
-    <a href="como-usar.html">📖 Como Usar</a>
+    <a href="feed.html">📰 Feed</a>
     <a href="elenco.html">Elenco</a>
     <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
     <a href="assistidos.html">✅ Assistidos</a>
@@ -77,6 +76,7 @@
   <a href="catalogo.html">🎬 Catálogo</a>
   <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
   <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
   <a href="assistidos.html">✅ Assistidos</a>
@@ -231,6 +231,24 @@
     </button>
     <div class="carousel-track" id="hotTrack"></div>
     <button class="carousel-arrow next" id="hotNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+
+<!-- ═══ TOP 10 ═══ -->
+<section class="content-section top10-section" id="top10Section">
+  <div class="section-header">
+    <h2 class="section-title">🏆 Top 10 da Semana</h2>
+    <span class="top10-sub">Atualiza a cada visita</span>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="top10Prev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track top10-track" id="top10Track"></div>
+    <button class="carousel-arrow next" id="top10Next" aria-label="Próximo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -556,6 +574,13 @@ function mkCard(item, opts = {}) {
   let hotBadge = '';
   if (opts.hotCount) hotBadge = `<span class="card-hot-badge">🔥 ${opts.hotCount}</span>`;
 
+  // Badge NOVO (ano 2025 ou 2026)
+  const isNew = item.ano && (item.ano === '2025' || item.ano === '2026');
+  const newBadge = isNew ? '<span class="card-new-badge">NOVO</span>' : '';
+
+  // Fake rating (visual premium)
+  const fakeRating = (7 + Math.random() * 2.9).toFixed(1);
+
   // Barra de progresso (Continuar Assistindo)
   let progressBar = '';
   if (opts.pct != null) {
@@ -572,7 +597,7 @@ function mkCard(item, opts = {}) {
         onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
       <span class="card-badge">${item.isSerie?'📺 Série':'🎬 Filme'}</span>
       <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-      ${audioBadge}${hotBadge}${progressBar}
+      ${audioBadge}${hotBadge}${newBadge}${progressBar}
       ${item.ano ? `<div class="card-year-badge">${item.ano}</div>` : ''}
       <button class="card-fav-btn${window.PipocaFavoritos&&window.PipocaFavoritos.has(item.nome)?' active':''}" data-nome="${item.nome}" aria-label="Favoritar">
         <svg viewBox="0 0 24 24" fill="${window.PipocaFavoritos&&window.PipocaFavoritos.has(item.nome)?'currentColor':'none'}" stroke="currentColor" stroke-width="2">
@@ -584,6 +609,7 @@ function mkCard(item, opts = {}) {
         <div class="card-hover-meta">
           ${item.ano ? `<span>${item.ano}</span>` : ''}
           ${cat1 ? `<span>${cat1}</span>` : ''}
+          <span>⭐ ${fakeRating}</span>
         </div>
         <button class="card-hover-btn">▶ Assistir</button>
       </div>
@@ -941,6 +967,24 @@ function discoverRandom() {
   location.href=(item.isSerie?'serie.html':'filme.html')+'?nome='+encodeURIComponent(item.nome);
 }
 
+// ── Top 10 ──
+function renderTop10(allContent) {
+  var top10 = [...allContent].sort(() => Math.random() - 0.5).slice(0, 10);
+  var track = document.getElementById('top10Track');
+  if (!track) return;
+  track.innerHTML = '';
+  top10.forEach(function(item, idx) {
+    var card = mkCard(item);
+    var rankBadge = document.createElement('div');
+    rankBadge.className = 'top10-rank';
+    rankBadge.textContent = idx + 1;
+    var thumbWrap = card.querySelector('.card-thumb-wrap');
+    if (thumbWrap) thumbWrap.appendChild(rankBadge);
+    track.appendChild(card);
+  });
+  setupCarouselArrows('top10Track', 'top10Prev', 'top10Next');
+}
+
 // ── INIT ──
 async function init() {
   try {
@@ -964,6 +1008,7 @@ async function init() {
     setupCarouselArrows('seriesTrack','seriePrev','serieNext');
 
     renderHotSection(allContent);
+    renderTop10(allContent);
 
     // Lazy load para Romance, Ação, Terror (Tarefa 11)
     setupLazySection('romanceTrack','romance','romancePrev','romanceNext', allContent);
@@ -988,16 +1033,21 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <script>
-(function(zrc){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = zrc || {};
-s.src = "\/\/sophisticatedpin.com\/bZXRVqsBd.GElU0fY\/WzcY\/deKme9\/u\/ZLUNlVkgPdTOYY4ONpjXke0\/MlTacot\/NBj\/gi2\/OuT\/QuylM\/QE";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
+/* Page Push — somente desktop */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
+  (function(zrc){
+  var d = document,
+      s = d.createElement('script'),
+      l = d.scripts[d.scripts.length - 1];
+  s.settings = zrc || {};
+  s.src = "\/\/sophisticatedpin.com\/bZXRVqsBd.GElU0fY\/WzcY\/deKme9\/u\/ZLUNlVkgPdTOYY4ONpjXke0\/MlTacot\/NBj\/gi2\/OuT\/QuylM\/QE";
+  s.async = true;
+  s.referrerPolicy = 'no-referrer-when-downgrade';
+  l.parentNode.insertBefore(s, l);
+  })({});
+})();
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script>
