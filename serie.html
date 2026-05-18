@@ -33,6 +33,7 @@
     <a href="catalogo.html">Catálogo</a>
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="feed.html">📰 Feed</a>
     <a href="elenco.html">Elenco</a>
     <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
     <a href="assistidos.html">✅ Assistidos</a>
@@ -56,6 +57,7 @@
   <a href="catalogo.html">🎬 Catálogo</a>
   <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
   <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   <a href="catalogo.html?lista=favoritos">❤️ Minha Lista</a>
   <a href="assistidos.html">✅ Assistidos</a>
@@ -340,20 +342,148 @@ function renderEpisodios(){const lista=document.getElementById('episodesList'),e
 const REPRODUCTION_WORKER='https://shy-dream-7986.slacarambafdsosobrenome.workers.dev';
 function resolveVideoUrl(raw){if(!raw)return'';raw=raw.trim();if(raw.startsWith('http://')||raw.startsWith('https://'))return raw;return REPRODUCTION_WORKER+(raw.startsWith('/')?raw:'/'+raw);}
 
+// ── Funções de players alternativos (séries) ──
+function fecharIframes() {
+  var existing = document.getElementById('altPlayerWrap');
+  if (existing) existing.remove();
+}
+
+function abrirPlayerIframe(src, nome) {
+  var playerSection = document.getElementById('playerSection');
+  fecharIframes();
+  var iframeWrap = document.createElement('div');
+  iframeWrap.id = 'altPlayerWrap';
+  iframeWrap.className = 'alt-player-wrap';
+  iframeWrap.innerHTML =
+    '<div class="alt-player-header">' +
+      '<span class="alt-player-nome">' + nome + '</span>' +
+      '<div class="alt-player-actions">' +
+        '<button class="alt-player-btn" id="altPlayerMaximize" title="Maximizar">⛶</button>' +
+        '<button class="alt-player-btn" id="altPlayerClose" title="Fechar">✕</button>' +
+      '</div>' +
+    '</div>' +
+    '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
+    ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
+    ' referrerpolicy="no-referrer-when-downgrade" scrolling="no" frameborder="0"></iframe>';
+  playerSection.appendChild(iframeWrap);
+  iframeWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('altPlayerClose').addEventListener('click', function() {
+    fecharIframes();
+    var bc = document.getElementById('playerBtnsContainer');
+    if (bc) bc.style.display = 'flex';
+  });
+  document.getElementById('altPlayerMaximize').addEventListener('click', function() {
+    var iframeEl = document.getElementById('altPlayerIframe');
+    if (iframeEl.requestFullscreen) iframeEl.requestFullscreen();
+    else if (iframeEl.webkitRequestFullscreen) iframeEl.webkitRequestFullscreen();
+    else if (iframeEl.mozRequestFullScreen) iframeEl.mozRequestFullScreen();
+  });
+}
+
+function showEpisodePlayerButtons(ep, titulo, videoUrl) {
+  var playerSection = document.getElementById('playerSection');
+  var btnContainer = document.getElementById('playerBtnsContainer');
+  if (!btnContainer) {
+    btnContainer = document.createElement('div');
+    btnContainer.id = 'playerBtnsContainer';
+    btnContainer.className = 'player-btns-container';
+    playerSection.insertBefore(btnContainer, playerSection.querySelector('#playerBox'));
+  }
+  btnContainer.innerHTML = '';
+  btnContainer.style.display = 'flex';
+  fecharIframes();
+
+  var temAlgumPlayer = false;
+
+  // Player 1 — sempre mostrar para séries se tiver link
+  if (videoUrl) {
+    temAlgumPlayer = true;
+    var btn1 = document.createElement('button');
+    btn1.className = 'player-select-btn player-select-btn--primary';
+    btn1.innerHTML = '▶ Player 1 <span class="player-badge">Oficial</span>';
+    btn1.addEventListener('click', function() {
+      fecharIframes();
+      btnContainer.style.display = 'none';
+      if (!seriePlayer) return;
+      seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '');
+      document.getElementById('playerBox').style.display = 'block';
+      document.getElementById('playerBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    btnContainer.appendChild(btn1);
+  }
+
+  // Players alternativos 2-6
+  var alts = [
+    { link: ep.player2, nome: 'Player 2' },
+    { link: ep.player3, nome: 'Player 3' },
+    { link: ep.player4, nome: 'Player 4' },
+    { link: ep.player5, nome: 'Player 5' },
+    { link: ep.player6, nome: 'Player 6' },
+  ];
+  alts.forEach(function(p) {
+    if (!p.link || p.link.trim() === '') return;
+    temAlgumPlayer = true;
+    var btn = document.createElement('button');
+    btn.className = 'player-select-btn';
+    btn.innerHTML = '▶ ' + p.nome;
+    btn.addEventListener('click', (function(link, nome) {
+      return function() {
+        fecharIframes();
+        btnContainer.style.display = 'none';
+        abrirPlayerIframe(link, nome);
+        btnContainer.style.display = 'flex';
+      };
+    })(p.link, p.nome));
+    btnContainer.appendChild(btn);
+  });
+
+  if (!temAlgumPlayer) {
+    var msg = document.createElement('p');
+    msg.className = 'no-player-msg';
+    msg.textContent = '😔 Nenhum player disponível para este episódio no momento.';
+    btnContainer.appendChild(msg);
+  }
+
+  playerSection.style.display = 'block';
+  playerSection.scrollIntoView({ behavior: 'smooth' });
+}
+
 function tocar(ep){
-  
-  const titulo=`${nomeSerie} — T${ep.temporada} EP${ep.episodio}`;
-  const videoUrl=resolveVideoUrl(ep.linkMP4);
-  if(!videoUrl){console.error('[PipocaFlix] linkMP4 vazio');return;}
-  runVAST(function(){
-    if(!seriePlayer)return;
-    // Passa capa da série para o player salvar progresso
-    seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '');
-    const eps=temporadasData[ep.temporada]||[];
-    const idxAtual=eps.findIndex(e=>e.episodio===ep.episodio);
-    const proxEp=eps[idxAtual+1];
-    if(proxEp){seriePlayer.setNextEpCallback(function(){tocar(proxEp);});}
-    else{const nums=Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);const idxTemp=nums.indexOf(ep.temporada);const proxTemp=nums[idxTemp+1];if(proxTemp&&temporadasData[proxTemp]&&temporadasData[proxTemp].length>0){seriePlayer.setNextEpCallback(function(){temporadaAtual=proxTemp;document.querySelectorAll('.season-tab').forEach(b=>{const isActive=parseInt(b.textContent.replace('Temporada ',''))===proxTemp;b.classList.toggle('active',isActive);b.setAttribute('aria-selected',isActive?'true':'false');});renderEpisodios();tocar(temporadasData[proxTemp][0]);});}else{seriePlayer.setNextEpCallback(null);}}
+  const titulo = nomeSerie + ' — T' + ep.temporada + ' EP' + ep.episodio;
+  const videoUrl = resolveVideoUrl(ep.linkMP4);
+
+  // Configurar próximo episódio
+  function configurarProximo() {
+    if (!seriePlayer) return;
+    const eps = temporadasData[ep.temporada] || [];
+    const idxAtual = eps.findIndex(e => e.episodio === ep.episodio);
+    const proxEp = eps[idxAtual + 1];
+    if (proxEp) {
+      seriePlayer.setNextEpCallback(function() { tocar(proxEp); });
+    } else {
+      const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
+      const idxTemp = nums.indexOf(ep.temporada);
+      const proxTemp = nums[idxTemp + 1];
+      if (proxTemp && temporadasData[proxTemp] && temporadasData[proxTemp].length > 0) {
+        seriePlayer.setNextEpCallback(function() {
+          temporadaAtual = proxTemp;
+          document.querySelectorAll('.season-tab').forEach(b => {
+            const isActive = parseInt(b.textContent.replace('Temporada ','')) === proxTemp;
+            b.classList.toggle('active', isActive);
+            b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          });
+          renderEpisodios();
+          tocar(temporadasData[proxTemp][0]);
+        });
+      } else {
+        seriePlayer.setNextEpCallback(null);
+      }
+    }
+  }
+
+  runVAST(function() {
+    configurarProximo();
+    showEpisodePlayerButtons(ep, titulo, videoUrl);
   });
 }
 
@@ -409,24 +539,25 @@ async function init(){
     (function() {
       const wBtn = document.getElementById('watchedBtn');
       if (!wBtn) return;
-      function syncBtn() {
+      function syncWatchedBtn() {
         const isW = window.PipocaWatched && window.PipocaWatched.has(item.nome);
         wBtn.classList.toggle('is-watched', !!isW);
         wBtn.innerHTML = isW
-          ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓'
+          ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓'
           : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como assistido';
       }
-      syncBtn();
-      wBtn.addEventListener('click', () => {
+      syncWatchedBtn();
+      wBtn.addEventListener('click', function() {
         if (!window.PipocaWatched) return;
         if (window.PipocaWatched.has(item.nome)) {
           window.PipocaWatched.remove(item.nome);
+          showToast('↩️ Removido dos assistidos');
         } else {
           window.PipocaWatched.add({ nome: item.nome, capa: item.capa, tipo: 'serie' });
           if (window.PipocaProgress) window.PipocaProgress.remove(item.nome);
+          showToast('✅ Marcado como assistido!');
         }
-        syncBtn();
-        showToast(window.PipocaWatched.has(item.nome) ? '✅ Adicionado aos Assistidos' : '↩️ Removido dos Assistidos');
+        syncWatchedBtn();
       });
     })();
 
@@ -484,17 +615,21 @@ l.parentNode.insertBefore(s, l);
 })({})
 </script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
-<!-- Page Push -->
+<!-- Page Push (somente desktop) -->
 <script>
-(function(ojll){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = ojll || {};
-s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
-s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
+  (function(ojll){
+  var d = document,
+      s = d.createElement('script'),
+      l = d.scripts[d.scripts.length - 1];
+  s.settings = ojll || {};
+  s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+  s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+  l.parentNode.insertBefore(s, l);
+  })({});
+})();
 </script>
 <script>
 // ── Pesquisa por Voz (Web Speech API) ──
@@ -532,5 +667,22 @@ l.parentNode.insertBefore(s, l);
   });
 })();
 </script>
+
+<!-- Banner Mobile -->
+<div class="mobile-banner-ad" id="mobileBannerAdNew">
+<script>
+(function(xev){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = xev || {};
+s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+
 </body>
 </html>
