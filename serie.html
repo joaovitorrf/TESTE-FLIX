@@ -403,7 +403,6 @@ function showEpisodePlayerButtons(ep, titulo, videoUrl) {
     btn1.innerHTML = '▶ Player 1 <span class="player-badge">Oficial</span>';
     btn1.addEventListener('click', function() {
       fecharIframes();
-      btnContainer.style.display = 'none';
       if (!seriePlayer) return;
       seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '');
       document.getElementById('playerBox').style.display = 'block';
@@ -429,9 +428,7 @@ function showEpisodePlayerButtons(ep, titulo, videoUrl) {
     btn.addEventListener('click', (function(link, nome) {
       return function() {
         fecharIframes();
-        btnContainer.style.display = 'none';
         abrirPlayerIframe(link, nome);
-        btnContainer.style.display = 'flex';
       };
     })(p.link, p.nome));
     btnContainer.appendChild(btn);
