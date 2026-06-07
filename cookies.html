@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Cookies — PipocaFlix</title>
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+.cookie-hero {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  background: linear-gradient(180deg, rgba(255, 87, 34, 0.15), transparent);
+}
+.spider-image {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 6px solid #ff5722;
+  box-shadow: 0 0 40px rgba(255, 87, 34, 0.4);
+  margin-bottom: 1.5rem;
+}
+.cookie-hero h1 {
+  color: #ff5722;
+  margin-bottom: 0.5rem;
+}
+.cookie-hero p {
+  font-size: 1.1rem;
+  color: var(--text-2);
+  max-width: 600px;
+  margin: 0 auto;
+  font-style: italic;
+}
+.institucional-wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.institucional-wrap h2 {
+  color: #ff5722;
+  margin-top: 2.5rem;
+}
+</style>
+</head>
+<body>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  const firebaseConfig={apiKey:"AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",authDomain:"pipoca-flix-43de0.firebaseapp.com",projectId:"pipoca-flix-43de0",storageBucket:"pipoca-flix-43de0.firebasestorage.app",messagingSenderId:"504338312989",appId:"1:504338312989:web:b4949dd355624811017bf4",measurementId:"G-WL3CY5FRMR"};
+  const app=initializeApp(firebaseConfig);getAnalytics(app);const auth=getAuth(app);const provider=new GoogleAuthProvider();
+  window.PipocaAuth={login:()=>signInWithPopup(auth,provider),logout:()=>signOut(auth),getUser:()=>auth.currentUser,onAuthChanged:(cb)=>onAuthStateChanged(auth,cb)};
+  onAuthStateChanged(auth,function(user){var btn=document.getElementById('authBtn');if(!btn)return;if(user){btn.innerHTML='<img src="'+(user.photoURL||'')+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>'+(user.displayName||'Minha Conta').split(' ')[0]+'</span>';btn.onclick=function(){window.location.href='perfil.html';};btn.title='Ver meu perfil';}else{btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';btn.onclick=function(){window.PipocaAuth.login();};}});
+</script>
+
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a><a href="catalogo.html?tipo=filmes">Filmes</a><a href="catalogo.html?tipo=series">Séries</a><a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-btn">Mais ▾</button><div class="nav-dropdown-menu"><a href="como-usar.html">❓ Como Usar</a><a href="catalogo.html">🎬 Catálogo</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a></div></div>
+  </nav>
+  <button class="auth-btn" id="authBtn" aria-label="Login"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a><a href="catalogo.html?tipo=filmes">🎥 Filmes</a><a href="catalogo.html?tipo=series">📺 Séries</a><a href="canais.html">📡 Canais</a>
+</div>
+
+<div class="institucional-wrap">
+  <div class="cookie-hero">
+    <img src="https://i.pinimg.com/736x/31/0d/9a/310d9a283da1659fd8ee611c34671065.jpg" alt="Homem-Aranha" class="spider-image">
+    <h1>E aí, maninho!</h1>
+    <p>Eu sou o Homem-Aranha passando por aqui pra te explicar essa história de cookies de um jeito bem tranquilo. Sem teia complicada, prometo! 🕸️</p>
+  </div>
+
+  <span class="inst-badge">🍪 Política de Cookies</span>
+  <p><strong>Última atualização:</strong> Junho de 2025</p>
+
+  <h2>O que são Cookies, mano?</h2>
+  <p>São uns arquivoszinhos bem pequenos que o site guarda no seu navegador. Tipo uma memória pra ele lembrar de você, das suas preferências e pra deixar tudo mais fluido.</p>
+
+  <h2>O que a gente usa aqui no PipocaFlix?</h2>
+  <p>A gente usa principalmente o <strong>localStorage</strong> do seu navegador (é parecido com cookie, mas mais moderno). Olha só o que a gente guarda:</p>
+  
+  <table style="width:100%;border-collapse:collapse;margin:1.5rem 0">
+    <thead>
+      <tr style="border-bottom:2px solid var(--border)">
+        <th style="text-align:left;padding:10px;color:var(--text-1)">Nome</th>
+        <th style="text-align:left;padding:10px;color:var(--text-1)">Pra que serve</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px;color:var(--text-2)"><code style="color:var(--red)">pflix_theme</code></td><td style="padding:10px;color:var(--text-2)">Guarda se você curte o tema escuro ou claro</td></tr>
+      <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px;color:var(--text-2)"><code style="color:var(--red)">pflix_progress_*</code></td><td style="padding:10px;color:var(--text-2)">Salva até onde você assistiu cada filme/série</td></tr>
+      <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px;color:var(--text-2)"><code style="color:var(--red)">pflix_watched_list</code></td><td style="padding:10px;color:var(--text-2)">Seus títulos já assistidos</td></tr>
+      <tr style="border-bottom:1px solid var(--border)"><td style="padding:10px;color:var(--text-2)"><code style="color:var(--red)">pflix_fav_*</code></td><td style="padding:10px;color:var(--text-2)">Seus favoritos (❤️)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Cookies de Terceiros</h2>
+  <p>Os anúncios que rodam aqui podem usar cookies deles pra mostrar propaganda que faça mais sentido pra você. Isso é coisa deles, não do PipocaFlix. A gente também usa o Google Firebase pra login e estatísticas.</p>
+
+  <h2>Como limpar isso tudo?</h2>
+  <p>Se quiser apagar, é só ir nas configurações do seu navegador e limpar cookies + localStorage. Mas ó: se fizer isso, vai perder seu progresso, lista de favoritos e tema preferido, beleza?</p>
+
+  <ul>
+    <li><strong>Chrome:</strong> Configurações → Privacidade → Limpar dados de navegação</li>
+    <li><strong>Firefox:</strong> Opções → Privacidade → Cookies e dados do site</li>
+    <li><strong>Safari:</strong> Preferências → Privacidade → Gerenciar dados do site</li>
+  </ul>
+
+  <h2>Qualquer dúvida?</h2>
+  <p>Manda um e-mail pra gente: 📧 <a href="mailto:contato@pipocaflix.com">contato@pipocaflix.com</a></p>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom"><span>© 2025 PipocaFlix.</span></div>
+  <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+    <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+    <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+    <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+    <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+  </div>
+</footer>
+
+<script src="assets/js/security.js"></script>
+<script>
+(function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
+(function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
+</script>
+</body>
+</html>

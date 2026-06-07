@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistidos — PipocaFlix</title>
+<meta name="description" content="Filmes e séries que você já assistiu no PipocaFlix.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
+      btn.title = 'Sair da conta';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
+      btn.title = 'Ver meu perfil';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.title = 'Entrar com Google';
+      btn.onclick = function() { window.PipocaAuth.login(); };
+    }
+  });
+</script>
+
+<!-- Mobile search overlay -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- Header -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix">PipocaFlix</a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn">Mais ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="como-usar.html">❓ Como Usar</a>
+        <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="feed.html">📰 Feed</a>
+        <a href="elenco.html">🎭 Elenco</a>
+      </div>
+    </div>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- Mobile nav -->
+<div class="mobile-nav-menu" id="mobileNavMenu">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  
+  <a href="assistidos.html" class="active">✅ Assistidos</a>
+</div>
+
+<!-- Search results overlay -->
+<div class="search-results-overlay" id="searchResultsOverlay" role="region">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+</div>
+
+<!-- Hero da página -->
+<div class="assistidos-page-hero">
+  <h1 class="assistidos-page-title">✅ Assistidos</h1>
+  <p class="assistidos-page-sub" id="assistidosCount">Carregando...</p>
+</div>
+
+<!-- Banner 300x250 — abaixo do hero -->
+<div style="display:flex;justify-content:center;padding:1.5rem 0 0.5rem">
+  <script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+</div>
+
+<!-- Lista de assistidos -->
+<div class="ad-mid-content" style="margin-bottom:0.5rem">
+<script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+</div>
+<div class="assistidos-container">
+  <div id="assistidosGrid" class="cards-grid"></div>
+</div>
+
+<!-- MultiTag Banner 300x100 — mobile — entre conteúdo e footer -->
+<div class="ad-multitag-wrap">
+  <script>
+  (function(qnc){
+  var d = document,
+      s = d.createElement('script'),
+      l = d.scripts[d.scripts.length - 1];
+  s.settings = qnc || {};
+  s.src = "//sophisticatedpin.com/b.X-V/sYdMGgls0RYpWwcm/TeAmI9xubZZUklrk/PpTKY/5cO/DNcJ2cM-jSkWtqNajdkL4XNCzGY-z/M/wH";
+  s.async = true;
+  s.referrerPolicy = 'no-referrer-when-downgrade';
+  l.parentNode.insertBefore(s, l);
+  })({})
+  </script>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div style="display:flex;justify-content:center;padding:0.5rem 0">
+    <script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix.</span>
+    <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
+  </div>
+    <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+      <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+      <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+      <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+    </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/security.js" defer></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
+<script src="assets/js/api.js" defer></script>
+<script src="assets/js/search.js" defer></script>
+<script>
+
+// ── Scroll / back-to-top ──
+window.addEventListener('scroll', () => {
+  document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 60);
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+}, {passive:true});
+document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+
+// ── Mobile search ──
+document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('mobileSearchInput').focus(), 80);
+});
+document.getElementById('mobileSearchClose').addEventListener('click', () => {
+  document.getElementById('mobileSearchOverlay').classList.remove('open');
+  document.getElementById('mobileSearchInput').value = '';
+});
+
+// ── Hamburger ──
+(function(){
+  const btn = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileNavMenu');
+  if (!btn||!menu) return;
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', e => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+})();
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Render assistidos ──
+function renderAssistidos() {
+  const grid = document.getElementById('assistidosGrid');
+  const countEl = document.getElementById('assistidosCount');
+  const items = window.PipocaWatched.getAll();
+  grid.innerHTML = '';
+
+  if (items.length === 0) {
+    grid.innerHTML = `
+      <div class="assistidos-empty" style="grid-column:1/-1">
+        <span class="assistidos-empty-icon">🎬</span>
+        <p class="assistidos-empty-title">Nenhum título assistido ainda</p>
+        <p style="color:var(--text-3);font-size:.85rem;margin-top:.5rem">
+          Quando você marcar um filme ou série como assistido, ele aparece aqui.
+        </p>
+        <a href="index.html" class="btn-primary" style="display:inline-flex;margin-top:1.5rem;text-decoration:none">
+          Explorar catálogo
+        </a>
+      </div>`;
+    countEl.textContent = 'Seu histórico de títulos assistidos';
+    return;
+  }
+
+  countEl.textContent = `${items.length} título${items.length !== 1 ? 's' : ''} assistido${items.length !== 1 ? 's' : ''}`;
+
+  items.forEach(prog => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.cursor = 'pointer';
+    const page = prog.tipo === 'serie' ? 'serie.html' : 'filme.html';
+
+    div.innerHTML = `
+      <div class="card-thumb-wrap" style="position:relative">
+        <img class="card-thumb" src="${prog.capa||''}" alt="${prog.nome}" loading="lazy"
+          onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
+        <span class="card-badge">${prog.tipo === 'serie' ? 'Série' : 'Filme'}</span>
+        <!-- Badge assistido -->
+        <span style="position:absolute;top:6px;left:6px;background:rgba(34,197,94,0.85);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+        <!-- Botão remover -->
+        <button class="btn-watched-overlay" title="Remover dos assistidos" style="opacity:0"
+          onclick="event.stopPropagation();window.PipocaWatched.remove('${prog.nome.replace(/'/g,"\\'")}');renderAssistidos();showToast('↩️ Removido dos Assistidos')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${prog.nome}</div>
+      </div>`;
+
+    div.querySelector('.card-thumb-wrap').addEventListener('mouseenter', function() {
+      this.querySelector('.btn-watched-overlay').style.opacity = '1';
+    });
+    div.querySelector('.card-thumb-wrap').addEventListener('mouseleave', function() {
+      this.querySelector('.btn-watched-overlay').style.opacity = '0';
+    });
+    div.addEventListener('click', () => location.href = `${page}?nome=${encodeURIComponent(prog.nome)}`);
+    grid.appendChild(div);
+  });
+}
+
+// ── Botão "Limpar tudo" ──
+function addClearBtn() {
+  const items = window.PipocaWatched.getAll();
+  if (items.length === 0) return;
+  const hero = document.querySelector('.assistidos-page-hero');
+  if (!hero || hero.querySelector('.btn-clear-watched')) return;
+  const btn = document.createElement('button');
+  btn.className = 'btn-watched btn-clear-watched';
+  btn.style.marginTop = '0.75rem';
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg> Limpar histórico';
+  btn.addEventListener('click', () => {
+    if (confirm('Remover todos os títulos assistidos?')) {
+      window.PipocaWatched.clear();
+      renderAssistidos();
+      addClearBtn();
+      showToast('🗑️ Histórico limpo');
+    }
+  });
+  hero.appendChild(btn);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAssistidos();
+  addClearBtn();
+});
+</script>
+
+<!-- Video Slide -->
+<script>
+(function(zrc){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = zrc || {};
+s.src = "\/\/sophisticatedpin.com\/bZXRVqsBd.GElU0fY\/WzcY\/deKme9\/u\/ZLUNlVkgPdTOYY4ONpjXke0\/MlTacot\/NBj\/gi2\/OuT\/QuylM\/QE";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<!-- Page Push -->
+<script>
+(function(ojll){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = ojll || {};
+s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function hideMicBtns(){ document.querySelectorAll('.voice-search-btn,[id^=voiceSearch]').forEach(function(b){b.style.display='none';}); }
+  if(!SR){ hideMicBtns(); return; }
+  var rec=new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn;
+    btn.classList.add('voice-listening');
+    btn.title='Ouvindo...';
+    try{ rec.start(); } catch(e){ active=null; return; }
+    rec.onresult=function(e){
+      var t=e.results[0][0].transcript;
+      input.value=t;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      // no mobile, abre o overlay de busca automaticamente
+      var overlay=document.getElementById('mobileSearchOverlay');
+      if(overlay && !overlay.classList.contains('open')) overlay.classList.add('open');
+    };
+    rec.onerror=function(){};
+    rec.onend=function(){
+      if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}
+      active=null;
+    };
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(e){e.preventDefault();startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(e){e.preventDefault();startVoice(mb,mi);});
+  });
+})();
+</script>
+<!-- Video Slide Ad -->
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bfX.VJsYdZGJls0hYSWJcM/PehmL9gupZLU/lNkiPCTDYE4XNOjhkG0kM_TFcltiNXjSgp2AOJTzQ/yfMEQc";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<!-- Banner Mobile Ad -->
+<div class="mobile-banner-ad">
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+<!-- Mobile Banner Ad (novo) -->
+<div class="mobile-banner-ad" id="mobileBannerAdNew">
+<script>
+(function(xev){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = xev || {};
+s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+
+
+<script>
+/* ── POPUNDER SOMENTE DESKTOP ── */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                 || window.innerWidth < 768;
+  if (isMobile) return;
+  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
+  var popped = false;
+  document.addEventListener('click', function handler() {
+    if (popped) return;
+    popped = true;
+    var win = window.open(POPUNDER_URL, '_blank');
+    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
+    document.removeEventListener('click', handler);
+  }, true);
+})();
+</script>
+<!-- Banner apoio 30 min -->
+<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
+  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" 
+            style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
+    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
+    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador de anúncios! ❤️</p>
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'"
+            style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">
+      Fechar
+    </button>
+  </div>
+</div>
+<script>
+setTimeout(function() {
+  var el = document.getElementById('supportBannerOverlay');
+  if (el) el.style.display = 'block';
+}, 30 * 60 * 1000);
+</script>
+</body>
+</html>

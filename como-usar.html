@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Como Usar — PipocaFlix</title>
+<meta name="description" content="Aprenda a usar o PipocaFlix: assista filmes e séries online grátis, sem cadastro.">
+<link rel="icon" href="assets/img/favicon.png" type="image/png">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+.guide-hero {
+  text-align:center;
+  padding:4rem 1rem 2rem;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,45,67,.12) 0%, transparent 70%);
+  position: relative;
+}
+.guide-hero h1 {
+  font-family:var(--font-display);
+  font-size:clamp(2rem,6vw,3.5rem);
+  font-weight:800;
+  margin-bottom:.75rem;
+  color: #e0b0ff;
+}
+.luna-hero {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 6px solid #c79cff;
+  box-shadow: 0 0 40px rgba(199, 156, 255, 0.5);
+  margin: 1rem auto;
+  display: block;
+}
+.guide-hero p {
+  color:var(--text-2);
+  font-size:1.1rem;
+  max-width:560px;
+  margin:0 auto;
+  font-style: italic;
+}
+.guide-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1.5rem;
+  padding:2rem clamp(1rem,5vw,3.5rem) 4rem;
+  max-width:1200px;
+  margin:0 auto;
+}
+.guide-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:1.75rem;
+  transition:transform .2s,border-color .2s;
+  position:relative;
+  overflow:hidden;
+}
+.guide-card::before {
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:linear-gradient(90deg,#c79cff,#ff6b6b);
+}
+.guide-card:hover {
+  transform:translateY(-4px);
+  border-color:#c79cff;
+}
+.luna-icon {
+  width: 85px;
+  height: 85px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #c79cff;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 25px rgba(199, 156, 255, 0.3);
+}
+.guide-card h2 {
+  font-family:var(--font-display);
+  font-size:1.25rem;
+  font-weight:700;
+  margin-bottom:.75rem;
+  color:#e0b0ff;
+}
+.guide-card p, .guide-card li {
+  color:var(--text-2);
+  font-size:.93rem;
+  line-height:1.75;
+}
+.guide-card strong { color: #c79cff; }
+.guide-tip {
+  background:rgba(199, 156, 255, .1);
+  border:1px solid rgba(199, 156, 255, .3);
+  border-radius:var(--r-md);
+  padding:1rem 1.25rem;
+  margin-top:1rem;
+  font-size:.88rem;
+  color:var(--text-2);
+  font-style: italic;
+}
+.back-btn {
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  background:var(--red);
+  color:#fff;
+  padding:.65rem 1.5rem;
+  border-radius:var(--r-pill);
+  font-weight:700;
+  text-decoration:none;
+  margin:0 clamp(1rem,5vw,3.5rem) 1rem;
+  transition:opacity .2s;
+}
+.back-btn:hover { opacity:.85; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<header class="header" id="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo-link">
+      <span class="logo-text">🍿 PipocaFlix</span>
+    </a>
+  </div>
+</header>
+
+<div class="guide-hero">
+  <img src="https://i.pinimg.com/736x/e4/b8/2d/e4b82dd9c1b2f6e28b11bdb33dc4ac29.jpg" alt="Luna Lovegood" class="luna-hero">
+  <h1>Olá, querido cinéfilo...</h1>
+  <p>Eu sou Luna Lovegood. Venha comigo que eu te mostro como usar o PipocaFlix de um jeito mágico e tranquilo.</p>
+</div>
+
+<a href="index.html" class="back-btn">← Voltar ao Início</a>
+
+<div class="guide-grid">
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/1200x/44/99/e3/4499e32ae8b9809c80fce310d24c0f71.jpg" alt="Luna" class="luna-icon">
+    <h2>Página Inicial</h2>
+    <p>Às vezes os nargles se escondem nas recomendações. Na página inicial você encontrará os filmes e séries que brilham mais forte no momento.</p>
+    <ul>
+      <li><strong>Continuar Assistindo</strong> — onde você parou da última vez</li>
+      <li><strong>Minha Lista</strong> — seus tesouros guardados</li>
+      <li><strong>Filmes Recentes</strong> e <strong>Séries em Destaque</strong></li>
+    </ul>
+    <div class="guide-tip">Os carrosséis respondem bem às setas do teclado, como se fossem guiados por ventos gentis.</div>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/77/0b/9b/770b9bfc9b84275c6bc980c63c5b51b7.jpg" alt="Luna" class="luna-icon">
+    <h2>Buscar Conteúdo</h2>
+    <p>Basta olhar para a lupa no topo e sussurrar o nome do filme ou série que seu coração deseja. Se preferir, use a voz — o microfone entende muito bem.</p>
+    <div class="guide-tip">No Catálogo você pode filtrar por gêneros, décadas e até se o espírito do filme prefere ser dublado ou legendado.</div>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/00/d0/d5/00d0d5964d0ace0e6b2df09733f73cc0.jpg" alt="Luna" class="luna-icon">
+    <h2>Assistir um Filme</h2>
+    <ol>
+      <li>Encontre o filme que chama por você</li>
+      <li>Espere o anúncio passar (ou pule depois de um tempinho)</li>
+      <li>Clique em “▶ Clique para reproduzir”</li>
+      <li>Deixe a história te levar</li>
+    </ol>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/1200x/a3/c7/42/a3c74222294f8e0836423d4e01de728e.jpg" alt="Luna" class="luna-icon">
+    <h2>Assistir uma Série</h2>
+    <p>Escolha a temporada que mais ressoa com você. Cada episódio guarda sua própria magia. O progresso é salvo suavemente, como memórias que não querem se perder.</p>
+  </div>
+
+  <!-- Novos cards com as novas imagens -->
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/54/41/48/544148a676f0a4f2b8176389ba07a69c.jpg" alt="Luna" class="luna-icon">
+    <h2>Controles do Player</h2>
+    <ul>
+      <li>Barra de espaço — faz o tempo parar ou continuar</li>
+      <li>Setas ← → — viajam 10 segundos no tempo</li>
+      <li>↑ ↓ — controlam a voz da história</li>
+      <li><strong>PiP</strong> — para continuar assistindo enquanto faz outras coisas</li>
+      <li><strong>Boost</strong> — deixa o som mais vivo</li>
+      <li><strong>Screenshot</strong> — captura um momento eterno</li>
+    </ul>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/b0/75/eb/b075ebe01a679a3adf5ce00dd7ed880e.jpg" alt="Luna" class="luna-icon">
+    <h2>Minha Lista & Assistidos</h2>
+    <p>Você pode guardar aquilo que tocou seu coração com o ❤️ e marcar como visto com o ✓. Tudo fica guardado no seu navegador, como segredos bem protegidos.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/04/1b/72/041b72efe609fce1c9dc254cb69f41bb.jpg" alt="Luna" class="luna-icon">
+    <h2>Catálogo & Filtros</h2>
+    <p>É como andar por um grande armário de lembranças. Você pode procurar por letra, década, gênero, áudio... tudo o que sua curiosidade pedir.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/7b/79/97/7b7997916ad6e14f68bede9add2c0b0a.jpg" alt="Luna" class="luna-icon">
+    <h2>Tema Claro e Escuro</h2>
+    <p>Clique na lua ou no sol no canto. Eu prefiro o escuro, é mais fácil ver as criaturas que só aparecem quando a luz é suave.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/1d/23/0c/1d230c80be67cfe68a91228e45d10793.jpg" alt="Luna" class="luna-icon">
+    <h2>Problemas Comuns</h2>
+    <ul>
+      <li>Se o vídeo demorar a acordar, dê um tempinho ou recarregue a página</li>
+      <li>Sem som? Verifique se o player não está dormindo</li>
+      <li>O anúncio é como um portão que precisa ser atravessado</li>
+    </ul>
+    <div class="guide-tip">Lembre-se: o PipocaFlix não guarda os filmes, apenas abre portais para eles.</div>
+  </div>
+
+</div>
+
+<!-- Scripts originais mantidos -->
+<script src="assets/js/security.js" defer></script>
+<script>
+/* POPUNDER SOMENTE DESKTOP */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
+  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
+  var popped = false;
+  document.addEventListener('click', function handler() {
+    if (popped) return;
+    popped = true;
+    var win = window.open(POPUNDER_URL, '_blank');
+    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
+    document.removeEventListener('click', handler);
+  }, true);
+})();
+</script>
+
+<!-- Banner apoio 30 min -->
+<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
+  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
+    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
+    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador de anúncios! ❤️</p>
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">Fechar</button>
+  </div>
+</div>
+
+<script>
+setTimeout(function() {
+  var el = document.getElementById('supportBannerOverlay');
+  if (el) el.style.display = 'block';
+}, 30 * 60 * 1000);
+</script>
+</body>
+</html>

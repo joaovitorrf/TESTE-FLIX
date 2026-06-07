@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PipocaFlix — Filmes e Séries Online</title>
+<meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo em HD.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+// Aplicar tema ANTES do render para evitar flash
+(function(){
+  const t = localStorage.getItem('pflix_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+</head>
+<body>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
+      btn.title = 'Sair da conta';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
+      btn.title = 'Ver meu perfil';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.title = 'Entrar com Google';
+      btn.onclick = function() { window.PipocaAuth.login(); };
+    }
+  });
+</script>
+  
+<!-- ═══ MOBILE SEARCH OVERLAY ═══ -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog" aria-label="Busca">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn">Mais ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="como-usar.html">❓ Como Usar</a>
+        <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="feed.html">📰 Feed</a>
+        <a href="elenco.html">🎭 Elenco</a>
+      </div>
+    </div>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <button class="auth-btn" id="authBtn" aria-label="Login">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+  Entrar
+</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- ═══ MOBILE NAV MENU ═══ -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  
+  
+</div>
+
+<!-- ═══ SEARCH RESULTS ═══ -->
+<div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+  <p id="searchNoResults" style="display:none;color:var(--text-3);text-align:center;padding:3rem 0">
+    Nenhum resultado encontrado. Tente buscar por categoria, ano ou tipo de áudio.
+  </p>
+</div>
+
+<!-- ═══ HERO CARROSSEL ═══ -->
+<section class="hero" id="hero" aria-label="Destaques">
+  <div class="hero-slides" id="heroSlides">
+    <div class="hero-slide active">
+      <div class="hero-slide-bg" style="background:linear-gradient(135deg,#0c0c10,#1a1a24)"></div>
+    </div>
+  </div>
+  <div class="hero-content" id="heroContent" aria-live="polite">
+    <div class="hero-badge">🔥 Em Destaque</div>
+    <h1 class="hero-title" id="heroTitle">Carregando...</h1>
+    <div class="hero-meta" id="heroMeta"></div>
+    <p class="hero-synopsis" id="heroSynopsis"></p>
+    <div class="hero-btns">
+      <a href="#" id="heroWatchBtn" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Assistir Agora
+      </a>
+      <a href="#" id="heroInfoBtn" class="btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Mais Infos
+      </a>
+    </div>
+  </div>
+  <div class="hero-arrows" role="group" aria-label="Navegar destaques">
+    <button class="hero-arrow" id="heroPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="hero-arrow" id="heroNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="hero-dots" id="heroDots" role="tablist"></div>
+</section>
+
+
+<!-- ═══ CANAIS AO VIVO ═══ -->
+<section class="canais-section content-section" id="canaisLiveSection">
+  <div class="section-header">
+    <h2 class="section-title">📡 Canais Ao Vivo</h2>
+    <span class="live-badge">AO VIVO</span>
+    <a href="canais.html" class="see-all-link" style="margin-left:auto">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="canais-scroll-wrap">
+    <div class="canais-track" id="canaisTrack">
+      <div style="color:var(--text-3);padding:20px">Carregando canais...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CATEGORIAS ═══ -->
+<section class="categories-section">
+  <div class="section-header">
+    <h2 class="section-title">Explorar Categorias</h2>
+  </div>
+  <div class="cat-scroll-wrap">
+    <button class="carousel-arrow prev" id="catPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="cat-scroll" id="catScroll"></div>
+    <button class="carousel-arrow next" id="catNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ CONTINUAR ASSISTINDO ═══ -->
+<section class="content-section" id="continueSection" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">▶ Continuar Assistindo</h2>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="continuePrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="continueTrack"></div>
+    <button class="carousel-arrow next" id="continueNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ MINHA LISTA ═══ -->
+<section class="content-section" id="favSection" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">❤️ Minha Lista</h2>
+    <a href="catalogo.html?lista=favoritos" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="favPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="favTrack"></div>
+    <button class="carousel-arrow next" id="favNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ FILMES RECENTES ═══ -->
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">Filmes Recentes</h2>
+    <a href="catalogo.html?tipo=filmes" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="filmePrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="filmesTrack" aria-label="Filmes recentes">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+    </div>
+    <button class="carousel-arrow next" id="filmeNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ SÉRIES RECENTES ═══ -->
+<section class="content-section">
+  <div class="section-header">
+    <h2 class="section-title">Séries em Destaque</h2>
+    <a href="catalogo.html?tipo=series" class="see-all-link">Ver todas <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="seriePrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="seriesTrack" aria-label="Séries em destaque">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+    </div>
+    <button class="carousel-arrow next" id="serieNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ EM ALTA ═══ -->
+<section class="content-section" id="hotSection" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">🔥 Em Alta</h2>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="hotPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="hotTrack"></div>
+    <button class="carousel-arrow next" id="hotNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+
+<!-- ═══ TOP 10 ═══ -->
+<section class="content-section top10-section" id="top10Section">
+  <div class="section-header">
+    <h2 class="section-title">🏆 Top 10 da Semana</h2>
+    <span class="top10-sub">Atualiza a cada visita</span>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="top10Prev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track top10-track" id="top10Track"></div>
+    <button class="carousel-arrow next" id="top10Next" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ ROMANCE ═══ -->
+<section class="content-section" id="romanceSection">
+  <div class="section-header">
+    <h2 class="section-title">💕 Romance</h2>
+    <a href="catalogo.html?cat=Romance" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="romancePrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="romanceTrack" aria-label="Romance">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+    </div>
+    <button class="carousel-arrow next" id="romanceNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ AÇÃO ═══ -->
+<section class="content-section" id="acaoSection">
+  <div class="section-header">
+    <h2 class="section-title">⚡ Ação</h2>
+    <a href="catalogo.html?cat=A%C3%A7%C3%A3o" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="acaoPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="acaoTrack" aria-label="Ação">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+    </div>
+    <button class="carousel-arrow next" id="acaoNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ TERROR ═══ -->
+<section class="content-section" id="terrorSection">
+  <div class="section-header">
+    <h2 class="section-title">👻 Terror</h2>
+    <a href="catalogo.html?cat=Terror" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="terrorPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track" id="terrorTrack" aria-label="Terror">
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
+    </div>
+    <button class="carousel-arrow next" id="terrorNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ NÃO SABE O QUE ASSISTIR? ═══ -->
+<section class="discover-section">
+  <h2 class="discover-title">🎯 Não sabe o que assistir?</h2>
+  <p class="discover-subtitle">Escolha um universo e deixa a gente te ajudar.</p>
+  <div class="discover-grid">
+    <div class="discover-card" onclick="discoverFilter('Marvel')">
+      <span class="discover-card-emoji">🦸</span>
+      <div class="discover-card-name">Marvel</div>
+      <div class="discover-card-desc">Heróis & aventuras épicas</div>
+    </div>
+    <div class="discover-card" onclick="discoverFilter('Harry Potter')">
+      <span class="discover-card-emoji">🧙</span>
+      <div class="discover-card-name">Harry Potter</div>
+      <div class="discover-card-desc">Magia e Hogwarts</div>
+    </div>
+    <div class="discover-card" onclick="discoverFilter('Star Wars')">
+      <span class="discover-card-emoji">⚔️</span>
+      <div class="discover-card-name">Star Wars</div>
+      <div class="discover-card-desc">Uma galáxia muito distante</div>
+    </div>
+    <div class="discover-card" onclick="discoverRandom()">
+      <span class="discover-card-emoji">🎲</span>
+      <div class="discover-card-name">Surpreenda-me!</div>
+      <div class="discover-card-desc">Deixe a gente escolher</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DISCLAIMER LEGAL ═══ -->
+<section class="disclaimer-section">
+  <div class="disclaimer-wrap">
+    <div class="disclaimer-icon">⚖️</div>
+    <div class="disclaimer-body">
+      <h3 class="disclaimer-title">Aviso Legal — Sobre o Conteúdo do PipocaFlix</h3>
+      <p class="disclaimer-text">O PipocaFlix <strong>não hospeda, armazena nem distribui</strong> qualquer arquivo de vídeo em seus servidores. Todo o conteúdo exibido neste site é obtido a partir de <strong>links publicamente disponíveis na internet</strong>.</p>
+      <p class="disclaimer-text disclaimer-small">🔒 Ao utilizar esta plataforma, você concorda que é responsável por verificar a legalidade do acesso ao conteúdo em sua jurisdição.</p>
+    </div>
+  </div>
+</section>
+
+<div class="ad-banner-wrap">
+<script>
+(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})
+</script>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
+    <span style="color:var(--red)">Feito com ❤️ para fãs de cinema</span>
+  </div>
+    <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+      <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+      <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+      <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+    </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="fav-hint" id="favHint">
+  ⭐ Gostou do PipocaFlix?&nbsp;<strong>Ctrl + D</strong>&nbsp;para salvar nos favoritos!
+  <button class="fav-hint-close" id="favHintClose" aria-label="Fechar">×</button>
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════
+   PIPOCAFLIX INDEX.JS v2 — com todas as novas features
+═══════════════════════════════════════════════════════ */
+
+// ── PipocaProgress (Tarefa 1) ──
+window.PipocaProgress = (function() {
+  const PREFIX = 'pflix_progress_';
+  function _key(titulo) { return PREFIX + (titulo||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_'); }
+  function save(titulo, currentTime, duration, capa, tipo) {
+    if (!titulo || !duration) return;
+    const pct = currentTime / duration;
+    if (pct >= 0.95) { remove(titulo); return; }
+    if (currentTime < 10) return;
+    try {
+      localStorage.setItem(_key(titulo), JSON.stringify({
+        titulo, currentTime, duration, pct, capa: capa||'', tipo: tipo||'filme', ts: Date.now()
+      }));
+    } catch {}
+  }
+  function get(titulo) {
+    try { const v = localStorage.getItem(_key(titulo)); return v ? JSON.parse(v) : null; } catch { return null; }
+  }
+  function getAll() {
+    const out = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(PREFIX)) continue;
+      try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.pct < 0.95) out.push(v); } catch {}
+    }
+    return out.sort((a,b) => b.ts - a.ts);
+  }
+  function remove(titulo) { try { localStorage.removeItem(_key(titulo)); } catch {} }
+  function clear() {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(PREFIX)) keys.push(k); }
+    keys.forEach(k => localStorage.removeItem(k));
+  }
+  return { save, get, getAll, remove, clear };
+})();
+
+// ── PipocaWatched — salva filmes/séries marcados como assistidos ──
+window.PipocaWatched = (function() {
+  const KEY = 'pflix_watched_list';
+  function getAll() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+  }
+  function add(item) {
+    // item = { nome, capa, tipo, ts }
+    const all = getAll().filter(i => i.nome !== item.nome);
+    all.unshift({ ...item, ts: Date.now() });
+    try { localStorage.setItem(KEY, JSON.stringify(all.slice(0, 500))); } catch {}
+  }
+  function remove(nome) {
+    const all = getAll().filter(i => i.nome !== nome);
+    try { localStorage.setItem(KEY, JSON.stringify(all)); } catch {}
+  }
+  function has(nome) { return getAll().some(i => i.nome === nome); }
+  function clear() { try { localStorage.removeItem(KEY); } catch {} }
+  return { add, remove, has, getAll, clear };
+})();
+
+
+// ── Clicks tracking (Tarefa 7) ──
+const CLICKS_KEY = 'pflix_clicks';
+function trackClick(item) {
+  try {
+    const data = JSON.parse(localStorage.getItem(CLICKS_KEY) || '{}');
+    if (!data[item.nome]) data[item.nome] = { count:0, lastClick:0, capa:item.capa||'', isSerie:!!item.isSerie, categoria:item.categoria||'', ano:item.ano||'' };
+    data[item.nome].count++;
+    data[item.nome].lastClick = Date.now();
+    localStorage.setItem(CLICKS_KEY, JSON.stringify(data));
+  } catch {}
+}
+function getHotItems() {
+  try {
+    const data = JSON.parse(localStorage.getItem(CLICKS_KEY) || '{}');
+    return Object.entries(data)
+      .filter(([,v]) => v.count > 0)
+      .sort((a,b) => b[1].count - a[1].count)
+      .slice(0,15)
+      .map(([nome,v]) => ({ nome, ...v }));
+  } catch { return []; }
+}
+
+// ── Categorias ──
+const CAT_CONFIG = {
+  'ação':{ emoji:'⚡', gradient:'linear-gradient(135deg,#1a1a2e,#e94560)' },
+  'acao':{ emoji:'⚡', gradient:'linear-gradient(135deg,#1a1a2e,#e94560)' },
+  'romance':{ emoji:'💕', gradient:'linear-gradient(135deg,#2d1b1b,#c94b4b)' },
+  'terror':{ emoji:'👻', gradient:'linear-gradient(135deg,#0d0d0d,#3a1c71)' },
+  'horror':{ emoji:'🩸', gradient:'linear-gradient(135deg,#0d0d0d,#3a1c71)' },
+  'comédia':{ emoji:'😂', gradient:'linear-gradient(135deg,#1a2a1a,#f7971e)' },
+  'comedia':{ emoji:'😂', gradient:'linear-gradient(135deg,#1a2a1a,#f7971e)' },
+  'drama':{ emoji:'🎭', gradient:'linear-gradient(135deg,#1a1a2e,#4a4a8a)' },
+  'ficção':{ emoji:'🚀', gradient:'linear-gradient(135deg,#001a33,#0077b6)' },
+  'ficcao':{ emoji:'🚀', gradient:'linear-gradient(135deg,#001a33,#0077b6)' },
+  'animação':{ emoji:'✨', gradient:'linear-gradient(135deg,#1a0a2e,#7b2d8b)' },
+  'animacao':{ emoji:'✨', gradient:'linear-gradient(135deg,#1a0a2e,#7b2d8b)' },
+  'aventura':{ emoji:'🗺️', gradient:'linear-gradient(135deg,#1a2010,#56ab2f)' },
+  'thriller':{ emoji:'🔪', gradient:'linear-gradient(135deg,#0d0d10,#434343)' },
+  'crime':{ emoji:'🔫', gradient:'linear-gradient(135deg,#0d0d10,#434343)' },
+  'fantasia':{ emoji:'🧙', gradient:'linear-gradient(135deg,#1a0a30,#8360c3)' },
+  'documentário':{ emoji:'📽️', gradient:'linear-gradient(135deg,#101820,#2c5364)' },
+  'documentario':{ emoji:'📽️', gradient:'linear-gradient(135deg,#101820,#2c5364)' },
+  'faroeste':{ emoji:'🤠', gradient:'linear-gradient(135deg,#1a1005,#c79200)' },
+  'guerra':{ emoji:'⚔️', gradient:'linear-gradient(135deg,#0d0d0d,#5c5c5c)' },
+  'musical':{ emoji:'🎵', gradient:'linear-gradient(135deg,#0d0020,#8b0000)' },
+  'família':{ emoji:'👨‍👩‍👧', gradient:'linear-gradient(135deg,#001a20,#00b4db)' },
+  'familia':{ emoji:'👨‍👩‍👧', gradient:'linear-gradient(135deg,#001a20,#00b4db)' },
+};
+function getCatConfig(cat) {
+  const k = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for (const key of Object.keys(CAT_CONFIG)) { if (k.includes(key)||key.includes(k)) return CAT_CONFIG[key]; }
+  return { emoji:'🎬', gradient:'linear-gradient(135deg,#1a1a24,#ff2d43)' };
+}
+
+// ── Helpers ──
+function norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').trim(); }
+function showToast(msg, ms=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+
+// ── Tema (Tarefa 9) ──
+(function() {
+  const btn = document.getElementById('themeToggle');
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('pflix_theme', theme);
+  }
+  applyTheme(localStorage.getItem('pflix_theme') || 'dark');
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  });
+})();
+
+// ── Header scroll ──
+const header = document.getElementById('mainHeader');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 60);
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+}, {passive:true});
+document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+
+// ── Mobile search ──
+const mobileOverlay = document.getElementById('mobileSearchOverlay');
+const mobileInput   = document.getElementById('mobileSearchInput');
+document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+  mobileOverlay.classList.add('open');
+  document.getElementById('mobileSearchToggle').setAttribute('aria-expanded','true');
+  setTimeout(() => mobileInput.focus(), 80);
+});
+document.getElementById('mobileSearchClose').addEventListener('click', () => {
+  mobileOverlay.classList.remove('open');
+  document.getElementById('searchResultsOverlay').classList.remove('active');
+  mobileInput.value = '';
+});
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    mobileOverlay.classList.remove('open');
+    document.getElementById('searchResultsOverlay').classList.remove('active');
+    document.getElementById('desktopSearchInput').value = '';
+    mobileInput.value = '';
+  }
+});
+
+// ── mkCard (com favorito, áudio badge, progresso, hover overlay) ──
+function mkCard(item, opts = {}) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  const page = item.isSerie ? 'serie.html' : 'filme.html';
+
+  // Badge áudio
+  let audioBadge = '';
+  if (item.audio) {
+    const a = item.audio.toLowerCase();
+    if (a.includes('dub')) audioBadge = '<span class="card-audio-badge card-audio-dub">DUB</span>';
+    else if (a.includes('leg')) audioBadge = '<span class="card-audio-badge card-audio-leg">LEG</span>';
+  }
+
+  // Badge Em Alta
+  let hotBadge = '';
+  if (opts.hotCount) hotBadge = `<span class="card-hot-badge">🔥 ${opts.hotCount}</span>`;
+
+  // Badge NOVO (ano 2025 ou 2026)
+  const isNew = item.ano && (item.ano === '2025' || item.ano === '2026');
+  const newBadge = isNew ? '<span class="card-new-badge">NOVO</span>' : '';
+
+  // Fake rating (visual premium)
+  const fakeRating = (7 + Math.random() * 2.9).toFixed(1);
+
+  // Barra de progresso (Continuar Assistindo)
+  let progressBar = '';
+  if (opts.pct != null) {
+    progressBar = `<div class="card-progress-bar" style="width:${Math.round(opts.pct*100)}%"></div>`;
+  }
+
+  // Hover overlay
+  const synopsis = (item.sinopse || '').slice(0, 120);
+  const cat1 = item.categoria ? item.categoria.split(',')[0].trim() : '';
+
+  div.innerHTML = `
+    <div class="card-thumb-wrap" style="position:relative">
+      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+        onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
+      <span class="card-badge">${item.isSerie?'📺 Série':'🎬 Filme'}</span>
+      <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      ${audioBadge}${hotBadge}${newBadge}${progressBar}
+      ${item.ano ? `<div class="card-year-badge">${item.ano}</div>` : ''}
+      <button class="card-fav-btn${window.PipocaFavoritos&&window.PipocaFavoritos.has(item.nome)?' active':''}" data-nome="${item.nome}" aria-label="Favoritar">
+        <svg viewBox="0 0 24 24" fill="${window.PipocaFavoritos&&window.PipocaFavoritos.has(item.nome)?'currentColor':'none'}" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <div class="card-hover-overlay">
+        ${synopsis ? `<p class="card-hover-synopsis">${synopsis}</p>` : ''}
+        <div class="card-hover-meta">
+          ${item.ano ? `<span>${item.ano}</span>` : ''}
+          ${cat1 ? `<span>${cat1}</span>` : ''}
+          <span>⭐ ${fakeRating}</span>
+        </div>
+        <button class="card-hover-btn">▶ Assistir</button>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">${item.nome}</div>
+      <div class="card-meta-row">
+        ${item.categoria ? `<span>${cat1}</span>` : ''}
+      </div>
+    </div>`;
+
+  // Clique principal — navega
+  div.addEventListener('click', e => {
+    if (e.target.closest('.card-fav-btn') || e.target.closest('.card-hover-btn')) return;
+    trackClick(item);
+    location.href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+  });
+  div.setAttribute('role','button'); div.setAttribute('tabindex','0');
+  div.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') div.click(); });
+
+  // Botão hover "Assistir"
+  const hoverBtn = div.querySelector('.card-hover-btn');
+  if (hoverBtn) hoverBtn.addEventListener('click', e => {
+    e.stopPropagation(); trackClick(item);
+    location.href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+  });
+
+  // Botão favorito
+  const favBtn = div.querySelector('.card-fav-btn');
+  if (favBtn && window.PipocaFavoritos) {
+    favBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const added = window.PipocaFavoritos.toggle(item);
+      const svg = favBtn.querySelector('svg');
+      favBtn.classList.toggle('active', added);
+      if (svg) svg.setAttribute('fill', added ? 'currentColor' : 'none');
+      showToast(added ? '❤️ Adicionado à sua lista' : '💔 Removido da sua lista');
+      renderFavSection();
+    });
+  }
+
+  return div;
+}
+
+// ── Carousel helpers ──
+function setupCarouselArrows(trackId, prevId, nextId) {
+  var track = document.getElementById(trackId);
+  var prev  = document.getElementById(prevId);
+  var next  = document.getElementById(nextId);
+  if (!track || !prev || !next) return;
+
+  var STEP = 680;
+
+  function updArrows() {
+    var atStart = track.scrollLeft <= 2;
+    var atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    prev.style.opacity       = atStart ? '0.3' : '1';
+    prev.style.pointerEvents = atStart ? 'none' : 'auto';
+    next.style.opacity       = atEnd   ? '0.3' : '1';
+    next.style.pointerEvents = atEnd   ? 'none' : 'auto';
+  }
+
+  prev.addEventListener('click', function() {
+    track.scrollBy({ left: -STEP, behavior: 'smooth' });
+    setTimeout(updArrows, 350);
+  });
+  next.addEventListener('click', function() {
+    track.scrollBy({ left: STEP, behavior: 'smooth' });
+    setTimeout(updArrows, 350);
+  });
+  track.addEventListener('scroll', updArrows, { passive: true });
+  updArrows();
+
+  // Drag desktop — lógica isolada por track (sem conflito de múltiplos listeners)
+  var _drag = { active: false, startX: 0, startScroll: 0, dist: 0 };
+  track.style.userSelect = 'none';
+  track.style.webkitUserSelect = 'none';
+  track.style.cursor = 'grab';
+
+  track.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return; // só botão esquerdo
+    _drag.active = true;
+    _drag.startX = e.pageX;
+    _drag.startScroll = track.scrollLeft;
+    _drag.dist = 0;
+    track.style.cursor = 'grabbing';
+    track.style.scrollBehavior = 'auto';
+    track.classList.add('dragging');
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  // mousemove e mouseup no próprio track E no document (captura movimento fora)
+  function onMouseMove(e) {
+    if (!_drag.active) return;
+    var dx = e.pageX - _drag.startX;
+    _drag.dist = Math.abs(dx);
+    track.scrollLeft = _drag.startScroll - dx;
+  }
+  function onMouseUp() {
+    if (!_drag.active) return;
+    _drag.active = false;
+    track.style.cursor = 'grab';
+    track.style.scrollBehavior = 'smooth';
+    track.classList.remove('dragging');
+    updArrows();
+  }
+
+  track.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mousemove', onMouseMove);
+  track.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mouseup', onMouseUp);
+
+  // Cancela click se foi drag
+  track.addEventListener('click', function(e) {
+    if (_drag.dist > 5) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+  }, true);
+}
+
+function setupCatArrows() {
+  const scroll = document.getElementById('catScroll');
+  const prev = document.getElementById('catPrev');
+  const next = document.getElementById('catNext');
+  if (!scroll||!prev||!next) return;
+  const STEP = 300;
+  function updateArrows() {
+    prev.style.opacity = scroll.scrollLeft <= 0 ? '0.3' : '1';
+    prev.style.pointerEvents = scroll.scrollLeft <= 0 ? 'none' : 'auto';
+    const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 2;
+    next.style.opacity = atEnd ? '0.3' : '1';
+    next.style.pointerEvents = atEnd ? 'none' : 'auto';
+  }
+  prev.addEventListener('click', () => scroll.scrollBy({left:-STEP,behavior:'smooth'}));
+  next.addEventListener('click', () => scroll.scrollBy({left:STEP,behavior:'smooth'}));
+  scroll.addEventListener('scroll', updateArrows, {passive:true});
+  updateArrows();
+}
+
+function fillTrack(trackId, items, max) {
+  const track = document.getElementById(trackId);
+  if (!track) return;
+  track.innerHTML = '';
+  items.slice(0, max).forEach(item => track.appendChild(mkCard(item)));
+}
+
+// ── Seção Continuar Assistindo ──
+function renderContinueSection() {
+  const allProgs = window.PipocaProgress.getAll();
+  const section = document.getElementById('continueSection');
+  const track = document.getElementById('continueTrack');
+  if (!allProgs.length) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  track.innerHTML = '';
+
+  // Agrupar séries: mostrar só 1 card por série (o ep mais recente)
+  const seen = {};
+  const deduped = [];
+  allProgs.forEach(prog => {
+    // serieNome está salvo no objeto; se tipo for serie, agrupa pelo nome da série
+    const groupKey = (prog.tipo === 'serie' && prog.serieNome)
+      ? 'serie__' + prog.serieNome
+      : prog.titulo;
+    if (!seen[groupKey]) {
+      seen[groupKey] = true;
+      deduped.push(prog);
+    }
+  });
+
+  deduped.slice(0, 10).forEach(prog => {
+    // Para séries: mostrar o nome da série e linkar para serie.html?nome=NomeSerie
+    const isSerie = prog.tipo === 'serie';
+    const nomeExibido = (isSerie && prog.serieNome) ? prog.serieNome : prog.titulo;
+    const nomeLink   = nomeExibido;
+
+    // Subtítulo: ep atual (ex: "T1 EP3")
+    let subTitulo = '';
+    if (isSerie && prog.titulo && prog.serieNome) {
+      const parte = prog.titulo.replace(prog.serieNome, '').replace(/^\s*[—\-]\s*/, '').trim();
+      if (parte) subTitulo = parte;
+    }
+
+    const item = {
+      nome: nomeExibido, capa: prog.capa,
+      isSerie: isSerie,
+      categoria: subTitulo, ano: '', sinopse: '', audio: ''
+    };
+    const card = mkCard(item, { pct: prog.pct });
+
+    // Corrige o link do card para usar nomeLink (nome da série, não do episódio)
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.card-fav-btn') || e.target.closest('.btn-watched-overlay')) return;
+      const page = isSerie ? 'serie.html' : 'filme.html';
+      location.href = page + '?nome=' + encodeURIComponent(nomeLink);
+    }, true);
+
+    // Botão ✓ para marcar como assistido
+    const ovBtn = document.createElement('button');
+    ovBtn.className = 'btn-watched-overlay';
+    ovBtn.title = 'Marcar como assistido';
+    ovBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
+    ovBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      // Remove todos os eps da série do progresso
+      if (isSerie && prog.serieNome) {
+        const all = window.PipocaProgress.getAll();
+        all.forEach(p => {
+          if (p.tipo === 'serie' && p.serieNome === prog.serieNome) {
+            window.PipocaProgress.remove(p.titulo);
+          }
+        });
+        window.PipocaWatched.add({ nome: prog.serieNome, capa: prog.capa, tipo: 'serie' });
+      } else {
+        window.PipocaProgress.remove(prog.titulo);
+        window.PipocaWatched.add({ nome: prog.titulo, capa: prog.capa, tipo: prog.tipo || 'filme' });
+      }
+      renderContinueSection();
+      showToast('✅ Marcado como assistido');
+    });
+    const tw = card.querySelector('.card-thumb-wrap');
+    if (tw) { tw.style.position='relative'; tw.appendChild(ovBtn); }
+    track.appendChild(card);
+  });
+  setupCarouselArrows('continueTrack', 'continuePrev', 'continueNext');
+}
+
+// ── Seção Minha Lista ──
+function renderFavSection() {
+  const favs = window.PipocaFavoritos ? window.PipocaFavoritos.getAll() : [];
+  const section = document.getElementById('favSection');
+  const track   = document.getElementById('favTrack');
+  if (!favs.length) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  track.innerHTML = '';
+  favs.slice(0,10).forEach(item => track.appendChild(mkCard(item)));
+  setupCarouselArrows('favTrack', 'favPrev', 'favNext');
+}
+
+// ── Seção Em Alta ──
+function renderHotSection(allContent) {
+  let hotItems = getHotItems();
+  // Inicializar com dados simulados na primeira visita
+  if (hotItems.length < 3 && allContent.length > 0) {
+    const randomized = [...allContent].sort(() => Math.random()-0.5).slice(0,15);
+    try {
+      const data = JSON.parse(localStorage.getItem(CLICKS_KEY) || '{}');
+      randomized.forEach(item => {
+        if (!data[item.nome]) {
+          data[item.nome] = {
+            count: Math.floor(Math.random()*90)+10,
+            lastClick: Date.now()-Math.random()*86400000,
+            capa: item.capa||'', isSerie: !!item.isSerie,
+            categoria: item.categoria||'', ano: item.ano||''
+          };
+        }
+      });
+      localStorage.setItem(CLICKS_KEY, JSON.stringify(data));
+    } catch {}
+    hotItems = getHotItems();
+  }
+  const section = document.getElementById('hotSection');
+  const track   = document.getElementById('hotTrack');
+  if (hotItems.length < 3) { section.style.display='none'; return; }
+  section.style.display = '';
+  track.innerHTML = '';
+  hotItems.forEach(h => {
+    const item = allContent.find(c=>c.nome===h.nome) || { nome:h.nome, capa:h.capa, isSerie:h.isSerie, categoria:h.categoria, ano:h.ano, sinopse:'', audio:'' };
+    track.appendChild(mkCard(item, { hotCount: h.count }));
+  });
+  setupCarouselArrows('hotTrack','hotPrev','hotNext');
+}
+
+// ── Filtro por categoria ──
+function filterByCategory(items, cat, max) {
+  const n = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return items.filter(item => {
+    if (!item.categoria) return false;
+    return item.categoria.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(n);
+  }).sort(() => Math.random()-0.5).slice(0, max);
+}
+
+// ── Hero ──
+let heroItems=[], heroIdx=0, heroTimer=null;
+function heroGoTo(idx) {
+  heroIdx = (idx+heroItems.length) % heroItems.length;
+  const item = heroItems[heroIdx];
+  const page = item.isSerie ? 'serie.html' : 'filme.html';
+  document.getElementById('heroSlides').querySelectorAll('.hero-slide').forEach((s,i)=>{
+    s.classList.toggle('active', i===heroIdx);
+    const bg=s.querySelector('.hero-slide-bg');
+    if (bg) {
+      var heroBgUrl = (window.innerWidth >= 768 && item.backdrop) ? item.backdrop : (item.capa || '');
+      bg.style.backgroundImage = `url(${heroBgUrl})`;
+      bg.style.backgroundPosition = window.innerWidth >= 768 ? 'center center' : 'center top';
+    }
+  });
+  document.getElementById('heroTitle').textContent = item.nome||'';
+  document.getElementById('heroMeta').innerHTML = [
+    item.ano?`<span>${item.ano}</span>`:'',
+    item.categoria?`<span>${item.categoria.split(',')[0].trim()}</span>`:'',
+    item.audio?`<span>${item.audio}</span>`:'',
+    item.isSerie?`<span>📺 Série</span>`:`<span>🎬 Filme</span>`
+  ].join('');
+  document.getElementById('heroSynopsis').textContent = (item.sinopse||'').slice(0,180);
+  document.getElementById('heroWatchBtn').href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+  document.getElementById('heroInfoBtn').href  = `${page}?nome=${encodeURIComponent(item.nome)}`;
+  document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active',i===heroIdx));
+}
+function setupHero(allContent) {
+  const picks = [...allContent].sort(()=>Math.random()-0.5).slice(0,8);
+  heroItems = picks;
+  const slides=document.getElementById('heroSlides');
+  slides.innerHTML='';
+  const dots=document.getElementById('heroDots');
+  dots.innerHTML='';
+  picks.forEach((_,i)=>{
+    const slide=document.createElement('div'); slide.className='hero-slide'+(i===0?' active':'');
+    const bg=document.createElement('div'); bg.className='hero-slide-bg'; slide.appendChild(bg); slides.appendChild(slide);
+    const dot=document.createElement('button'); dot.className='hero-dot'+(i===0?' active':'');
+    dot.setAttribute('role','tab'); dot.setAttribute('aria-label',`Slide ${i+1}`);
+    dot.addEventListener('click',()=>{clearInterval(heroTimer);heroGoTo(i);heroTimer=setInterval(()=>heroGoTo(heroIdx+1),6000);});
+    dots.appendChild(dot);
+  });
+  heroGoTo(0);
+  heroTimer=setInterval(()=>heroGoTo(heroIdx+1),6000);
+  document.getElementById('heroPrev').addEventListener('click',()=>{clearInterval(heroTimer);heroGoTo(heroIdx-1);heroTimer=setInterval(()=>heroGoTo(heroIdx+1),6000);});
+  document.getElementById('heroNext').addEventListener('click',()=>{clearInterval(heroTimer);heroGoTo(heroIdx+1);heroTimer=setInterval(()=>heroGoTo(heroIdx+1),6000);});
+}
+
+// ── Categorias ──
+function setupCategories(allContent) {
+  const cats = {};
+  allContent.forEach(item => {
+    (item.categoria||'').split(',').forEach(c => {
+      const key=c.trim(); if(key) cats[key]=(cats[key]||0)+1;
+    });
+  });
+  const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const scroll=document.getElementById('catScroll');
+  scroll.innerHTML='';
+  sorted.forEach(([cat,count])=>{
+    const cfg=getCatConfig(cat);
+    const card=document.createElement('div'); card.className='cat-card';
+    card.style.background=cfg.gradient;
+    card.innerHTML=`<div class="cat-card-bg">${cfg.emoji}</div><div class="cat-card-overlay"><div class="cat-card-name">${cat}</div><div class="cat-card-count">${count} títulos</div></div>`;
+    card.addEventListener('click',()=>{location.href=`catalogo.html?cat=${encodeURIComponent(cat)}`;});
+    scroll.appendChild(card);
+  });
+}
+
+// ── Lazy sections (Tarefa 11) ──
+function setupLazySection(trackId, category, prevId, nextId, allContent) {
+  const track = document.getElementById(trackId);
+  if (!track) return;
+  const section = track.closest('section');
+  if (!section) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const items = filterByCategory(allContent, category, 15);
+        fillTrack(trackId, items, 15);
+        setupCarouselArrows(trackId, prevId, nextId);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '200px' });
+  observer.observe(section);
+}
+
+// ── Search ──
+function setupSearch(allContent) {
+  PipocaSearch.indexContent(allContent);
+  const resultsOverlay = document.getElementById('searchResultsOverlay');
+  const resultsGrid    = document.getElementById('searchResultsGrid');
+  const queryLabel     = document.getElementById('searchQueryLabel');
+  const noResults      = document.getElementById('searchNoResults');
+  function doSearch(q) {
+    if (!q||q.trim().length<2) { resultsOverlay.classList.remove('active'); return; }
+    const res = PipocaSearch.search(q, 30);
+    queryLabel.textContent = q;
+    resultsGrid.innerHTML = '';
+    noResults.style.display = res.length===0 ? 'block' : 'none';
+    res.forEach(item => resultsGrid.appendChild(mkCard(item)));
+    resultsOverlay.classList.add('active');
+  }
+  const deb = PipocaSearch.debounce(doSearch, 250);
+  document.getElementById('desktopSearchInput').addEventListener('input', e=>deb(e.target.value));
+  mobileInput.addEventListener('input', e=>deb(e.target.value));
+  resultsOverlay.addEventListener('click', e=>{
+    if(e.target===resultsOverlay){resultsOverlay.classList.remove('active');document.getElementById('desktopSearchInput').value='';mobileInput.value='';}
+  });
+}
+
+// ── Drag-to-scroll nas categorias ──
+(function() {
+  const el = document.getElementById('catScroll');
+  if (!el) return;
+  let isDown=false,startX=0,scrollLeft=0;
+  el.addEventListener('mousedown',e=>{isDown=true;el.style.cursor='grabbing';startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;e.preventDefault();});
+  window.addEventListener('mouseup',()=>{isDown=false;el.style.cursor='grab';});
+  el.addEventListener('mousemove',e=>{if(!isDown)return;el.scrollLeft=scrollLeft-(e.pageX-el.offsetLeft-startX)*1.2;});
+  el.style.cursor='grab';
+})();
+
+// ── Hamburger menu ──
+(function() {
+  const btn=document.getElementById('hamburgerBtn');
+  const menu=document.getElementById('mobileNavMenu');
+  if(!btn||!menu) return;
+  btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});
+  menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));
+  document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
+})();
+
+// ── Favorites hint ──
+(function() {
+  if (window.innerWidth < 769) return;
+  if (localStorage.getItem('pflix_fav_dismissed')) return;
+  var hint = document.getElementById('favHint');
+  var closeBtn = document.getElementById('favHintClose');
+  if (!hint || !closeBtn) return;
+
+  setTimeout(function() {
+    hint.style.display = 'flex';
+    hint.style.opacity = '0';
+    hint.style.transition = 'opacity 0.3s';
+    setTimeout(function() { hint.style.opacity = '1'; }, 50);
+  }, 8000);
+
+  function closeBanner() {
+    hint.style.opacity = '0';
+    setTimeout(function() { hint.style.display = 'none'; }, 300);
+    localStorage.setItem('pflix_fav_dismissed', '1');
+  }
+
+  closeBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeBanner();
+  });
+
+  setTimeout(function() {
+    if (hint.style.display !== 'none') closeBanner();
+  }, 23000);
+})();
+
+// ── Discover ──
+var _allContentGlobal=[];
+function discoverFilter(keyword) {
+  const n=keyword.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const matches=_allContentGlobal.filter(item=>{
+    const cat=(item.categoria||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const nome=(item.nome||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    return cat.includes(n)||nome.includes(n);
+  });
+  if (!matches.length) {showToast('Nenhum título encontrado para "'+keyword+'"');return;}
+  location.href='catalogo.html?cat='+encodeURIComponent(keyword);
+}
+function discoverRandom() {
+  if (!_allContentGlobal.length) {showToast('Carregando...');return;}
+  const item=_allContentGlobal[Math.floor(Math.random()*_allContentGlobal.length)];
+  location.href=(item.isSerie?'serie.html':'filme.html')+'?nome='+encodeURIComponent(item.nome);
+}
+
+// ── Top 10 ──
+function renderTop10(allContent) {
+  var top10 = [...allContent].sort(() => Math.random() - 0.5).slice(0, 10);
+  var track = document.getElementById('top10Track');
+  if (!track) return;
+  track.innerHTML = '';
+  top10.forEach(function(item, idx) {
+    var card = mkCard(item);
+    var rankBadge = document.createElement('div');
+    rankBadge.className = 'top10-rank';
+    rankBadge.textContent = idx + 1;
+    var thumbWrap = card.querySelector('.card-thumb-wrap');
+    if (thumbWrap) thumbWrap.appendChild(rankBadge);
+    track.appendChild(card);
+  });
+  setupCarouselArrows('top10Track', 'top10Prev', 'top10Next');
+}
+
+// ── INIT ──
+async function init() {
+  try {
+    const [filmes, series] = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
+    const allContent = [...filmes, ...series];
+    _allContentGlobal = allContent;
+
+    setupHero(allContent);
+    setupCategories(allContent);
+    setupCatArrows();
+
+    renderContinueSection();
+    renderFavSection();
+
+    const filmesShuffled = [...filmes].sort(()=>Math.random()-0.5);
+    fillTrack('filmesTrack', filmesShuffled, 24);
+    setupCarouselArrows('filmesTrack','filmePrev','filmeNext');
+
+    const seriesShuffled = [...series].sort(()=>Math.random()-0.5);
+    fillTrack('seriesTrack', seriesShuffled, 24);
+    setupCarouselArrows('seriesTrack','seriePrev','serieNext');
+
+    renderHotSection(allContent);
+    renderTop10(allContent);
+
+    // Lazy load para Romance, Ação, Terror (Tarefa 11)
+    setupLazySection('romanceTrack','romance','romancePrev','romanceNext', allContent);
+    setupLazySection('acaoTrack','acao','acaoPrev','acaoNext', allContent);
+    setupLazySection('terrorTrack','terror','terrorPrev','terrorNext', allContent);
+
+    // Busca global com todos os conteúdos
+    setupSearch(allContent);
+
+  } catch(err) {
+    console.error('[PipocaFlix]', err);
+    showToast('⚠️ Erro ao carregar conteúdo. Verifique sua conexão.');
+  }
+}
+
+
+// ── Carregar Canais Ao Vivo ──
+async function loadCanaisHome() {
+  try {
+    const canais = await PipocaAPI.getCanais();
+    const track = document.getElementById('canaisTrack');
+    if (!track || !canais.length) return;
+    track.innerHTML = '';
+    canais.slice(0, 20).forEach(canal => {
+      const card = document.createElement('a');
+      card.className = 'canal-card';
+      card.href = `canal.html?nome=${encodeURIComponent(canal.nome)}`;
+      card.innerHTML = `
+        ${canal.logoUrl ? `<img class="canal-card-logo" src="${canal.logoUrl}" alt="${canal.nome}" onerror="this.style.display='none'">` : ''}
+        <div class="canal-card-name">${canal.nome}</div>
+        ${canal.categoria ? `<span class="canal-cat-badge">${canal.categoria}</span>` : ''}
+      `;
+      track.appendChild(card);
+    });
+  } catch(e) { console.warn('[Canais Home]', e); }
+}
+
+document.addEventListener('DOMContentLoaded', function() { init(); loadCanaisHome(); });
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+<script>
+/* Page Push — somente desktop */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
+  (function(zrc){
+  var d = document,
+      s = d.createElement('script'),
+      l = d.scripts[d.scripts.length - 1];
+  s.settings = zrc || {};
+  s.src = "\/\/sophisticatedpin.com\/bZXRVqsBd.GElU0fY\/WzcY\/deKme9\/u\/ZLUNlVkgPdTOYY4ONpjXke0\/MlTacot\/NBj\/gi2\/OuT\/QuylM\/QE";
+  s.async = true;
+  s.referrerPolicy = 'no-referrer-when-downgrade';
+  l.parentNode.insertBefore(s, l);
+  })({});
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function hideMicBtns(){ document.querySelectorAll('.voice-search-btn,[id^=voiceSearch]').forEach(function(b){b.style.display='none';}); }
+  if(!SR){ hideMicBtns(); return; }
+  var rec=new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn;
+    btn.classList.add('voice-listening');
+    btn.title='Ouvindo...';
+    try{ rec.start(); } catch(e){ active=null; return; }
+    rec.onresult=function(e){
+      var t=e.results[0][0].transcript;
+      input.value=t;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      // no mobile, abre o overlay de busca automaticamente
+      var overlay=document.getElementById('mobileSearchOverlay');
+      if(overlay && !overlay.classList.contains('open')) overlay.classList.add('open');
+    };
+    rec.onerror=function(){};
+    rec.onend=function(){
+      if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}
+      active=null;
+    };
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(e){e.preventDefault();startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(e){e.preventDefault();startVoice(mb,mi);});
+  });
+})();
+</script>
+<!-- Mobile Banner Ad (novo) -->
+<div class="mobile-banner-ad" id="mobileBannerAdNew">
+<script>
+(function(xev){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = xev || {};
+s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+
+
+<script>
+/* ── POPUNDER SOMENTE DESKTOP ── */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                 || window.innerWidth < 768;
+  if (isMobile) return;
+  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
+  var popped = false;
+  document.addEventListener('click', function handler() {
+    if (popped) return;
+    popped = true;
+    var win = window.open(POPUNDER_URL, '_blank');
+    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
+    document.removeEventListener('click', handler);
+  }, true);
+})();
+</script>
+<!-- Banner apoio 30 min -->
+<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
+  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" 
+            style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
+    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
+    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador de anúncios! ❤️</p>
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'"
+            style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">
+      Fechar
+    </button>
+  </div>
+</div>
+<script>
+setTimeout(function() {
+  var el = document.getElementById('supportBannerOverlay');
+  if (el) el.style.display = 'block';
+}, 30 * 60 * 1000);
+</script>
+</body>
+</html>

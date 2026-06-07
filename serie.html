@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PipocaFlix — Assistir Série</title>
+<meta name="description" content="Assista séries online grátis no PipocaFlix.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="stylesheet" href="assets/css/style.css">
+<link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
+<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
+      btn.title = 'Sair da conta';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
+      btn.title = 'Ver meu perfil';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.title = 'Entrar com Google';
+      btn.onclick = function() { window.PipocaAuth.login(); };
+    }
+  });
+</script>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn">Mais ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="como-usar.html">❓ Como Usar</a>
+        <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="feed.html">📰 Feed</a>
+        <a href="elenco.html">🎭 Elenco</a>
+      </div>
+    </div>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <button class="auth-btn" id="authBtn" aria-label="Login">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+  Entrar
+</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  </button>
+</header>
+
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  
+  
+</div>
+
+<div class="search-results-overlay" id="searchResultsOverlay">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+</div>
+
+<!-- Detail Hero -->
+<section class="detail-hero" id="detailHero">
+  <div class="detail-bg" id="detailBg"></div>
+  <div class="detail-content">
+    <img id="detailPoster" class="detail-poster" src="https://placehold.co/300x450/13131a/333?text=..." alt="Capa">
+    <div class="detail-info">
+      <div id="loadingMsg" style="color:var(--text-3);font-size:1rem">⏳ Carregando...</div>
+      <h1 class="detail-title" id="detailTitle" style="display:none"></h1>
+      <div class="detail-tags" id="detailTags" style="display:none"></div>
+      <div class="detail-meta-row" id="detailMeta" style="display:none"></div>
+      <p class="detail-synopsis" id="detailSynopsis" style="display:none"></p>
+      <div class="hero-btns" id="detailBtns" style="display:none">
+        <button class="btn-primary" id="scrollToEpsBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          Ver Episódios
+        </button>
+        <button class="btn-secondary" id="favDetailBtn">🤍 Favoritar</button>
+        <a href="index.html" class="btn-secondary">← Voltar</a>
+        <button class="btn-watched" id="watchedBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          Marcar como assistido
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Player -->
+<section class="player-section" id="playerSection" style="display:none">
+  <p class="player-section-title" id="playerSectionTitle">🎬 Player</p>
+  <div class="player-container" id="playerBox" style="display:none">
+    <video id="video" class="video-js" preload="metadata" playsinline crossorigin="anonymous"></video>
+    <div class="player-overlay" id="playerOverlay">
+      <img src="https://i.ibb.co/6Jbf2TRY/transferir-1.jpg" class="player-overlay-logo" alt="PipocaFlix" onerror="this.style.display='none'">
+      <span class="player-overlay-text">Selecione um episódio abaixo</span>
+    </div>
+    <button class="center-play-btn" id="centerPlay" aria-label="Reproduzir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+    <div class="player-controls hidden" id="playerControls">
+      <div class="player-ctrl-row">
+        <button class="ctrl-btn" id="back10" aria-label="−10s"><svg viewBox="0 0 24 24"><path d="M11 18V6l-8 6 8 6zm2-12h8v2h-8zm0 6h6v2h-6z"/></svg></button>
+        <button class="ctrl-btn" id="playPause" aria-label="Play/Pause">▶</button>
+        <button class="ctrl-btn" id="forward10" aria-label="+10s"><svg viewBox="0 0 24 24"><path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/></svg></button>
+        <div class="player-title" id="playerTitle">PipocaFlix</div>
+        <button class="ctrl-btn" id="fullscreenBtn" aria-label="Tela cheia"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0v6h-2V6h-4V4h6zm0 14h-6v-2h4v-4h2v6zm-14 0v-6h2v4h4v2H4z"/></svg></button>
+        <button class="ctrl-btn ctrl-cast-btn" id="castBtn" aria-label="Chromecast" title="Enviar para TV" style="display:none"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M1 18v3h3a3 3 0 00-3-3zm0-4v2a7 7 0 017 7h2a9 9 0 00-9-9zm0-4v2a13 13 0 0113 13h2C16 12.95 9.05 6 1 10zm20-6H3C1.9 4 1 4.9 1 6v3h2V6h18v12h-7v2h7c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg></button>
+      </div>
+      <div class="player-progress-row">
+        <span class="player-time" id="currentTime">0:00</span>
+        <div class="player-progress" id="progressBar"><div class="player-progress-filled" id="progressFilled"></div></div>
+        <span class="player-time" id="totalTime">0:00</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ad-section">
+<div class="ad-banner-wrap">
+<script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})
+</script>
+</div>
+</div>
+
+<a href="https://t.me/pipocaflixx" target="_blank" rel="noopener" class="telegram-block">
+  <div class="telegram-icon">📢</div>
+  <div class="telegram-body"><div class="telegram-title">Entre no nosso Telegram!</div><div class="telegram-desc">Fique por dentro de novidades, lançamentos e muito mais.</div></div>
+  <div class="telegram-arrow">→</div>
+</a>
+
+<section class="trailer-section" id="trailerSection" style="display:none">
+  <div class="section-header" style="padding:0;margin-bottom:1rem"><h2 class="section-title">Trailer Oficial</h2></div>
+  <div class="trailer-wrap"><iframe id="trailerFrame" title="Trailer" allowfullscreen loading="lazy" allow="autoplay; encrypted-media; picture-in-picture"></iframe></div>
+</section>
+
+<section class="cast-section" id="castSection" style="display:none">
+  <div class="section-header" style="padding:0;margin-bottom:1rem"><h2 class="section-title">Elenco</h2></div>
+  <div class="cast-scroll" id="castScroll"></div>
+</section>
+
+<section class="seasons-section" id="seasonsSection" style="display:none">
+  <div class="section-header" style="padding:0;margin-bottom:1.25rem"><h2 class="section-title">Temporadas &amp; Episódios</h2></div>
+  <div class="season-tabs" id="seasonTabs" role="tablist"></div>
+  <div class="episodes-list" id="episodesList" role="list"></div>
+  <p id="noEpsMsg" style="display:none;color:var(--text-3);padding:1rem 0">ℹ️ Episódios ainda não cadastrados para esta série.</p>
+</section>
+
+<!-- Recomendações (Tarefa 8) -->
+<div class="ad-mid-content">
+<script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+</div>
+<!-- ═══ COMENTÁRIOS FIREBASE ═══ -->
+<section class="comments-section" id="commentsSection">
+  <h3 class="comments-title">💬 Comentários</h3>
+  <div id="commentFormWrap">
+    <div id="commentLoginPrompt" style="display:none;text-align:center;padding:20px;color:var(--text-3)">
+      <p>Faça login para comentar</p>
+      <button onclick="window.PipocaAuth && window.PipocaAuth.login()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:1rem;margin-top:8px">Entrar com Google</button>
+    </div>
+    <div id="commentForm" style="display:none">
+      <textarea id="commentInput" placeholder="Escreva seu comentário..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text-1);font-family:inherit;font-size:0.95rem;resize:vertical;min-height:80px;box-sizing:border-box"></textarea>
+      <button id="commentSubmit" style="margin-top:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:0.95rem">Enviar Comentário</button>
+    </div>
+  </div>
+  <div id="commentsList" style="margin-top:24px"></div>
+</section>
+<script type="module">
+  import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+  import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+  function waitForAuth(cb, tries) {
+    tries = tries || 0;
+    if (window.PipocaAuth) { cb(); return; }
+    if (tries > 30) return;
+    setTimeout(function() { waitForAuth(cb, tries + 1); }, 200);
+  }
+
+  waitForAuth(function() {
+    var params = new URLSearchParams(window.location.search);
+    var contentName = params.get("nome") || "desconhecido";
+    var collectionName = "comentarios_" + contentName.toLowerCase().replace(/[^a-z0-9]/g, "_");
+    var app = getApps()[0];
+    if (!app) return;
+    var db = getFirestore(app);
+
+    window.PipocaAuth.onAuthChanged(function(user) {
+      var lp = document.getElementById("commentLoginPrompt");
+      var cf = document.getElementById("commentForm");
+      if (lp) lp.style.display = user ? "none" : "block";
+      if (cf) cf.style.display = user ? "block" : "none";
+    });
+
+    var submitBtn = document.getElementById("commentSubmit");
+    if (submitBtn) {
+      submitBtn.addEventListener("click", async function() {
+        var user = window.PipocaAuth.getUser();
+        if (!user) return;
+        var text = document.getElementById("commentInput").value.trim();
+        if (!text) return;
+        this.disabled = true;
+        try {
+          await addDoc(collection(db, collectionName), {
+            text: text, uid: user.uid,
+            name: user.displayName || "Anônimo",
+            photo: user.photoURL || "",
+            ts: serverTimestamp()
+          });
+          document.getElementById("commentInput").value = "";
+        } catch(e) { alert("Erro ao enviar comentário."); }
+        this.disabled = false;
+      });
+    }
+
+    var q = query(collection(db, collectionName), orderBy("ts", "desc"), limit(50));
+    onSnapshot(q, function(snap) {
+      var list = document.getElementById("commentsList");
+      if (!list) return;
+      list.innerHTML = "";
+      if (snap.empty) {
+        list.innerHTML = "<p style=\"color:var(--text-3);text-align:center;padding:20px\">Seja o primeiro a comentar!</p>";
+        return;
+      }
+      snap.forEach(function(docSnap) {
+        var d = docSnap.data();
+        var commentId = docSnap.id;
+
+        var wrapper = document.createElement("div");
+        wrapper.style.cssText = "border-bottom:1px solid var(--border);padding:14px 0";
+
+        var mainDiv = document.createElement("div");
+        mainDiv.style.cssText = "display:flex;gap:12px;align-items:flex-start";
+        mainDiv.innerHTML =
+          "<img src=\"" + (d.photo||"https://placehold.co/36x36/333/fff?text=?") + "\" style=\"width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0\">" +
+          "<div style=\"flex:1\">" +
+            "<div style=\"font-weight:600;color:var(--text-1);font-size:0.9rem\">" + (d.name||"Anônimo") + "</div>" +
+            "<div style=\"color:var(--text-2);font-size:0.92rem;margin-top:4px\">" + (d.text||"") + "</div>" +
+            "<button class=\"reply-toggle-btn\" data-id=\"" + commentId + "\" style=\"background:none;border:none;color:var(--red);font-size:0.8rem;cursor:pointer;margin-top:6px;padding:0\">💬 Responder</button>" +
+          "</div>";
+        wrapper.appendChild(mainDiv);
+
+        var repliesArea = document.createElement("div");
+        repliesArea.style.cssText = "margin-left:48px;margin-top:8px";
+        repliesArea.id = "replies-" + commentId;
+
+        var replyForm = document.createElement("div");
+        replyForm.id = "reply-form-" + commentId;
+        replyForm.style.cssText = "display:none;margin-top:8px";
+        replyForm.innerHTML =
+          "<textarea id=\"reply-input-" + commentId + "\" placeholder=\"Escreva uma resposta...\" " +
+          "style=\"width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text-1);font-family:inherit;font-size:0.88rem;resize:vertical;min-height:60px;box-sizing:border-box\"></textarea>" +
+          "<button id=\"reply-submit-" + commentId + "\" style=\"margin-top:6px;background:var(--red);color:#fff;border:none;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem\">Enviar</button>";
+        repliesArea.appendChild(replyForm);
+
+        var repliesList = document.createElement("div");
+        repliesList.id = "replies-list-" + commentId;
+        repliesArea.appendChild(repliesList);
+        wrapper.appendChild(repliesArea);
+        list.appendChild(wrapper);
+
+        var toggleBtn = mainDiv.querySelector(".reply-toggle-btn");
+        toggleBtn.addEventListener("click", function() {
+          var form = document.getElementById("reply-form-" + commentId);
+          var currentUser = window.PipocaAuth.getUser();
+          if (!currentUser) { alert("Faça login para responder."); return; }
+          form.style.display = form.style.display === "none" ? "block" : "none";
+          if (form.style.display === "block") document.getElementById("reply-input-" + commentId).focus();
+        });
+
+        var replySubmit = document.getElementById("reply-submit-" + commentId);
+        if (replySubmit) {
+          replySubmit.addEventListener("click", async function() {
+            var currentUser = window.PipocaAuth.getUser();
+            if (!currentUser) return;
+            var replyText = document.getElementById("reply-input-" + commentId).value.trim();
+            if (!replyText) return;
+            this.disabled = true;
+            try {
+              var parentRef = doc(db, collectionName, commentId);
+              await addDoc(collection(parentRef, "replies"), {
+                text: replyText, uid: currentUser.uid,
+                name: currentUser.displayName || "Anônimo",
+                photo: currentUser.photoURL || "",
+                ts: serverTimestamp()
+              });
+              document.getElementById("reply-input-" + commentId).value = "";
+              document.getElementById("reply-form-" + commentId).style.display = "none";
+            } catch(e) { alert("Erro ao enviar resposta."); }
+            this.disabled = false;
+          });
+        }
+
+        var repliesRef = collection(doc(db, collectionName, commentId), "replies");
+        var rq = query(repliesRef, orderBy("ts", "asc"), limit(20));
+        onSnapshot(rq, function(rSnap) {
+          var rl = document.getElementById("replies-list-" + commentId);
+          if (!rl) return;
+          rl.innerHTML = "";
+          rSnap.forEach(function(rDoc) {
+            var r = rDoc.data();
+            var rDiv = document.createElement("div");
+            rDiv.style.cssText = "display:flex;gap:8px;align-items:flex-start;margin-top:8px;padding:8px;background:var(--surface-2);border-radius:8px";
+            rDiv.innerHTML =
+              "<img src=\"" + (r.photo||"https://placehold.co/28x28/333/fff?text=?") + "\" style=\"width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0\">" +
+              "<div><div style=\"font-weight:600;color:var(--text-1);font-size:0.82rem\">" + (r.name||"Anônimo") + "</div>" +
+              "<div style=\"color:var(--text-2);font-size:0.85rem;margin-top:2px\">" + (r.text||"") + "</div></div>";
+            rl.appendChild(rDiv);
+          });
+        });
+      });
+    });
+  });
+</script>
+
+
+
+<section class="recommendations-section" id="recsSection" style="display:none">
+  <div class="section-header" style="padding:0;margin-bottom:1rem">
+    <h2 class="section-title">🎯 Você também pode gostar</h2>
+  </div>
+  <div class="recommendations-grid" id="recsGrid"></div>
+</section>
+
+<section class="disclaimer-section">
+  <div class="disclaimer-wrap">
+    <div class="disclaimer-icon">⚖️</div>
+    <div class="disclaimer-body">
+      <h3 class="disclaimer-title">Aviso Legal</h3>
+      <p class="disclaimer-text">O PipocaFlix não hospeda nem distribui arquivos de vídeo. O conteúdo é obtido de links publicamente disponíveis.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom"><span>© 2025 PipocaFlix.</span><a href="index.html" style="color:var(--red)">← Voltar ao início</a></div>
+    <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+      <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+      <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+      <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+    </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
+<script src="assets/js/player.js"></script>
+<script>
+
+function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
+
+// ── Tema ──
+(function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
+
+// ── VAST ──
+var VAST_TAG_URL="https://tiny-ambition.com/d.mmFzzzdPGVNtvdZvGOUp/veZm-9Cu/ZYUulZkVPgTNYr4ZNGTvkq5zOyDikHtRNujTgI1gOvT/kB5TMFwI";
+
+function runVAST(onComplete){
+  var isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  fetch(VAST_TAG_URL)
+    .then(function(r){return r.text();})
+    .then(function(xml){
+      var parser=new DOMParser(),doc=parser.parseFromString(xml,'text/xml'),mp4Url='';
+      doc.querySelectorAll('MediaFile').forEach(function(mf){
+        var t=(mf.getAttribute('type')||'').toLowerCase();
+        if(!mp4Url&&(t==='video/mp4'||t.includes('mp4')))
+          mp4Url=mf.textContent.trim().replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+      });
+      if(!mp4Url){onComplete();return;}
+      showVASTPlayer(mp4Url,doc,onComplete,isMobile);
+    })
+    .catch(function(){onComplete();});
+}
+
+function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
+  /* ── Overlay de tela cheia ── */
+  var ov=document.createElement('div');
+  ov.id='vastAdOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+
+  /* ── Vídeo ── */
+  var vid=document.createElement('video');
+  vid.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
+  vid.src=mp4Url; vid.playsInline=true; vid.controls=false;
+
+  /* ── Barra superior ── */
+  var bar=document.createElement('div');
+  bar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+  var lbl=document.createElement('span');
+  lbl.textContent='Anúncio';
+  lbl.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
+  var skip=document.createElement('button');
+  skip.textContent='Aguarde...'; skip.disabled=true;
+  skip.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
+  bar.appendChild(lbl); bar.appendChild(skip);
+  ov.appendChild(bar); ov.appendChild(vid);
+
+  /* ── Tela de toque para mobile (iOS bloqueia autoplay sem gesto direto) ── */
+  if(isMobile){
+    var tap=document.createElement('div');
+    tap.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
+    tap.innerHTML='<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(255,45,67,0.5)"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
+      +'<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.8)">Toque para continuar</div>'
+      +'<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o episódio começará</div>';
+    ov.appendChild(tap);
+    tap.addEventListener('click',function(){
+      tap.style.display='none';
+      vid.muted=false;
+      vid.play().catch(function(){ vid.muted=true; vid.play().catch(function(){ov.remove();onComplete();}); });
+    });
+  }
+
+  document.body.appendChild(ov);
+
+  /* ── Rastreamento ── */
+  var skipDelay=5, canSkip=false, impFired=false;
+
+  function track(evt){
+    try{
+      doc.querySelectorAll('Tracking[event="'+evt+'"]').forEach(function(n){
+        var u=n.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if(u) new Image().src=u;
+      });
+    }catch(e){}
+  }
+
+  vid.addEventListener('play',function(){
+    if(impFired)return; impFired=true;
+    try{
+      doc.querySelectorAll('Impression').forEach(function(n){
+        var u=n.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim();
+        if(u) new Image().src=u;
+      });
+    }catch(e){}
+    track('start');
+  });
+
+  var qf={firstQuartile:false,midpoint:false,thirdQuartile:false};
+  vid.addEventListener('timeupdate',function(){
+    if(!vid.duration) return;
+    var pct=vid.currentTime/vid.duration;
+    var rem=Math.ceil(skipDelay-vid.currentTime);
+    if(rem>0){
+      skip.textContent='Pular em '+rem+'s';
+    } else if(!canSkip){
+      canSkip=true;
+      skip.textContent='⏭ Pular anúncio';
+      skip.disabled=false; skip.style.cursor='pointer';
+      skip.style.background='rgba(255,255,255,0.25)';
+    }
+    [{k:'firstQuartile',t:0.25},{k:'midpoint',t:0.5},{k:'thirdQuartile',t:0.75}].forEach(function(ev){
+      if(!qf[ev.k]&&pct>=ev.t){ qf[ev.k]=true; track(ev.k); }
+    });
+  });
+
+  function encerrarAd(){
+    track('complete');
+    vid.pause();
+    ov.remove();
+    onComplete();
+  }
+
+  skip.addEventListener('click',function(){ if(canSkip) encerrarAd(); });
+  vid.addEventListener('ended', encerrarAd);
+  vid.addEventListener('error',function(){ ov.remove(); onComplete(); });
+
+  /* Desktop: tenta tocar com som, fallback mudo */
+  if(!isMobile){
+    vid.muted=false;
+    vid.play().catch(function(){
+      vid.muted=true;
+      vid.play().catch(function(){ ov.remove(); onComplete(); });
+    });
+  }
+}
+
+
+let seriePlayer=null, temporadaAtual=1, temporadasData={}, nomeSerie='';
+
+window.addEventListener('scroll',()=>{document.getElementById('mainHeader').classList.toggle('scrolled',window.scrollY>60);document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400);},{passive:true});
+document.getElementById('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+document.getElementById('mobileSearchToggle').addEventListener('click',()=>{document.getElementById('mobileSearchOverlay').classList.add('open');setTimeout(()=>document.getElementById('mobileSearchInput').focus(),80);});
+document.getElementById('mobileSearchClose').addEventListener('click',()=>{document.getElementById('mobileSearchOverlay').classList.remove('open');document.getElementById('searchResultsOverlay').classList.remove('active');document.getElementById('mobileSearchInput').value='';});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('mobileSearchOverlay').classList.remove('open');document.getElementById('searchResultsOverlay').classList.remove('active');document.getElementById('desktopSearchInput').value='';document.getElementById('mobileSearchInput').value='';}});
+
+function getParam(k){return new URLSearchParams(location.search).get(k);}
+function ytEmbed(url){if(!url)return'';const m=url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?]+)/);return m?`https://www.youtube.com/embed/${m[1]}?rel=0`:'';}
+
+function renderCast(nomes,fotos){if(!nomes)return;const ns=nomes.split(',').map(s=>s.trim()).filter(Boolean),fs=fotos?fotos.split(',').map(s=>s.trim()):[];const wrap=document.getElementById('castScroll');ns.forEach((n,i)=>{const foto=fs[i]||`https://placehold.co/84x84/1a1a24/555?text=${encodeURIComponent(n[0]||'?')}`;const div=document.createElement('div');div.className='cast-item';div.style.cursor='pointer';div.innerHTML=`<img class="cast-avatar" src="${foto}" alt="${n}" onerror="this.src='https://placehold.co/84x84/1a1a24/555?text=${encodeURIComponent(n[0]||'?')}'"><div class="cast-name">${n}</div>`;div.addEventListener('click',()=>{location.href=`elenco.html?ator=${encodeURIComponent(n)}`;});wrap.appendChild(div);});document.getElementById('castSection').style.display='block';}
+
+function renderTemporadas(){const tabs=document.getElementById('seasonTabs'),nums=Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);if(!nums.length){document.getElementById('noEpsMsg').style.display='block';return;}tabs.innerHTML='';nums.forEach(t=>{const btn=document.createElement('button');btn.className='season-tab'+(t===temporadaAtual?' active':'');btn.textContent=`Temporada ${t}`;btn.setAttribute('role','tab');btn.setAttribute('aria-selected',t===temporadaAtual?'true':'false');btn.addEventListener('click',()=>{temporadaAtual=t;tabs.querySelectorAll('.season-tab').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false');});btn.classList.add('active');btn.setAttribute('aria-selected','true');renderEpisodios();});tabs.appendChild(btn);});renderEpisodios();}
+
+function renderEpisodios(){const lista=document.getElementById('episodesList'),eps=temporadasData[temporadaAtual]||[];lista.innerHTML='';if(!eps.length){lista.innerHTML='<p style="color:var(--text-3);padding:1rem 0">Sem episódios para esta temporada.</p>';return;}eps.forEach(ep=>{const btn=document.createElement('button');btn.className='episode-btn';btn.setAttribute('role','listitem');btn.innerHTML=`<span class="ep-num">${String(ep.episodio).padStart(2,'0')}</span><span class="ep-name">${nomeSerie} — T${ep.temporada} EP${ep.episodio}</span><span class="ep-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`;btn.addEventListener('click',()=>tocar(ep));lista.appendChild(btn);});}
+
+const REPRODUCTION_WORKER='https://shy-dream-7986.slacarambafdsosobrenome.workers.dev';
+function resolveVideoUrl(raw){if(!raw)return'';raw=raw.trim();if(raw.startsWith('http://')||raw.startsWith('https://'))return raw;return REPRODUCTION_WORKER+(raw.startsWith('/')?raw:'/'+raw);}
+
+// ── Funções de players alternativos (séries) ──
+function fecharIframes() {
+  var existing = document.getElementById('altPlayerWrap');
+  if (existing) existing.remove();
+}
+
+function abrirPlayerIframe(src, nome) {
+  var playerSection = document.getElementById('playerSection');
+  fecharIframes();
+  var iframeWrap = document.createElement('div');
+  iframeWrap.id = 'altPlayerWrap';
+  iframeWrap.className = 'alt-player-wrap';
+  iframeWrap.innerHTML =
+    '<div class="alt-player-header">' +
+      '<span class="alt-player-nome">' + nome + '</span>' +
+      '<div class="alt-player-actions">' +
+        '<button class="alt-player-btn" id="altPlayerMaximize" title="Maximizar">⛶</button>' +
+        '<button class="alt-player-btn" id="altPlayerClose" title="Fechar">✕</button>' +
+      '</div>' +
+    '</div>' +
+    '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
+    ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
+    ' referrerpolicy="no-referrer-when-downgrade" scrolling="no" frameborder="0"></iframe>';
+  playerSection.appendChild(iframeWrap);
+  iframeWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('altPlayerClose').addEventListener('click', function() {
+    fecharIframes();
+    var bc = document.getElementById('playerBtnsContainer');
+    if (bc) bc.style.display = 'flex';
+  });
+  document.getElementById('altPlayerMaximize').addEventListener('click', function() {
+    var iframeEl = document.getElementById('altPlayerIframe');
+    if (iframeEl.requestFullscreen) iframeEl.requestFullscreen();
+    else if (iframeEl.webkitRequestFullscreen) iframeEl.webkitRequestFullscreen();
+    else if (iframeEl.mozRequestFullScreen) iframeEl.mozRequestFullScreen();
+  });
+}
+
+function showEpisodePlayerButtons(ep, titulo, videoUrl) {
+  var playerSection = document.getElementById('playerSection');
+  var btnContainer = document.getElementById('playerBtnsContainer');
+  if (!btnContainer) {
+    btnContainer = document.createElement('div');
+    btnContainer.id = 'playerBtnsContainer';
+    btnContainer.className = 'player-btns-container';
+    playerSection.insertBefore(btnContainer, playerSection.querySelector('#playerBox'));
+  }
+  btnContainer.innerHTML = '';
+  btnContainer.style.display = 'flex';
+  fecharIframes();
+
+  var temAlgumPlayer = false;
+
+  // Player 1 — sempre mostrar para séries se tiver link
+  if (videoUrl) {
+    temAlgumPlayer = true;
+    var btn1 = document.createElement('button');
+    btn1.className = 'player-select-btn player-select-btn--primary';
+    btn1.innerHTML = '▶ Player 1 <span class="player-badge">Oficial</span>';
+    btn1.addEventListener('click', function() {
+      fecharIframes();
+      if (!seriePlayer) return;
+      seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '');
+      document.getElementById('playerBox').style.display = 'block';
+      document.getElementById('playerBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    btnContainer.appendChild(btn1);
+  }
+
+  // Players alternativos 2-6
+  var alts = [
+    { link: ep.player2, nome: 'Player 2' },
+    { link: ep.player3, nome: 'Player 3' },
+    { link: ep.player4, nome: 'Player 4' },
+    { link: ep.player5, nome: 'Player 5' },
+    { link: ep.player6, nome: 'Player 6' },
+  ];
+  alts.forEach(function(p) {
+    if (!p.link || p.link.trim() === '') return;
+    temAlgumPlayer = true;
+    var btn = document.createElement('button');
+    btn.className = 'player-select-btn';
+    btn.innerHTML = '▶ ' + p.nome;
+    btn.addEventListener('click', (function(link, nome) {
+      return function() {
+        fecharIframes();
+        abrirPlayerIframe(link, nome);
+      };
+    })(p.link, p.nome));
+    btnContainer.appendChild(btn);
+  });
+
+  if (!temAlgumPlayer) {
+    var msg = document.createElement('p');
+    msg.className = 'no-player-msg';
+    msg.textContent = '😔 Nenhum player disponível para este episódio no momento.';
+    btnContainer.appendChild(msg);
+  }
+
+  playerSection.style.display = 'block';
+  playerSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function tocar(ep){
+  const titulo = nomeSerie + ' — T' + ep.temporada + ' EP' + ep.episodio;
+  const videoUrl = resolveVideoUrl(ep.linkMP4);
+
+  // Configurar próximo episódio
+  function configurarProximo() {
+    if (!seriePlayer) return;
+    const eps = temporadasData[ep.temporada] || [];
+    const idxAtual = eps.findIndex(e => e.episodio === ep.episodio);
+    const proxEp = eps[idxAtual + 1];
+    if (proxEp) {
+      seriePlayer.setNextEpCallback(function() { tocar(proxEp); });
+    } else {
+      const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
+      const idxTemp = nums.indexOf(ep.temporada);
+      const proxTemp = nums[idxTemp + 1];
+      if (proxTemp && temporadasData[proxTemp] && temporadasData[proxTemp].length > 0) {
+        seriePlayer.setNextEpCallback(function() {
+          temporadaAtual = proxTemp;
+          document.querySelectorAll('.season-tab').forEach(b => {
+            const isActive = parseInt(b.textContent.replace('Temporada ','')) === proxTemp;
+            b.classList.toggle('active', isActive);
+            b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          });
+          renderEpisodios();
+          tocar(temporadasData[proxTemp][0]);
+        });
+      } else {
+        seriePlayer.setNextEpCallback(null);
+      }
+    }
+  }
+
+  runVAST(function() {
+    configurarProximo();
+    showEpisodePlayerButtons(ep, titulo, videoUrl);
+  });
+}
+
+// ── Recomendações ──
+function getRecommendations(item,allContent,limit=12){return allContent.filter(c=>c.nome!==item.nome).map(c=>{let score=0;const cats1=(item.categoria||'').split(',').map(s=>s.trim().toLowerCase()),cats2=(c.categoria||'').split(',').map(s=>s.trim().toLowerCase());cats1.forEach(cat=>{if(cats2.includes(cat))score+=3;});if(c.isSerie===item.isSerie)score+=2;const diff=Math.abs(parseInt(c.ano)-parseInt(item.ano));if(!isNaN(diff)&&diff<=3)score+=1;if(c.audio&&item.audio&&c.audio===item.audio)score+=1;return{item:c,score};}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||Math.random()-0.5).slice(0,limit).map(x=>x.item);}
+function renderRecs(item,allContent){const recs=getRecommendations(item,allContent);if(!recs.length)return;document.getElementById('recsSection').style.display='block';const grid=document.getElementById('recsGrid');grid.innerHTML='';recs.forEach(rec=>{const page=rec.isSerie?'serie.html':'filme.html';const audioBadge=rec.audio?(rec.audio.toLowerCase().includes('dub')?'<span class="card-audio-badge card-audio-dub">DUB</span>':rec.audio.toLowerCase().includes('leg')?'<span class="card-audio-badge card-audio-leg">LEG</span>':''):'';const card=document.createElement('div');card.className='card';card.innerHTML=`<div class="card-thumb-wrap" style="position:relative"><img class="card-thumb" src="${rec.capa||''}" alt="${rec.nome}" loading="lazy" onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'"><span class="card-badge">${rec.isSerie?'📺 Série':'🎬 Filme'}</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>${audioBadge}${rec.ano?`<div class="card-year-badge">${rec.ano}</div>`:''}</div><div class="card-info"><div class="card-name">${rec.nome}</div><div class="card-meta-row">${rec.ano?`<span>${rec.ano}</span>`:''}</div></div>`;card.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(rec.nome)}`);grid.appendChild(card);});}
+
+// ── Search global ──
+function setupSearch(allItems){PipocaSearch.indexContent(allItems);const overlay=document.getElementById('searchResultsOverlay'),grid=document.getElementById('searchResultsGrid'),label=document.getElementById('searchQueryLabel');function mkCard(item){const d=document.createElement('div');d.className='card';const page=item.isSerie?'serie.html':'filme.html';d.innerHTML=`<div class="card-thumb-wrap"><img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy" onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'"><span class="card-badge">${item.isSerie?'Série':'Filme'}</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>${item.ano?`<div class="card-year-badge">${item.ano}</div>`:''}</div><div class="card-info"><div class="card-name">${item.nome}</div><div class="card-meta-row"><span>${item.ano||''}</span></div></div>`;d.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(item.nome)}`);return d;}function doSearch(q){if(!q||q.length<2){overlay.classList.remove('active');return;}const res=PipocaSearch.search(q,30);label.textContent=q;grid.innerHTML='';res.forEach(i=>grid.appendChild(mkCard(i)));overlay.classList.add('active');}const deb=PipocaSearch.debounce(doSearch,250);document.getElementById('desktopSearchInput').addEventListener('input',e=>deb(e.target.value));document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));}
+
+// Push
+// notificacoes removidas
+
+var _serieItem = null;
+
+// ── INIT ──
+async function init(){
+  const nomeParam=getParam('nome');
+  if(!nomeParam){location.href='index.html';return;}
+  nomeSerie=nomeParam;
+  document.title=`${nomeSerie} — PipocaFlix`;
+
+  try{
+    const [series,allContent]=await Promise.all([PipocaAPI.getSeries(),PipocaAPI.getTodosConteudos()]);
+    setupSearch(allContent);
+
+    const normNome=PipocaAPI.normalizeStr(nomeParam);
+    const item=series.find(s=>PipocaAPI.normalizeStr(s.nome)===normNome)||series.find(s=>PipocaAPI.normalizeStr(s.nome).includes(normNome)||normNome.includes(PipocaAPI.normalizeStr(s.nome)));
+    if(!item){document.getElementById('loadingMsg').textContent='⚠️ Série não encontrada.';return;}
+    nomeSerie=item.nome;
+    _serieItem=item;
+
+    document.getElementById('detailBg').style.backgroundImage=`url(${item.capa||''})`;
+    const poster=document.getElementById('detailPoster');poster.src=item.capa||'https://placehold.co/300x450/13131a/333?text=Sem+Capa';poster.alt=item.nome;
+
+    document.getElementById('loadingMsg').style.display='none';
+    document.getElementById('detailTitle').textContent=item.nome;
+    document.getElementById('detailTitle').style.display='';
+
+    const tags=document.getElementById('detailTags');
+    if(item.categoria)item.categoria.split(',').forEach(c=>{if(!c.trim())return;const s=document.createElement('span');s.className='tag';s.textContent=c.trim();tags.appendChild(s);});
+    if(item.audio){const s=document.createElement('span');s.className='tag';s.textContent='🔊 '+item.audio;tags.appendChild(s);}
+    const sTag=document.createElement('span');sTag.className='tag';sTag.textContent=`📺 ${item.totalTemp||'?'} Temporada(s)`;tags.appendChild(sTag);
+    tags.style.display='flex';
+
+    document.getElementById('detailMeta').innerHTML=[item.ano?`<span><strong>📅</strong> ${item.ano}</span>`:'',item.duracao?`<span><strong>⏱</strong> ${item.duracao}</span>`:'',item.tipo?`<span><strong>📺</strong> ${item.tipo}</span>`:''].join('');
+    document.getElementById('detailMeta').style.display='flex';
+    document.getElementById('detailSynopsis').textContent=item.sinopse||'Sinopse não disponível.';
+    document.getElementById('detailSynopsis').style.display='';
+    document.getElementById('detailBtns').style.display='flex';
+
+    // ── Botão "Marcar como assistido" (série) ──
+    (function() {
+      const wBtn = document.getElementById('watchedBtn');
+      if (!wBtn) return;
+      function syncWatchedBtn() {
+        const isW = window.PipocaWatched && window.PipocaWatched.has(item.nome);
+        wBtn.classList.toggle('is-watched', !!isW);
+        wBtn.innerHTML = isW
+          ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6L9 17l-5-5"/></svg> Assistido ✓'
+          : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como assistido';
+      }
+      syncWatchedBtn();
+      wBtn.addEventListener('click', function() {
+        if (!window.PipocaWatched) return;
+        if (window.PipocaWatched.has(item.nome)) {
+          window.PipocaWatched.remove(item.nome);
+          showToast('↩️ Removido dos assistidos');
+        } else {
+          window.PipocaWatched.add({ nome: item.nome, capa: item.capa, tipo: 'serie' });
+          if (window.PipocaProgress) {
+            window.PipocaProgress.remove(item.nome);
+            try { window.PipocaProgress.remove(decodeURIComponent(item.nome)); } catch(e) {}
+            var normNome = (item.nome || '').toLowerCase()
+              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^a-z0-9]/g, '_');
+            for (var i = localStorage.length - 1; i >= 0; i--) {
+              var k = localStorage.key(i);
+              if (k && k.startsWith('pflix_progress_') && k.includes(normNome.slice(0, 15))) {
+                localStorage.removeItem(k);
+              }
+            }
+          }
+          showToast('✅ Marcado como assistido!');
+        }
+        syncWatchedBtn();
+      });
+    })();
+
+    // Botão favorito no detalhe
+    const favBtn=document.getElementById('favDetailBtn');
+    if(favBtn&&window.PipocaFavoritos){const updateFavBtn=()=>{const isFav=window.PipocaFavoritos.has(item.nome);favBtn.textContent=isFav?'❤️ Na lista':'🤍 Favoritar';};updateFavBtn();favBtn.addEventListener('click',()=>{const added=window.PipocaFavoritos.toggle(item);showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');updateFavBtn();});}
+
+    document.getElementById('scrollToEpsBtn').addEventListener('click',()=>document.getElementById('seasonsSection').scrollIntoView({behavior:'smooth'}));
+
+    const ytUrl=ytEmbed(item.trailer);
+    if(ytUrl){document.getElementById('trailerFrame').src=ytUrl;document.getElementById('trailerSection').style.display='block';}
+    renderCast(item.nomeElenco,item.fotoElenco);
+    renderRecs(item,allContent);
+
+    // playerSection fica visível mas playerBox escondido — seriePlayer precisa do DOM acessível
+    document.getElementById('playerSection').style.display='block';
+    document.getElementById('playerBox').style.display='none';
+    document.getElementById('playerTitle').textContent=item.nome;
+
+    // Mostrar mensagem inicial no overlay antes do usuário escolher episódio
+    var overlayInitText = document.querySelector('#playerOverlay .player-overlay-text');
+    if(overlayInitText) overlayInitText.textContent = '👆 Selecione um episódio abaixo';
+
+    seriePlayer=PipocaPlayer.initSeriePlayer({
+      videoId:'video',overlayId:'playerOverlay',centerPlayId:'centerPlay',
+      controlsId:'playerControls',playerBoxId:'playerBox',titleId:'playerTitle'
+    });
+
+    // Esconde a seção toda depois de inicializar o player
+    document.getElementById('playerSection').style.display='none';
+
+    temporadasData=await PipocaAPI.getEpisodiosPorSerie(item.nome);
+    const nums=Object.keys(temporadasData).map(Number);
+    temporadaAtual=nums.length>0?Math.min(...nums):1;
+    document.getElementById('seasonsSection').style.display='block';
+    renderTemporadas();
+
+  }catch(err){
+    console.error('[PipocaFlix Série]',err);
+    document.getElementById('loadingMsg').textContent='⚠️ Erro ao carregar a série.';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',init);
+
+// ── Hamburger ──
+(function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
+</script>
+<script>
+(function(nvlts){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = nvlts || {};
+s.src = "\/\/sophisticatedpin.com\/b\/X\/V.sQdqGsl\/0nYXWOc_\/ZeImV9du\/ZHUllLkrPTTCYP4XNjj\/kT0XMhTAcFtXNGj\/gC2\/OHTOQcy-MxQx";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<!-- Page Push (somente desktop) -->
+<script>
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
+  (function(ojll){
+  var d = document,
+      s = d.createElement('script'),
+      l = d.scripts[d.scripts.length - 1];
+  s.settings = ojll || {};
+  s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+  s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+  l.parentNode.insertBefore(s, l);
+  })({});
+})();
+</script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function hideMicBtns(){ document.querySelectorAll('.voice-search-btn,[id^=voiceSearch]').forEach(function(b){b.style.display='none';}); }
+  if(!SR){ hideMicBtns(); return; }
+  var rec=new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn;
+    btn.classList.add('voice-listening');
+    btn.title='Ouvindo...';
+    try{ rec.start(); } catch(e){ active=null; return; }
+    rec.onresult=function(e){
+      var t=e.results[0][0].transcript;
+      input.value=t;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      // no mobile, abre o overlay de busca automaticamente
+      var overlay=document.getElementById('mobileSearchOverlay');
+      if(overlay && !overlay.classList.contains('open')) overlay.classList.add('open');
+    };
+    rec.onerror=function(){};
+    rec.onend=function(){
+      if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}
+      active=null;
+    };
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(e){e.preventDefault();startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(e){e.preventDefault();startVoice(mb,mi);});
+  });
+})();
+</script>
+
+<!-- Banner Mobile -->
+<div class="mobile-banner-ad" id="mobileBannerAdNew">
+<script>
+(function(xev){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = xev || {};
+s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+
+<script>
+/* ── POPUNDER SOMENTE DESKTOP ── */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                 || window.innerWidth < 768;
+  if (isMobile) return;
+  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
+  var popped = false;
+  document.addEventListener('click', function handler() {
+    if (popped) return;
+    popped = true;
+    var win = window.open(POPUNDER_URL, '_blank');
+    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
+    document.removeEventListener('click', handler);
+  }, true);
+})();
+</script>
+<!-- Banner apoio 30 min -->
+<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
+  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" 
+            style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
+    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
+    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador de anúncios! ❤️</p>
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'"
+            style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">
+      Fechar
+    </button>
+  </div>
+</div>
+<script>
+setTimeout(function() {
+  var el = document.getElementById('supportBannerOverlay');
+  if (el) el.style.display = 'block';
+}, 30 * 60 * 1000);
+</script>
+</body>
+</html>
