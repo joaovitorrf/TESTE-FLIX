@@ -3080,6 +3080,9 @@ input { font-family: var(--font-body); }
   .detail-hero {
     padding-top: var(--header-h);
     min-height: unset;
+    height: auto;
+    overflow: clip;
+    align-items: flex-start;
   }
   .detail-content {
     flex-direction: column;
@@ -3100,8 +3103,8 @@ input { font-family: var(--font-body); }
   .detail-meta { flex-wrap: wrap; gap: 6px; font-size: 0.78rem; }
   .detail-synopsis {
     font-size: 0.82rem;
-    -webkit-line-clamp: 4;
-    max-height: 5.2em;
+    overflow: visible;
+    max-height: unset;
   }
   .detail-btns, .hero-btns {
     flex-wrap: wrap;
@@ -3363,7 +3366,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .canais-track { gap: 8px !important; padding: 4px 0.75rem 12px !important; }
 
   /* Detail (filme/série) */
-  .detail-hero { padding-top: var(--header-h); min-height: unset; }
+  .detail-hero { padding-top: var(--header-h); min-height: unset; height: auto; overflow: clip; align-items: flex-start; }
   .detail-content { flex-direction: column; padding: 0.75rem; gap: 0.75rem; }
   .detail-poster-wrap { width: 100px !important; flex-shrink: 0; align-self: flex-start; }
   .detail-poster { width: 100px; border-radius: 8px; }
