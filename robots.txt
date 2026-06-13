@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.pipocaflix.fun/sitemap.xml
+Sitemap: https://www.pipocaflix.fun/sitemap-index.xml
+Sitemap: https://www.pipocaflix.fun/sitemap-filmes.xml
+Sitemap: https://www.pipocaflix.fun/sitemap-series.xml
+Sitemap: https://www.pipocaflix.fun/sitemap-pages.xml
