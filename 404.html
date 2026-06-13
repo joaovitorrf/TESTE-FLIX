@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Página não encontrada | PipocaFlix</title>
+<meta name="robots" content="noindex">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0c0c10;
+    color: #e8e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ff2d43;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    letter-spacing: -0.5px;
+  }
+  .logo:hover { opacity: 0.85; }
+
+  .error-image {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid #ff2d43;
+    box-shadow: 0 0 60px rgba(255, 45, 67, 0.4);
+    margin-bottom: 1rem;
+  }
+
+  .code {
+    font-size: clamp(6rem, 20vw, 10rem);
+    font-weight: 900;
+    line-height: 1;
+    color: #ff2d43;
+    text-shadow: 0 0 60px rgba(255, 45, 67, 0.3);
+    letter-spacing: -4px;
+    margin: 0.5rem 0;
+  }
+  .title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #e8e8f0;
+    margin-bottom: 0.5rem;
+  }
+  .desc {
+    font-size: 1rem;
+    color: #8888a0;
+    max-width: 420px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .btns {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-primary {
+    background: #ff2d43;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #e0223a; transform: translateY(-1px); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.07);
+    color: #e8e8f0;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+
+  .search-wrap {
+    display: flex;
+    gap: 8px;
+    max-width: 380px;
+    width: 100%;
+  }
+  .search-input {
+    flex: 1;
+    padding: 11px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: #e8e8f0;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: #ff2d43; }
+  .search-input::placeholder { color: #55556a; }
+  .search-btn {
+    padding: 11px 18px;
+    border-radius: 8px;
+    background: #ff2d43;
+    color: #fff;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .search-btn:hover { background: #e0223a; }
+</style>
+</head>
+<body>
+<a href="index.html" class="logo">🍿 PipocaFlix</a>
+
+<img src="https://i.pinimg.com/1200x/4f/37/f4/4f37f4ea8ad3cb07662f84ef2b5e11f1.jpg" 
+     alt="Ron Weasley desnorteado" 
+     class="error-image">
+
+<div class="code">404</div>
+<h1 class="title">Página não encontrada, caralho!</h1>
+<p class="desc">
+  Nem o Ron Weasley conseguiu achar essa página... ele tá mais perdido que você agora 😂<br>
+  Relaxa, tem muito filme bom pra maratonar enquanto ele tenta usar o feitiço certo.
+</p>
+
+<div class="btns">
+  <a href="index.html" class="btn btn-primary">🏠 Voltar pra casa</a>
+  <a href="catalogo.html" class="btn btn-secondary">🎬 Ver o catálogo</a>
+</div>
+
+<form class="search-wrap" onsubmit="handleSearch(event)">
+  <input
+    type="search"
+    class="search-input"
+    id="searchInput"
+    placeholder="Buscar filme, série ou feitiço..."
+    autocomplete="off"
+  >
+  <button type="submit" class="search-btn">🔍 Buscar</button>
+</form>
+
+<script>
+function handleSearch(e) {
+  e.preventDefault();
+  var q = document.getElementById('searchInput').value.trim();
+  if (q) window.location.href = 'catalogo.html?busca=' + encodeURIComponent(q);
+}
+</script>
+</body>
+</html>

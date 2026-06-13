@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo — PipocaFlix</title>
+<meta name="description" content="Catálogo completo de filmes e séries no PipocaFlix.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
+      btn.title = 'Sair da conta';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
+      btn.title = 'Ver meu perfil';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.title = 'Entrar com Google';
+      btn.onclick = function() { window.PipocaAuth.login(); };
+    }
+  });
+</script>
+
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn">Mais ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="como-usar.html">❓ Como Usar</a>
+        <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="feed.html">📰 Feed</a>
+        <a href="elenco.html">🎭 Elenco</a>
+      </div>
+    </div>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <button class="auth-btn" id="authBtn" aria-label="Login">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+  Entrar
+</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  </button>
+</header>
+
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  
+  
+</div>
+
+<div class="search-results-overlay" id="searchResultsOverlay">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+  <p id="searchNoResults" style="display:none;color:var(--text-3);text-align:center;padding:2rem 0">
+    Nenhum resultado para "<strong id="searchNoResultsQuery"></strong>". Tente buscar por categoria, ano ou tipo de áudio.
+  </p>
+</div>
+
+<div class="cat-page-header" id="catPageHeader">
+  <div class="cat-page-icon" id="catPageIcon">🎬</div>
+  <div>
+    <h1 class="cat-page-title" id="catPageTitle">Catálogo Completo</h1>
+    <p class="cat-page-count" id="catPageCount">Carregando...</p>
+  </div>
+</div>
+
+<!-- Filtros rápidos de tipo -->
+<div style="padding:1.25rem clamp(1rem,5vw,3.5rem) 0;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between" id="typeFilters">
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+    <button class="season-tab active" data-tipo="todos">Todos</button>
+    <button class="season-tab" data-tipo="filmes">Filmes</button>
+    <button class="season-tab" data-tipo="series">Séries</button>
+  </div>
+</div>
+
+<!-- Linha do Tempo por Década -->
+<div class="decade-timeline-wrap" id="decadeTimeline">
+  <div class="decade-timeline-label">📅 Década</div>
+  <div class="decade-timeline-track">
+    <button class="decade-btn active" data-decade="todos">Todas</button>
+    <button class="decade-btn" data-decade="1970">Anos 70</button>
+    <button class="decade-btn" data-decade="1980">Anos 80</button>
+    <button class="decade-btn" data-decade="1990">Anos 90</button>
+    <button class="decade-btn" data-decade="2000">Anos 2000</button>
+    <button class="decade-btn" data-decade="2010">Anos 2010</button>
+    <button class="decade-btn" data-decade="2020">Anos 2020</button>
+  </div>
+</div>
+
+<div style="padding:1.25rem clamp(1rem,5vw,3.5rem) 2rem;display:grid;grid-template-columns:240px 1fr;gap:2rem;align-items:start" id="mainLayout">
+
+  <!-- Sidebar de filtros -->
+  <aside class="catalog-sidebar" id="catalogSidebar">
+    <!-- Ordenação -->
+    <div class="filter-group">
+      <h3 class="filter-title">Ordenar por</h3>
+      <select id="sortSelect" class="filter-select">
+        <option value="default">Padrão</option>
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+        <option value="recente">Mais recente</option>
+        <option value="antigo">Mais antigo</option>
+      </select>
+    </div>
+
+    <!-- Áudio -->
+    <div class="filter-group">
+      <h3 class="filter-title">Áudio</h3>
+      <div class="filter-radio-group">
+        <label><input type="radio" name="audio" value="todos" checked> Todos</label>
+        <label><input type="radio" name="audio" value="Dublado"> Dublado</label>
+        <label><input type="radio" name="audio" value="Legendado"> Legendado</label>
+      </div>
+    </div>
+
+    <!-- Ano -->
+    <div class="filter-group">
+      <h3 class="filter-title">Ano</h3>
+      <div class="year-range">
+        <input type="range" id="yearMin" min="1980" max="2025" value="1980">
+        <input type="range" id="yearMax" min="1980" max="2025" value="2025">
+        <div class="year-labels">
+          <span id="yearMinLabel">1980</span>
+          <span id="yearMaxLabel">2025</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categoria -->
+    <div class="filter-group">
+      <h3 class="filter-title">Categoria</h3>
+      <div id="catCheckboxes" class="filter-checkboxes"></div>
+    </div>
+
+    <!-- Filtro por letra -->
+    <div class="filter-group">
+      <h3 class="filter-title">Letra</h3>
+      <div class="letter-filter" id="letterFilter">
+        <button class="letter-btn active" data-letter="todos">Todos</button>
+        <button class="letter-btn" data-letter="#">#</button>
+        <button class="letter-btn" data-letter="A">A</button>
+        <button class="letter-btn" data-letter="B">B</button>
+        <button class="letter-btn" data-letter="C">C</button>
+        <button class="letter-btn" data-letter="D">D</button>
+        <button class="letter-btn" data-letter="E">E</button>
+        <button class="letter-btn" data-letter="F">F</button>
+        <button class="letter-btn" data-letter="G">G</button>
+        <button class="letter-btn" data-letter="H">H</button>
+        <button class="letter-btn" data-letter="I">I</button>
+        <button class="letter-btn" data-letter="J">J</button>
+        <button class="letter-btn" data-letter="K">K</button>
+        <button class="letter-btn" data-letter="L">L</button>
+        <button class="letter-btn" data-letter="M">M</button>
+        <button class="letter-btn" data-letter="N">N</button>
+        <button class="letter-btn" data-letter="O">O</button>
+        <button class="letter-btn" data-letter="P">P</button>
+        <button class="letter-btn" data-letter="Q">Q</button>
+        <button class="letter-btn" data-letter="R">R</button>
+        <button class="letter-btn" data-letter="S">S</button>
+        <button class="letter-btn" data-letter="T">T</button>
+        <button class="letter-btn" data-letter="U">U</button>
+        <button class="letter-btn" data-letter="V">V</button>
+        <button class="letter-btn" data-letter="W">W</button>
+        <button class="letter-btn" data-letter="X">X</button>
+        <button class="letter-btn" data-letter="Y">Y</button>
+        <button class="letter-btn" data-letter="Z">Z</button>
+      </div>
+    </div>
+
+    <button class="filter-clear-btn" id="clearFilters">Limpar filtros</button>
+  </aside>
+
+  <!-- Main content -->
+  <div class="content-main">
+    <div class="cards-grid" id="skeletonGrid">
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+      <div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <div class="cards-grid" id="catalogoGrid" style="display:none"></div>
+    <div class="ad-mid-content" id="catalogoAdMid" style="display:none">
+      <script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
+    </div>
+    <nav class="pagination" id="pagination" aria-label="Paginação"></nav>
+  </div>
+</div>
+
+<!-- Overlay + FAB para mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<button class="filter-mobile-fab" id="filterFab">⚙️ Filtros</button>
+
+<section class="disclaimer-section">
+  <div class="disclaimer-wrap">
+    <div class="disclaimer-icon">⚖️</div>
+    <div class="disclaimer-body">
+      <h3 class="disclaimer-title">Aviso Legal</h3>
+      <p class="disclaimer-text">O PipocaFlix não hospeda nem distribui arquivos de vídeo. Todo conteúdo é obtido de links publicamente disponíveis na internet.</p>
+    </div>
+  </div>
+</section>
+
+<div class="ad-banner-wrap">
+<script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})
+</script>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix.</span>
+    <a href="index.html" style="color:var(--red)">← Voltar ao início</a>
+  </div>
+    <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+      <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+      <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+      <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+    </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
+<script>
+const PER_PAGE = 10;
+let allContent = [], filtered = [], currentPage = 1;
+let activeFilters = { tipo:'todos', cat:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[], letra:'todos', decada:'todos' };
+let isFavMode = false;
+
+function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
+function getParam(k){return new URLSearchParams(location.search).get(k);}
+
+// ── Tema ──
+(function(){
+  const btn=document.getElementById('themeToggle');
+  function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}
+  applyTheme(localStorage.getItem('pflix_theme')||'dark');
+  btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+})();
+
+// ── Header ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainHeader').classList.toggle('scrolled',window.scrollY>60);
+  document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400);
+},{passive:true});
+document.getElementById('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+// ── Mobile search ──
+document.getElementById('mobileSearchToggle').addEventListener('click',()=>{document.getElementById('mobileSearchOverlay').classList.add('open');setTimeout(()=>document.getElementById('mobileSearchInput').focus(),80);});
+document.getElementById('mobileSearchClose').addEventListener('click',()=>{document.getElementById('mobileSearchOverlay').classList.remove('open');document.getElementById('searchResultsOverlay').classList.remove('active');document.getElementById('mobileSearchInput').value='';});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('mobileSearchOverlay').classList.remove('open');document.getElementById('searchResultsOverlay').classList.remove('active');document.getElementById('desktopSearchInput').value='';document.getElementById('mobileSearchInput').value='';}});
+
+// ── mkCard ──
+function mkCard(item) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  const page = item.isSerie ? 'serie.html' : 'filme.html';
+  let audioBadge = '';
+  if (item.audio) {
+    const a = item.audio.toLowerCase();
+    if (a.includes('dub')) audioBadge = '<span class="card-audio-badge card-audio-dub">DUB</span>';
+    else if (a.includes('leg')) audioBadge = '<span class="card-audio-badge card-audio-leg">LEG</span>';
+  }
+  const synopsis = (item.sinopse||'').slice(0,120);
+  const cat1 = item.categoria ? item.categoria.split(',')[0].trim() : '';
+  const isFav = window.PipocaFavoritos && window.PipocaFavoritos.has(item.nome);
+  div.innerHTML = `
+    <div class="card-thumb-wrap" style="position:relative">
+      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+        onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
+      <span class="card-badge">${item.isSerie?'📺 Série':'🎬 Filme'}</span>
+      <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      ${audioBadge}
+      ${item.ano?`<div class="card-year-badge">${item.ano}</div>`:''}
+      <button class="card-fav-btn${isFav?' active':''}" aria-label="Favoritar">
+        <svg viewBox="0 0 24 24" fill="${isFav?'currentColor':'none'}" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <div class="card-hover-overlay">
+        ${synopsis?`<p class="card-hover-synopsis">${synopsis}</p>`:''}
+        <div class="card-hover-meta">${item.ano?`<span>${item.ano}</span>`:''} ${cat1?`<span>${cat1}</span>`:''}</div>
+        <button class="card-hover-btn">▶ Assistir</button>
+      </div>
+    </div>
+    <div class="card-info">
+      <div class="card-name">${item.nome}</div>
+      <div class="card-meta-row">${item.ano?`<span>${item.ano}</span>`:''}${cat1?`<span>· ${cat1}</span>`:''}</div>
+    </div>`;
+  div.addEventListener('click', e => {
+    if (e.target.closest('.card-fav-btn')||e.target.closest('.card-hover-btn')) return;
+    location.href = `${page}?nome=${encodeURIComponent(item.nome)}`;
+  });
+  div.setAttribute('role','button'); div.setAttribute('tabindex','0');
+  div.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') div.click(); });
+  const hoverBtn = div.querySelector('.card-hover-btn');
+  if (hoverBtn) hoverBtn.addEventListener('click', e => { e.stopPropagation(); location.href=`${page}?nome=${encodeURIComponent(item.nome)}`; });
+  const favBtn = div.querySelector('.card-fav-btn');
+  if (favBtn && window.PipocaFavoritos) {
+    favBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const added = window.PipocaFavoritos.toggle(item);
+      const svg = favBtn.querySelector('svg');
+      favBtn.classList.toggle('active', added);
+      if (svg) svg.setAttribute('fill', added?'currentColor':'none');
+      showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');
+      if (isFavMode) { applyAllFilters(); }
+    });
+  }
+  return div;
+}
+
+// ── Render page ──
+function renderPage() {
+  const grid    = document.getElementById('catalogoGrid');
+  const skeleton= document.getElementById('skeletonGrid');
+  skeleton.style.display='none';
+  grid.style.display='grid';
+  const adMid = document.getElementById('catalogoAdMid');
+  if (adMid) adMid.style.display = '';
+  const start = (currentPage-1)*PER_PAGE;
+  const slice = filtered.slice(start, start+PER_PAGE);
+  grid.innerHTML='';
+  if (!slice.length) {
+    const msg = isFavMode
+      ? 'Você ainda não adicionou nada. Explore o catálogo e clique no ❤️'
+      : 'Nenhum conteúdo encontrado para este filtro.';
+    grid.innerHTML=`<p style="grid-column:1/-1;color:var(--text-3);text-align:center;padding:4rem 0">${msg}</p>`;
+  } else {
+    slice.forEach(item=>grid.appendChild(mkCard(item)));
+  }
+  document.getElementById('catPageCount').textContent=`${filtered.length} títulos · Página ${currentPage} de ${Math.ceil(filtered.length/PER_PAGE)||1}`;
+  renderPagination();
+  window.scrollTo({top:document.getElementById('catPageHeader').offsetTop-80, behavior:'smooth'});
+}
+
+// ── Paginação ──
+function renderPagination(){
+  const total=Math.ceil(filtered.length/PER_PAGE);
+  const nav=document.getElementById('pagination');
+  nav.innerHTML='';
+  if(total<=1)return;
+  function mkBtn(label,page,disabled,active){
+    const btn=document.createElement('button');
+    btn.className='page-btn'+(active?' active':'');
+    btn.textContent=label;btn.disabled=disabled;
+    if(active)btn.setAttribute('aria-current','page');
+    btn.addEventListener('click',()=>{currentPage=page;renderPage();});
+    return btn;
+  }
+  function mkEllipsis(){const s=document.createElement('span');s.className='page-ellipsis';s.textContent='…';return s;}
+  nav.appendChild(mkBtn('‹',currentPage-1,currentPage===1,false));
+  const start=Math.max(1,Math.min(currentPage-2,total-4));
+  const end=Math.min(total,start+4);
+  if(start>1){nav.appendChild(mkBtn('1',1,false,false));if(start>2)nav.appendChild(mkEllipsis());}
+  for(let i=start;i<=end;i++)nav.appendChild(mkBtn(i,i,false,i===currentPage));
+  if(end<total){if(end<total-1)nav.appendChild(mkEllipsis());nav.appendChild(mkBtn(total,total,false,false));}
+  nav.appendChild(mkBtn('›',currentPage+1,currentPage===total,false));
+}
+
+// ── Filtros ──
+function countActiveFilters() {
+  let n = 0;
+  if (activeFilters.audio !== 'todos') n++;
+  if (activeFilters.yearMin > 1980 || activeFilters.yearMax < 2025) n++;
+  if (activeFilters.cats.length > 0) n++;
+  if (activeFilters.sort !== 'default') n++;
+  return n;
+}
+function updateFabLabel() {
+  const n = countActiveFilters();
+  document.getElementById('filterFab').textContent = n > 0 ? `⚙️ Filtros (${n})` : '⚙️ Filtros';
+}
+
+function applyAllFilters() {
+  let result;
+  if (isFavMode) {
+    result = window.PipocaFavoritos ? window.PipocaFavoritos.getAll() : [];
+  } else {
+    result = [...allContent];
+    if (activeFilters.tipo === 'filmes') result = result.filter(c=>!c.isSerie);
+    else if (activeFilters.tipo === 'series') result = result.filter(c=>c.isSerie);
+    if (activeFilters.cat) {
+      const n = activeFilters.cat.toLowerCase();
+      result = result.filter(c=>c.categoria&&c.categoria.toLowerCase().includes(n));
+    }
+  }
+
+  if (activeFilters.audio !== 'todos') {
+    result = result.filter(c => c.audio && c.audio.toLowerCase().includes(activeFilters.audio.toLowerCase()));
+  }
+  if (activeFilters.yearMin > 1980 || activeFilters.yearMax < 2025) {
+    result = result.filter(c => {
+      const y = parseInt(c.ano);
+      return !isNaN(y) && y >= activeFilters.yearMin && y <= activeFilters.yearMax;
+    });
+  }
+  if (activeFilters.cats.length > 0) {
+    result = result.filter(c => {
+      if (!c.categoria) return false;
+      return activeFilters.cats.some(cat => c.categoria.toLowerCase().includes(cat.toLowerCase()));
+    });
+  }
+
+  // Filtro por letra
+  if (activeFilters.letra && activeFilters.letra !== 'todos') {
+    result = result.filter(c => {
+      const n = (c.nome || '').trim().toUpperCase();
+      if (activeFilters.letra === '#') return n && !/^[A-Z]/.test(n);
+      return n.startsWith(activeFilters.letra);
+    });
+  }
+
+  // Filtro por década
+  if (activeFilters.decada && activeFilters.decada !== 'todos') {
+    const start = parseInt(activeFilters.decada);
+    result = result.filter(c => {
+      const ano = parseInt(c.ano);
+      return !isNaN(ano) && ano >= start && ano <= start + 9;
+    });
+  }
+
+  // Ordenação
+  if (activeFilters.sort === 'az') result.sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+  else if (activeFilters.sort === 'za') result.sort((a,b)=>(b.nome||'').localeCompare(a.nome||''));
+  else if (activeFilters.sort === 'recente') result.sort((a,b)=>parseInt(b.ano||0)-parseInt(a.ano||0));
+  else if (activeFilters.sort === 'antigo') result.sort((a,b)=>parseInt(a.ano||0)-parseInt(b.ano||0));
+
+  filtered = result;
+  currentPage = 1;
+  renderPage();
+  updateFabLabel();
+}
+
+// ── Setup filtros sidebar ──
+function setupSidebarFilters() {
+  // Gerar categorias dinâmicas
+  const cats = {};
+  allContent.forEach(item => {
+    (item.categoria||'').split(',').forEach(c => {
+      const k=c.trim(); if(k) cats[k]=(cats[k]||0)+1;
+    });
+  });
+  const catBox = document.getElementById('catCheckboxes');
+  Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,20).forEach(([cat])=>{
+    const label=document.createElement('label');
+    label.innerHTML=`<input type="checkbox" value="${cat}"> ${cat}`;
+    label.querySelector('input').addEventListener('change', e => {
+      if (e.target.checked) activeFilters.cats.push(cat);
+      else activeFilters.cats = activeFilters.cats.filter(c=>c!==cat);
+      applyAllFilters();
+    });
+    catBox.appendChild(label);
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', e => {
+    activeFilters.sort = e.target.value;
+    applyAllFilters();
+  });
+
+  document.querySelectorAll('[name=audio]').forEach(r => r.addEventListener('change', e => {
+    activeFilters.audio = e.target.value;
+    applyAllFilters();
+  }));
+
+  const yearMin = document.getElementById('yearMin');
+  const yearMax = document.getElementById('yearMax');
+  yearMin.addEventListener('input', e => {
+    activeFilters.yearMin = parseInt(e.target.value);
+    if (activeFilters.yearMin > activeFilters.yearMax) { activeFilters.yearMax = activeFilters.yearMin; yearMax.value = yearMax.min = e.target.value; }
+    document.getElementById('yearMinLabel').textContent = e.target.value;
+    applyAllFilters();
+  });
+  yearMax.addEventListener('input', e => {
+    activeFilters.yearMax = parseInt(e.target.value);
+    if (activeFilters.yearMax < activeFilters.yearMin) { activeFilters.yearMin = activeFilters.yearMax; yearMin.value = yearMin.max = e.target.value; }
+    document.getElementById('yearMaxLabel').textContent = e.target.value;
+    applyAllFilters();
+  });
+
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    activeFilters.audio = 'todos';
+    activeFilters.yearMin = 1980; activeFilters.yearMax = 2025;
+    activeFilters.cats = []; activeFilters.sort = 'default';
+    activeFilters.letra = 'todos';
+    activeFilters.decada = 'todos';
+    document.getElementById('sortSelect').value = 'default';
+    document.querySelectorAll('[name=audio]')[0].checked = true;
+    yearMin.value = 1980; yearMax.value = 2025;
+    document.getElementById('yearMinLabel').textContent = '1980';
+    document.getElementById('yearMaxLabel').textContent = '2025';
+    catBox.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked=false);
+    document.querySelectorAll('.letter-btn').forEach(b => b.classList.toggle('active', b.dataset.letter === 'todos'));
+    document.querySelectorAll('.decade-btn').forEach(b => b.classList.toggle('active', b.dataset.decade === 'todos'));
+    applyAllFilters();
+  });
+
+  // Letter filter buttons
+  document.querySelectorAll('.letter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilters.letra = btn.dataset.letter;
+      applyAllFilters();
+    });
+  });
+}
+
+// ── Decade timeline ──
+document.querySelectorAll('.decade-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.decade-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilters.decada = btn.dataset.decade;
+    applyAllFilters();
+  });
+});
+
+// ── Mobile sidebar FAB ──
+(function(){
+  const fab = document.getElementById('filterFab');
+  const sidebar = document.getElementById('catalogSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow=''; }
+  fab.addEventListener('click', openSidebar);
+  overlay.addEventListener('click', closeSidebar);
+})();
+
+// ── Type filter buttons ──
+function setupTypeFilters(tipo) {
+  document.querySelectorAll('[data-tipo]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tipo===(tipo||'todos'));
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-tipo]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilters.tipo = btn.dataset.tipo;
+      applyAllFilters();
+    });
+  });
+}
+
+// ── Search ──
+function setupSearch(allItems) {
+  PipocaSearch.indexContent(allItems);
+  const resultsOverlay = document.getElementById('searchResultsOverlay');
+  const resultsGrid    = document.getElementById('searchResultsGrid');
+  const queryLabel     = document.getElementById('searchQueryLabel');
+  const noResults      = document.getElementById('searchNoResults');
+  const noResultsQ     = document.getElementById('searchNoResultsQuery');
+  function doSearch(q) {
+    if (!q||q.length<2) { resultsOverlay.classList.remove('active'); return; }
+    const res = PipocaSearch.search(q, 30);
+    queryLabel.textContent = q;
+    resultsGrid.innerHTML = '';
+    if (!res.length) { noResultsQ.textContent = q; noResults.style.display='block'; }
+    else { noResults.style.display='none'; res.forEach(item=>resultsGrid.appendChild(mkCard(item))); }
+    resultsOverlay.classList.add('active');
+  }
+  const deb = PipocaSearch.debounce(doSearch, 250);
+  document.getElementById('desktopSearchInput').addEventListener('input', e=>deb(e.target.value));
+  document.getElementById('mobileSearchInput').addEventListener('input', e=>deb(e.target.value));
+}
+
+// Emojis
+const CAT_EMOJIS={'ação':'⚡','acao':'⚡','romance':'💕','terror':'👻','comédia':'😂','comedia':'😂','drama':'🎭','ficção':'🚀','ficcao':'🚀','animação':'✨','animacao':'✨','aventura':'🗺️','thriller':'🔪','crime':'🔫','fantasia':'🧙','documentário':'📽️','documentario':'📽️'};
+function getEmoji(cat){if(!cat)return'🎬';const k=cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');for(const[key,val]of Object.entries(CAT_EMOJIS)){if(k.includes(key))return val;}return'🎬';}
+
+// ── INIT ──
+async function init() {
+  const tipo    = getParam('tipo') || 'todos';
+  const cat     = getParam('cat');
+  const lista   = getParam('lista');
+  isFavMode = lista === 'favoritos';
+
+  if (isFavMode) {
+    document.getElementById('catPageIcon').textContent = '❤️';
+    document.getElementById('catPageTitle').textContent = 'Minha Lista';
+    document.title = 'Minha Lista — PipocaFlix';
+    // No fav mode hide type filter tabs
+    document.getElementById('typeFilters').style.display = 'none';
+    document.getElementById('decadeTimeline').style.display = 'none';
+    // Hide sidebar
+    document.getElementById('catalogSidebar').style.display = 'none';
+    document.getElementById('filterFab').style.display = 'none';
+    document.getElementById('mainLayout').style.gridTemplateColumns = '1fr';
+  } else if (cat) {
+    document.getElementById('catPageIcon').textContent = getEmoji(cat);
+    document.getElementById('catPageTitle').textContent = cat;
+    document.title = `${cat} — PipocaFlix`;
+  } else if (tipo === 'filmes') {
+    document.getElementById('catPageIcon').textContent = '🎬';
+    document.getElementById('catPageTitle').textContent = 'Filmes';
+    document.title = 'Filmes — PipocaFlix';
+  } else if (tipo === 'series') {
+    document.getElementById('catPageIcon').textContent = '📺';
+    document.getElementById('catPageTitle').textContent = 'Séries';
+    document.title = 'Séries — PipocaFlix';
+  }
+
+  activeFilters.tipo = cat ? 'todos' : tipo;
+  activeFilters.cat  = cat || null;
+
+  if (!isFavMode) setupTypeFilters(cat ? 'todos' : tipo);
+
+  try {
+    const [filmes, series] = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
+    allContent = [...filmes, ...series];
+    // Busca global: indexa tudo
+    setupSearch(allContent);
+
+    if (!isFavMode) setupSidebarFilters();
+    applyAllFilters();
+
+  } catch(err) {
+    console.error('[PipocaFlix Catálogo]', err);
+    document.getElementById('skeletonGrid').style.display='none';
+    document.getElementById('catalogoGrid').style.display='grid';
+    document.getElementById('catalogoGrid').innerHTML='<p style="grid-column:1/-1;color:var(--text-3);text-align:center;padding:4rem 0">⚠️ Erro ao carregar. Tente novamente.</p>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// ── Hamburger ──
+(function(){
+  const btn=document.getElementById('hamburgerBtn');
+  const menu=document.getElementById('mobileNavMenu');
+  if(!btn||!menu)return;
+  btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});
+  menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));
+  document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
+})();
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<!-- Page Push -->
+<script>
+(function(ojll){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = ojll || {};
+s.src = "//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";
+s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<script>
+// ── Pesquisa por Voz (Web Speech API) ──
+(function(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function hideMicBtns(){ document.querySelectorAll('.voice-search-btn,[id^=voiceSearch]').forEach(function(b){b.style.display='none';}); }
+  if(!SR){ hideMicBtns(); return; }
+  var rec=new SR(); rec.lang='pt-BR'; rec.continuous=false; rec.interimResults=false;
+  var active=null;
+  function startVoice(btn,input){
+    if(active){rec.stop();return;}
+    active=btn;
+    btn.classList.add('voice-listening');
+    btn.title='Ouvindo...';
+    try{ rec.start(); } catch(e){ active=null; return; }
+    rec.onresult=function(e){
+      var t=e.results[0][0].transcript;
+      input.value=t;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      // no mobile, abre o overlay de busca automaticamente
+      var overlay=document.getElementById('mobileSearchOverlay');
+      if(overlay && !overlay.classList.contains('open')) overlay.classList.add('open');
+    };
+    rec.onerror=function(){};
+    rec.onend=function(){
+      if(active){active.classList.remove('voice-listening');active.title='Busca por voz';}
+      active=null;
+    };
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var db=document.getElementById('voiceSearchBtn'),di=document.getElementById('desktopSearchInput');
+    var mb=document.getElementById('voiceSearchBtnMobile'),mi=document.getElementById('mobileSearchInput');
+    if(db&&di) db.addEventListener('click',function(e){e.preventDefault();startVoice(db,di);});
+    if(mb&&mi) mb.addEventListener('click',function(e){e.preventDefault();startVoice(mb,mi);});
+  });
+})();
+</script>
+<!-- Video Slide Ad -->
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bfX.VJsYdZGJls0hYSWJcM/PehmL9gupZLU/lNkiPCTDYE4XNOjhkG0kM_TFcltiNXjSgp2AOJTzQ/yfMEQc";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+<!-- Banner Mobile Ad -->
+<div class="mobile-banner-ad">
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+<!-- Mobile Banner Ad (novo) -->
+<div class="mobile-banner-ad" id="mobileBannerAdNew">
+<script>
+(function(xev){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = xev || {};
+s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
+
+
+<script>
+/* ── POPUNDER SOMENTE DESKTOP ── */
+(function() {
+  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                 || window.innerWidth < 768;
+  if (isMobile) return;
+  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
+  var popped = false;
+  document.addEventListener('click', function handler() {
+    if (popped) return;
+    popped = true;
+    var win = window.open(POPUNDER_URL, '_blank');
+    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
+    document.removeEventListener('click', handler);
+  }, true);
+})();
+</script>
+<!-- Banner apoio 30 min -->
+<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
+  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" 
+            style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
+    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
+    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
+    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador de anúncios! ❤️</p>
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'"
+            style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">
+      Fechar
+    </button>
+  </div>
+</div>
+<script>
+setTimeout(function() {
+  var el = document.getElementById('supportBannerOverlay');
+  if (el) el.style.display = 'block';
+}, 30 * 60 * 1000);
+</script>
+</body>
+</html>

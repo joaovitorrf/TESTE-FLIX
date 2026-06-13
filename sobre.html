@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sobre Nós — PipocaFlix</title>
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+.sobre-hero {
+  text-align: center;
+  padding: 4rem 1rem 2.5rem;
+  background: linear-gradient(180deg, rgba(255, 45, 67, 0.12), transparent);
+}
+.sobre-hero img {
+  width: 190px;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 6px solid #ff2d43;
+  box-shadow: 0 0 45px rgba(255, 45, 67, 0.4);
+  margin-bottom: 1.5rem;
+}
+.sobre-hero h1 {
+  color: #ff2d43;
+  margin-bottom: 0.5rem;
+}
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+}
+.team-card {
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  transition: all 0.3s;
+}
+.team-card:hover {
+  transform: translateY(-8px);
+  border-color: #ff2d43;
+}
+.team-card img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #ff2d43;
+  margin-bottom: 1rem;
+}
+.institucional-wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+</style>
+</head>
+<body>
+
+<!-- Header e scripts Firebase mantidos -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  const firebaseConfig={apiKey:"AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",authDomain:"pipoca-flix-43de0.firebaseapp.com",projectId:"pipoca-flix-43de0",storageBucket:"pipoca-flix-43de0.firebasestorage.app",messagingSenderId:"504338312989",appId:"1:504338312989:web:b4949dd355624811017bf4",measurementId:"G-WL3CY5FRMR"};
+  const app=initializeApp(firebaseConfig);getAnalytics(app);const auth=getAuth(app);const provider=new GoogleAuthProvider();
+  window.PipocaAuth={login:()=>signInWithPopup(auth,provider),logout:()=>signOut(auth),getUser:()=>auth.currentUser,onAuthChanged:(cb)=>onAuthStateChanged(auth,cb)};
+  onAuthStateChanged(auth,function(user){var btn=document.getElementById('authBtn');if(!btn)return;if(user){btn.innerHTML='<img src="'+(user.photoURL||'')+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>'+(user.displayName||'Minha Conta').split(' ')[0]+'</span>';btn.onclick=function(){window.location.href='perfil.html';};btn.title='Ver meu perfil';}else{btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';btn.onclick=function(){window.PipocaAuth.login();};}});
+</script>
+
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a><a href="catalogo.html?tipo=filmes">Filmes</a><a href="catalogo.html?tipo=series">Séries</a><a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-btn">Mais ▾</button><div class="nav-dropdown-menu"><a href="como-usar.html">❓ Como Usar</a><a href="catalogo.html">🎬 Catálogo</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a></div></div>
+  </nav>
+  <button class="auth-btn" id="authBtn" aria-label="Login"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a><a href="catalogo.html?tipo=filmes">🎥 Filmes</a><a href="catalogo.html?tipo=series">📺 Séries</a><a href="canais.html">📡 Canais</a>
+</div>
+
+<div class="institucional-wrap">
+  <div class="sobre-hero">
+    <img src="https://i.pinimg.com/736x/fc/ad/e9/fcade9740271ebdb26b8263666a1c36b.jpg" alt="Tangerina" class="hero-image">
+    <h1>E aí, família!</h1>
+    <p>Bem-vindo ao PipocaFlix — o streaming mais brabo feito com muito amor (e café) por fãs pra fãs.</p>
+  </div>
+
+  <span class="inst-badge">🍿 Sobre Nós</span>
+  <h1>Quem Somos</h1>
+
+  <p>O PipocaFlix nasceu da paixão por cinema, séries e aquela vontade de maratonar sem pagar caro. Somos um projeto independente criado por gente que ama conteúdo bom e quer deixar ele acessível pra todo mundo.</p>
+
+  <h2>Nossa Missão</h2>
+  <p>Trazer entretenimento de qualidade de graça, bem organizado e sem enrolação. Porque todo mundo merece uma boa pipoca na frente da tela.</p>
+
+  <h2>Nossa Galera</h2>
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="https://i.pinimg.com/736x/43/d0/73/43d07331f525f6906df0423c17ae6dd3.jpg" alt="Peter Parker">
+      <p><strong>Peter Parker</strong><br>Responsável pela busca e organização</p>
+    </div>
+    <div class="team-card">
+      <img src="https://i.pinimg.com/736x/ad/ac/d1/adacd1cf1442609a922ae126a7e2322e.jpg" alt="Deadpool">
+      <p><strong>Deadpool</strong><br>Humor e quebrando a quarta parede</p>
+    </div>
+    <div class="team-card">
+      <img src="https://i.pinimg.com/736x/5d/4e/5a/5d4e5a3529ef9b8a3e4b422c338ff804.jpg" alt="Harry Potter">
+      <p><strong>Harry Potter</strong><br>Magia e recomendações épicas</p>
+    </div>
+    <div class="team-card">
+      <img src="https://i.pinimg.com/736x/4d/c0/a1/4dc0a1853f2d2d254bca4fcd91986383.jpg" alt="Capitão Pátria">
+      <p><strong>Capitão Pátria</strong><br>Garanta que tá tudo "patriota" por aqui</p>
+    </div>
+  </div>
+
+  <h2>O que oferecemos</h2>
+  <ul>
+    <li>🎬 Catálogo gigante de filmes em boa qualidade</li>
+    <li>📺 Séries completas com todas as temporadas</li>
+    <li>📡 Canais ao vivo</li>
+    <li>❤️ Minha Lista + Continuar Assistindo</li>
+    <li>🔍 Busca rápida e filtros poderosos</li>
+  </ul>
+
+  <h2>Aviso Importante</h2>
+  <div class="disclaimer-wrap" style="margin:1.5rem 0; background:rgba(255,45,67,0.08); padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
+    <p><strong>O PipocaFlix não hospeda vídeos.</strong> Somos apenas um catálogo que organiza links públicos disponíveis na internet. Não somos responsáveis pelo conteúdo de terceiros.</p>
+    <p>Se você é dono de algum material e quer remover, acesse nossa página de <a href="dmca.html">DMCA</a>.</p>
+  </div>
+
+  <h2>Vem conversar com a gente!</h2>
+  <p>📧 <a href="mailto:contato@pipocaflix.com">contato@pipocaflix.com</a></p>
+  <p>📢 <a href="https://t.me/pipocaflixx" target="_blank" rel="noopener">Telegram: @pipocaflixx</a></p>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom"><span>© 2025 PipocaFlix.</span></div>
+  <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+    <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+    <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+    <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+    <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+  </div>
+</footer>
+
+<script src="assets/js/security.js"></script>
+<script>
+(function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
+(function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
+</script>
+</body>
+</html>

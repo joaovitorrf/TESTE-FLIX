@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Privacidade — PipocaFlix</title>
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  const firebaseConfig={apiKey:"AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",authDomain:"pipoca-flix-43de0.firebaseapp.com",projectId:"pipoca-flix-43de0",storageBucket:"pipoca-flix-43de0.firebasestorage.app",messagingSenderId:"504338312989",appId:"1:504338312989:web:b4949dd355624811017bf4",measurementId:"G-WL3CY5FRMR"};
+  const app=initializeApp(firebaseConfig);getAnalytics(app);const auth=getAuth(app);const provider=new GoogleAuthProvider();
+  window.PipocaAuth={login:()=>signInWithPopup(auth,provider),logout:()=>signOut(auth),getUser:()=>auth.currentUser,onAuthChanged:(cb)=>onAuthStateChanged(auth,cb)};
+  onAuthStateChanged(auth,function(user){var btn=document.getElementById('authBtn');if(!btn)return;if(user){btn.innerHTML='<img src="'+(user.photoURL||'')+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>'+(user.displayName||'Minha Conta').split(' ')[0]+'</span>';btn.onclick=function(){window.location.href='perfil.html';};btn.title='Ver meu perfil';}else{btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';btn.onclick=function(){window.PipocaAuth.login();};}});
+</script>
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a><a href="catalogo.html?tipo=filmes">Filmes</a><a href="catalogo.html?tipo=series">Séries</a><a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-btn">Mais ▾</button><div class="nav-dropdown-menu"><a href="como-usar.html">❓ Como Usar</a><a href="catalogo.html">🎬 Catálogo</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a></div></div>
+  </nav>
+  <button class="auth-btn" id="authBtn" aria-label="Login"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</header>
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a><a href="catalogo.html?tipo=filmes">🎥 Filmes</a><a href="catalogo.html?tipo=series">📺 Séries</a><a href="canais.html">📡 Canais</a><a href="catalogo.html">🎬 Catálogo</a><a href="feed.html">📰 Feed</a>
+</div>
+
+<div class="institucional-wrap">
+  <span class="inst-badge">🔒 Privacidade</span>
+  <h1>Política de Privacidade</h1>
+  <p><strong>Última atualização:</strong> Junho de 2025</p>
+  <p>Esta Política de Privacidade descreve como o PipocaFlix coleta, usa e protege suas informações ao utilizar nosso site.</p>
+
+  <h2>1. Dados Coletados</h2>
+  <p>Ao fazer login com sua conta Google (via Firebase Authentication), coletamos:</p>
+  <ul>
+    <li><strong>Nome:</strong> exibido no perfil dentro do site;</li>
+    <li><strong>Endereço de e-mail:</strong> utilizado para identificação da conta;</li>
+    <li><strong>Foto de perfil:</strong> exibida no botão de login do header.</li>
+  </ul>
+  <p>Não armazenamos senhas. A autenticação é gerenciada integralmente pelo Google Firebase.</p>
+
+  <h2>2. Dados Armazenados Localmente (localStorage)</h2>
+  <p>Para melhorar sua experiência, armazenamos no seu navegador (sem envio a servidores):</p>
+  <ul>
+    <li><strong>pflix_theme:</strong> preferência de tema (claro/escuro);</li>
+    <li><strong>pflix_progress_*:</strong> progresso de visualização por título;</li>
+    <li><strong>pflix_watched_list:</strong> lista de títulos marcados como assistidos;</li>
+    <li><strong>pflix_fav_*:</strong> títulos adicionados à sua lista de favoritos;</li>
+    <li><strong>pflix_clicks:</strong> contador de cliques para funcionalidades internas.</li>
+  </ul>
+
+  <h2>3. Cookies</h2>
+  <p>Utilizamos cookies de sessão e de terceiros. Para mais detalhes, consulte nossa <a href="cookies.html">Política de Cookies</a>.</p>
+
+  <h2>4. Google Analytics (Firebase Analytics)</h2>
+  <p>Utilizamos o Firebase Analytics para coletar dados anônimos de uso do site, como páginas visitadas, tempo de permanência e dispositivos utilizados. Esses dados são usados exclusivamente para melhorar a experiência do usuário e não são vendidos a terceiros.</p>
+
+  <h2>5. Publicidade</h2>
+  <p>O PipocaFlix exibe anúncios de parceiros publicitários. Esses scripts de anúncio podem coletar dados como seu endereço IP, tipo de dispositivo e comportamento de navegação para fins de segmentação de anúncios. Não temos controle sobre as práticas de privacidade desses parceiros.</p>
+
+  <h2>6. Comentários (Firebase Firestore)</h2>
+  <p>Ao publicar comentários, seu nome de exibição, foto de perfil e texto do comentário são armazenados no Firebase Firestore e ficam visíveis publicamente para outros usuários.</p>
+
+  <h2>7. Seus Direitos (LGPD)</h2>
+  <p>Em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018), você tem direito a:</p>
+  <ul>
+    <li>Acessar os dados que temos sobre você;</li>
+    <li>Solicitar a correção de dados incorretos;</li>
+    <li>Solicitar a exclusão de seus dados;</li>
+    <li>Revogar o consentimento a qualquer momento.</li>
+  </ul>
+
+  <h2>8. Contato</h2>
+  <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade, entre em contato: <a href="mailto:contato@pipocaflix.com">contato@pipocaflix.com</a></p>
+</div>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom"><span>© 2025 PipocaFlix.</span></div>
+  <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+    <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+    <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+    <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+    <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+  </div>
+</footer>
+<script src="assets/js/security.js"></script>
+<script>(function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
+(function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();</script>
+<script>(function(){var isMobile=/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<768;if(isMobile)return;var popped=false;document.addEventListener('click',function handler(){if(popped)return;popped=true;var win=window.open('https://sorrowfulpsychology.com/7YQ2ye','_blank');if(win){try{win.blur();window.focus();}catch(e){}}document.removeEventListener('click',handler);},true);})();</script>
+</body>
+</html>
