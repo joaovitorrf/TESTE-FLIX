@@ -577,6 +577,20 @@
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
 </header>
 
+<!-- ═══ MOBILE NAV ═══ -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  <a href="planos.html" style="color:var(--red);font-weight:700">🍿 Assinar</a>
+</div>
+
 <!-- ═══ HERO ═══ -->
 <section class="planos-hero">
   <h1>Escolha seu <span>Plano</span> 🍿</h1>
@@ -1102,6 +1116,37 @@ if (themeBtn) {
 
 // ESC para fechar modal
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharCheckout(); });
+
+// ─── HEADER SCROLL ───
+(function() {
+  const header = document.getElementById('mainHeader');
+  if (!header) return;
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 20);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// ─── HAMBURGER MENU ───
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileNavMenu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', () => {
+    const open = menu.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open.toString());
+  });
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+  }));
+  document.addEventListener('click', e => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove('open');
+      btn.classList.remove('open');
+    }
+  });
+})();
 </script>
 
 </body>
