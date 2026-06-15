@@ -836,12 +836,9 @@
 </div>
 
 <script>
-// ─── CONFIG CAKTO ───
-const CAKTO = {
-  CLIENT_ID: '87X1jc4Hy1cReXL6mDyQe4h7tcIIbNjbzcI14aa8',
-  CLIENT_SECRET: '7pea3Dv1u3Pgg9kh1hW41Re09vflxm3gXoJexKoigo2zhWv84tqL5VNNJlINCnRCC6TdxkpIA0NwZRQNt3dJX1aJwHxkDZ7I9u4ehv3DQXiO9nBT2aXqPLC7kGj50rOc',
-  BASE_URL: 'https://api.cakto.com.br'
-};
+// ─── CONFIG ───
+// ⚠️ Após criar o Worker no Cloudflare, cole a URL aqui:
+const WORKER_URL = 'https://green-shadow-52fc.slacarambafdsosobrenome.workers.dev';
 
 // ─── PLANOS ───
 const PLANOS = {
@@ -861,31 +858,6 @@ const PLANOS = {
 
 let planoAtual = null;
 let metodoPagamento = 'cartao';
-let caktoToken = null;
-
-// ─── TOKEN CAKTO ───
-async function getCaktoToken() {
-  if (caktoToken) return caktoToken;
-  try {
-    const res = await fetch(`${CAKTO.BASE_URL}/token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: CAKTO.CLIENT_ID,
-        client_secret: CAKTO.CLIENT_SECRET,
-        scope: 'orders:write orders:read'
-      })
-    });
-    if (!res.ok) throw new Error('Falha na autenticação Cakto');
-    const data = await res.json();
-    caktoToken = data.access_token;
-    return caktoToken;
-  } catch(e) {
-    console.error('[Cakto Auth]', e);
-    return null;
-  }
-}
 
 // ─── ABRIR CHECKOUT ───
 function abrirCheckout(plano) {
@@ -1021,66 +993,50 @@ async function finalizarPedido() {
   const plano = PLANOS[planoAtual];
 
   try {
-    // 1. Autenticar na Cakto
-    const token = await getCaktoToken();
+    // Montar payload
+    const [mes, ano] = (document.getElementById('co-card-expiry').value || '').split('/');
+    const payload = {
+      customer: {
+        name: document.getElementById('co-nome-input').value.trim(),
+        email: document.getElementById('co-email').value.trim(),
+        document: document.getElementById('co-cpf').value.replace(/\D/g,''),
+        phone: document.getElementById('co-tel').value.replace(/\D/g,'')
+      },
+      payment: metodoPagamento === 'cartao' ? {
+        method: 'credit_card',
+        installments: parseInt(document.getElementById('co-parcelas').value),
+        card: {
+          number: document.getElementById('co-card-number').value.replace(/\D/g,''),
+          holder_name: document.getElementById('co-card-name').value.trim(),
+          expiry_month: mes,
+          expiry_year: '20' + ano,
+          cvv: document.getElementById('co-card-cvv').value
+        }
+      } : { method: 'pix' }
+    };
 
-    if (token) {
-      // 2. Montar payload do pedido
-      const [mes, ano] = (document.getElementById('co-card-expiry').value || '').split('/');
-      const payload = {
-        customer: {
-          name: document.getElementById('co-nome-input').value.trim(),
-          email: document.getElementById('co-email').value.trim(),
-          document: document.getElementById('co-cpf').value.replace(/\D/g,''),
-          phone: document.getElementById('co-tel').value.replace(/\D/g,'')
-        },
-        payment: metodoPagamento === 'cartao' ? {
-          method: 'credit_card',
-          installments: parseInt(document.getElementById('co-parcelas').value),
-          card: {
-            number: document.getElementById('co-card-number').value.replace(/\D/g,''),
-            holder_name: document.getElementById('co-card-name').value.trim(),
-            expiry_month: mes,
-            expiry_year: '20' + ano,
-            cvv: document.getElementById('co-card-cvv').value
-          }
-        } : { method: 'pix' }
-      };
+    // Chamar o Worker (que chama a Cakto com segurança)
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create_order', payload })
+    });
 
-      // 3. Criar pedido via Cakto API
-      const res = await fetch(`${CAKTO.BASE_URL}/api/orders/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
+    const data = await res.json();
 
-      const data = await res.json();
-
-      if (res.ok && (data.id || data.status)) {
-        // Sucesso via API
-        mostrarSucesso();
-        return;
+    if (res.ok && (data.id || data.status)) {
+      // ✅ Pedido criado com sucesso
+      if (metodoPagamento === 'pix' && data.pix_qr_code) {
+        mostrarPix(data.pix_qr_code, data.pix_copy_paste);
       } else {
-        console.warn('[Cakto Order]', data);
-        // Fallback: redirecionar para link de checkout externo
-        window.open(plano.link, '_blank');
-        fecharCheckout();
-        return;
+        mostrarSucesso();
       }
     } else {
-      // Sem token: fallback para link externo
-      window.open(plano.link, '_blank');
-      fecharCheckout();
-      return;
+      mostrarErro(data.error || data.message || 'Erro ao processar pagamento. Tente novamente.');
     }
   } catch (err) {
     console.error('[Checkout Error]', err);
-    // Fallback: redirecionar para link externo da Cakto
-    window.open(plano.link, '_blank');
-    fecharCheckout();
+    mostrarErro('Erro de conexão. Verifique sua internet e tente novamente.');
   } finally {
     btn.classList.remove('loading');
     btn.disabled = false;
@@ -1090,6 +1046,26 @@ async function finalizarPedido() {
 function mostrarSucesso() {
   document.getElementById('checkoutForm').style.display = 'none';
   document.getElementById('checkoutSuccess').classList.add('active');
+}
+
+function mostrarPix(qrCode, copyPaste) {
+  // Atualiza o QR code e a chave copia-e-cola no modal PIX
+  const qrEl = document.querySelector('.pix-qr-placeholder');
+  const keyEl = document.querySelector('.pix-key-box');
+  if (qrEl && qrCode) {
+    qrEl.innerHTML = `<img src="data:image/png;base64,${qrCode}" alt="QR Code PIX" style="width:100%;height:100%;object-fit:contain;border-radius:8px">`;
+  }
+  if (keyEl && copyPaste) {
+    keyEl.textContent = copyPaste;
+    keyEl.onclick = () => { navigator.clipboard.writeText(copyPaste); keyEl.textContent = '✅ Copiado!'; setTimeout(()=>keyEl.textContent=copyPaste,2000); };
+  }
+  // Mostra aviso de aguardar confirmação
+  const errEl = document.getElementById('checkoutError');
+  errEl.style.background = 'rgba(72,187,120,0.1)';
+  errEl.style.borderColor = 'rgba(72,187,120,0.3)';
+  errEl.style.color = '#48bb78';
+  errEl.textContent = '⚡ PIX gerado! Escaneie o QR Code ou copie a chave abaixo.';
+  errEl.classList.add('active');
 }
 
 // ─── FAQ ───
