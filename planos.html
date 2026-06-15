@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planos — PipocaFlix</title>
-<meta name="description" content="Escolha seu plano PipocaFlix e acesse mais de 22 mil filmes e séries online.">
+<meta name="description" content="Escolha seu plano PipocaFlix e acesse mais de 22 mil filmes, séries e 200 canais online.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -19,127 +19,149 @@
 </script>
 
 <style>
-/* ─── PLANOS PAGE ─── */
+/* ─── HERO ─── */
 .planos-hero {
-  padding: 120px 20px 60px;
+  padding: 130px 20px 56px;
   text-align: center;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,45,67,0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255,45,67,0.13) 0%, transparent 70%);
 }
 .planos-hero h1 {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3.4rem);
   font-weight: 800;
   color: var(--text-1);
   line-height: 1.15;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .planos-hero h1 span { color: var(--red); }
 .planos-hero p {
   color: var(--text-2);
-  font-size: 1.1rem;
-  max-width: 520px;
-  margin: 0 auto 12px;
+  font-size: 1.05rem;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-/* ─── CARDS GRID ─── */
+/* ─── GRID ─── */
 .planos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
   gap: 24px;
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 20px 20px 80px;
+  max-width: 1060px;
+  margin: 48px auto 0;
+  padding: 0 20px 80px;
 }
+
+/* ─── CARD ─── */
 .plano-card {
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--r-xl);
-  padding: 36px 32px;
+  padding: 36px 30px 32px;
   position: relative;
-  transition: transform var(--t-normal), border-color var(--t-normal), box-shadow var(--t-normal);
-  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s var(--ease), border-color 0.22s, box-shadow 0.22s;
 }
 .plano-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-7px);
   border-color: var(--red);
-  box-shadow: var(--shadow-red);
+  box-shadow: 0 16px 48px rgba(255,45,67,0.18);
 }
 .plano-card.destaque {
   border-color: var(--red);
-  background: linear-gradient(135deg, var(--card) 0%, rgba(255,45,67,0.07) 100%);
+  background: linear-gradient(160deg, var(--card) 0%, rgba(255,45,67,0.06) 100%);
 }
 .plano-card.destaque::before {
   content: '⭐ Mais Popular';
   position: absolute;
-  top: -14px;
+  top: -15px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--red);
   color: #fff;
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  padding: 5px 18px;
-  border-radius: var(--r-pill);
+  padding: 5px 20px;
+  border-radius: 99px;
   white-space: nowrap;
 }
 
-.plano-emoji { font-size: 2.8rem; margin-bottom: 12px; display: block; }
+.plano-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 14px;
+  line-height: 1;
+}
 .plano-nome {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 700;
   color: var(--text-1);
-  margin-bottom: 4px;
+  margin-bottom: 18px;
 }
 .plano-preco {
-  margin: 18px 0 24px;
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 3px;
+  margin-bottom: 28px;
 }
-.plano-preco .cifrao { font-size: 1.1rem; color: var(--text-2); margin-top: 4px; }
+.plano-preco .cifrao {
+  font-size: 1rem;
+  color: var(--text-2);
+  font-weight: 600;
+  margin-top: 4px;
+}
 .plano-preco .valor {
   font-family: var(--font-display);
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 800;
   color: var(--text-1);
   line-height: 1;
 }
-.plano-preco .periodo { font-size: 0.9rem; color: var(--text-3); }
+.plano-preco .periodo {
+  font-size: 0.88rem;
+  color: var(--text-3);
+  margin-left: 2px;
+}
 
 .plano-features {
   list-style: none;
-  margin-bottom: 32px;
+  margin: 0 0 32px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
+  flex: 1;
 }
 .plano-features li {
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--text-2);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 .plano-features li::before {
   content: '✓';
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background: rgba(255,45,67,0.14);
+  color: var(--red);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  background: rgba(255,45,67,0.15);
-  color: var(--red);
-  border-radius: 50%;
-  font-size: 0.7rem;
-  font-weight: 700;
-  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
 }
 
+/* ─── BOTÃO ASSINAR ─── */
 .btn-assinar {
+  display: block;
   width: 100%;
   padding: 16px;
   background: var(--red);
@@ -149,359 +171,68 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
+  text-align: center;
+  text-decoration: none;
   cursor: pointer;
-  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
   letter-spacing: 0.03em;
 }
 .btn-assinar:hover {
-  background: var(--red-dim);
-  transform: scale(1.02);
-  box-shadow: 0 8px 24px rgba(255,45,67,0.4);
-}
-.btn-assinar:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* ─── MODAL CHECKOUT ─── */
-.checkout-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(5,5,7,0.92);
-  backdrop-filter: blur(10px);
-  z-index: 10000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  animation: fadeIn 0.2s ease;
-}
-.checkout-overlay.active { display: flex; }
-@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-
-.checkout-modal {
-  background: var(--panel);
-  border: 1px solid var(--border-light);
-  border-radius: var(--r-xl);
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 40px 36px;
-  position: relative;
-  animation: slideUp 0.3s var(--ease);
-}
-@keyframes slideUp { from { transform: translateY(30px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
-
-.checkout-close {
-  position: absolute;
-  top: 16px; right: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all var(--t-fast);
-}
-.checkout-close:hover { color: var(--text-1); background: var(--card-hover); }
-
-.checkout-header { margin-bottom: 28px; }
-.checkout-plano-info {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 16px 18px;
-  margin-bottom: 24px;
-}
-.checkout-plano-info .emoji { font-size: 2rem; }
-.checkout-plano-info .info .nome {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--text-1);
-}
-.checkout-plano-info .info .preco { color: var(--red); font-size: 0.9rem; font-weight: 600; }
-
-.checkout-title {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-1);
-  margin-bottom: 6px;
-}
-.checkout-subtitle { color: var(--text-2); font-size: 0.9rem; }
-
-/* Form */
-.form-group { margin-bottom: 18px; }
-.form-label {
-  display: block;
-  color: var(--text-2);
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 7px;
-}
-.form-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1.5px solid var(--border-light);
-  border-radius: var(--r-sm);
-  color: var(--text-1);
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  padding: 12px 14px;
-  transition: border-color var(--t-fast);
-  outline: none;
-}
-.form-input:focus { border-color: var(--red); }
-.form-input::placeholder { color: var(--text-3); }
-.form-input.error { border-color: #f56565; }
-
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-.form-section-title {
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-3);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin: 24px 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.form-section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* Métodos de pagamento */
-.payment-methods {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.payment-method {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 14px;
-  text-align: center;
-  cursor: pointer;
-  transition: all var(--t-fast);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.payment-method:hover { border-color: var(--red); }
-.payment-method.active {
-  border-color: var(--red);
-  background: var(--red-soft);
-}
-.payment-method .pm-icon { font-size: 1.6rem; }
-.payment-method .pm-label { font-size: 0.78rem; font-weight: 600; color: var(--text-2); }
-.payment-method.active .pm-label { color: var(--red); }
-
-/* Cartão visual */
-.card-visual {
-  background: linear-gradient(135deg, #1e1e2a, #2d1f3d);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
-  min-height: 160px;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.card-visual::before {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 150px; height: 150px;
-  background: radial-gradient(circle, rgba(255,45,67,0.2), transparent);
-  border-radius: 50%;
-}
-.card-chip {
-  width: 42px; height: 32px;
-  background: linear-gradient(135deg, #f5c518, #e0a800);
-  border-radius: 6px;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
-}
-.card-number-display {
-  font-family: 'Courier New', monospace;
-  font-size: 1.05rem;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 16px;
-  position: relative;
-  z-index: 1;
-}
-.card-footer-display {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  z-index: 1;
-}
-.card-footer-display .label { font-size: 0.6rem; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 2px; }
-.card-footer-display .value { font-size: 0.85rem; color: rgba(255,255,255,0.9); font-weight: 600; }
-
-/* Input cartão com ícone */
-.input-with-icon { position: relative; }
-.input-with-icon .form-input { padding-right: 48px; }
-.input-with-icon .card-flag {
-  position: absolute;
-  right: 12px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.4rem;
-  pointer-events: none;
-}
-
-/* PIX section */
-.pix-info {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 20px;
-  text-align: center;
-  display: none;
-}
-.pix-info.active { display: block; }
-.pix-qr-placeholder {
-  width: 160px; height: 160px;
-  background: var(--card);
-  border: 1px dashed var(--border-light);
-  border-radius: var(--r-sm);
-  margin: 16px auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-3);
-  font-size: 0.8rem;
-}
-.pix-key-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 12px 16px;
-  font-family: monospace;
-  font-size: 0.8rem;
-  color: var(--text-2);
-  word-break: break-all;
-  text-align: left;
-  margin-top: 12px;
-  cursor: pointer;
-  transition: border-color var(--t-fast);
-}
-.pix-key-box:hover { border-color: var(--red); }
-
-/* Cartão forms */
-.card-fields { display: none; }
-.card-fields.active { display: block; }
-
-/* Boleto */
-.boleto-info { display: none; text-align: center; padding: 16px 0; }
-.boleto-info.active { display: block; }
-
-/* Submit */
-.btn-finalizar {
-  width: 100%;
-  padding: 18px;
-  background: var(--red);
+  background: #e0001b;
+  transform: scale(1.03);
+  box-shadow: 0 8px 28px rgba(255,45,67,0.42);
   color: #fff;
-  border: none;
-  border-radius: var(--r-md);
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 24px;
-  transition: all var(--t-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  letter-spacing: 0.03em;
+  text-decoration: none;
 }
-.btn-finalizar:hover:not(:disabled) { background: var(--red-dim); box-shadow: 0 8px 24px rgba(255,45,67,0.4); }
-.btn-finalizar:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-finalizar .spinner {
-  width: 18px; height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: none;
-}
-.btn-finalizar.loading .spinner { display: block; }
-.btn-finalizar.loading .btn-text { display: none; }
-@keyframes spin { to { transform: rotate(360deg) } }
+.btn-assinar:active { transform: scale(0.98); }
 
-.checkout-seguro {
+/* ─── SEGURANÇA ─── */
+.plano-seguro {
   text-align: center;
-  margin-top: 14px;
+  margin-top: 12px;
   color: var(--text-3);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
 }
 
-/* Mensagem de sucesso */
-.checkout-success {
-  text-align: center;
-  padding: 20px 0;
-  display: none;
+/* ─── GARANTIA BANNER ─── */
+.garantia-banner {
+  max-width: 640px;
+  margin: 0 auto 56px;
+  padding: 0 20px;
 }
-.checkout-success.active { display: block; }
-.success-icon { font-size: 4rem; margin-bottom: 16px; animation: pop 0.5s var(--ease); }
-@keyframes pop { from { transform: scale(0) } to { transform: scale(1) } }
-.success-title {
+.garantia-inner {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  text-align: left;
+}
+.garantia-icon { font-size: 2.8rem; flex-shrink: 0; }
+.garantia-title {
   font-family: var(--font-display);
-  font-size: 1.5rem;
   font-weight: 700;
-  color: #48bb78;
-  margin-bottom: 8px;
+  color: var(--text-1);
+  font-size: 1rem;
+  margin-bottom: 4px;
 }
-.success-msg { color: var(--text-2); font-size: 0.9rem; line-height: 1.6; }
+.garantia-desc { color: var(--text-2); font-size: 0.85rem; line-height: 1.55; }
 
-/* Mensagem de erro */
-.checkout-error-msg {
-  background: rgba(245,101,101,0.1);
-  border: 1px solid rgba(245,101,101,0.3);
-  border-radius: var(--r-sm);
-  padding: 12px 16px;
-  color: #f56565;
-  font-size: 0.88rem;
-  margin-top: 14px;
-  display: none;
-}
-.checkout-error-msg.active { display: block; }
-
-/* FAQ dos planos */
+/* ─── FAQ ─── */
 .planos-faq {
-  max-width: 720px;
+  max-width: 700px;
   margin: 0 auto 80px;
   padding: 0 20px;
 }
 .planos-faq h2 {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 700;
   text-align: center;
   margin-bottom: 28px;
@@ -514,13 +245,13 @@
   margin-bottom: 10px;
   overflow: hidden;
 }
-.faq-question {
+.faq-q {
   width: 100%;
   background: none;
   border: none;
   color: var(--text-1);
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 0.93rem;
   font-weight: 600;
   text-align: left;
   padding: 18px 20px;
@@ -529,25 +260,29 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  transition: color var(--t-fast);
+  transition: color 0.15s;
 }
-.faq-question:hover { color: var(--red); }
-.faq-question .faq-arrow { transition: transform var(--t-fast); flex-shrink: 0; font-size: 0.8rem; color: var(--text-3); }
+.faq-q:hover { color: var(--red); }
+.faq-arrow { font-size: 0.78rem; color: var(--text-3); transition: transform 0.3s; flex-shrink: 0; }
 .faq-item.open .faq-arrow { transform: rotate(180deg); }
-.faq-answer {
+.faq-a {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.35s var(--ease);
+  transition: max-height 0.35s ease;
 }
-.faq-item.open .faq-answer { max-height: 200px; }
-.faq-answer p { padding: 0 20px 18px; color: var(--text-2); font-size: 0.88rem; line-height: 1.7; }
+.faq-item.open .faq-a { max-height: 180px; }
+.faq-a p {
+  padding: 0 20px 18px;
+  color: var(--text-2);
+  font-size: 0.87rem;
+  line-height: 1.7;
+  margin: 0;
+}
 
-/* Responsivo */
+/* ─── RESPONSIVO ─── */
 @media (max-width: 600px) {
-  .checkout-modal { padding: 28px 20px; }
-  .form-row { grid-template-columns: 1fr; }
-  .plano-card { padding: 28px 22px; }
-  .payment-methods { grid-template-columns: 1fr 1fr; }
+  .garantia-inner { flex-direction: column; text-align: center; }
+  .plano-card { padding: 28px 22px 26px; }
 }
 </style>
 </head>
@@ -555,7 +290,9 @@
 
 <!-- ═══ HEADER ═══ -->
 <header class="header" id="mainHeader">
-  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home">
+    <img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block">
+  </a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
     <a href="catalogo.html?tipo=filmes">Filmes</a>
@@ -572,9 +309,11 @@
     </div>
   </nav>
   <div class="search-wrapper" style="display:none"></div>
-  <a href="planos.html" class="auth-btn" style="background:var(--red);color:#fff;font-weight:700">🍿 Assinar</a>
+  <a href="planos.html" class="auth-btn" style="background:var(--red);color:#fff;font-weight:700;border-color:var(--red)">🍿 Assinar</a>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
-  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </header>
 
 <!-- ═══ MOBILE NAV ═══ -->
@@ -594,14 +333,14 @@
 <!-- ═══ HERO ═══ -->
 <section class="planos-hero">
   <h1>Escolha seu <span>Plano</span> 🍿</h1>
-  <p>Mais de 22 mil filmes, séries e 200 canais ao vivo. Sem anúncios, sem complicação.</p>
+  <p>Mais de 22 mil filmes, séries e 200 canais ao vivo. Sem anúncios, cancele quando quiser.</p>
 </section>
 
-<!-- ═══ CARDS DOS PLANOS ═══ -->
+<!-- ═══ CARDS ═══ -->
 <div class="planos-grid">
 
   <!-- GOLD -->
-  <div class="plano-card" id="card-gold">
+  <div class="plano-card">
     <span class="plano-emoji">🍿</span>
     <div class="plano-nome">Pipoca Flix Gold</div>
     <div class="plano-preco">
@@ -614,15 +353,18 @@
       <li>Mais de 22 mil filmes</li>
       <li>Mais de 22 mil séries</li>
       <li>Mais de 200 canais abertos e fechados</li>
-      <li>Aplicativo e site sem anúncios</li>
-      <li>Baixe qualquer filme ou série</li>
+      <li>App e site sem anúncios</li>
+      <li>Baixe filmes e séries</li>
       <li>Suporte prioritário</li>
     </ul>
-    <button class="btn-assinar" onclick="abrirCheckout('gold')">Assinar Gold</button>
+    <a href="https://pay.cakto.com.br/3ccvrnz_916550" target="_blank" rel="noopener" class="btn-assinar">
+      🍿 Assinar Gold — R$ 10/mês
+    </a>
+    <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
   <!-- CASAL -->
-  <div class="plano-card destaque" id="card-casal">
+  <div class="plano-card destaque">
     <span class="plano-emoji">❤️</span>
     <div class="plano-nome">Pipoca Flix Casal</div>
     <div class="plano-preco">
@@ -635,15 +377,18 @@
       <li>Mais de 22 mil filmes</li>
       <li>Mais de 22 mil séries</li>
       <li>Mais de 200 canais abertos e fechados</li>
-      <li>Aplicativo e site sem anúncios</li>
-      <li>Baixe qualquer filme ou série</li>
+      <li>App e site sem anúncios</li>
+      <li>Baixe filmes e séries</li>
       <li>Suporte prioritário</li>
     </ul>
-    <button class="btn-assinar" onclick="abrirCheckout('casal')">Assinar Casal</button>
+    <a href="https://pay.cakto.com.br/3dm4q7q" target="_blank" rel="noopener" class="btn-assinar">
+      ❤️ Assinar Casal — R$ 17,90/mês
+    </a>
+    <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
   <!-- FAMÍLIA -->
-  <div class="plano-card" id="card-familia">
+  <div class="plano-card">
     <span class="plano-emoji">👨‍👩‍👧</span>
     <div class="plano-nome">Pipoca Flix Família</div>
     <div class="plano-preco">
@@ -656,39 +401,74 @@
       <li>Mais de 22 mil filmes</li>
       <li>Mais de 22 mil séries</li>
       <li>Mais de 200 canais abertos e fechados</li>
-      <li>Aplicativo e site sem anúncios</li>
-      <li>Baixe qualquer filme ou série</li>
+      <li>App e site sem anúncios</li>
+      <li>Baixe filmes e séries</li>
       <li>Suporte prioritário</li>
     </ul>
-    <button class="btn-assinar" onclick="abrirCheckout('familia')">Assinar Família</button>
+    <a href="https://pay.cakto.com.br/53x84bm" target="_blank" rel="noopener" class="btn-assinar">
+      👨‍👩‍👧 Assinar Família — R$ 27,90/mês
+    </a>
+    <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
+</div>
+
+<!-- ═══ GARANTIA ═══ -->
+<div class="garantia-banner">
+  <div class="garantia-inner">
+    <span class="garantia-icon">🛡️</span>
+    <div>
+      <div class="garantia-title">Satisfação garantida ou seu dinheiro de volta</div>
+      <div class="garantia-desc">Não ficou satisfeito nos primeiros 7 dias? Devolvemos 100% do valor sem perguntas. Experimente sem risco.</div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ FAQ ═══ -->
 <div class="planos-faq">
   <h2>Dúvidas Frequentes</h2>
+
   <div class="faq-item">
-    <button class="faq-question" onclick="toggleFaq(this)">Posso cancelar a qualquer momento? <span class="faq-arrow">▼</span></button>
-    <div class="faq-answer"><p>Sim! Você pode cancelar sua assinatura quando quiser, sem multas ou taxas. O acesso permanece até o fim do período pago.</p></div>
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Posso cancelar quando quiser? <span class="faq-arrow">▼</span>
+    </button>
+    <div class="faq-a"><p>Sim! Cancele quando quiser, sem multa. Seu acesso continua até o fim do período já pago.</p></div>
   </div>
+
   <div class="faq-item">
-    <button class="faq-question" onclick="toggleFaq(this)">Quais formas de pagamento são aceitas? <span class="faq-arrow">▼</span></button>
-    <div class="faq-answer"><p>Aceitamos cartão de crédito (Visa, Mastercard, Elo, Amex), PIX e boleto bancário — tudo com processamento seguro pela Cakto.</p></div>
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Quais formas de pagamento são aceitas? <span class="faq-arrow">▼</span>
+    </button>
+    <div class="faq-a"><p>Cartão de crédito, PIX e boleto bancário — tudo processado com segurança pela plataforma Cakto.</p></div>
   </div>
+
   <div class="faq-item">
-    <button class="faq-question" onclick="toggleFaq(this)">Funciona no celular e na Smart TV? <span class="faq-arrow">▼</span></button>
-    <div class="faq-answer"><p>Sim! O PipocaFlix funciona em qualquer dispositivo com navegador: celular, tablet, PC e Smart TV. Também temos aplicativo disponível.</p></div>
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Funciona no celular, PC e Smart TV? <span class="faq-arrow">▼</span>
+    </button>
+    <div class="faq-a"><p>Sim! O PipocaFlix roda em qualquer dispositivo com navegador. Celular, tablet, computador e Smart TV — onde você estiver.</p></div>
   </div>
+
   <div class="faq-item">
-    <button class="faq-question" onclick="toggleFaq(this)">Posso fazer download dos filmes? <span class="faq-arrow">▼</span></button>
-    <div class="faq-answer"><p>Sim! Todos os planos incluem a opção de baixar filmes e séries para assistir offline quando quiser.</p></div>
+    <button class="faq-q" onclick="toggleFaq(this)">
+      Posso baixar filmes e séries? <span class="faq-arrow">▼</span>
+    </button>
+    <div class="faq-a"><p>Sim! Todos os planos permitem baixar qualquer título para assistir offline, sem depender de internet.</p></div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">
+      O que são as telas simultâneas? <span class="faq-arrow">▼</span>
+    </button>
+    <div class="faq-a"><p>É quantos dispositivos podem assistir ao mesmo tempo com a mesma conta. Gold = 1 pessoa, Casal = 2 pessoas ao mesmo tempo, Família = 4 pessoas ao mesmo tempo.</p></div>
   </div>
 </div>
 
 <!-- ═══ FOOTER ═══ -->
 <footer class="footer">
-  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <div class="footer-logo">
+    <img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto">
+  </div>
   <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
   <div class="footer-bottom">
     <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
@@ -699,375 +479,11 @@
     <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
     <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
     <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+    <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
   </div>
 </footer>
 
-<!-- ═══ MODAL CHECKOUT ═══ -->
-<div class="checkout-overlay" id="checkoutOverlay" onclick="fecharCheckoutFora(event)">
-  <div class="checkout-modal" id="checkoutModal">
-    <button class="checkout-close" onclick="fecharCheckout()">✕</button>
-
-    <!-- Tela de sucesso (inicialmente oculta) -->
-    <div class="checkout-success" id="checkoutSuccess">
-      <div class="success-icon">🎉</div>
-      <div class="success-title">Pagamento Confirmado!</div>
-      <p class="success-msg">Bem-vindo ao <strong>PipocaFlix</strong>! Seu acesso está ativo.<br>Você receberá um e-mail com os detalhes em breve.</p>
-      <button class="btn-finalizar" style="margin-top:24px" onclick="fecharCheckout()">
-        <span class="btn-text">🍿 Começar a Assistir</span>
-      </button>
-    </div>
-
-    <!-- Formulário de checkout -->
-    <div id="checkoutForm">
-      <!-- Info do plano selecionado -->
-      <div class="checkout-plano-info">
-        <span class="emoji" id="co-emoji">🍿</span>
-        <div class="info">
-          <div class="nome" id="co-nome">Pipoca Flix Gold</div>
-          <div class="preco" id="co-preco">R$ 10/mês</div>
-        </div>
-      </div>
-
-      <div class="checkout-title">Finalizar Assinatura</div>
-      <p class="checkout-subtitle">Preencha seus dados para continuar</p>
-
-      <!-- Dados pessoais -->
-      <div class="form-section-title">Dados Pessoais</div>
-
-      <div class="form-group">
-        <label class="form-label">Nome Completo</label>
-        <input type="text" class="form-input" id="co-nome-input" placeholder="Seu nome completo" autocomplete="name">
-      </div>
-      <div class="form-group">
-        <label class="form-label">E-mail</label>
-        <input type="email" class="form-input" id="co-email" placeholder="seu@email.com" autocomplete="email">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">CPF</label>
-          <input type="text" class="form-input" id="co-cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Telefone</label>
-          <input type="text" class="form-input" id="co-tel" placeholder="(00) 00000-0000" maxlength="15" autocomplete="tel">
-        </div>
-      </div>
-
-      <!-- Método de pagamento -->
-      <div class="form-section-title">Forma de Pagamento</div>
-
-      <div class="payment-methods">
-        <div class="payment-method active" onclick="selecionarPagamento('cartao', this)">
-          <span class="pm-icon">💳</span>
-          <span class="pm-label">Cartão</span>
-        </div>
-        <div class="payment-method" onclick="selecionarPagamento('pix', this)">
-          <span class="pm-icon">⚡</span>
-          <span class="pm-label">PIX</span>
-        </div>
-      </div>
-
-      <!-- Campos do cartão -->
-      <div class="card-fields active" id="cartaoFields">
-        <!-- Visual do cartão -->
-        <div class="card-visual">
-          <div class="card-chip"></div>
-          <div class="card-number-display" id="cardNumberDisplay">•••• •••• •••• ••••</div>
-          <div class="card-footer-display">
-            <div>
-              <div class="label">Titular</div>
-              <div class="value" id="cardNameDisplay">SEU NOME</div>
-            </div>
-            <div>
-              <div class="label">Validade</div>
-              <div class="value" id="cardExpiryDisplay">MM/AA</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Número do Cartão</label>
-          <div class="input-with-icon">
-            <input type="text" class="form-input" id="co-card-number" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number">
-            <span class="card-flag" id="cardFlag">💳</span>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nome no Cartão</label>
-          <input type="text" class="form-input" id="co-card-name" placeholder="Como está no cartão" autocomplete="cc-name" style="text-transform:uppercase">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Validade</label>
-            <input type="text" class="form-input" id="co-card-expiry" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp">
-          </div>
-          <div class="form-group">
-            <label class="form-label">CVV</label>
-            <input type="text" class="form-input" id="co-card-cvv" placeholder="•••" maxlength="4" autocomplete="cc-csc">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Parcelas</label>
-          <select class="form-input" id="co-parcelas">
-            <option value="1" id="parcela-label">1x — carregando...</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- PIX -->
-      <div class="pix-info" id="pixInfo">
-        <p style="color:var(--text-2);font-size:0.9rem">Após confirmar, você receberá o QR Code e a chave PIX para pagamento instantâneo.</p>
-        <div class="pix-qr-placeholder">QR Code gerado<br>após confirmar</div>
-        <p style="color:var(--text-3);font-size:0.78rem;margin-top:8px">✓ Aprovação em segundos &nbsp;·&nbsp; ✓ Sem taxas extras</p>
-      </div>
-
-      <!-- Erro -->
-      <div class="checkout-error-msg" id="checkoutError"></div>
-
-      <!-- Botão finalizar -->
-      <button class="btn-finalizar" id="btnFinalizar" onclick="finalizarPedido()">
-        <div class="spinner"></div>
-        <span class="btn-text">🔒 Finalizar Assinatura</span>
-      </button>
-
-      <p class="checkout-seguro">🔒 Pagamento 100% seguro via <strong>Cakto</strong></p>
-    </div>
-  </div>
-</div>
-
 <script>
-// ─── CONFIG ───
-// ⚠️ Após criar o Worker no Cloudflare, cole a URL aqui:
-const WORKER_URL = 'https://green-shadow-52fc.slacarambafdsosobrenome.workers.dev';
-
-// ─── PLANOS ───
-const PLANOS = {
-  gold: {
-    emoji: '🍿', nome: 'Pipoca Flix Gold', preco: 'R$ 10/mês', valor: 10.00,
-    link: 'https://pay.cakto.com.br/3ccvrnz_916550'
-  },
-  casal: {
-    emoji: '❤️', nome: 'Pipoca Flix Casal', preco: 'R$ 17,90/mês', valor: 17.90,
-    link: 'https://pay.cakto.com.br/3dm4q7q'
-  },
-  familia: {
-    emoji: '👨‍👩‍👧', nome: 'Pipoca Flix Família', preco: 'R$ 27,90/mês', valor: 27.90,
-    link: 'https://pay.cakto.com.br/53x84bm'
-  }
-};
-
-let planoAtual = null;
-let metodoPagamento = 'cartao';
-
-// ─── ABRIR CHECKOUT ───
-function abrirCheckout(plano) {
-  planoAtual = plano;
-  const p = PLANOS[plano];
-  document.getElementById('co-emoji').textContent = p.emoji;
-  document.getElementById('co-nome').textContent = p.nome;
-  document.getElementById('co-preco').textContent = p.preco;
-  document.getElementById('checkoutOverlay').classList.add('active');
-  document.getElementById('checkoutSuccess').classList.remove('active');
-  document.getElementById('checkoutForm').style.display = '';
-  document.getElementById('checkoutError').classList.remove('active');
-  document.body.style.overflow = 'hidden';
-
-  // Atualizar parcelas
-  atualizarParcelas(p.valor);
-}
-
-function atualizarParcelas(valor) {
-  const sel = document.getElementById('co-parcelas');
-  sel.innerHTML = '';
-  const maxParcelas = valor >= 10 ? Math.min(Math.floor(valor), 12) : 1;
-  for (let i = 1; i <= maxParcelas; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = `${i}x de R$ ${(valor / i).toFixed(2).replace('.', ',')} ${i === 1 ? '(sem juros)' : ''}`;
-    sel.appendChild(opt);
-  }
-}
-
-function fecharCheckout() {
-  document.getElementById('checkoutOverlay').classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-function fecharCheckoutFora(e) {
-  if (e.target === document.getElementById('checkoutOverlay')) fecharCheckout();
-}
-
-// ─── MÉTODO PAGAMENTO ───
-function selecionarPagamento(metodo, el) {
-  metodoPagamento = metodo;
-  document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('cartaoFields').classList.toggle('active', metodo === 'cartao');
-  document.getElementById('pixInfo').classList.toggle('active', metodo === 'pix');
-}
-
-// ─── MÁSCARAS ───
-document.getElementById('co-cpf').addEventListener('input', function(e) {
-  let v = e.target.value.replace(/\D/g,'');
-  v = v.replace(/(\d{3})(\d)/,'$1.$2');
-  v = v.replace(/(\d{3})(\d)/,'$1.$2');
-  v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-  e.target.value = v;
-});
-
-document.getElementById('co-tel').addEventListener('input', function(e) {
-  let v = e.target.value.replace(/\D/g,'');
-  if (v.length <= 10) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/,'($1) $2-$3');
-  else v = v.replace(/(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
-  e.target.value = v.trim().replace(/-$/,'');
-});
-
-document.getElementById('co-card-number').addEventListener('input', function(e) {
-  let v = e.target.value.replace(/\D/g,'').substring(0,16);
-  v = v.match(/.{1,4}/g)?.join(' ') || v;
-  e.target.value = v;
-  document.getElementById('cardNumberDisplay').textContent = v.padEnd(19,'•').replace(/(\d{4})/g,'$1 ').trim() || '•••• •••• •••• ••••';
-  // Bandeira
-  const flag = document.getElementById('cardFlag');
-  if (/^4/.test(v)) flag.textContent = '💳';
-  else if (/^5[1-5]/.test(v)) flag.textContent = '💳';
-  else if (/^3[47]/.test(v)) flag.textContent = '💳';
-  else flag.textContent = '💳';
-});
-
-document.getElementById('co-card-name').addEventListener('input', function(e) {
-  e.target.value = e.target.value.toUpperCase();
-  document.getElementById('cardNameDisplay').textContent = e.target.value || 'SEU NOME';
-});
-
-document.getElementById('co-card-expiry').addEventListener('input', function(e) {
-  let v = e.target.value.replace(/\D/g,'');
-  if (v.length >= 2) v = v.substring(0,2) + '/' + v.substring(2,4);
-  e.target.value = v;
-  document.getElementById('cardExpiryDisplay').textContent = v || 'MM/AA';
-});
-
-document.getElementById('co-card-cvv').addEventListener('input', function(e) {
-  e.target.value = e.target.value.replace(/\D/g,'');
-});
-
-// ─── VALIDAÇÃO ───
-function validarCampos() {
-  const nome = document.getElementById('co-nome-input').value.trim();
-  const email = document.getElementById('co-email').value.trim();
-  const cpf = document.getElementById('co-cpf').value.replace(/\D/g,'');
-
-  if (nome.length < 3) { mostrarErro('Informe seu nome completo.'); return false; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { mostrarErro('Informe um e-mail válido.'); return false; }
-  if (cpf.length !== 11) { mostrarErro('CPF inválido.'); return false; }
-
-  if (metodoPagamento === 'cartao') {
-    const num = document.getElementById('co-card-number').value.replace(/\D/g,'');
-    const expiry = document.getElementById('co-card-expiry').value;
-    const cvv = document.getElementById('co-card-cvv').value;
-    const cardName = document.getElementById('co-card-name').value.trim();
-    if (num.length < 13) { mostrarErro('Número do cartão inválido.'); return false; }
-    if (!/^\d{2}\/\d{2}$/.test(expiry)) { mostrarErro('Data de validade inválida (MM/AA).'); return false; }
-    if (cvv.length < 3) { mostrarErro('CVV inválido.'); return false; }
-    if (cardName.length < 3) { mostrarErro('Informe o nome como está no cartão.'); return false; }
-  }
-  return true;
-}
-
-function mostrarErro(msg) {
-  const el = document.getElementById('checkoutError');
-  el.textContent = '⚠️ ' + msg;
-  el.classList.add('active');
-  setTimeout(() => el.classList.remove('active'), 5000);
-}
-
-// ─── FINALIZAR PEDIDO ───
-async function finalizarPedido() {
-  if (!validarCampos()) return;
-
-  const btn = document.getElementById('btnFinalizar');
-  btn.classList.add('loading');
-  btn.disabled = true;
-  document.getElementById('checkoutError').classList.remove('active');
-
-  const plano = PLANOS[planoAtual];
-
-  try {
-    // Montar payload
-    const [mes, ano] = (document.getElementById('co-card-expiry').value || '').split('/');
-    const payload = {
-      customer: {
-        name: document.getElementById('co-nome-input').value.trim(),
-        email: document.getElementById('co-email').value.trim(),
-        document: document.getElementById('co-cpf').value.replace(/\D/g,''),
-        phone: document.getElementById('co-tel').value.replace(/\D/g,'')
-      },
-      payment: metodoPagamento === 'cartao' ? {
-        method: 'credit_card',
-        installments: parseInt(document.getElementById('co-parcelas').value),
-        card: {
-          number: document.getElementById('co-card-number').value.replace(/\D/g,''),
-          holder_name: document.getElementById('co-card-name').value.trim(),
-          expiry_month: mes,
-          expiry_year: '20' + ano,
-          cvv: document.getElementById('co-card-cvv').value
-        }
-      } : { method: 'pix' }
-    };
-
-    // Chamar o Worker (que chama a Cakto com segurança)
-    const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'create_order', payload })
-    });
-
-    const data = await res.json();
-
-    if (res.ok && (data.id || data.status)) {
-      // ✅ Pedido criado com sucesso
-      if (metodoPagamento === 'pix' && data.pix_qr_code) {
-        mostrarPix(data.pix_qr_code, data.pix_copy_paste);
-      } else {
-        mostrarSucesso();
-      }
-    } else {
-      mostrarErro(data.error || data.message || 'Erro ao processar pagamento. Tente novamente.');
-    }
-  } catch (err) {
-    console.error('[Checkout Error]', err);
-    mostrarErro('Erro de conexão. Verifique sua internet e tente novamente.');
-  } finally {
-    btn.classList.remove('loading');
-    btn.disabled = false;
-  }
-}
-
-function mostrarSucesso() {
-  document.getElementById('checkoutForm').style.display = 'none';
-  document.getElementById('checkoutSuccess').classList.add('active');
-}
-
-function mostrarPix(qrCode, copyPaste) {
-  // Atualiza o QR code e a chave copia-e-cola no modal PIX
-  const qrEl = document.querySelector('.pix-qr-placeholder');
-  const keyEl = document.querySelector('.pix-key-box');
-  if (qrEl && qrCode) {
-    qrEl.innerHTML = `<img src="data:image/png;base64,${qrCode}" alt="QR Code PIX" style="width:100%;height:100%;object-fit:contain;border-radius:8px">`;
-  }
-  if (keyEl && copyPaste) {
-    keyEl.textContent = copyPaste;
-    keyEl.onclick = () => { navigator.clipboard.writeText(copyPaste); keyEl.textContent = '✅ Copiado!'; setTimeout(()=>keyEl.textContent=copyPaste,2000); };
-  }
-  // Mostra aviso de aguardar confirmação
-  const errEl = document.getElementById('checkoutError');
-  errEl.style.background = 'rgba(72,187,120,0.1)';
-  errEl.style.borderColor = 'rgba(72,187,120,0.3)';
-  errEl.style.color = '#48bb78';
-  errEl.textContent = '⚡ PIX gerado! Escaneie o QR Code ou copie a chave abaixo.';
-  errEl.classList.add('active');
-}
-
 // ─── FAQ ───
 function toggleFaq(btn) {
   const item = btn.closest('.faq-item');
@@ -1077,40 +493,38 @@ function toggleFaq(btn) {
 }
 
 // ─── TEMA ───
-const themeBtn = document.getElementById('themeToggle');
-if (themeBtn) {
-  const applyTheme = t => {
+(function() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const apply = t => {
     document.documentElement.setAttribute('data-theme', t);
     localStorage.setItem('pflix_theme', t);
-    themeBtn.textContent = t === 'dark' ? '🌙' : '☀️';
+    btn.textContent = t === 'dark' ? '🌙' : '☀️';
   };
-  applyTheme(localStorage.getItem('pflix_theme') || 'dark');
-  themeBtn.addEventListener('click', () => {
-    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  apply(localStorage.getItem('pflix_theme') || 'dark');
+  btn.addEventListener('click', () => {
+    apply(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
-}
-
-// ESC para fechar modal
-document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharCheckout(); });
+})();
 
 // ─── HEADER SCROLL ───
 (function() {
-  const header = document.getElementById('mainHeader');
-  if (!header) return;
-  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 20);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  const h = document.getElementById('mainHeader');
+  if (!h) return;
+  const fn = () => h.classList.toggle('scrolled', window.scrollY > 20);
+  window.addEventListener('scroll', fn, { passive: true });
+  fn();
 })();
 
-// ─── HAMBURGER MENU ───
+// ─── HAMBURGER ───
 (function() {
-  const btn = document.getElementById('hamburgerBtn');
+  const btn  = document.getElementById('hamburgerBtn');
   const menu = document.getElementById('mobileNavMenu');
   if (!btn || !menu) return;
   btn.addEventListener('click', () => {
     const open = menu.classList.toggle('open');
     btn.classList.toggle('open', open);
-    btn.setAttribute('aria-expanded', open.toString());
+    btn.setAttribute('aria-expanded', String(open));
   });
   menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
     menu.classList.remove('open');
