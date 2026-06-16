@@ -357,9 +357,9 @@
       <li>Baixe filmes e séries</li>
       <li>Suporte prioritário</li>
     </ul>
-    <a href="https://pay.cakto.com.br/3ccvrnz_916550" target="_blank" rel="noopener" class="btn-assinar">
+    <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/3ccvrnz_916550', 'Gold')">
       🍿 Assinar Gold — R$ 10/mês
-    </a>
+    </button>
     <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
@@ -381,9 +381,9 @@
       <li>Baixe filmes e séries</li>
       <li>Suporte prioritário</li>
     </ul>
-    <a href="https://pay.cakto.com.br/3dm4q7q" target="_blank" rel="noopener" class="btn-assinar">
+    <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/3dm4q7q', 'Casal')">
       ❤️ Assinar Casal — R$ 17,90/mês
-    </a>
+    </button>
     <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
@@ -405,9 +405,9 @@
       <li>Baixe filmes e séries</li>
       <li>Suporte prioritário</li>
     </ul>
-    <a href="https://pay.cakto.com.br/53x84bm" target="_blank" rel="noopener" class="btn-assinar">
+    <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/53x84bm', 'Família')">
       👨‍👩‍👧 Assinar Família — R$ 27,90/mês
-    </a>
+    </button>
     <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
@@ -539,5 +539,103 @@ function toggleFaq(btn) {
 })();
 </script>
 
+
+<!-- Firebase Auth -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const app  = initializeApp({
+    apiKey:            "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain:        "pipoca-flix-43de0.firebaseapp.com",
+    projectId:         "pipoca-flix-43de0",
+    storageBucket:     "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId:             "1:504338312989:web:b4949dd355624811017bf4",
+  });
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // Expõe pra o script não-module abaixo
+  window.PipocaAuth = {
+    login:         () => signInWithPopup(auth, provider),
+    getUser:       () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb),
+  };
+
+  // Atualiza botão do header
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Conta').split(' ')[0] + '</span>';
+      btn.onclick = () => window.location.href = 'perfil.html';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.onclick = () => window.PipocaAuth.login();
+    }
+  });
+</script>
+
+<!-- Modal de login -->
+<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(5,5,7,0.92);backdrop-filter:blur(10px);z-index:99999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--panel);border:1px solid var(--border-light);border-radius:var(--r-xl);padding:44px 36px;max-width:400px;width:100%;text-align:center;position:relative;animation:slideUp 0.3s var(--ease)">
+    <button onclick="document.getElementById('loginModal').style.display='none'" style="position:absolute;top:14px;right:14px;background:var(--surface);border:1px solid var(--border);color:var(--text-2);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-size:3rem;margin-bottom:16px">🍿</div>
+    <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--text-1);margin-bottom:8px">Entre para assinar</h2>
+    <p style="color:var(--text-2);font-size:0.9rem;margin-bottom:28px;line-height:1.55">Você precisa estar logado com sua conta Google para assinar um plano.</p>
+    <button id="btnLoginGoogle" onclick="loginEAssinar()" style="width:100%;padding:15px;background:#fff;color:#1f1f1f;border:none;border-radius:var(--r-md);font-family:var(--font-display);font-size:0.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:box-shadow 0.15s">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8C43.8 37.5 46.5 31.4 46.5 24.5z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.8 23.8 0 0 0 0 24c0 3.9.9 7.5 2.5 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6.1C6.6 42.6 14.7 48 24 48z"/></svg>
+      Entrar com Google
+    </button>
+    <p id="loginModalStatus" style="color:var(--text-3);font-size:0.78rem;margin-top:14px;min-height:18px"></p>
+  </div>
+</div>
+
+<script>
+// ─── Link do plano pendente ───
+let _pendingLink = null;
+
+function assinar(link, nomePlano) {
+  const user = window.PipocaAuth?.getUser?.();
+  if (user) {
+    // Já logado → vai direto
+    window.open(link, '_blank');
+  } else {
+    // Não logado → abre modal de login
+    _pendingLink = link;
+    const modal = document.getElementById('loginModal');
+    modal.style.display = 'flex';
+  }
+}
+
+async function loginEAssinar() {
+  const btn    = document.getElementById('btnLoginGoogle');
+  const status = document.getElementById('loginModalStatus');
+  btn.disabled = true;
+  status.textContent = 'Entrando...';
+
+  try {
+    await window.PipocaAuth.login();
+    // Login ok → fecha modal e abre link
+    document.getElementById('loginModal').style.display = 'none';
+    if (_pendingLink) {
+      window.open(_pendingLink, '_blank');
+      _pendingLink = null;
+    }
+  } catch (err) {
+    status.textContent = 'Erro ao entrar. Tente novamente.';
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Fecha modal clicando fora
+document.getElementById('loginModal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+</script>
 </body>
 </html>
