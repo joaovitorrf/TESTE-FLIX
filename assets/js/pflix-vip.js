@@ -1,13 +1,15 @@
 /**
- * PIPOCAFLIX — VIP Ad Blocker
+ * PIPOCAFLIX — VIP Ad Blocker v3
  * assets/js/pflix-vip.js
+ * Inclua este script em TODAS as páginas com anúncio, antes de </body>
+ * NÃO inclua em planos.html
  */
 (function () {
   'use strict';
 
   const FIREBASE_PROJECT = 'pipoca-flix-43de0';
   const FIREBASE_API_KEY = 'AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA';
-  const FS_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+  const FS_BASE = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE_PROJECT + '/databases/(default)/documents';
 
   const AD_SELECTORS = [
     '.ad-banner-wrap',
@@ -22,33 +24,45 @@
     'sorrowfulpsychology.com',
   ];
 
+  // Expõe status VIP globalmente para outras partes do site usarem
+  window.PipocaVIP = { ativo: false, plano: null };
+
   function matarAnuncios() {
-    // 1. Esconde e esvazia divs de anúncio
-    AD_SELECTORS.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
+    window.PipocaVIP.ativo = true;
+
+    // 1. Esconde divs de anúncio já no DOM
+    AD_SELECTORS.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) {
         el.style.setProperty('display', 'none', 'important');
         el.innerHTML = '';
       });
     });
 
-    // 2. Bloqueia scripts de anúncio futuros via MutationObserver
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(m => {
-        m.addedNodes.forEach(node => {
+    // 2. Bloqueia scripts de anúncio injetados dinamicamente
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        m.addedNodes.forEach(function(node) {
           if (!node) return;
-          // Script tag adicionado dinamicamente
           if (node.tagName === 'SCRIPT') {
-            const src = node.src || node.textContent || '';
-            if (AD_SCRIPT_KEYWORDS.some(kw => src.includes(kw))) {
+            var src = node.src || node.textContent || '';
+            if (AD_SCRIPT_KEYWORDS.some(function(kw){ return src.includes(kw); })) {
               node.remove();
+              return;
             }
           }
-          // Div de anúncio adicionada dinamicamente
           if (node.nodeType === 1) {
-            AD_SELECTORS.forEach(sel => {
+            // Esconde divs de ad inseridas dinamicamente
+            AD_SELECTORS.forEach(function(sel) {
               if (node.matches && node.matches(sel)) {
                 node.style.setProperty('display', 'none', 'important');
                 node.innerHTML = '';
+              }
+            });
+            // Mata iframes de ad inseridos dinamicamente
+            node.querySelectorAll && node.querySelectorAll('iframe').forEach(function(f) {
+              var src = f.src || '';
+              if (AD_SCRIPT_KEYWORDS.some(function(kw){ return src.includes(kw); })) {
+                f.remove();
               }
             });
           }
@@ -57,115 +71,115 @@
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
 
-    // 3. Bloqueia popunder — sobrescreve window.open
-    const _origOpen = window.open.bind(window);
-    window.open = function(url, ...args) {
-      if (url && AD_SCRIPT_KEYWORDS.some(kw => url.includes(kw))) return null;
-      // Bloqueia qualquer popunder (nova aba em clique)
+    // 3. Bloqueia window.open (popunder)
+    window.open = function(url) {
+      // Permite window.open normal de links do próprio site
+      if (url && (url.startsWith('/') || url.startsWith(location.origin))) {
+        return window.__origOpen ? window.__origOpen(url) : null;
+      }
       return null;
     };
 
-    // 4. Remove o banner "apoio 30 min" também
-    const supportBanner = document.getElementById('supportBannerOverlay');
-    if (supportBanner) supportBanner.remove();
+    // 4. Remove banner "apoio 30min"
+    var sb = document.getElementById('supportBannerOverlay');
+    if (sb) sb.remove();
+
+    // 5. Mata iframes de ad já existentes
+    document.querySelectorAll('iframe').forEach(function(f) {
+      var src = f.src || '';
+      if (AD_SCRIPT_KEYWORDS.some(function(kw){ return src.includes(kw); })) f.remove();
+    });
 
     document.body.classList.add('pflix-vip-ativo');
     console.log('[PipocaFlix VIP] ✅ Anúncios desativados');
+
+    // Dispara evento para outras partes do site reagirem
+    document.dispatchEvent(new CustomEvent('pflix:vip-ativo', { detail: { plano: window.PipocaVIP.plano } }));
   }
 
   async function verificarVipFirestore(email) {
-    const emailKey = email.replace(/[.#$[\]]/g, '_');
-    const url = `${FS_BASE}/vip/${emailKey}?key=${FIREBASE_API_KEY}`;
+    var emailKey = email.replace(/[.#$[\]]/g, '_');
+    var url = FS_BASE + '/vip/' + emailKey + '?key=' + FIREBASE_API_KEY;
     try {
-      const res = await fetch(url);
-      if (!res.ok) return false;
-      const data = await res.json();
-      const vipAte = data?.fields?.vip_ate?.stringValue;
-      if (!vipAte) return false;
-      return new Date(vipAte) > new Date();
-    } catch {
-      return false;
+      var res = await fetch(url);
+      if (!res.ok) return { ativo: false, plano: null };
+      var data = await res.json();
+      var vipAte = data && data.fields && data.fields.vip_ate && data.fields.vip_ate.stringValue;
+      var plano  = data && data.fields && data.fields.plano  && data.fields.plano.stringValue;
+      if (!vipAte) return { ativo: false, plano: null };
+      return { ativo: new Date(vipAte) > new Date(), plano: plano || 'gold' };
+    } catch(e) {
+      return { ativo: false, plano: null };
     }
   }
 
   function verificarCacheLocal(email) {
     try {
-      const raw = localStorage.getItem('pflix_vip_cache');
+      var raw = localStorage.getItem('pflix_vip_cache');
       if (!raw) return null;
-      const cache = JSON.parse(raw);
+      var cache = JSON.parse(raw);
       if (cache.email !== email) return null;
       if (new Date() > new Date(cache.cache_ate)) return null;
-      return cache.is_vip;
-    } catch { return null; }
+      return cache;
+    } catch(e) { return null; }
   }
 
-  function salvarCacheLocal(email, isVip) {
+  function salvarCacheLocal(email, ativo, plano) {
     try {
       localStorage.setItem('pflix_vip_cache', JSON.stringify({
-        email,
-        is_vip: isVip,
+        email: email,
+        is_vip: ativo,
+        plano: plano,
         cache_ate: new Date(Date.now() + 60 * 60 * 1000).toISOString()
       }));
-    } catch {}
+    } catch(e) {}
   }
 
   async function checarVip(email) {
-    const cached = verificarCacheLocal(email);
-    if (cached === true) { matarAnuncios(); return; }
-    if (cached === false) return;
-
-    const isVip = await verificarVipFirestore(email);
-    salvarCacheLocal(email, isVip);
-    if (isVip) matarAnuncios();
+    var cached = verificarCacheLocal(email);
+    if (cached) {
+      window.PipocaVIP.plano = cached.plano || null;
+      if (cached.is_vip === true) { matarAnuncios(); return; }
+      if (cached.is_vip === false) return;
+    }
+    var resultado = await verificarVipFirestore(email);
+    salvarCacheLocal(email, resultado.ativo, resultado.plano);
+    window.PipocaVIP.plano = resultado.plano;
+    if (resultado.ativo) matarAnuncios();
   }
 
-  // ── Estratégia: escuta o evento customizado que o Firebase dispara ──
-  // O index.html já tem onAuthStateChanged — vamos nos pendurar nele
-  // via um evento customizado que vamos injetar lá, OU via polling inteligente
+  // Salva window.open original antes de qualquer script de ad
+  if (!window.__origOpen) window.__origOpen = window.open.bind(window);
 
   function aguardarAuth() {
-    // Tenta pegar o usuário imediatamente
-    const user = window.PipocaAuth?.getUser?.();
-    if (user?.email) {
+    var user = window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser();
+    if (user && user.email) {
       checarVip(user.email.toLowerCase().trim());
       return;
     }
-
-    // Se PipocaAuth ainda não existe ou usuário ainda não carregou,
-    // usa onAuthChanged se disponível
-    if (window.PipocaAuth?.onAuthChanged) {
-      window.PipocaAuth.onAuthChanged(function(user) {
-        if (user?.email) {
-          checarVip(user.email.toLowerCase().trim());
-        }
+    if (window.PipocaAuth && window.PipocaAuth.onAuthChanged) {
+      window.PipocaAuth.onAuthChanged(function(u) {
+        if (u && u.email) checarVip(u.email.toLowerCase().trim());
       });
       return;
     }
-
-    // Fallback: polling até PipocaAuth aparecer (máx 10s)
-    let tentativas = 0;
-    const intervalo = setInterval(function() {
+    // Polling: espera PipocaAuth ficar disponível
+    var tentativas = 0;
+    var intervalo = setInterval(function() {
       tentativas++;
-      if (tentativas > 40) { clearInterval(intervalo); return; } // desiste após 10s
-
-      const auth = window.PipocaAuth;
-      if (!auth) return;
-
-      // PipocaAuth existe — usa onAuthChanged
+      if (tentativas > 60) { clearInterval(intervalo); return; }
+      var auth = window.PipocaAuth;
+      if (!auth || !auth.onAuthChanged) return;
       clearInterval(intervalo);
-      auth.onAuthChanged(function(user) {
-        if (user?.email) {
-          checarVip(user.email.toLowerCase().trim());
-        }
+      auth.onAuthChanged(function(u) {
+        if (u && u.email) checarVip(u.email.toLowerCase().trim());
       });
-    }, 250);
+    }, 200);
   }
 
-  // Inicia após DOM pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', aguardarAuth);
   } else {
     aguardarAuth();
   }
-
 })();
