@@ -374,3 +374,27 @@ window.PipocaAPI = {
   getCanais,
   normalizeStr,
 };
+
+/* ─────────────────────────────────────────────
+   getTop10 — busca a aba Top10 da planilha
+   Coluna A: nome do filme/série (a partir da linha 2)
+───────────────────────────────────────────── */
+const TOP10_CSV_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=1557218892';
+
+async function getTop10Names() {
+  try {
+    const res = await fetch(TOP10_CSV_URL);
+    const text = await res.text();
+    const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+    // Pula linha 1 (cabeçalho), pega coluna A
+    return lines.slice(1)
+      .map(l => parseCSVLine(l)[0])
+      .map(n => (n||'').trim())
+      .filter(n => n.length > 0);
+  } catch(e) {
+    console.error('[API] getTop10Names error:', e);
+    return [];
+  }
+}
+
+window.PipocaAPI.getTop10Names = getTop10Names;
