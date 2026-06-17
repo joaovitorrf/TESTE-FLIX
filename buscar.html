@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buscar — PipocaFlix</title>
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){ const t=localStorage.getItem('pflix_theme')||'dark'; document.documentElement.setAttribute('data-theme',t); })();</script>
+<style>
+.buscar-hero {
+  padding: 100px 20px 0;
+  text-align: center;
+  background: radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255,45,67,0.1) 0%, transparent 70%);
+}
+.buscar-input-wrap {
+  max-width: 680px;
+  margin: 0 auto 48px;
+  padding: 0 20px;
+  position: relative;
+}
+.buscar-input-big {
+  width: 100%;
+  background: var(--card);
+  border: 2px solid var(--border-light);
+  border-radius: 99px;
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  padding: 18px 56px 18px 56px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+.buscar-input-big:focus {
+  border-color: var(--red);
+  box-shadow: 0 4px 24px rgba(255,45,67,0.2);
+}
+.buscar-input-big::placeholder { color: var(--text-3); }
+.buscar-icon {
+  position: absolute;
+  left: 38px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+  width: 22px; height: 22px;
+}
+.buscar-clear {
+  position: absolute;
+  right: 38px; top: 50%;
+  transform: translateY(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.buscar-clear:hover { color: var(--text-1); }
+.buscar-section { max-width: 1200px; margin: 0 auto; padding: 0 20px 80px; }
+.buscar-section-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.buscar-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.buscar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+@media (min-width: 600px) { .buscar-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+@media (min-width: 900px) { .buscar-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
+.buscar-nenhum {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-3);
+}
+.buscar-nenhum-icon { font-size: 3rem; margin-bottom: 12px; }
+.buscar-nenhum-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--text-2); margin-bottom: 6px; }
+.buscar-count {
+  color: var(--text-3);
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+  display: none;
+}
+/* Filtros */
+.buscar-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.filter-chip {
+  padding: 6px 14px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  color: var(--text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-chip:hover, .filter-chip.active {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(255,45,67,0.08);
+}
+</style>
+</head>
+<body>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  const app = initializeApp({
+    apiKey:"AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",authDomain:"pipoca-flix-43de0.firebaseapp.com",
+    projectId:"pipoca-flix-43de0",storageBucket:"pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId:"504338312989",appId:"1:504338312989:web:b4949dd355624811017bf4"
+  });
+  const auth=getAuth(app), provider=new GoogleAuthProvider();
+  window.PipocaAuth={ login:()=>signInWithPopup(auth,provider), logout:()=>signOut(auth), getUser:()=>auth.currentUser, onAuthChanged:(cb)=>onAuthStateChanged(auth,cb) };
+  onAuthStateChanged(auth, function(user) {
+    var btn=document.getElementById('authBtn'); if(!btn) return;
+    if(user){
+      btn.innerHTML='<img src="'+(user.photoURL||'')+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>'+(user.displayName||'Conta').split(' ')[0]+'</span>';
+      btn.onclick=()=>window.location.href='perfil.html';
+    } else {
+      btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.onclick=()=>window.PipocaAuth.login();
+    }
+  });
+</script>
+
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav">
+    <a href="index.html">Início</a>
+    <a href="catalogo.html?tipo=filmes">Filmes</a>
+    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+  </nav>
+  <div class="search-wrapper" style="display:none"></div>
+  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
+  <button class="auth-btn" id="authBtn" aria-label="Login">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar
+  </button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+</header>
+
+<div class="mobile-nav-menu" id="mobileNavMenu">
+  <a href="index.html">🏠 Início</a>
+  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
+  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="planos.html" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
+</div>
+
+<div class="buscar-hero">
+  <div class="buscar-input-wrap">
+    <svg class="buscar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="buscar-input-big" id="buscarInput"
+      placeholder="Buscar filmes, séries, animes..." autocomplete="off" autofocus spellcheck="false">
+    <button class="buscar-clear" id="buscarClear">✕</button>
+  </div>
+</div>
+
+<div class="buscar-section">
+  <!-- Filtros -->
+  <div class="buscar-filters" id="buscarFilters" style="display:none">
+    <button class="filter-chip active" data-filter="todos" onclick="setFilter('todos',this)">Todos</button>
+    <button class="filter-chip" data-filter="filmes" onclick="setFilter('filmes',this)">🎬 Filmes</button>
+    <button class="filter-chip" data-filter="series" onclick="setFilter('series',this)">📺 Séries</button>
+  </div>
+
+  <p class="buscar-count" id="buscarCount"></p>
+
+  <!-- Resultados -->
+  <div id="buscarResultados"></div>
+
+  <!-- Em alta (estado inicial) -->
+  <div id="buscarInicial">
+    <div class="buscar-section-title">📈 Em Alta</div>
+    <div class="buscar-grid" id="emAltaGrid"></div>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:40px">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom"><span>© 2025 PipocaFlix. Todos os direitos reservados.</span></div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/api.js"></script>
+<script>
+var _allContent = [];
+var _filtroAtivo = 'todos';
+
+function showToast(msg, ms) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, ms||2500);
+}
+
+function norm(s) {
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').trim();
+}
+
+function setFilter(f, btn) {
+  _filtroAtivo = f;
+  document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  buscar(document.getElementById('buscarInput').value);
+}
+
+function mkCardSearch(item) {
+  var div = document.createElement('div');
+  div.className = 'card';
+  var page = item.isSerie ? 'serie.html' : 'filme.html';
+  var audioBadge = '';
+  if (item.audio) {
+    var a = item.audio.toLowerCase();
+    if (a.includes('dub')) audioBadge = '<span class="card-audio-badge card-audio-dub">DUB</span>';
+    else if (a.includes('leg')) audioBadge = '<span class="card-audio-badge card-audio-leg">LEG</span>';
+  }
+  var isNew = item.ano && (item.ano === '2025' || item.ano === '2026');
+  div.innerHTML = '<div class="card-thumb-wrap" style="position:relative">'
+    + '<img class="card-thumb" src="'+(item.capa||'')+'" alt="'+item.nome+'" loading="lazy" onerror="this.src=\'https://placehold.co/300x450/13131a/333?text=Sem+Capa\'">'
+    + '<span class="card-badge">'+(item.isSerie ? '📺 Série' : '🎬 Filme')+'</span>'
+    + '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
+    + audioBadge
+    + (isNew ? '<span class="card-new-badge">NOVO</span>' : '')
+    + '<button class="card-fav-btn'+(window.PipocaFavoritos&&window.PipocaFavoritos.has(item.nome)?' active':'')+'" data-nome="'+item.nome+'" aria-label="Favoritar">'
+    + '<svg viewBox="0 0 24 24" fill="'+(window.PipocaFavoritos&&window.PipocaFavoritos.has(item.nome)?'currentColor':'none')+'" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>'
+    + '</div>'
+    + '<div class="card-info"><div class="card-name">'+item.nome+'</div>'
+    + (item.categoria ? '<div class="card-meta-row"><span>'+item.categoria.split(',')[0].trim()+'</span></div>' : '')
+    + '</div>';
+
+  div.style.cursor = 'pointer';
+  div.addEventListener('click', function(e) {
+    if (e.target.closest('.card-fav-btn')) return;
+    location.href = page + '?nome=' + encodeURIComponent(item.nome);
+  });
+
+  var favBtn = div.querySelector('.card-fav-btn');
+  if (favBtn && window.PipocaFavoritos) {
+    favBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var added = window.PipocaFavoritos.toggle(item);
+      var svg = favBtn.querySelector('svg');
+      favBtn.classList.toggle('active', added);
+      if (svg) svg.setAttribute('fill', added ? 'currentColor' : 'none');
+      showToast(added ? '❤️ Adicionado à lista' : '💔 Removido da lista');
+    });
+  }
+  return div;
+}
+
+function buscar(q) {
+  var resultados = document.getElementById('buscarResultados');
+  var inicial = document.getElementById('buscarInicial');
+  var filters = document.getElementById('buscarFilters');
+  var count = document.getElementById('buscarCount');
+
+  if (!q || q.trim().length < 1) {
+    resultados.innerHTML = '';
+    inicial.style.display = 'block';
+    filters.style.display = 'none';
+    count.style.display = 'none';
+    return;
+  }
+
+  inicial.style.display = 'none';
+  filters.style.display = 'flex';
+
+  var qNorm = norm(q);
+  var filtered = _allContent.filter(function(item) {
+    if (_filtroAtivo === 'filmes' && item.isSerie) return false;
+    if (_filtroAtivo === 'series' && !item.isSerie) return false;
+    var nNorm = norm(item.nome);
+    var cNorm = norm(item.categoria || '');
+    return nNorm.includes(qNorm) || qNorm.includes(nNorm.substring(0,6))
+      || cNorm.includes(qNorm)
+      || (item.ano && item.ano.includes(q.trim()));
+  });
+
+  // Ordena: nome exato primeiro, depois começa-com, depois contém
+  filtered.sort(function(a, b) {
+    var an = norm(a.nome), bn = norm(b.nome);
+    if (an === qNorm) return -1;
+    if (bn === qNorm) return 1;
+    if (an.startsWith(qNorm) && !bn.startsWith(qNorm)) return -1;
+    if (bn.startsWith(qNorm) && !an.startsWith(qNorm)) return 1;
+    return 0;
+  });
+
+  resultados.innerHTML = '';
+
+  if (filtered.length === 0) {
+    count.style.display = 'none';
+    resultados.innerHTML = '<div class="buscar-nenhum"><div class="buscar-nenhum-icon">🔍</div><div class="buscar-nenhum-title">Nenhum resultado para "'+q+'"</div><p style="color:var(--text-3);font-size:0.88rem">Tente outro nome, categoria ou ano.</p></div>';
+    return;
+  }
+
+  count.textContent = filtered.length + ' resultado' + (filtered.length > 1 ? 's' : '') + ' para "' + q + '"';
+  count.style.display = 'block';
+
+  var grid = document.createElement('div');
+  grid.className = 'buscar-grid';
+  filtered.slice(0, 60).forEach(function(item) { grid.appendChild(mkCardSearch(item)); });
+  resultados.appendChild(grid);
+}
+
+var _debTimer;
+document.getElementById('buscarInput').addEventListener('input', function(e) {
+  var v = e.target.value;
+  var clearBtn = document.getElementById('buscarClear');
+  clearBtn.style.display = v.length > 0 ? 'flex' : 'none';
+  clearTimeout(_debTimer);
+  _debTimer = setTimeout(function() { buscar(v); }, 220);
+});
+
+document.getElementById('buscarClear').addEventListener('click', function() {
+  document.getElementById('buscarInput').value = '';
+  this.style.display = 'none';
+  buscar('');
+  document.getElementById('buscarInput').focus();
+});
+
+// Pre-populate from URL param
+window.addEventListener('DOMContentLoaded', function() {
+  var params = new URLSearchParams(location.search);
+  var q = params.get('q') || '';
+  if (q) {
+    document.getElementById('buscarInput').value = q;
+    document.getElementById('buscarClear').style.display = 'flex';
+  }
+});
+
+async function init() {
+  try {
+    var filmes = await window.PipocaAPI.getFilmes();
+    var series = await window.PipocaAPI.getSeries();
+    _allContent = [...filmes, ...series];
+
+    // Pre-busca se tinha query na URL
+    var q = document.getElementById('buscarInput').value;
+    if (q) buscar(q);
+
+    // Em alta: mostra filmes aleatórios no estado inicial
+    var emAltaGrid = document.getElementById('emAltaGrid');
+    var aleatorios = [..._allContent].sort(function(){ return Math.random()-0.5; }).slice(0,12);
+    aleatorios.forEach(function(item) { emAltaGrid.appendChild(mkCardSearch(item)); });
+  } catch(e) {
+    console.error('[Buscar]', e);
+  }
+}
+
+init();
+
+// Tema
+(function() {
+  var btn = document.getElementById('themeToggle');
+  function apply(t) { document.documentElement.setAttribute('data-theme',t); localStorage.setItem('pflix_theme',t); btn.textContent = t==='dark'?'🌙':'☀️'; }
+  apply(localStorage.getItem('pflix_theme')||'dark');
+  btn.addEventListener('click', function() { apply(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
+})();
+
+// Header scroll
+(function() {
+  var h = document.getElementById('mainHeader');
+  window.addEventListener('scroll', function() { h.classList.toggle('scrolled', window.scrollY>20); }, {passive:true});
+})();
+
+// Hamburger
+(function() {
+  var btn=document.getElementById('hamburgerBtn'), menu=document.getElementById('mobileNavMenu');
+  if(!btn||!menu) return;
+  btn.addEventListener('click', function() { var o=menu.classList.toggle('open'); btn.classList.toggle('open',o); btn.setAttribute('aria-expanded',String(o)); });
+  menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ menu.classList.remove('open'); btn.classList.remove('open'); }); });
+  document.addEventListener('click', function(e) { if(!btn.contains(e.target)&&!menu.contains(e.target)){ menu.classList.remove('open'); btn.classList.remove('open'); } });
+})();
+</script>
+<script src="assets/js/pflix-vip.js"></script>
+</body>
+</html>
