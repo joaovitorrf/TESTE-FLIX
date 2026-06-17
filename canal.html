@@ -131,6 +131,7 @@ l.parentNode.insertBefore(s, l);
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
+  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -356,7 +357,104 @@ async function init() {
     logo.alt = canal.nome;
 
     const iframe = document.getElementById('canalIframe');
-    iframe.src = canal.embedUrl || '';
+    const canalContent = document.getElementById('canalContent');
+
+    function carregarPlayerVip(streamUrl) {
+      // Esconde iframe público e monta player HLS/M3U
+      iframe.style.display = 'none';
+      var wrap = document.getElementById('canalIframeWrap');
+      var vipPlayer = document.createElement('div');
+      vipPlayer.id = 'vipLivePlayer';
+      vipPlayer.style.cssText = 'width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;position:relative';
+      // Detecta tipo de stream
+      var isM3U = streamUrl.includes('.m3u') || streamUrl.includes('.m3u8');
+      if (isM3U) {
+        // Player HLS via hls.js CDN
+        var vid = document.createElement('video');
+        vid.style.cssText = 'width:100%;height:100%;display:block';
+        vid.controls = true;
+        vid.autoplay = true;
+        vid.playsInline = true;
+        vipPlayer.appendChild(vid);
+        wrap.appendChild(vipPlayer);
+        // Carrega hls.js dinamicamente
+        var hlsScript = document.createElement('script');
+        hlsScript.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+        hlsScript.onload = function() {
+          if (window.Hls && Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(streamUrl);
+            hls.attachMedia(vid);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() { vid.play().catch(function(){}); });
+          } else if (vid.canPlayType('application/vnd.apple.mpegurl')) {
+            vid.src = streamUrl;
+            vid.play().catch(function(){});
+          }
+        };
+        document.head.appendChild(hlsScript);
+      } else {
+        // TS/direct stream — usa iframe
+        var vipIframe = document.createElement('iframe');
+        vipIframe.src = streamUrl;
+        vipIframe.style.cssText = 'width:100%;height:100%;border:none';
+        vipIframe.allowFullscreen = true;
+        vipPlayer.appendChild(vipIframe);
+        wrap.appendChild(vipPlayer);
+      }
+      // Badge VIP
+      var badge = document.createElement('div');
+      badge.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#ff2d43,#ff6b35);color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:99px;margin-bottom:12px';
+      badge.textContent = '⭐ Player VIP Oficial';
+      wrap.insertBefore(badge, wrap.firstChild);
+    }
+
+    function carregarPlayerPublico() {
+      iframe.src = canal.embedUrl || '';
+      iframe.style.display = 'block';
+      // Aviso se embed vazio
+      if (!canal.embedUrl) {
+        var msg = document.createElement('p');
+        msg.style.cssText = 'color:var(--text-2);text-align:center;padding:40px 20px';
+        msg.textContent = 'Este canal não está disponível no momento.';
+        document.getElementById('canalIframeWrap').appendChild(msg);
+      }
+    }
+
+    // Verifica VIP e carrega player correto
+    function iniciarPlayer() {
+      if (window.PipocaVIP && window.PipocaVIP.ativo && canal.vipStreamUrl) {
+        carregarPlayerVip(canal.vipStreamUrl);
+      } else if (!window.PipocaVIP || !window.PipocaVIP.ativo) {
+        carregarPlayerPublico();
+        // Mostra banner para assinar VIP se canal tem stream oficial
+        if (canal.vipStreamUrl) {
+          var vipMsg = document.createElement('div');
+          vipMsg.style.cssText = 'background:linear-gradient(135deg,rgba(255,45,67,0.1),rgba(255,107,53,0.07));border:1.5px solid rgba(255,45,67,0.25);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px';
+          vipMsg.innerHTML = '<span style="font-size:1.5rem">📡</span><div style="flex:1"><div style="font-family:var(--font-display);font-weight:700;color:var(--text-1);font-size:0.95rem">Assista este canal sem anúncios!</div><div style="color:var(--text-2);font-size:0.82rem;margin-top:2px">Com o VIP você acessa o player oficial, sem interrupções.</div></div><a href="planos.html" style="background:linear-gradient(135deg,#ff2d43,#ff6b35);color:#fff;font-family:var(--font-display);font-weight:700;font-size:0.85rem;padding:9px 18px;border-radius:99px;text-decoration:none;white-space:nowrap">⭐ Seja VIP</a>';
+          canalContent.appendChild(vipMsg);
+        }
+      } else {
+        // VIP mas canal sem stream oficial — usa embed público
+        carregarPlayerPublico();
+      }
+    }
+
+    // Aguarda verificação VIP antes de iniciar
+    if (window.PipocaVIP !== undefined) {
+      // pflix-vip.js já rodou
+      setTimeout(iniciarPlayer, 600); // pequena espera pro check async terminar
+    } else {
+      iniciarPlayer(); // fallback imediato
+    }
+    document.addEventListener('pflix:vip-ativo', function() {
+      // VIP confirmado depois que já carregou — recarrega player
+      var existingVip = document.getElementById('vipLivePlayer');
+      if (!existingVip && canal.vipStreamUrl) {
+        iframe.src = '';
+        iframe.style.display = 'none';
+        carregarPlayerVip(canal.vipStreamUrl);
+      }
+    });
 
     document.getElementById('canalFullscreenBtn').addEventListener('click', function() {
       const wrap = document.getElementById('canalIframeWrap');
