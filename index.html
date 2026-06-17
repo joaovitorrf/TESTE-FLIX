@@ -92,7 +92,7 @@
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
     <a href="canais.html">📡 Canais</a>
-    <a href="planos.html" class="auth-btn" ...>🍿 Assinar</a>
+    
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
@@ -113,6 +113,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
+  <a href="planos.html" class="vip-btn-header" id="vipHeaderBtn">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -122,7 +123,7 @@
 </button>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
-  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false" onclick="window.location.href='buscar.html';return false;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
@@ -142,6 +143,7 @@
   <a href="elenco.html">🎭 Elenco</a>
   
   
+  <a href="planos.html" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
 </div>
 
 <!-- ═══ SEARCH RESULTS ═══ -->
@@ -251,6 +253,24 @@
   </div>
 </section>
 
+<!-- ═══ TOP 10 ═══ -->
+<section class="content-section top10-section" id="top10Section">
+  <div class="section-header">
+    <h2 class="section-title">🏆 Top 10 da Semana</h2>
+    <span class="top10-sub">Atualiza a cada visita</span>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="top10Prev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track top10-track" id="top10Track"></div>
+    <button class="carousel-arrow next" id="top10Next" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+
 <!-- ═══ FILMES RECENTES ═══ -->
 <section class="content-section">
   <div class="section-header">
@@ -314,22 +334,7 @@
 </section>
 
 
-<!-- ═══ TOP 10 ═══ -->
-<section class="content-section top10-section" id="top10Section">
-  <div class="section-header">
-    <h2 class="section-title">🏆 Top 10 da Semana</h2>
-    <span class="top10-sub">Atualiza a cada visita</span>
-  </div>
-  <div class="carousel-wrap">
-    <button class="carousel-arrow prev" id="top10Prev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="carousel-track top10-track" id="top10Track"></div>
-    <button class="carousel-arrow next" id="top10Next" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-  </div>
-</section>
+
 
 <!-- ═══ ROMANCE ═══ -->
 <section class="content-section" id="romanceSection">
@@ -621,7 +626,7 @@ document.getElementById('backToTop').addEventListener('click', () => window.scro
 // ── Mobile search ──
 const mobileOverlay = document.getElementById('mobileSearchOverlay');
 const mobileInput   = document.getElementById('mobileSearchInput');
-document.getElementById('mobileSearchToggle').addEventListener('click', () => {
+document.getElementById('mobileSearchToggle').addEventListener('click', (e) => { if(e.defaultPrevented) return; e.preventDefault(); window.location.href='buscar.html'; return;
   mobileOverlay.classList.add('open');
   document.getElementById('mobileSearchToggle').setAttribute('aria-expanded','true');
   setTimeout(() => mobileInput.focus(), 80);
@@ -900,17 +905,28 @@ function renderContinueSection() {
     ovBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
     ovBtn.addEventListener('click', e => {
       e.stopPropagation();
-      // Remove todos os eps da série do progresso
       if (isSerie && prog.serieNome) {
+        // Remove todos eps da série do progresso
         const all = window.PipocaProgress.getAll();
         all.forEach(p => {
           if (p.tipo === 'serie' && p.serieNome === prog.serieNome) {
             window.PipocaProgress.remove(p.titulo);
           }
         });
+        // Remove também por nome da série diretamente
+        window.PipocaProgress.remove(prog.serieNome);
         window.PipocaWatched.add({ nome: prog.serieNome, capa: prog.capa, tipo: 'serie' });
       } else {
         window.PipocaProgress.remove(prog.titulo);
+        // Limpeza extra: varre localStorage por chave parecida
+        const normKey = (prog.titulo||'').toLowerCase().normalize('NFD')
+          .replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'_');
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('pflix_progress_') && k.includes(normKey.slice(0,15))) {
+            localStorage.removeItem(k);
+          }
+        }
         window.PipocaWatched.add({ nome: prog.titulo, capa: prog.capa, tipo: prog.tipo || 'filme' });
       }
       renderContinueSection();
@@ -1039,9 +1055,33 @@ function setupCategories(allContent) {
   scroll.innerHTML='';
   sorted.forEach(([cat,count])=>{
     const cfg=getCatConfig(cat);
+    // Pega backdrop aleatório de um item dessa categoria que tenha backdrop
+    const catNorm = cat.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const withBackdrop = allContent.filter(item => {
+      if (!item.backdrop) return false;
+      const c = (item.categoria||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+      return c.includes(catNorm) || catNorm.includes(c.split(',')[0].trim());
+    });
+    const backdropItem = withBackdrop.length > 0
+      ? withBackdrop[Math.floor(Math.random() * withBackdrop.length)]
+      : null;
+
     const card=document.createElement('div'); card.className='cat-card';
-    card.style.background=cfg.gradient;
-    card.innerHTML=`<div class="cat-card-bg">${cfg.emoji}</div><div class="cat-card-overlay"><div class="cat-card-name">${cat}</div><div class="cat-card-count">${count} títulos</div></div>`;
+    if (backdropItem && backdropItem.backdrop) {
+      card.style.backgroundImage = `url(${backdropItem.backdrop})`;
+      card.style.backgroundSize = 'cover';
+      card.style.backgroundPosition = 'center';
+      card.innerHTML=`
+        <div class="cat-card-overlay-dark"></div>
+        <div class="cat-card-overlay">
+          <div class="cat-card-emoji">${cfg.emoji}</div>
+          <div class="cat-card-name">${cat}</div>
+          <div class="cat-card-count">${count} títulos</div>
+        </div>`;
+    } else {
+      card.style.background=cfg.gradient;
+      card.innerHTML=`<div class="cat-card-bg">${cfg.emoji}</div><div class="cat-card-overlay"><div class="cat-card-name">${cat}</div><div class="cat-card-count">${count} títulos</div></div>`;
+    }
     card.addEventListener('click',()=>{location.href=`catalogo.html?cat=${encodeURIComponent(cat)}`;});
     scroll.appendChild(card);
   });
@@ -1162,12 +1202,33 @@ function discoverRandom() {
 }
 
 // ── Top 10 ──
-function renderTop10(allContent) {
-  var top10 = [...allContent].sort(() => Math.random() - 0.5).slice(0, 10);
+async function renderTop10(allContent) {
   var track = document.getElementById('top10Track');
   if (!track) return;
+  track.innerHTML = '<div style="color:var(--text-3);padding:20px">Carregando Top 10...</div>';
+
+  // Busca nomes da planilha
+  var top10Names = [];
+  try { top10Names = await window.PipocaAPI.getTop10Names(); } catch(e) {}
+
+  var top10 = [];
+  if (top10Names.length > 0) {
+    // Faz match pelo nome (normalizado)
+    var norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,'').trim();
+    top10Names.forEach(function(nome) {
+      var nNorm = norm(nome);
+      var found = allContent.find(function(c){ return norm(c.nome) === nNorm; });
+      if (found) top10.push(found);
+    });
+  }
+
+  // Fallback: aleatório se planilha estiver vazia
+  if (top10.length === 0) {
+    top10 = [...allContent].sort(() => Math.random() - 0.5).slice(0, 10);
+  }
+
   track.innerHTML = '';
-  top10.forEach(function(item, idx) {
+  top10.slice(0, 10).forEach(function(item, idx) {
     var card = mkCard(item);
     var rankBadge = document.createElement('div');
     rankBadge.className = 'top10-rank';
@@ -1202,7 +1263,7 @@ async function init() {
     setupCarouselArrows('seriesTrack','seriePrev','serieNext');
 
     renderHotSection(allContent);
-    renderTop10(allContent);
+    renderTop10(allContent); // async
 
     // Lazy load para Romance, Ação, Terror (Tarefa 11)
     setupLazySection('romanceTrack','romance','romancePrev','romanceNext', allContent);
@@ -1226,7 +1287,9 @@ async function loadCanaisHome() {
     const track = document.getElementById('canaisTrack');
     if (!track || !canais.length) return;
     track.innerHTML = '';
-    canais.slice(0, 20).forEach(canal => {
+    // Embaralha canais pra mostrar diferentes a cada visita
+    const canaisShuffled = [...canais].sort(() => Math.random() - 0.5);
+    canaisShuffled.slice(0, 20).forEach(canal => {
       const card = document.createElement('a');
       card.className = 'canal-card';
       card.href = `canal.html?nome=${encodeURIComponent(canal.nome)}`;
