@@ -95,6 +95,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
+  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -441,6 +442,8 @@ function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textC
 // ── VAST ──
 var VAST_TAG_URL = "https://muddy-distance.com/dpmtF.z/dWGAN/vZZZGkUR/je_m/9nuQZ/USlZknPATRYe4XN-TEke5UOODRkQtnNej/gP1/OQTGkV5HMbwU";
 function runVAST(onComplete) {
+  // VIP não vê anúncio VAST
+  if (window.PipocaVIP && window.PipocaVIP.ativo) { onComplete(); return; }
   var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   fetch(VAST_TAG_URL)
     .then(function(r){ return r.text(); })
@@ -816,6 +819,41 @@ async function init() {
 
     document.querySelector('meta[name="description"]').content = 'Assista ' + item.nome + ' (' + (item.ano || '') + ') online grátis. ' + (item.sinopse || '').slice(0, 120);
 
+    // Banner VIP: mostra se não é VIP, esconde se é
+    function checkVipBanner() {
+      var banner = document.getElementById('vipPromoBanner');
+      if (!banner) return;
+      if (window.PipocaVIP && window.PipocaVIP.ativo) {
+        banner.style.display = 'none';
+      } else {
+        banner.style.display = 'flex';
+      }
+    }
+    checkVipBanner();
+    document.addEventListener('pflix:vip-ativo', function() {
+      var banner = document.getElementById('vipPromoBanner');
+      if (banner) banner.style.display = 'none';
+    });
+
+    // Aviso player oficial indisponível para VIPs
+    function checkPlayerOficial() {
+      if (!window.PipocaVIP || !window.PipocaVIP.ativo) return;
+      var temOficial = item.playerStatus && item.playerStatus.trim() !== '' && item.linkMP4;
+      if (!temOficial) {
+        var aviso = document.getElementById('avisoSemOficial');
+        if (!aviso) {
+          aviso = document.createElement('div');
+          aviso.id = 'avisoSemOficial';
+          aviso.style.cssText = 'background:rgba(255,165,0,0.1);border:1px solid rgba(255,165,0,0.3);border-radius:10px;padding:12px 16px;color:#ffa500;font-size:0.85rem;margin:12px 0;display:flex;align-items:center;gap:8px';
+          aviso.innerHTML = '<span style="font-size:1.2rem">ℹ️</span><span>Este título ainda não possui player oficial no catálogo. Os players disponíveis são de terceiros e podem conter anúncios não vinculados ao PipocaFlix.</span>';
+          var ps = document.getElementById('playerSection');
+          if (ps) ps.insertBefore(aviso, ps.firstChild);
+        }
+      }
+    }
+    checkPlayerOficial();
+    document.addEventListener('pflix:vip-ativo', checkPlayerOficial);
+
   } catch(err) {
     console.error('[PipocaFlix Filme]', err);
     document.getElementById('loadingMsg').textContent = '⚠️ Erro ao carregar o filme.';
@@ -974,5 +1012,6 @@ setTimeout(function() {
   if (el) el.style.display = 'block';
 }, 30 * 60 * 1000);
 </script>
+<script src="assets/js/pflix-vip.js"></script>
 </body>
 </html>
