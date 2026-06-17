@@ -3412,3 +3412,167 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .content-section { padding: 0 clamp(2rem, 7vw, 5rem) var(--gap-xl); }
   .card { width: clamp(160px, 13vw, 205px); }
 }
+
+/* ═══════════════════════════════════════════
+   SEJA VIP — botão sempre visível no header
+═══════════════════════════════════════════ */
+.vip-btn-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: linear-gradient(135deg, #ff2d43, #ff6b35);
+  color: #fff !important;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--r-pill);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 12px rgba(255,45,67,0.35);
+  flex-shrink: 0;
+}
+.vip-btn-header:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 20px rgba(255,45,67,0.5);
+  text-decoration: none;
+}
+/* Esconde em telas muito pequenas só se não couber */
+@media (max-width: 360px) { .vip-btn-header { padding: 6px 10px; font-size: 0.75rem; } }
+
+/* ═══════════════════════════════════════════
+   TOP 10 — visual luxuoso
+═══════════════════════════════════════════ */
+.top10-section {
+  background: linear-gradient(180deg, rgba(255,45,67,0.04) 0%, transparent 100%);
+  padding: 32px 0 8px;
+  margin: 0 0 8px;
+}
+.top10-section .section-header {
+  padding: 0 20px;
+}
+.top10-section .section-title {
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  background: linear-gradient(135deg, #ff2d43, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.top10-track {
+  display: flex;
+  gap: 0 !important;
+  padding: 8px 20px 16px !important;
+}
+.top10-track .card {
+  flex-shrink: 0;
+  width: 140px;
+  margin-right: 32px;
+  position: relative;
+}
+@media (max-width: 600px) {
+  .top10-track .card { width: 110px; margin-right: 28px; }
+}
+.top10-rank {
+  position: absolute;
+  bottom: 44px;
+  left: -22px;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--red);
+  text-shadow: 0 0 30px rgba(255,45,67,0.4);
+  pointer-events: none;
+  z-index: 2;
+  letter-spacing: -4px;
+  user-select: none;
+}
+.top10-track .card-thumb {
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  border: 1.5px solid rgba(255,45,67,0.2);
+}
+.top10-track .card:hover .card-thumb {
+  border-color: var(--red);
+  box-shadow: 0 12px 32px rgba(255,45,67,0.3);
+}
+
+/* ═══════════════════════════════════════════
+   CATEGORIAS COM BACKDROP
+═══════════════════════════════════════════ */
+.cat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  min-width: 180px;
+  height: 110px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.cat-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+.cat-card-overlay-dark {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.1) 100%);
+  z-index: 1;
+}
+.cat-card-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  opacity: 0.18;
+  pointer-events: none;
+}
+.cat-card-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px 12px;
+}
+.cat-card-emoji {
+  font-size: 1.4rem;
+  margin-bottom: 2px;
+  line-height: 1;
+}
+.cat-card-name {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cat-card-count {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 1px;
+}
+
+/* ═══════════════════════════════════════════
+   VIP ATIVO — esconde anúncios via CSS também
+═══════════════════════════════════════════ */
+body.pflix-vip-ativo .ad-banner-wrap,
+body.pflix-vip-ativo .mobile-banner-ad,
+body.pflix-vip-ativo #mobileBannerAdNew,
+body.pflix-vip-ativo #supportBannerOverlay {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
