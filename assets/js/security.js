@@ -1,5 +1,10 @@
 /* ================================================================
-   PIPOCAFLIX — security.js v2
+   PIPOCAFLIX — security.js v3
+   Corrige falsos positivos de redirecionamento (PC e mobile) trocando
+   a detecção de DevTools por dimensão de janela (instável — disparava
+   com zoom, teclado virtual, rotação de tela, barras do navegador)
+   por uma técnica que só "acerta" quando o painel de DevTools está
+   de fato aberto e ativo.
 ================================================================ */
 (function () {
   'use strict';
@@ -68,25 +73,43 @@
     e.preventDefault();
   });
 
-  /* ── 7. DETECÇÃO DE DEVTOOLS (só pelo tamanho, com threshold seguro) ──
-     Threshold de 400px: só detecta DevTools aberto em modo "docked"
-     ocupando metade da tela. Evita falsos positivos de barras do browser. */
-  var _devChecks = 0;
-  function checkDevToolsBySize() {
-    var wDiff = window.outerWidth  - window.innerWidth;
-    var hDiff = window.outerHeight - window.innerHeight;
-    // 400px é seguro: barra de endereço + sistema nunca chega a isso
-    return wDiff > 400 || hDiff > 400;
-  }
+  /* ── 7. DETECÇÃO DE DEVTOOLS (v3 — técnica do toString, não por tamanho) ──
+     A técnica antiga media outerWidth/innerWidth, que varia demais em
+     mobile (teclado virtual, rotação, barra de endereço escondendo) e em
+     PC (zoom, extensões, painéis), causando redirecionamentos aleatórios
+     mesmo com o DevTools fechado.
 
+     A nova técnica usa um objeto cujo toString() é chamado pelo motor de
+     formatação do DevTools sempre que o console.log roda — mas SÓ quando
+     o painel Console está de fato aberto. Com o DevTools fechado, o
+     navegador nem chega a formatar o argumento, então o toString() nunca
+     executa. Não depende de tamanho de janela, então não tem falso
+     positivo por zoom, teclado virtual, rotação ou barra de navegador.
+     Em mobile, o DevTools normalmente só abre via cabo (remote debugging),
+     então na prática isso fica restrito ao cenário real de inspeção. */
+  var _devtoolsAberto = false;
+  var _sonda = {
+    toString: function () {
+      _devtoolsAberto = true;
+      return '';
+    }
+  };
+
+  var _checksConsecutivos = 0;
   setInterval(function () {
     if (_redirected) return;
-    if (checkDevToolsBySize()) {
-      _devChecks++;
-      // Precisa detectar 3 vezes seguidas pra redirecionar (evita falsos positivos)
-      if (_devChecks >= 3) redirectOut();
+    _devtoolsAberto = false;
+    try {
+      console.log('%s', _sonda);
+    } catch (e) {}
+
+    if (_devtoolsAberto) {
+      _checksConsecutivos++;
+      // Exige 2 detecções seguidas (≈3s) pra confirmar, evitando qualquer
+      // resíduo de falso positivo pontual.
+      if (_checksConsecutivos >= 2) redirectOut();
     } else {
-      _devChecks = 0; // reseta se parou de detectar
+      _checksConsecutivos = 0;
     }
   }, 1500);
 
@@ -128,4 +151,3 @@
   } catch(e) {}
 
 })();
-
