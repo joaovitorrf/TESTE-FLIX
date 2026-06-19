@@ -1,17 +1,20 @@
 /**
- * PIPOCAFLIX — VIP Ad Blocker v4
+ * PIPOCAFLIX — VIP Ad Blocker v5
  * assets/js/pflix-vip.js
  * Inclua este script em TODAS as páginas com anúncio, antes de </body>
  * NÃO inclua em planos.html
  *
- * ESTRATÉGIA v4 (sem flash de ads para VIP):
- *   - Injeta <style> que esconde TODOS os blocos de anúncio IMEDIATAMENTE,
- *     antes do DOMContentLoaded, antes de qualquer script de ad rodar.
- *   - Verifica cache local (síncrono) → se é VIP, mantém oculto permanentemente.
- *   - Se NÃO é VIP (cache confirma), remove o CSS de ocultação e libera os ads.
- *   - Se não há cache (primeira visita), consulta Firestore; só libera ads se
- *     não for VIP. O usuário não-VIP vê os ads aparecerem após ~1s (tempo de
- *     consulta), mas o VIP NUNCA vê o flash.
+ * ESTRATÉGIA v5:
+ *   - v4 só escondia DIVs de anúncio (.ad-banner-wrap, .mobile-banner-ad etc).
+ *     Mas existem 2 anúncios ("Page Push" e "Video Slide Ad") que são scripts
+ *     soltos no body, SEM nenhuma div — eles passavam direto pro VIP.
+ *   - v5 intercepta a CRIAÇÃO desses scripts: sobrescreve document.createElement
+ *     para que, se o código tentar criar um <script> e depois setar o .src para
+ *     um domínio de anúncio, o elemento nunca seja inserido de fato — ele se
+ *     torna um "fantasma" inofensivo (nunca entra no DOM).
+ *   - Continua escondendo as divs de anúncio via CSS imediato, igual v4, para
+ *     cobrir os anúncios que ficam dentro de containers.
+ *   - A decisão de quem é VIP continua vindo do Firestore + cache local.
  */
 (function () {
   'use strict';
@@ -33,9 +36,18 @@
     'sorrowfulpsychology.com',
   ];
 
+  // ─── Estado: ainda não sabemos se é VIP (null = indefinido) ───
+  // Enquanto for null, bloqueamos tudo (benefício da dúvida).
+  // true  = é VIP → bloqueado pra sempre
+  // false = não é VIP → liberado
+  var _bloquearAds = true;
+
+  function ehUrlDeAd(url) {
+    if (!url) return false;
+    return AD_SCRIPT_KEYWORDS.some(function(kw) { return url.indexOf(kw) !== -1; });
+  }
+
   // ─── PASSO 1: Injeta CSS de ocultação IMEDIATAMENTE (síncrono) ───
-  // Isso garante que os ads nunca aparecem na tela, independente de ser VIP ou não.
-  // Se não for VIP, removemos esse style depois da verificação.
   var _styleId = 'pflix-ads-hidden';
   (function injetarOcultacaoImediata() {
     if (document.getElementById(_styleId)) return;
@@ -44,7 +56,6 @@
     s.textContent = AD_SELECTORS.map(function(sel) {
       return sel + ' { display: none !important; visibility: hidden !important; }';
     }).join('\n');
-    // Coloca no <head> ou no topo do <html> — o mais cedo possível
     var target = document.head || document.documentElement;
     if (target.firstChild) {
       target.insertBefore(s, target.firstChild);
@@ -53,11 +64,39 @@
     }
   })();
 
+  // ─── PASSO 2: Intercepta criação de <script> soltos (Page Push / Video Slide Ad) ───
+  // Esses scripts não usam nenhuma div, então a única forma de pegá-los é no
+  // momento em que o código do anúncio tenta inserir o <script> de fato no DOM.
+  (function interceptarScriptsSoltos() {
+    var origInsertBefore = Node.prototype.insertBefore;
+    var origAppendChild   = Node.prototype.appendChild;
+
+    function ehScriptDeAd(node) {
+      return node && node.tagName === 'SCRIPT' && ehUrlDeAd(node.src || '');
+    }
+
+    Node.prototype.insertBefore = function(newNode, referenceNode) {
+      if (_bloquearAds && ehScriptDeAd(newNode)) {
+        // Não insere — devolve o próprio node sem efeito (comportamento esperado de insertBefore)
+        return newNode;
+      }
+      return origInsertBefore.call(this, newNode, referenceNode);
+    };
+
+    Node.prototype.appendChild = function(newNode) {
+      if (_bloquearAds && ehScriptDeAd(newNode)) {
+        return newNode;
+      }
+      return origAppendChild.call(this, newNode);
+    };
+  })();
+
   // Expõe status VIP globalmente para outras partes do site usarem
   window.PipocaVIP = { ativo: false, plano: null };
 
   // ─── Liberar ads (usuário NÃO é VIP) ───
   function liberarAnuncios() {
+    _bloquearAds = false;
     var styleEl = document.getElementById(_styleId);
     if (styleEl) styleEl.remove();
     console.log('[PipocaFlix VIP] ℹ️ Usuário não-VIP — anúncios liberados');
@@ -66,8 +105,8 @@
   // ─── Matar ads permanentemente (usuário É VIP) ───
   function matarAnuncios() {
     window.PipocaVIP.ativo = true;
+    _bloquearAds = true;
 
-    // 1. Garante que o style de ocultação existe (por precaução)
     if (!document.getElementById(_styleId)) {
       var s = document.createElement('style');
       s.id = _styleId;
@@ -77,7 +116,6 @@
       (document.head || document.documentElement).appendChild(s);
     }
 
-    // 2. Limpa o innerHTML dos containers (evita que scripts já carregados façam algo)
     function limparContainers() {
       AD_SELECTORS.forEach(function(sel) {
         document.querySelectorAll(sel).forEach(function(el) {
@@ -91,17 +129,14 @@
       limparContainers();
     }
 
-    // 3. Bloqueia scripts de anúncio injetados dinamicamente
+    // Limpa scripts/iframes de ad que porventura já estejam no DOM
     var observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(m) {
         m.addedNodes.forEach(function(node) {
           if (!node) return;
-          if (node.tagName === 'SCRIPT') {
-            var src = node.src || node.textContent || '';
-            if (AD_SCRIPT_KEYWORDS.some(function(kw){ return src.includes(kw); })) {
-              node.remove();
-              return;
-            }
+          if (node.tagName === 'SCRIPT' && ehUrlDeAd(node.src || node.textContent || '')) {
+            node.remove();
+            return;
           }
           if (node.nodeType === 1) {
             AD_SELECTORS.forEach(function(sel) {
@@ -110,10 +145,7 @@
               }
             });
             node.querySelectorAll && node.querySelectorAll('iframe').forEach(function(f) {
-              var src = f.src || '';
-              if (AD_SCRIPT_KEYWORDS.some(function(kw){ return src.includes(kw); })) {
-                f.remove();
-              }
+              if (ehUrlDeAd(f.src || '')) f.remove();
             });
           }
         });
@@ -121,7 +153,7 @@
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
 
-    // 4. Bloqueia window.open (popunder)
+    // Bloqueia window.open (popunder)
     window.open = function(url) {
       if (url && (url.startsWith('/') || url.startsWith(location.origin))) {
         return window.__origOpen ? window.__origOpen(url) : null;
@@ -181,19 +213,15 @@
     var cached = verificarCacheLocal(email);
 
     if (cached !== null) {
-      // Cache válido encontrado — decisão instantânea, zero delay
       window.PipocaVIP.plano = cached.plano || null;
       if (cached.is_vip === true) {
         matarAnuncios();
       } else {
-        // Não é VIP: libera os ads (remove o CSS de ocultação)
         liberarAnuncios();
       }
       return;
     }
 
-    // Sem cache: consulta Firestore
-    // Ads permanecem ocultos até sabermos o resultado.
     var resultado = await verificarVipFirestore(email);
     salvarCacheLocal(email, resultado.ativo, resultado.plano);
     window.PipocaVIP.plano = resultado.plano;
@@ -201,20 +229,16 @@
     if (resultado.ativo) {
       matarAnuncios();
     } else {
-      // Confirmado não-VIP: libera os ads agora
       liberarAnuncios();
     }
   }
 
-  // ─── Usuário não logado: libera ads ───
   function usuarioNaoLogado() {
     liberarAnuncios();
   }
 
-  // Salva window.open original antes de qualquer script de ad
   if (!window.__origOpen) window.__origOpen = window.open.bind(window);
 
-  // ─── Aguarda autenticação ───
   function aguardarAuth() {
     var user = window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser();
     if (user && user.email) {
@@ -226,18 +250,15 @@
         if (u && u.email) {
           checarVip(u.email.toLowerCase().trim());
         } else {
-          // Auth resolveu mas sem usuário logado → não é VIP
           usuarioNaoLogado();
         }
       });
       return;
     }
-    // Polling: espera PipocaAuth ficar disponível
     var tentativas = 0;
     var intervalo = setInterval(function() {
       tentativas++;
       if (tentativas > 60) {
-        // Timeout (12s): não conseguiu verificar, libera ads
         clearInterval(intervalo);
         liberarAnuncios();
         return;
