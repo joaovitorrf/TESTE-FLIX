@@ -284,6 +284,27 @@
   .garantia-inner { flex-direction: column; text-align: center; }
   .plano-card { padding: 28px 22px 26px; }
 }
+
+/* ─── PLANO GRÁTIS ─── */
+.plano-card-gratis {
+  border-style: dashed;
+  border-color: var(--border);
+  opacity: 0.92;
+}
+.plano-card-gratis:hover {
+  border-style: solid;
+  opacity: 1;
+}
+.btn-assinar-gratis {
+  background: var(--surface-2, #222);
+  color: var(--text-1);
+  border: 1.5px solid var(--border);
+}
+.btn-assinar-gratis:hover {
+  background: var(--surface-3, #333);
+  color: var(--text-1);
+  box-shadow: none;
+}
 </style>
 </head>
 <body>
@@ -333,7 +354,7 @@
 <!-- ═══ HERO ═══ -->
 <section class="planos-hero">
   <h1>Escolha seu <span>Plano</span> 🍿</h1>
-  <p>Mais de 22 mil filmes, séries e 200 canais ao vivo. Sem anúncios, cancele quando quiser.</p>
+  <p>Mais de 22 mil filmes, séries e 200 canais ao vivo. Plano gratuito disponível — ou assine VIP e assista sem anúncios.</p>
 </section>
 
 <!-- ═══ CARDS ═══ -->
@@ -409,6 +430,29 @@
       👨‍👩‍👧 Assinar Família — R$ 27,90/mês
     </button>
     <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
+  </div>
+
+  <!-- GRÁTIS -->
+  <div class="plano-card plano-card-gratis">
+    <span class="plano-emoji">🎬</span>
+    <div class="plano-nome">Pipoca Flix Grátis</div>
+    <div class="plano-preco">
+      <span class="valor" style="font-size:2.4rem;color:var(--text-1)">R$ 0</span>
+      <span class="periodo">/sempre</span>
+    </div>
+    <ul class="plano-features">
+      <li>1 Tela</li>
+      <li>Mais de 22 mil filmes</li>
+      <li>Mais de 22 mil séries</li>
+      <li>Mais de 200 canais abertos e fechados</li>
+      <li>Baixe filmes e séries</li>
+      <li style="color:var(--text-3)">⚠️ Anúncios no site e no app</li>
+      <li style="color:var(--text-3)">Suporte padrão</li>
+    </ul>
+    <a href="index.html" class="btn-assinar btn-assinar-gratis">
+      🎬 Começar de graça
+    </a>
+    <p class="plano-seguro">Sem cadastro, sem cartão</p>
   </div>
 
 </div>
