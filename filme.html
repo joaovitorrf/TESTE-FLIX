@@ -167,26 +167,37 @@
   <p class="player-section-title">🎬 Player</p>
   <div class="player-container" id="playerBox" style="display:none">
     <video id="video" class="video-js" preload="metadata" playsinline></video>
+
+    <!-- Header: voltar + título (some junto com os controles) -->
+    <div class="player-header" id="playerHeader">
+      <button class="player-header-back" id="playerBackBtn" aria-label="Voltar"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></button>
+      <div class="player-header-title" id="playerTitle"></div>
+      <button class="ctrl-btn ctrl-cast-btn" id="castBtn" aria-label="Chromecast" title="Enviar para TV" style="display:none"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M1 18v3h3a3 3 0 00-3-3zm0-4v2a7 7 0 017 7h2a9 9 0 00-9-9zm0-4v2a13 13 0 0113 13h2C16 12.95 9.05 6 1 10zm20-6H3C1.9 4 1 4.9 1 6v3h2V6h18v12h-7v2h7c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg></button>
+    </div>
+
     <div class="player-overlay" id="playerOverlay">
       <img src="https://i.ibb.co/6Jbf2TRY/transferir-1.jpg" class="player-overlay-logo" alt="PipocaFlix" onerror="this.style.display='none'">
       <span class="player-overlay-text">Clique para reproduzir</span>
     </div>
-    <button class="center-play-btn" id="centerPlay" aria-label="Reproduzir">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
+
+    <!-- Controles centrais: -10s / play-pause / +10s -->
+    <div class="player-center-controls" id="playerCenterControls">
+      <button class="ctrl-btn-lg" id="back10" aria-label="−10s"><svg viewBox="0 0 24 24"><path d="M11 18V6l-8 6 8 6zm2-12h8v2h-8zm0 6h6v2h-6z"/></svg><span class="ctrl-btn-lg-label">10</span></button>
+      <button class="center-play-btn" id="centerPlay" aria-label="Reproduzir">
+        <svg viewBox="0 0 24 24"><path id="centerPlayPath" d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="ctrl-btn-lg" id="forward10" aria-label="+10s"><svg viewBox="0 0 24 24"><path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/></svg><span class="ctrl-btn-lg-label">10</span></button>
+    </div>
+
     <div class="player-controls hidden" id="playerControls">
-      <div class="player-ctrl-row">
-        <button class="ctrl-btn" id="back10" aria-label="−10s"><svg viewBox="0 0 24 24"><path d="M11 18V6l-8 6 8 6zm2-12h8v2h-8zm0 6h6v2h-6z"/></svg></button>
-        <button class="ctrl-btn" id="playPause" aria-label="Play/Pause"><svg viewBox="0 0 24 24"><path id="playPausePath" d="M8 5v14l11-7z"/></svg></button>
-        <button class="ctrl-btn" id="forward10" aria-label="+10s"><svg viewBox="0 0 24 24"><path d="M13 6v12l8-6-8-6zm-2 12H3v-2h8zm0-6H5v-2h6z"/></svg></button>
-        <div class="player-title" id="playerTitle"></div>
-        <button class="ctrl-btn" id="fullscreenBtn" aria-label="Tela cheia"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0v6h-2V6h-4V4h6zm0 14h-6v-2h4v-4h2v6zm-14 0v-6h2v4h4v2H4z"/></svg></button>
-        <button class="ctrl-btn ctrl-cast-btn" id="castBtn" aria-label="Chromecast" title="Enviar para TV" style="display:none"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M1 18v3h3a3 3 0 00-3-3zm0-4v2a7 7 0 017 7h2a9 9 0 00-9-9zm0-4v2a13 13 0 0113 13h2C16 12.95 9.05 6 1 10zm20-6H3C1.9 4 1 4.9 1 6v3h2V6h18v12h-7v2h7c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg></button>
-      </div>
       <div class="player-progress-row">
         <span class="player-time" id="currentTime">0:00</span>
         <div class="player-progress" id="progressBar"><div class="player-progress-filled" id="progressFilled"></div></div>
-        <span class="player-time" id="totalTime">0:00</span>
+        <span class="player-time player-time-remaining" id="totalTime">0:00</span>
+      </div>
+      <div class="player-ctrl-row">
+        <button class="ctrl-btn" id="playPause" aria-label="Play/Pause" style="display:none"><svg viewBox="0 0 24 24"><path id="playPausePath" d="M8 5v14l11-7z"/></svg></button>
+        <button class="ctrl-btn" id="fullscreenBtn" aria-label="Tela cheia"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm14 0v6h-2V6h-4V4h6zm0 14h-6v-2h4v-4h2v6zm-14 0v-6h2v4h4v2H4z"/></svg></button>
       </div>
     </div>
   </div>
