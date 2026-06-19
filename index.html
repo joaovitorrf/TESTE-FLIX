@@ -592,6 +592,41 @@ function getCatConfig(cat) {
   return { emoji:'🎬', gradient:'linear-gradient(135deg,#1a1a24,#ff2d43)' };
 }
 
+// ── Backdrops fixos por categoria (Explorar Categorias / Home) ──
+// Chaves normalizadas (minúsculo, sem acento). Cada categoria usa SEMPRE a
+// mesma imagem, escolhida manualmente — não puxa mais da planilha.
+const CAT_BACKDROPS = {
+  'drama':               'https://media.themoviedb.org/t/p/w1066_and_h600_face/rMsrUSnI5uZ0r9dhFQ6Z52pVCMf.jpg',
+  'comedia':             'https://media.themoviedb.org/t/p/w1066_and_h600_face/kARonxQpuSZdFraTKlCThWOBCtu.jpg',
+  'thriller':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/7unT3bKHwOXL9e646z9Ib17M9Pf.jpg',
+  'acao':                'https://media.themoviedb.org/t/p/w1066_and_h600_face/7dzngS8pLkGJpyeskCFcjPO9qLF.jpg',
+  'terror':              'https://media.themoviedb.org/t/p/w1066_and_h600_face/ecKQlAEG95k62SMGhvX83oEqANK.jpg',
+  'horror':              'https://media.themoviedb.org/t/p/w1066_and_h600_face/ecKQlAEG95k62SMGhvX83oEqANK.jpg',
+  'crime':               'https://media.themoviedb.org/t/p/w1066_and_h600_face/tSPT36ZKlP2WVHJLM4cQPLSzv3b.jpg',
+  'romance':             'https://media.themoviedb.org/t/p/w1066_and_h600_face/xnHVX37XZEp33hhCbYlQFq7ux1J.jpg',
+  'animacao':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/stBOYHepvs3Rn4ZBGPNhyX5taAu.jpg',
+  'aventura':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/fwrqW8Lp5VQuppFrODd4iJ8LySE.jpg',
+  'familia':             'https://media.themoviedb.org/t/p/w1066_and_h600_face/b7xQ5fuyVO4c24igizCfPgF6n7q.jpg',
+  'documentario':        'https://media.themoviedb.org/t/p/w1066_and_h600_face/eWpS3A40Ra3fYbt1OYu8IrutIyk.jpg',
+  'fantasia':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/ktj07Eajol5Y2aTQpvTADiQZXJV.jpg',
+  'ficcao cientifica':   'https://media.themoviedb.org/t/p/w1066_and_h600_face/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg',
+  'ficcao':              'https://media.themoviedb.org/t/p/w1066_and_h600_face/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg',
+  'daybreak':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/jS6sBStHZl0bB5MaItg2wEarh8W.jpg',
+  'misterio':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/3eUyLEF5M0ky3h6KJsWiWzaakB8.jpg',
+  'cinema tv':           'https://media.themoviedb.org/t/p/w1066_and_h600_face/s6ly8laenkHWlIBRkLSfIuEMLC6.jpg',
+  'historia':            'https://media.themoviedb.org/t/p/w1066_and_h600_face/zbOlpFM306PHE7EP1OELCH5qSmS.jpg',
+  'musica':              'https://media.themoviedb.org/t/p/w1066_and_h600_face/iv1ajZACUGHn4JztG9Z8yvbcmic.jpg',
+  'musical':             'https://media.themoviedb.org/t/p/w1066_and_h600_face/iv1ajZACUGHn4JztG9Z8yvbcmic.jpg',
+  'reality':             'https://media.themoviedb.org/t/p/w1066_and_h600_face/gFFedWBZ7s5sPiR9A1IpileWuFf.jpg',
+  'guerra':              'https://media.themoviedb.org/t/p/w1066_and_h600_face/95ckrV6wQgbffurAVmETQ5YKASL.jpg',
+};
+
+function getCatBackdrop(cat) {
+  const k = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for (const key of Object.keys(CAT_BACKDROPS)) { if (k.includes(key) || key.includes(k)) return CAT_BACKDROPS[key]; }
+  return null;
+}
+
 // ── Helpers ──
 function norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').trim(); }
 function showToast(msg, ms=2500) {
@@ -1055,30 +1090,25 @@ function setupCategories(allContent) {
   scroll.innerHTML='';
   sorted.forEach(([cat,count])=>{
     const cfg=getCatConfig(cat);
-    // Pega backdrop aleatório de um item dessa categoria que tenha backdrop preenchido na planilha
-    const catNorm = cat.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-    const withBackdrop = allContent.filter(item => {
-      if (!item.backdrop || !item.backdrop.trim()) return false; // ignora célula vazia
-      const c = (item.categoria||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-      return c.includes(catNorm) || catNorm.includes(c.split(',')[0].trim());
-    });
-
-    // Só exibe a categoria se houver pelo menos um backdrop disponível na planilha
-    if (withBackdrop.length === 0) return;
-
-    const backdropItem = withBackdrop[Math.floor(Math.random() * withBackdrop.length)];
+    const backdropUrl = getCatBackdrop(cat);
 
     const card=document.createElement('div'); card.className='cat-card';
-    card.style.backgroundImage = `url(${backdropItem.backdrop})`;
-    card.style.backgroundSize = 'cover';
-    card.style.backgroundPosition = 'center';
-    card.innerHTML=`
-      <div class="cat-card-overlay-dark"></div>
-      <div class="cat-card-overlay">
-        <div class="cat-card-emoji">${cfg.emoji}</div>
-        <div class="cat-card-name">${cat}</div>
-        <div class="cat-card-count">${count} títulos</div>
-      </div>`;
+    if (backdropUrl) {
+      card.style.backgroundImage = `url(${backdropUrl})`;
+      card.style.backgroundSize = 'cover';
+      card.style.backgroundPosition = 'center';
+      card.innerHTML=`
+        <div class="cat-card-overlay-dark"></div>
+        <div class="cat-card-overlay">
+          <div class="cat-card-emoji">${cfg.emoji}</div>
+          <div class="cat-card-name">${cat}</div>
+          <div class="cat-card-count">${count} títulos</div>
+        </div>`;
+    } else {
+      // Categoria sem imagem fixa cadastrada → usa gradiente como antes
+      card.style.background=cfg.gradient;
+      card.innerHTML=`<div class="cat-card-bg">${cfg.emoji}</div><div class="cat-card-overlay"><div class="cat-card-name">${cat}</div><div class="cat-card-count">${count} títulos</div></div>`;
+    }
     card.addEventListener('click',()=>{location.href=`catalogo.html?cat=${encodeURIComponent(cat)}`;});
     scroll.appendChild(card);
   });
