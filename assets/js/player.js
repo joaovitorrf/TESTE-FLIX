@@ -15,9 +15,9 @@ window.PipocaPlayer = (function () {
     return m + ':' + (s < 10 ? '0' : '') + s;
   }
   function volIcon(vol, muted) {
-    if (muted || vol === 0) return '🔇';
-    if (vol < 0.5)          return '🔉';
-    return '🔊';
+    if (muted || vol === 0) return '<svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+    if (vol < 0.5)          return '<svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg>';
+    return '<svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
   }
 
   /* ─── Toast do player ─── */
@@ -106,7 +106,7 @@ window.PipocaPlayer = (function () {
       '.ctrl-vol-wrap:hover .ctrl-vol-slider{display:flex;}',
       '.ctrl-vol-slider input[type=range]{writing-mode:vertical-lr;direction:rtl;width:4px;height:70px;accent-color:var(--red,#ff2d43);cursor:pointer;}',
       '.ctrl-speed-wrap{position:relative;}',
-      '.ctrl-speed-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background 0.15s;}',
+      '.ctrl-speed-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:#fff;padding:0 10px;height:32px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background 0.15s;display:flex;align-items:center;justify-content:center;}',
       '.ctrl-speed-btn:hover{background:var(--red,#ff2d43);}',
       '.ctrl-speed-menu{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:rgba(13,13,20,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;min-width:80px;box-shadow:0 8px 32px rgba(0,0,0,0.7);z-index:100;}',
       '.ctrl-speed-wrap.open .ctrl-speed-menu{display:block;}',
@@ -148,7 +148,7 @@ window.PipocaPlayer = (function () {
 
     // Volume
     var volWrap = document.createElement('div'); volWrap.className = 'ctrl-vol-wrap';
-    var volBtn = document.createElement('button'); volBtn.className = 'ctrl-btn'; volBtn.style.fontSize = '1rem'; volBtn.innerHTML = volIcon(video.volume, video.muted); volBtn.title = 'Volume';
+    var volBtn = document.createElement('button'); volBtn.className = 'ctrl-btn'; volBtn.innerHTML = volIcon(video.volume, video.muted); volBtn.title = 'Volume';
     var volSliderWrap = document.createElement('div'); volSliderWrap.className = 'ctrl-vol-slider';
     var volRange = document.createElement('input'); volRange.type='range'; volRange.min='0'; volRange.max='1'; volRange.step='0.05'; volRange.value=video.volume;
     volSliderWrap.appendChild(volRange); volWrap.appendChild(volBtn); volWrap.appendChild(volSliderWrap);
@@ -259,17 +259,30 @@ window.PipocaPlayer = (function () {
     var centerPlay = document.getElementById(opts.centerPlayId|| 'centerPlay');
     var controls   = document.getElementById(opts.controlsId  || 'playerControls');
     var ctrlRow    = controls.querySelector('.player-ctrl-row');
+    var header     = document.getElementById('playerHeader');
+    var centerRow  = document.getElementById('playerCenterControls');
     var progress       = document.getElementById('progressBar');
     var progressFilled = document.getElementById('progressFilled');
     var currentTimeEl  = document.getElementById('currentTime');
     var totalTimeEl    = document.getElementById('totalTime');
+    var centerPlayPath = document.getElementById('centerPlayPath');
     var titulo = opts.titulo || '';
     var capa   = opts.capa   || '';
+    var iniciado = false;
+
+    function setCenterIcon(playing) {
+      if (!centerPlayPath) return;
+      centerPlayPath.setAttribute('d', playing
+        ? 'M6 5h4v14H6V5zm8 0h4v14h-4V5z'   /* pause */
+        : 'M8 5v14l11-7z');                  /* play */
+    }
 
     function iniciar() {
       overlay.classList.add('hidden');
-      centerPlay.style.opacity='0'; centerPlay.style.pointerEvents='none';
       controls.classList.remove('hidden');
+      if (header) header.classList.remove('hidden');
+      if (centerRow) centerRow.classList.remove('hidden');
+      iniciado = true;
       // Verificar progresso salvo
       var prog = titulo ? getProgress(titulo) : null;
       if (prog && prog.currentTime > 10) {
@@ -283,9 +296,9 @@ window.PipocaPlayer = (function () {
     }
     overlay.addEventListener('click', iniciar);
 
-    // Tap zones: clique esquerdo = -10s, direito = +10s
+    // Tap zones: duplo-clique esquerdo = -10s, direito = +10s
     playerBox.addEventListener('dblclick', function(e) {
-      if (e.target.closest('.player-controls') || e.target.closest('#playerOverlay')) return;
+      if (e.target.closest('.player-controls') || e.target.closest('#playerOverlay') || e.target.closest('#playerHeader')) return;
       if (!video.src && !video.currentSrc) return;
       var rect = playerBox.getBoundingClientRect();
       var x = e.clientX - rect.left;
@@ -299,26 +312,41 @@ window.PipocaPlayer = (function () {
       }
     });
 
-    // Clique no centro: play/pause com animação
+    // Clique fora dos controles: alterna visibilidade (toque em mobile)
     playerBox.addEventListener('click', function(e) {
-      if (e.target.closest('.player-controls') || e.target.closest('#playerOverlay')) return;
+      if (!iniciado) return;
+      if (e.target.closest('.player-controls') || e.target.closest('#playerOverlay') ||
+          e.target.closest('#playerHeader') || e.target.closest('#playerCenterControls')) return;
       if (!video.src && !video.currentSrc) return;
-      var icon = document.createElement('div');
-      icon.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);' +
-        'font-size:3rem;pointer-events:none;z-index:200;opacity:1;transition:opacity 0.3s,transform 0.3s';
-      icon.textContent = video.paused ? '▶' : '⏸';
-      playerBox.appendChild(icon);
-      if (video.paused) video.play().catch(function(){});
-      else video.pause();
-      setTimeout(function() {
-        icon.style.opacity = '0';
-        icon.style.transform = 'translate(-50%,-50%) scale(1.4)';
-        setTimeout(function(){ icon.remove(); }, 300);
-      }, 400);
+      var showing = !controls.classList.contains('hidden');
+      if (showing) {
+        controls.classList.add('hidden');
+        if (header) header.classList.add('hidden');
+        if (centerRow) centerRow.classList.add('hidden');
+      } else {
+        controls.classList.remove('hidden');
+        if (header) header.classList.remove('hidden');
+        if (centerRow) centerRow.classList.remove('hidden');
+      }
     });
 
-    centerPlay.addEventListener('click', iniciar);
+    centerPlay.addEventListener('click', function() {
+      if (!iniciado) { iniciar(); return; }
+      if (video.paused) video.play().catch(function(){});
+      else video.pause();
+    });
+    video.addEventListener('play',  function(){ setCenterIcon(true); });
+    video.addEventListener('pause', function(){ setCenterIcon(false); });
 
+    // Botão de voltar do header
+    var backBtn = document.getElementById('playerBackBtn');
+    if (backBtn) backBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (history.length > 1) history.back();
+      else location.href = 'index.html';
+    });
+
+    // Compat: botão antigo escondido (caso algo externo ainda dispare)
     var playPauseBtn  = document.getElementById('playPause');
     var playPausePath = document.getElementById('playPausePath');
     if (playPauseBtn) {
@@ -328,15 +356,15 @@ window.PipocaPlayer = (function () {
     }
 
     var back10=document.getElementById('back10'); var fwd10=document.getElementById('forward10');
-    if(back10) back10.onclick=function(){video.currentTime=Math.max(0,video.currentTime-10);};
-    if(fwd10)  fwd10.onclick=function(){video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
+    if(back10) back10.onclick=function(e){e.stopPropagation();video.currentTime=Math.max(0,video.currentTime-10);};
+    if(fwd10)  fwd10.onclick=function(e){e.stopPropagation();video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
 
-    // Progress save (a cada 10s)
+    // Progress save (a cada 10s) + tempo restante no estilo "-1:23:45"
     var _saveTimer = 0;
     video.addEventListener('timeupdate', function(){
       if(!video.duration) return;
       currentTimeEl.textContent=formatTime(video.currentTime);
-      totalTimeEl.textContent=formatTime(video.duration);
+      totalTimeEl.textContent='-'+formatTime(video.duration-video.currentTime);
       _saveTimer++;
       if(_saveTimer%150===0 && titulo) saveProgress(titulo, video, capa, 'filme');
     });
@@ -346,13 +374,28 @@ window.PipocaPlayer = (function () {
 
     var toggleFs=makeFullscreenToggle(playerBox);
     var fsBtn=document.getElementById('fullscreenBtn');
-    if(fsBtn) fsBtn.addEventListener('click',toggleFs);
+    if(fsBtn) fsBtn.addEventListener('click',function(e){e.stopPropagation();toggleFs();});
     if(ctrlRow) buildExtraControls(ctrlRow,video,playerBox);
     setupKeyboardShortcuts(video,playerBox,toggleFs);
 
     var hideTimer;
-    playerBox.addEventListener('mousemove', function(){controls.classList.remove('hidden');clearTimeout(hideTimer);hideTimer=setTimeout(function(){controls.classList.add('hidden');},2500);});
-    playerBox.addEventListener('mouseleave', function(){if(!video.paused)controls.classList.add('hidden');});
+    function scheduleHide() {
+      clearTimeout(hideTimer);
+      hideTimer=setTimeout(function(){
+        if (video.paused) return;
+        controls.classList.add('hidden');
+        if (header) header.classList.add('hidden');
+        if (centerRow) centerRow.classList.add('hidden');
+      },2500);
+    }
+    playerBox.addEventListener('mousemove', function(){
+      if (!iniciado) return;
+      controls.classList.remove('hidden');
+      if (header) header.classList.remove('hidden');
+      if (centerRow) centerRow.classList.remove('hidden');
+      scheduleHide();
+    });
+    playerBox.addEventListener('mouseleave', function(){ if(!video.paused) scheduleHide(); });
   }
 
   /* ─────────────────────────────────────────────
@@ -366,12 +409,22 @@ window.PipocaPlayer = (function () {
     var controls   = document.getElementById(opts.controlsId   || 'playerControls');
     var playerBox  = document.getElementById(opts.playerBoxId  || 'playerBox');
     var titleEl    = document.getElementById(opts.titleId      || 'playerTitle');
+    var header     = document.getElementById('playerHeader');
+    var centerRow  = document.getElementById('playerCenterControls');
     var ctrlRow    = controls.querySelector('.player-ctrl-row');
     var progress       = document.getElementById('progressBar');
     var progressFilled = document.getElementById('progressFilled');
     var currentTimeEl  = document.getElementById('currentTime');
     var totalTimeEl    = document.getElementById('totalTime');
-    var playPauseBtn   = document.getElementById('playPause');
+    var centerPlayPath = document.getElementById('centerPlayPath');
+    var iniciado = false;
+
+    function setCenterIcon(playing) {
+      if (!centerPlayPath) return;
+      centerPlayPath.setAttribute('d', playing
+        ? 'M6 5h4v14H6V5zm8 0h4v14h-4V5z'
+        : 'M8 5v14l11-7z');
+    }
 
     // Next episode card
     var nextEpCard = document.createElement('div'); nextEpCard.className = 'next-ep-card';
@@ -382,10 +435,21 @@ window.PipocaPlayer = (function () {
 
     var _curTitulo = '', _curCapa = '', _serieNome = '';
 
+    function mostrarControles() {
+      controls.classList.remove('hidden');
+      if (header) header.classList.remove('hidden');
+      if (centerRow) centerRow.classList.remove('hidden');
+    }
+    function esconderControles() {
+      controls.classList.add('hidden');
+      if (header) header.classList.add('hidden');
+      if (centerRow) centerRow.classList.add('hidden');
+    }
+
     function iniciar() {
       overlay.classList.add('hidden');
-      centerPlay.style.opacity='0'; centerPlay.style.pointerEvents='none';
-      controls.classList.remove('hidden');
+      mostrarControles();
+      iniciado = true;
       var prog = _curTitulo ? getProgress(_curTitulo) : null;
       if (prog && prog.currentTime > 10) {
         showResumeToast(_curTitulo, prog,
@@ -397,22 +461,41 @@ window.PipocaPlayer = (function () {
       }
     }
     overlay.addEventListener('click', iniciar);
-    centerPlay.addEventListener('click', iniciar);
+    centerPlay.addEventListener('click', function() {
+      if (!iniciado) { iniciar(); return; }
+      if (video.paused) video.play().catch(function(){});
+      else { video.pause(); nextEpCard.style.display='none'; }
+    });
+    video.addEventListener('play',  function(){ setCenterIcon(true); });
+    video.addEventListener('pause', function(){ setCenterIcon(false); });
 
-    if (playPauseBtn) {
-      playPauseBtn.onclick = function(){if(video.paused)video.play();else{video.pause();nextEpCard.style.display='none';}};
-      video.addEventListener('play',  function(){playPauseBtn.innerHTML='&#9646;&#9646;';});
-      video.addEventListener('pause', function(){playPauseBtn.innerHTML='&#9654;';});
-    }
+    // Botão de voltar do header
+    var backBtn = document.getElementById('playerBackBtn');
+    if (backBtn) backBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (history.length > 1) history.back();
+      else location.href = 'index.html';
+    });
 
-    document.getElementById('back10').onclick    = function(){video.currentTime=Math.max(0,video.currentTime-10);};
-    document.getElementById('forward10').onclick = function(){video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
+    // Clique fora dos controles: alterna visibilidade
+    playerBox.addEventListener('click', function(e) {
+      if (!iniciado) return;
+      if (e.target.closest('.player-controls') || e.target.closest('#playerOverlay') ||
+          e.target.closest('#playerHeader') || e.target.closest('#playerCenterControls') ||
+          e.target.closest('.next-ep-card')) return;
+      if (!video.src && !video.currentSrc) return;
+      if (!controls.classList.contains('hidden')) esconderControles();
+      else mostrarControles();
+    });
+
+    document.getElementById('back10').onclick    = function(e){e.stopPropagation();video.currentTime=Math.max(0,video.currentTime-10);};
+    document.getElementById('forward10').onclick = function(e){e.stopPropagation();video.currentTime=Math.min(video.duration||0,video.currentTime+10);};
 
     var _saveTimer2 = 0;
     video.addEventListener('timeupdate', function(){
       if(!video.duration) return;
       currentTimeEl.textContent=formatTime(video.currentTime);
-      totalTimeEl.textContent=formatTime(video.duration);
+      totalTimeEl.textContent='-'+formatTime(video.duration-video.currentTime);
       _saveTimer2++;
       if(_saveTimer2%150===0 && _curTitulo) saveProgress(_curTitulo,video,_curCapa,'serie',_serieNome||'');
       // Próximo episódio 30s antes do fim
@@ -426,12 +509,20 @@ window.PipocaPlayer = (function () {
 
     var toggleFs=makeFullscreenToggle(playerBox);
     var fsBtn=document.getElementById('fullscreenBtn');
-    if(fsBtn) fsBtn.onclick=toggleFs;
+    if(fsBtn) fsBtn.onclick=function(e){e.stopPropagation();toggleFs();};
     if(ctrlRow) buildExtraControls(ctrlRow,video,playerBox);
     setupKeyboardShortcuts(video,playerBox,toggleFs);
 
     var hideTimer;
-    playerBox.addEventListener('mousemove', function(){controls.classList.remove('hidden');clearTimeout(hideTimer);hideTimer=setTimeout(function(){controls.classList.add('hidden');},2500);});
+    function scheduleHide() {
+      clearTimeout(hideTimer);
+      hideTimer=setTimeout(function(){ if(!video.paused) esconderControles(); },2500);
+    }
+    playerBox.addEventListener('mousemove', function(){
+      if (!iniciado) return;
+      mostrarControles();
+      scheduleHide();
+    });
 
     return {
       loadEpisode: function(src, titulo, capa) {
@@ -456,9 +547,9 @@ window.PipocaPlayer = (function () {
         var overlayText = overlay.querySelector('.player-overlay-text');
         var isMob = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
         if(overlayText) overlayText.textContent = isMob ? '▶ Toque para assistir' : '▶ Clique para reproduzir';
-        centerPlay.style.opacity = '1';
-        centerPlay.style.pointerEvents = '';
-        controls.classList.add('hidden');
+        iniciado = false;
+        setCenterIcon(false);
+        esconderControles();
         nextEpCard.style.display = 'none';
 
         // Scroll imediato para o player — sem setTimeout que falha no iOS
