@@ -23,7 +23,8 @@ const ROUTES = {
 const EPISODES_WORKER = "https://shy-dream-7986.slacarambafdsosobrenome.workers.dev";
 const EPISODE_TABS = [
   '/episodios1', '/episodios2', '/episodios3', '/episodios4',
-  '/episodios5', '/episodios6', '/episodios7'
+  '/episodios5', '/episodios6', '/episodios7', '/episodios8',
+  '/episodios9', '/episodios10', '/episodios11'
 ];
 
 // Cache em memória — filmes/séries: 5 min, episódios por série: 10 min
