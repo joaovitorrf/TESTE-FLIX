@@ -27,6 +27,7 @@
 </script>
 </head>
 <body>
+<script src="assets/js/avisos.js" defer></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -105,7 +106,7 @@
     </div>
   </nav>
   <div class="search-wrapper">
-    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}">
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
     </svg>
     <input type="search" class="search-bar" id="desktopSearchInput"
@@ -1449,5 +1450,6 @@ setTimeout(function() {
 </script>
 <script src="assets/js/pflix-vip.js"></script>
  
+<script src="assets/js/anti-adblock.js" defer></script>
 </body>
 </html>

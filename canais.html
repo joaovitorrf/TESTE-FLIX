@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
+<script src="assets/js/pflix-guard.js"></script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
+<script src="assets/js/avisos.js" defer></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -54,7 +56,7 @@
     </div>
   </nav>
   <div class="search-wrapper">
-    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
   </div>
   <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
@@ -245,5 +247,6 @@ document.addEventListener('DOMContentLoaded', init);
 <script>setTimeout(function(){var el=document.getElementById('supportBannerOverlay');if(el)el.style.display='block';},30*60*1000);</script>
 
 <script src="assets/js/pflix-vip.js"></script>
+<script src="assets/js/anti-adblock.js" defer></script>
 </body>
 </html>

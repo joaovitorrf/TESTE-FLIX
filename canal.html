@@ -17,6 +17,7 @@
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
+<script src="assets/js/avisos.js" defer></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -126,7 +127,7 @@ l.parentNode.insertBefore(s, l);
     </div>
   </nav>
   <div class="search-wrapper">
-    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
     <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;z-index:2">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
@@ -516,5 +517,7 @@ document.addEventListener('DOMContentLoaded', init);
 </div>
 <script>setTimeout(function(){var el=document.getElementById('supportBannerOverlay');if(el)el.style.display='block';},30*60*1000);</script>
 
+<script src="assets/js/pflix-vip.js"></script>
+<script src="assets/js/anti-adblock.js" defer></script>
 </body>
 </html>
