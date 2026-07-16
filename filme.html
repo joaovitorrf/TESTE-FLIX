@@ -467,10 +467,10 @@ function runVAST(onComplete) {
         if(!mp4Url && (t==='video/mp4' || t.includes('mp4')))
           mp4Url = mf.textContent.trim().replace(/<![CDATA[|]]>/g,'').trim();
       });
-      if(!mp4Url){ onComplete(); return; }
+      if(!mp4Url){ console.warn('[VAST] Tag sem MediaFile mp4 válido — pulando anúncio.'); onComplete(); return; }
       showVASTPlayer(mp4Url, doc, onComplete, isMobile);
     })
-    .catch(function(){ onComplete(); });
+    .catch(function(err){ console.error('[VAST] Falha ao buscar/processar a tag VAST — anúncio pulado:', err); onComplete(); });
 }
 function showVASTPlayer(mp4Url, doc, onComplete, isMobile){
   var ov = document.createElement('div');
