@@ -226,7 +226,7 @@
       if (!list) return;
       list.innerHTML = "";
       if (snap.empty) {
-        list.innerHTML = "<p style="color:var(--text-3);text-align:center;padding:20px">Nenhuma discussão ainda. Seja o primeiro!</p>";
+        list.innerHTML = "<p style=\"color:var(--text-3);text-align:center;padding:20px\">Nenhuma discussão ainda. Seja o primeiro!</p>";
         return;
       }
       snap.forEach(function(postDoc) {
@@ -235,18 +235,18 @@
         var card = document.createElement("div");
         card.style.cssText = "background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px";
         card.innerHTML =
-          "<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">" +
-            "<img src="" + (p.autorFoto||"https://placehold.co/36x36/333/fff?text=?") + "" style="width:36px;height:36px;border-radius:50%;object-fit:cover">" +
-            "<div style="font-weight:600;color:var(--text-1);font-size:0.9rem">" + (p.autor||"Anônimo") + "</div>" +
+          "<div style=\"display:flex;gap:10px;align-items:center;margin-bottom:10px\">" +
+            "<img src=\"" + (p.autorFoto||"https://placehold.co/36x36/333/fff?text=?") + "\" style=\"width:36px;height:36px;border-radius:50%;object-fit:cover\">" +
+            "<div style=\"font-weight:600;color:var(--text-1);font-size:0.9rem\">" + (p.autor||"Anônimo") + "</div>" +
           "</div>" +
-          "<p style="color:var(--text-2);font-size:0.95rem;margin:0 0 12px">" + (p.texto||"") + "</p>" +
-          "<div style="border-top:1px solid var(--border);padding-top:10px">" +
-            "<div id="pcl-" + postId + "" style="margin-bottom:10px"></div>" +
-            "<div id="pcf-" + postId + "" style="display:none">" +
-              "<textarea id="pci-" + postId + "" placeholder="Escreva um comentário..." style="width:100%;background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text-1);font-family:inherit;font-size:0.88rem;resize:vertical;min-height:56px;box-sizing:border-box"></textarea>" +
-              "<button id="pcs-" + postId + "" style="margin-top:6px;background:var(--red);color:#fff;border:none;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem">Comentar</button>" +
+          "<p style=\"color:var(--text-2);font-size:0.95rem;margin:0 0 12px\">" + (p.texto||"") + "</p>" +
+          "<div style=\"border-top:1px solid var(--border);padding-top:10px\">" +
+            "<div id=\"pcl-" + postId + "\" style=\"margin-bottom:10px\"></div>" +
+            "<div id=\"pcf-" + postId + "\" style=\"display:none\">" +
+              "<textarea id=\"pci-" + postId + "\" placeholder=\"Escreva um comentário...\" style=\"width:100%;background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text-1);font-family:inherit;font-size:0.88rem;resize:vertical;min-height:56px;box-sizing:border-box\"></textarea>" +
+              "<button id=\"pcs-" + postId + "\" style=\"margin-top:6px;background:var(--red);color:#fff;border:none;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem\">Comentar</button>" +
             "</div>" +
-            "<button id="pct-" + postId + "" style="background:none;border:none;color:var(--red);font-size:0.82rem;cursor:pointer;padding:0">💬 Comentar</button>" +
+            "<button id=\"pct-" + postId + "\" style=\"background:none;border:none;color:var(--red);font-size:0.82rem;cursor:pointer;padding:0\">💬 Comentar</button>" +
           "</div>";
         list.appendChild(card);
 
@@ -291,10 +291,10 @@
             var cDiv = document.createElement("div");
             cDiv.style.cssText = "display:flex;gap:8px;margin-bottom:8px";
             cDiv.innerHTML =
-              "<img src="" + (cv.photo||"https://placehold.co/28x28/333/fff?text=?") + "" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0">" +
-              "<div style="background:var(--surface-1);border-radius:8px;padding:6px 10px;flex:1">" +
-                "<div style="font-weight:600;color:var(--text-1);font-size:0.82rem">" + (cv.name||"Anônimo") + "</div>" +
-                "<div style="color:var(--text-2);font-size:0.85rem">" + (cv.text||"") + "</div>" +
+              "<img src=\"" + (cv.photo||"https://placehold.co/28x28/333/fff?text=?") + "\" style=\"width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0\">" +
+              "<div style=\"background:var(--surface-1);border-radius:8px;padding:6px 10px;flex:1\">" +
+                "<div style=\"font-weight:600;color:var(--text-1);font-size:0.82rem\">" + (cv.name||"Anônimo") + "</div>" +
+                "<div style=\"color:var(--text-2);font-size:0.85rem\">" + (cv.text||"") + "</div>" +
               "</div>";
             cl.appendChild(cDiv);
           });
