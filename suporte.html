@@ -4,8 +4,8 @@
 <script src="assets/js/pflix-guard.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feed de Notícias — PipocaFlix</title>
-<meta name="description" content="Fique por dentro das novidades e notícias do PipocaFlix.">
+<title>Suporte — PipocaFlix</title>
+<meta name="description" content="Abra um ticket de suporte: reclamações, pedidos de filme/série ou dúvidas sobre o PipocaFlix.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -50,9 +50,8 @@
     if (!btn) return;
     if (user) {
       btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
-      btn.title = 'Sair da conta';
-      btn.onclick = function() { window.location.href = 'perfil.html'; };
       btn.title = 'Ver meu perfil';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
     } else {
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
       btn.title = 'Entrar com Google';
@@ -77,6 +76,7 @@
     <a href="catalogo.html?tipo=filmes">Filmes</a>
     <a href="catalogo.html?tipo=series">Séries</a>
     <a href="canais.html">📡 Canais</a>
+
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
@@ -84,17 +84,21 @@
         <a href="catalogo.html">🎬 Catálogo</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
-      <a href="suporte.html">🎫 Suporte</a></div>
+        <a href="suporte.html">🎫 Suporte</a>
+      </div>
     </div>
   </nav>
   <div class="search-wrapper">
-    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
     <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
-  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
+  <a href="planos.html" class="vip-btn-header" id="vipHeaderBtn">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -104,206 +108,70 @@
 </button>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
-  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false" onclick="window.location.href='buscar.html';return false;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
   </button>
 </header>
 
-<div class="mobile-nav-menu" id="mobileNavMenu">
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
-  <a href="catalogo.html">🎬 Catálogo</a>
   <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
   <a href="catalogo.html?tipo=series">📺 Séries</a>
-  <a href="feed.html" class="active">📰 Feed</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
-  
-  
-
-  <a href="suporte.html">🎫 Suporte</a></div>
-
-<div class="search-results-overlay" id="searchResultsOverlay">
-  <div class="search-results-header">
-    <span>Resultados para: <strong id="searchQueryLabel"></strong></span>
-    <button class="search-results-close" id="searchResultsClose">✕ Fechar</button>
-  </div>
-  <div class="card-grid" id="searchResultsGrid"></div>
+  <a href="suporte.html">🎫 Suporte</a>
+  <a href="planos.html" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
 </div>
 
-<!-- ═══ FEED ═══ -->
-<section class="feed-section">
-  <div class="section-header">
-    <div>
-      <h1 class="section-title">📰 Feed de Notícias</h1>
-      <p class="feed-subtitle">Fique por dentro das novidades do PipocaFlix</p>
-    </div>
-  </div>
-
-  <div class="feed-grid" id="feedGrid">
-    <div class="skeleton feed-skeleton"></div>
-    <div class="skeleton feed-skeleton"></div>
-    <div class="skeleton feed-skeleton"></div>
-  </div>
-
-  <p id="feedEmpty" style="display:none; color:var(--text-3); text-align:center; padding:3rem 0; font-size:1.1rem">
-    😔 Nenhuma notícia disponível no momento. Volte em breve!
+<div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados">
+  <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
+  <div class="cards-grid" id="searchResultsGrid"></div>
+  <p id="searchNoResults" style="display:none;color:var(--text-3);text-align:center;padding:3rem 0">
+    Nenhum resultado encontrado. Tente buscar por categoria, ano ou tipo de áudio.
   </p>
+</div>
+
+<!-- ═══ SUPORTE ═══ -->
+<section class="suporte-hero">
+  <div class="suporte-hero-icon">🎫</div>
+  <h1>Central de <span>Suporte</span></h1>
+  <p>Relate um problema, peça um filme ou série, ou tira sua dúvida com a gente. Só usuários logados podem abrir tickets.</p>
 </section>
 
+<div class="suporte-container">
 
-<!-- ═══ DISCUSSÕES DA COMUNIDADE ═══ -->
-<section style="max-width:860px;margin:40px auto;padding:0 16px">
-  <h2 style="font-size:1.3rem;font-weight:700;color:var(--text-1);margin-bottom:20px">💬 Discussões da Comunidade</h2>
-
-  <div id="feedPostFormWrap" style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:24px">
-    <div id="feedPostLoginPrompt" style="display:none;text-align:center;padding:10px;color:var(--text-3)">
-      <p>Faça login para participar das discussões</p>
-      <button onclick="window.PipocaAuth && window.PipocaAuth.login()"
-        style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 20px;cursor:pointer;margin-top:8px">
-        Entrar com Google
-      </button>
-    </div>
-    <div id="feedPostForm" style="display:none">
-      <textarea id="feedPostInput" placeholder="Compartilhe sua opinião sobre um filme, série ou novidade..."
-        style="width:100%;background:var(--surface-1);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text-1);font-family:inherit;font-size:0.95rem;resize:vertical;min-height:80px;box-sizing:border-box"></textarea>
-      <button id="feedPostSubmit"
-        style="margin-top:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:0.95rem">
-        Publicar
-      </button>
+  <!-- Formulário de novo ticket -->
+  <div class="ticket-form-card" id="ticketFormCard">
+    <p class="ticket-login-prompt" id="ticketLoginPrompt">
+      🔒 <button class="ticket-login-link" onclick="window.PipocaAuth && window.PipocaAuth.login()">Faça login</button> para abrir um ticket.
+    </p>
+    <div class="ticket-form" id="ticketForm" style="display:none">
+      <h2>Abrir um Ticket</h2>
+      <select class="ticket-tipo-select" id="ticketTipo">
+        <option value="duvida">❓ Dúvida</option>
+        <option value="reclamacao">⚠️ Reclamação</option>
+        <option value="pedido">🎬 Pedido de Filme/Série</option>
+      </select>
+      <textarea class="ticket-textarea" id="ticketTexto" placeholder="Descreva seu pedido ou problema aqui..." maxlength="1000"></textarea>
+      <div class="ticket-form-footer">
+        <span class="ticket-char-count" id="ticketCharCount">0/1000</span>
+        <button class="ticket-submit-btn" id="ticketSubmit">📨 Enviar Ticket</button>
+      </div>
     </div>
   </div>
-  <div id="feedPostsList"></div>
-</section>
 
-<script type="module">
-  import { getFirestore, collection, addDoc, doc, query, orderBy, limit, onSnapshot, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-  import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  <!-- Lista de tickets -->
+  <h2 class="ticket-list-title" id="ticketsListTitle">Meus Tickets</h2>
+  <p class="ticket-empty" id="ticketsEmpty" style="display:none">Faça login pra ver seus tickets.</p>
+  <div id="ticketsList"></div>
 
-  function waitForAuth(cb, tries) {
-    tries = tries || 0;
-    if (window.PipocaAuth) { cb(); return; }
-    if (tries > 30) return;
-    setTimeout(function() { waitForAuth(cb, tries + 1); }, 200);
-  }
-
-  waitForAuth(function() {
-    var app = getApps()[0];
-    if (!app) return;
-    var db = getFirestore(app);
-
-    window.PipocaAuth.onAuthChanged(function(user) {
-      var lp = document.getElementById("feedPostLoginPrompt");
-      var fp = document.getElementById("feedPostForm");
-      if (lp) lp.style.display = user ? "none" : "block";
-      if (fp) fp.style.display = user ? "block" : "none";
-    });
-
-    var postSubmit = document.getElementById("feedPostSubmit");
-    if (postSubmit) {
-      postSubmit.addEventListener("click", async function() {
-        var user = window.PipocaAuth.getUser();
-        if (!user) return;
-        var text = document.getElementById("feedPostInput").value.trim();
-        if (!text) return;
-        this.disabled = true;
-        try {
-          await addDoc(collection(db, "feed_posts"), {
-            texto: text, uid: user.uid,
-            autor: user.displayName || "Anônimo",
-            autorFoto: user.photoURL || "",
-            ts: serverTimestamp()
-          });
-          document.getElementById("feedPostInput").value = "";
-        } catch(e) { alert("Erro ao publicar."); }
-        this.disabled = false;
-      });
-    }
-
-    var postsQ = query(collection(db, "feed_posts"), orderBy("ts", "desc"), limit(30));
-    onSnapshot(postsQ, function(snap) {
-      var list = document.getElementById("feedPostsList");
-      if (!list) return;
-      list.innerHTML = "";
-      if (snap.empty) {
-        list.innerHTML = "<p style=\"color:var(--text-3);text-align:center;padding:20px\">Nenhuma discussão ainda. Seja o primeiro!</p>";
-        return;
-      }
-      snap.forEach(function(postDoc) {
-        var p = postDoc.data();
-        var postId = postDoc.id;
-        var card = document.createElement("div");
-        card.style.cssText = "background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px";
-        card.innerHTML =
-          "<div style=\"display:flex;gap:10px;align-items:center;margin-bottom:10px\">" +
-            "<img src=\"" + (p.autorFoto||"https://placehold.co/36x36/333/fff?text=?") + "\" style=\"width:36px;height:36px;border-radius:50%;object-fit:cover\">" +
-            "<div style=\"font-weight:600;color:var(--text-1);font-size:0.9rem\">" + (p.autor||"Anônimo") + "</div>" +
-          "</div>" +
-          "<p style=\"color:var(--text-2);font-size:0.95rem;margin:0 0 12px\">" + (p.texto||"") + "</p>" +
-          "<div style=\"border-top:1px solid var(--border);padding-top:10px\">" +
-            "<div id=\"pcl-" + postId + "\" style=\"margin-bottom:10px\"></div>" +
-            "<div id=\"pcf-" + postId + "\" style=\"display:none\">" +
-              "<textarea id=\"pci-" + postId + "\" placeholder=\"Escreva um comentário...\" style=\"width:100%;background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text-1);font-family:inherit;font-size:0.88rem;resize:vertical;min-height:56px;box-sizing:border-box\"></textarea>" +
-              "<button id=\"pcs-" + postId + "\" style=\"margin-top:6px;background:var(--red);color:#fff;border:none;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:0.85rem\">Comentar</button>" +
-            "</div>" +
-            "<button id=\"pct-" + postId + "\" style=\"background:none;border:none;color:var(--red);font-size:0.82rem;cursor:pointer;padding:0\">💬 Comentar</button>" +
-          "</div>";
-        list.appendChild(card);
-
-        document.getElementById("pct-" + postId).addEventListener("click", function() {
-          var currentUser = window.PipocaAuth.getUser();
-          if (!currentUser) { alert("Faça login para comentar."); return; }
-          var form = document.getElementById("pcf-" + postId);
-          form.style.display = form.style.display === "none" ? "block" : "none";
-        });
-
-        var cSubmit = document.getElementById("pcs-" + postId);
-        if (cSubmit) {
-          cSubmit.addEventListener("click", async function() {
-            var currentUser = window.PipocaAuth.getUser();
-            if (!currentUser) return;
-            var cText = document.getElementById("pci-" + postId).value.trim();
-            if (!cText) return;
-            this.disabled = true;
-            try {
-              var postRef = doc(db, "feed_posts", postId);
-              await addDoc(collection(postRef, "comentarios"), {
-                text: cText, uid: currentUser.uid,
-                name: currentUser.displayName || "Anônimo",
-                photo: currentUser.photoURL || "",
-                ts: serverTimestamp()
-              });
-              document.getElementById("pci-" + postId).value = "";
-              document.getElementById("pcf-" + postId).style.display = "none";
-            } catch(e) { alert("Erro ao comentar."); }
-            this.disabled = false;
-          });
-        }
-
-        var postRef = doc(db, "feed_posts", postId);
-        var cq = query(collection(postRef, "comentarios"), orderBy("ts", "asc"), limit(20));
-        onSnapshot(cq, function(cSnap) {
-          var cl = document.getElementById("pcl-" + postId);
-          if (!cl) return;
-          cl.innerHTML = "";
-          cSnap.forEach(function(cDoc) {
-            var cv = cDoc.data();
-            var cDiv = document.createElement("div");
-            cDiv.style.cssText = "display:flex;gap:8px;margin-bottom:8px";
-            cDiv.innerHTML =
-              "<img src=\"" + (cv.photo||"https://placehold.co/28x28/333/fff?text=?") + "\" style=\"width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0\">" +
-              "<div style=\"background:var(--surface-1);border-radius:8px;padding:6px 10px;flex:1\">" +
-                "<div style=\"font-weight:600;color:var(--text-1);font-size:0.82rem\">" + (cv.name||"Anônimo") + "</div>" +
-                "<div style=\"color:var(--text-2);font-size:0.85rem\">" + (cv.text||"") + "</div>" +
-              "</div>";
-            cl.appendChild(cDiv);
-          });
-        });
-      });
-    });
-  });
-</script>
+</div>
 
 <footer class="footer">
   <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
@@ -318,7 +186,8 @@
       <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
       <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
       <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
-    <a href="suporte.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Suporte</a></div>
+      <a href="suporte.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Suporte</a>
+    </div>
 </footer>
 
 <button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
@@ -421,58 +290,238 @@ function showToast(msg, dur) {
       var mInput = document.getElementById('mobileSearchInput');
       if (dInput) dInput.addEventListener('input', function(e) { deb(e.target.value); });
       if (mInput) mInput.addEventListener('input', function(e) { deb(e.target.value); });
-    } catch(e) { console.warn('[Feed] Search setup failed:', e); }
+    } catch(e) { console.warn('[Suporte] Search setup failed:', e); }
   }
   setupSearch();
 })();
+</script>
 
-// ── FEED INIT ──
-async function initFeed() {
-  var grid = document.getElementById('feedGrid');
-  var empty = document.getElementById('feedEmpty');
+<!-- ═══ TICKETS (Firestore) ═══ -->
+<script type="module">
+  import { getFirestore, collection, addDoc, doc, query, where, orderBy, limit, onSnapshot, serverTimestamp, updateDoc }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+  import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
-  try {
-    var noticias = await PipocaAPI.getFeedNoticias();
-    grid.innerHTML = '';
+  // E-mail(s) com poderes de admin/suporte — respostas aparecem com selo
+  // verificado, e esse(s) usuário(s) vê(em) TODOS os tickets, não só os próprios.
+  var ADMIN_EMAILS = ["canalpedroid@gmail.com"];
 
-    if (!noticias || !noticias.length) {
-      empty.style.display = 'block';
-      return;
+  function waitForAuth(cb, tries) {
+    tries = tries || 0;
+    if (window.PipocaAuth) { cb(); return; }
+    if (tries > 30) return;
+    setTimeout(function() { waitForAuth(cb, tries + 1); }, 200);
+  }
+
+  function isAdminUser(user) {
+    return !!(user && user.email && ADMIN_EMAILS.indexOf(user.email.toLowerCase()) !== -1);
+  }
+
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str == null ? '' : String(str);
+    return d.innerHTML;
+  }
+
+  function formatTs(ts) {
+    if (!ts || !ts.toDate) return 'agora';
+    var d = ts.toDate();
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  var TIPO_LABELS = { reclamacao: '⚠️ Reclamação', pedido: '🎬 Pedido de Filme/Série', duvida: '❓ Dúvida' };
+
+  waitForAuth(function() {
+    var app = getApps()[0];
+    if (!app) return;
+    var db = getFirestore(app);
+    var currentUser = null;
+
+    var loginPrompt = document.getElementById('ticketLoginPrompt');
+    var form = document.getElementById('ticketForm');
+    var list = document.getElementById('ticketsList');
+    var emptyMsg = document.getElementById('ticketsEmpty');
+    var listTitle = document.getElementById('ticketsListTitle');
+    var textarea = document.getElementById('ticketTexto');
+    var charCount = document.getElementById('ticketCharCount');
+
+    if (textarea && charCount) {
+      textarea.addEventListener('input', function() {
+        charCount.textContent = textarea.value.length + '/1000';
+      });
     }
 
-    noticias.forEach(function(n) {
-      var card = document.createElement('article');
-      card.className = 'feed-card';
-
-      var imgHTML = n.imagemNoticia
-        ? '<div class="feed-card-img-wrap"><img src="' + n.imagemNoticia + '" alt="' + n.titulo + '" class="feed-card-img" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>'
-        : '';
-
-      var avatarHTML = n.fotoPersonagem
-        ? '<img src="' + n.fotoPersonagem + '" alt="" class="feed-card-avatar" loading="lazy" onerror="this.style.display=\'none\'">'
-        : '';
-
-      card.innerHTML = imgHTML +
-        '<div class="feed-card-body">' +
-          '<div class="feed-card-header">' +
-            avatarHTML +
-            '<h2 class="feed-card-title">' + n.titulo + '</h2>' +
-          '</div>' +
-          '<p class="feed-card-content">' + n.conteudo + '</p>' +
-        '</div>';
-
-      grid.appendChild(card);
+    window.PipocaAuth.onAuthChanged(function(user) {
+      currentUser = user;
+      if (loginPrompt) loginPrompt.style.display = user ? 'none' : 'block';
+      if (form) form.style.display = user ? 'block' : 'none';
+      carregarTickets();
     });
 
-  } catch(e) {
-    console.error('[Feed] Erro ao carregar notícias:', e);
-    grid.innerHTML = '';
-    empty.style.display = 'block';
-  }
-}
+    // ── Criar ticket ──
+    var submitBtn = document.getElementById('ticketSubmit');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', async function() {
+        if (!currentUser) { if (window.showToast) showToast('Faça login para abrir um ticket.'); return; }
+        var tipo = document.getElementById('ticketTipo').value;
+        var texto = textarea.value.trim();
+        if (!texto) { if (window.showToast) showToast('Escreve alguma coisa antes de enviar 🙂'); return; }
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+        try {
+          await addDoc(collection(db, 'tickets'), {
+            uid: currentUser.uid,
+            email: (currentUser.email || '').toLowerCase(),
+            autor: currentUser.displayName || 'Anônimo',
+            autorFoto: currentUser.photoURL || '',
+            tipo: tipo,
+            texto: texto,
+            status: 'aberto',
+            ts: serverTimestamp(),
+            ultimaAtividade: serverTimestamp()
+          });
+          textarea.value = '';
+          if (charCount) charCount.textContent = '0/1000';
+          if (window.showToast) showToast('Ticket enviado! A gente te responde por aqui. 🎫');
+        } catch (e) {
+          console.error('[Suporte] Erro ao criar ticket:', e);
+          alert('Erro ao enviar o ticket. Tenta de novo em instantes.');
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📨 Enviar Ticket';
+      });
+    }
 
-document.addEventListener('DOMContentLoaded', initFeed);
+    var ticketsUnsub = null;
+
+    function carregarTickets() {
+      if (ticketsUnsub) { ticketsUnsub(); ticketsUnsub = null; }
+      if (!list) return;
+      list.innerHTML = '';
+
+      if (!currentUser) {
+        if (emptyMsg) { emptyMsg.style.display = 'block'; emptyMsg.textContent = 'Faça login pra ver seus tickets.'; }
+        if (listTitle) listTitle.textContent = 'Meus Tickets';
+        return;
+      }
+
+      var admin = isAdminUser(currentUser);
+      if (listTitle) listTitle.textContent = admin ? '🛡️ Todos os Tickets' : 'Meus Tickets';
+
+      var ticketsQ = admin
+        ? query(collection(db, 'tickets'), orderBy('ultimaAtividade', 'desc'), limit(100))
+        : query(collection(db, 'tickets'), where('uid', '==', currentUser.uid), orderBy('ultimaAtividade', 'desc'), limit(50));
+
+      ticketsUnsub = onSnapshot(ticketsQ, function(snap) {
+        list.innerHTML = '';
+        if (snap.empty) {
+          if (emptyMsg) { emptyMsg.style.display = 'block'; emptyMsg.textContent = admin ? 'Nenhum ticket ainda.' : 'Você ainda não abriu nenhum ticket.'; }
+          return;
+        }
+        if (emptyMsg) emptyMsg.style.display = 'none';
+        snap.forEach(function(tDoc) { renderTicket(tDoc, admin); });
+      }, function(err) {
+        console.error('[Suporte] Erro ao carregar tickets:', err);
+        if (emptyMsg) { emptyMsg.style.display = 'block'; emptyMsg.textContent = 'Erro ao carregar tickets. Recarregue a página.'; }
+      });
+    }
+
+    function renderTicket(tDoc, admin) {
+      var t = tDoc.data();
+      var ticketId = tDoc.id;
+      var resolvido = t.status === 'resolvido';
+
+      var card = document.createElement('div');
+      card.className = 'ticket-card' + (resolvido ? ' is-resolvido' : '');
+
+      card.innerHTML =
+        '<div class="ticket-card-top">' +
+          '<img src="' + escapeHtml(t.autorFoto || 'https://placehold.co/40x40/1a1a24/f0f0f6?text=%3F') + '" class="ticket-avatar" alt="" onerror="this.src=\'https://placehold.co/40x40/1a1a24/f0f0f6?text=%3F\'">' +
+          '<div class="ticket-meta">' +
+            '<div class="ticket-autor">' + escapeHtml(t.autor || 'Anônimo') + (admin ? ' <span class="ticket-email-admin">(' + escapeHtml(t.email || '') + ')</span>' : '') + '</div>' +
+            '<div class="ticket-data">' + formatTs(t.ts) + '</div>' +
+          '</div>' +
+          '<span class="ticket-status-badge ' + (resolvido ? 'is-resolvido' : 'is-aberto') + '">' + (resolvido ? 'RESOLVIDO' : 'ABERTO') + '</span>' +
+        '</div>' +
+        '<div class="ticket-tipo-label">' + (TIPO_LABELS[t.tipo] || '💬 Mensagem') + '</div>' +
+        '<p class="ticket-texto">' + escapeHtml(t.texto || '') + '</p>' +
+        '<div class="ticket-respostas" id="tr-' + ticketId + '"></div>' +
+        '<div class="ticket-reply-form">' +
+          '<textarea class="ticket-reply-input" id="tri-' + ticketId + '" placeholder="Escrever uma resposta..." maxlength="1000"></textarea>' +
+          '<div class="ticket-reply-actions">' +
+            (admin ? '<button class="ticket-toggle-status-btn" id="tts-' + ticketId + '">' + (resolvido ? '↩️ Reabrir' : '✅ Marcar como resolvido') + '</button>' : '<span></span>') +
+            '<button class="ticket-reply-submit" id="trs-' + ticketId + '">Enviar</button>' +
+          '</div>' +
+        '</div>';
+
+      list.appendChild(card);
+
+      var replySubmit = document.getElementById('trs-' + ticketId);
+      replySubmit.addEventListener('click', async function() {
+        var input = document.getElementById('tri-' + ticketId);
+        var txt = input.value.trim();
+        if (!txt) return;
+        replySubmit.disabled = true;
+        try {
+          var ticketRef = doc(db, 'tickets', ticketId);
+          await addDoc(collection(ticketRef, 'respostas'), {
+            uid: currentUser.uid,
+            texto: txt,
+            autor: admin ? 'PipocaFlix Suporte' : (currentUser.displayName || 'Anônimo'),
+            autorFoto: currentUser.photoURL || '',
+            isAdmin: admin,
+            ts: serverTimestamp()
+          });
+          await updateDoc(ticketRef, { ultimaAtividade: serverTimestamp() });
+          input.value = '';
+        } catch (e) {
+          console.error('[Suporte] Erro ao responder:', e);
+          alert('Erro ao enviar resposta.');
+        }
+        replySubmit.disabled = false;
+      });
+
+      var toggleBtn = document.getElementById('tts-' + ticketId);
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', async function() {
+          toggleBtn.disabled = true;
+          try {
+            await updateDoc(doc(db, 'tickets', ticketId), {
+              status: resolvido ? 'aberto' : 'resolvido',
+              ultimaAtividade: serverTimestamp()
+            });
+          } catch (e) {
+            console.error('[Suporte] Erro ao atualizar status:', e);
+            alert('Erro ao atualizar status.');
+          }
+          toggleBtn.disabled = false;
+        });
+      }
+
+      var ticketRef2 = doc(db, 'tickets', ticketId);
+      var rq = query(collection(ticketRef2, 'respostas'), orderBy('ts', 'asc'), limit(50));
+      onSnapshot(rq, function(rSnap) {
+        var rl = document.getElementById('tr-' + ticketId);
+        if (!rl) return;
+        rl.innerHTML = '';
+        rSnap.forEach(function(rDoc) {
+          var r = rDoc.data();
+          var rDiv = document.createElement('div');
+          rDiv.className = 'ticket-resposta' + (r.isAdmin ? ' is-admin' : '');
+          rDiv.innerHTML =
+            '<img src="' + escapeHtml(r.autorFoto || 'https://placehold.co/32x32/1a1a24/f0f0f6?text=%3F') + '" class="ticket-resposta-avatar" alt="" onerror="this.src=\'https://placehold.co/32x32/1a1a24/f0f0f6?text=%3F\'">' +
+            '<div class="ticket-resposta-bubble">' +
+              '<div class="ticket-resposta-autor">' + escapeHtml(r.autor || 'Anônimo') + (r.isAdmin ? ' <span class="ticket-verified" title="Equipe PipocaFlix">✓</span>' : '') + '<span class="ticket-resposta-data">' + formatTs(r.ts) + '</span></div>' +
+              '<div class="ticket-resposta-texto">' + escapeHtml(r.texto || '') + '</div>' +
+            '</div>';
+          rl.appendChild(rDiv);
+        });
+      });
+    }
+  });
 </script>
+
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
 
 <!-- Page Push (somente desktop) -->
 <script>
@@ -490,8 +539,6 @@ document.addEventListener('DOMContentLoaded', initFeed);
   })({});
 })();
 </script>
-
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
 
 <!-- Banner Mobile -->
 <div class="mobile-banner-ad" id="mobileBannerAdNew">
@@ -528,14 +575,14 @@ l.parentNode.insertBefore(s, l);
 </script>
 <!-- Banner apoio 30 min -->
 <div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
-  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
-    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" 
+  <div style="max-width:600px;margin:0 auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
+    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'"
             style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
     <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
     <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
     <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador de anúncios! ❤️</p>
     <button onclick="document.getElementById('supportBannerOverlay').style.display='none'"
-            style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">
+            style="margin-top:12px;background:var(--card-hover);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">
       Fechar
     </button>
   </div>

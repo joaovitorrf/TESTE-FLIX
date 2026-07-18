@@ -123,7 +123,7 @@ l.parentNode.insertBefore(s, l);
         <a href="catalogo.html">🎬 Catálogo</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
-      </div>
+      <a href="suporte.html">🎫 Suporte</a></div>
     </div>
   </nav>
   <div class="search-wrapper">
@@ -159,7 +159,8 @@ l.parentNode.insertBefore(s, l);
   <a href="elenco.html">🎭 Elenco</a>
   
   
-</div>
+
+  <a href="suporte.html">🎫 Suporte</a></div>
 
 <div class="search-results-overlay" id="searchResultsOverlay">
   <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
@@ -296,7 +297,7 @@ l.parentNode.insertBefore(s, l);
     <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
     <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
     <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
-  </div>
+  <a href="suporte.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Suporte</a></div>
 </footer>
 
 <button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
@@ -326,6 +327,92 @@ function setupSearch(allItems) {
   const deb=PipocaSearch.debounce(doSearch,250);
   document.getElementById('desktopSearchInput').addEventListener('input',e=>deb(e.target.value));
   document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));
+}
+
+// ── VAST ──
+var VAST_TAG_URL = "https://muddy-distance.com/dpmtF.z/dWGAN/vZZZGkUR/je_m/9nuQZ/USlZknPATRYe4XN-TEke5UOODRkQtnNej/gP1/OQTGkV5HMbwU";
+function runVAST(onComplete) {
+  // VIP não vê anúncio VAST
+  if (window.PipocaVIP && window.PipocaVIP.ativo) { onComplete(); return; }
+  var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  fetch(VAST_TAG_URL)
+    .then(function(r){ return r.text(); })
+    .then(function(xml){
+      var parser = new DOMParser(), doc = parser.parseFromString(xml,'text/xml'), mp4Url = '';
+      doc.querySelectorAll('MediaFile').forEach(function(mf){
+        var t = (mf.getAttribute('type')||'').toLowerCase();
+        if(!mp4Url && (t==='video/mp4' || t.includes('mp4')))
+          mp4Url = mf.textContent.trim().replace(/<![CDATA[|]]>/g,'').trim();
+      });
+      if(!mp4Url){ console.warn('[VAST] Tag sem MediaFile mp4 válido — pulando anúncio.'); onComplete(); return; }
+      showVASTPlayer(mp4Url, doc, onComplete, isMobile);
+    })
+    .catch(function(err){ console.error('[VAST] Falha ao buscar/processar a tag VAST — anúncio pulado:', err); onComplete(); });
+}
+function showVASTPlayer(mp4Url, doc, onComplete, isMobile){
+  var ov = document.createElement('div');
+  ov.id = 'vastAdOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+  var vid = document.createElement('video');
+  vid.style.cssText = 'width:100%;max-height:100vh;display:block;background:#000';
+  vid.src = mp4Url; vid.playsInline = true; vid.controls = false;
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+  var lbl = document.createElement('span');
+  lbl.textContent = 'Anúncio';
+  lbl.style.cssText = 'background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
+  var skip = document.createElement('button');
+  skip.textContent = 'Aguarde...'; skip.disabled = true;
+  skip.style.cssText = 'background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
+  bar.appendChild(lbl); bar.appendChild(skip);
+  ov.appendChild(bar); ov.appendChild(vid);
+  if(isMobile){
+    var tap = document.createElement('div');
+    tap.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
+    tap.innerHTML = '<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
+      + '<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif">Toque para continuar</div>'
+      + '<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o canal começará</div>';
+    ov.appendChild(tap);
+    tap.addEventListener('click', function(){
+      tap.style.display = 'none';
+      vid.muted = false;
+      vid.play().catch(function(){ vid.muted = true; vid.play().catch(function(){ ov.remove(); onComplete(); }); });
+    });
+  }
+  document.body.appendChild(ov);
+  var skipDelay = 5, canSkip = false, impFired = false;
+  function track(evt){
+    try{ doc.querySelectorAll('Tracking[event="'+evt+'"]').forEach(function(n){
+      var u = n.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<![CDATA[|]]>/g,'').trim();
+      if(u) new Image().src = u;
+    }); }catch(e){}
+  }
+  vid.addEventListener('play', function(){
+    if(impFired) return; impFired = true;
+    try{ doc.querySelectorAll('Impression').forEach(function(n){
+      var u = n.textContent.trim().replace(/<![CDATA[|]]>/g,'').trim();
+      if(u) new Image().src = u;
+    }); }catch(e){}
+    track('start');
+  });
+  var qf = {firstQuartile:false,midpoint:false,thirdQuartile:false};
+  vid.addEventListener('timeupdate', function(){
+    if(!vid.duration) return;
+    var pct = vid.currentTime/vid.duration, rem = Math.ceil(skipDelay-vid.currentTime);
+    if(rem > 0){ skip.textContent = 'Pular em '+rem+'s'; }
+    else if(!canSkip){ canSkip=true; skip.textContent='\u23ed Pular an\u00FAncio'; skip.disabled=false; skip.style.cursor='pointer'; skip.style.background='rgba(255,255,255,0.25)'; }
+    [{k:'firstQuartile',t:0.25},{k:'midpoint',t:0.5},{k:'thirdQuartile',t:0.75}].forEach(function(ev){
+      if(!qf[ev.k]&&pct>=ev.t){ qf[ev.k]=true; track(ev.k); }
+    });
+  });
+  function finish(){
+    if(vid.currentTime>0){ track('complete'); }
+    ov.remove();
+    onComplete();
+  }
+  vid.addEventListener('ended', finish);
+  skip.addEventListener('click', function(){ if(canSkip) finish(); });
+  if(!isMobile){ vid.muted = true; vid.play().catch(function(){ finish(); }); }
 }
 
 async function init() {
@@ -441,13 +528,33 @@ async function init() {
       }
     }
 
-    // Aguarda verificação VIP antes de iniciar
-    if (window.PipocaVIP !== undefined) {
-      // pflix-vip.js já rodou
-      setTimeout(iniciarPlayer, 600); // pequena espera pro check async terminar
-    } else {
-      iniciarPlayer(); // fallback imediato
+    // Aguarda a checagem VIP terminar de verdade (sem chute de tempo) antes
+    // de disparar o VAST — assim VIP nunca vê o anúncio por causa de rede lenta.
+    function aguardarChecagemVipEDispararVAST() {
+      if (window.PipocaVIP === undefined) {
+        // pflix-vip.js nem carregou nessa página — segue direto
+        runVAST(iniciarPlayer);
+        return;
+      }
+      if (window.PipocaVIP.checked) {
+        // Já foi decidido antes desse código rodar (ex: cache local resolveu rápido)
+        runVAST(iniciarPlayer);
+        return;
+      }
+      var disparado = false;
+      function disparar() {
+        if (disparado) return;
+        disparado = true;
+        document.removeEventListener('pflix:vip-check-completo', disparar);
+        runVAST(iniciarPlayer);
+      }
+      document.addEventListener('pflix:vip-check-completo', disparar);
+      // Teto de segurança: se por algum motivo o evento nunca disparar,
+      // não trava o player pra sempre.
+      setTimeout(disparar, 4000);
     }
+    aguardarChecagemVipEDispararVAST();
+
     document.addEventListener('pflix:vip-ativo', function() {
       // VIP confirmado depois que já carregou — recarrega player
       var existingVip = document.getElementById('vipLivePlayer');
