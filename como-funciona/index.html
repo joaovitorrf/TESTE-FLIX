@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="google-adsense-account" content="ca-pub-9029786875800750">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <title>Como Funciona o TudoPDF — Ferramentas PDF Online Grátis</title>
+  <meta name="description" content="Entenda como o TudoPDF processa seus documentos com total segurança, 100% no navegador, sem envio de arquivos para servidores. Simples, rápido e gratuito."/>
+  <meta name="keywords" content="como funciona TudoPDF, PDF online seguro, processar PDF navegador, PDF sem upload, ferramentas PDF privadas"/>
+  <meta name="robots" content="index, follow"/>
+  <meta name="author" content="TudoPDF"/>
+  <meta name="theme-color" content="#007BFF"/>
+  <link rel="canonical" href="https://www.tudopdf.site/como-funciona/"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Como Funciona — TudoPDF"/>
+  <meta property="og:description" content="Entenda como o TudoPDF processa seus PDFs com total segurança, 100% no navegador."/>
+  <meta property="og:url" content="https://www.tudopdf.site/como-funciona/"/>
+  <meta property="og:image" content="https://www.tudopdf.site/assets/img/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@300;400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/></noscript>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <style>
+    .inst-wrap{max-width:820px;margin:0 auto;padding:48px 24px 80px}
+    .inst-hero{text-align:center;margin-bottom:56px}
+    .inst-hero h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(2rem,4vw,2.8rem);color:var(--text);margin-bottom:14px}
+    .inst-hero p{color:var(--text-muted);font-size:1.05rem;max-width:560px;margin:0 auto;line-height:1.7}
+    .inst-section{margin-bottom:48px}
+    .inst-section h2{font-family:'Montserrat',sans-serif;font-weight:800;font-size:1.4rem;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--blue-light)}
+    .inst-section p{color:var(--text-muted);line-height:1.8;margin-bottom:14px;font-size:.97rem}
+    .steps{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+    .step{display:flex;gap:16px;align-items:flex-start;background:var(--card-bg);border:1px solid var(--gray-2);border-radius:14px;padding:20px}
+    .step-num{width:40px;height:40px;border-radius:50%;background:var(--blue);color:white;font-family:'Montserrat',sans-serif;font-weight:900;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .step-content h3{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);margin-bottom:6px}
+    .step-content p{font-size:.85rem;color:var(--text-muted);line-height:1.6;margin:0}
+    .tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:16px}
+    .tech-card{background:var(--card-bg);border:1px solid var(--gray-2);border-radius:12px;padding:18px}
+    .tech-icon{font-size:1.8rem;margin-bottom:8px}
+    .tech-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:var(--text);margin-bottom:6px}
+    .tech-desc{font-size:.78rem;color:var(--text-muted);line-height:1.6}
+    .highlight-box{background:var(--blue-light);border:1.5px solid var(--blue);border-radius:14px;padding:24px;margin:24px 0}
+    .highlight-box h3{font-family:'Montserrat',sans-serif;font-weight:800;font-size:1rem;color:var(--blue);margin-bottom:10px}
+    .highlight-box p{font-size:.88rem;color:var(--text);line-height:1.7;margin:0}
+    @media(max-width:640px){.inst-wrap{padding:32px 16px 60px}.step{flex-direction:column}}
+@media (max-width: 767px) {
+  .ad-leaderboard,
+  .ad-banner468,
+  .ad-halfpage { display: none !important; }
+}
+@media (min-width: 768px) {
+  .ad-mobile320 { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<button id="back-top" aria-label="Voltar ao topo" onclick="backToTop()">↑</button>
+<header id="header">
+  <div class="header-inner">
+    <a class="logo" href="/"><div class="logo-icon">📄</div>Tudo<span>PDF</span></a>
+    <nav>
+      <div class="nav-item"><a class="nav-link" href="/tools/juntar-pdf/">Juntar PDF</a></div>
+      <div class="nav-item"><a class="nav-link" href="/tools/dividir-pdf/">Dividir PDF</a></div>
+      <div class="nav-item"><a class="nav-link" href="/tools/comprimir-pdf/">Comprimir PDF</a></div>
+      <div class="nav-item">
+        <span class="nav-link">Todas as Ferramentas <span class="arrow">▾</span></span>
+        <div class="dropdown" style="min-width:200px;left:auto;right:0;transform:none">
+          <a class="dropdown-item" href="/#tools"><span class="di">⚡</span> Ver todas</a>
+          <a class="dropdown-item" href="/#tools"><span class="di">📁</span> Organizar</a>
+          <a class="dropdown-item" href="/#tools"><span class="di">🔄</span> Converter</a>
+          <a class="dropdown-item" href="/#tools"><span class="di">✏️</span> Editar</a>
+          <a class="dropdown-item" href="/#tools"><span class="di">🔒</span> Segurança</a>
+        </div>
+      </div>
+    </nav>
+    <div class="header-right"><button class="theme-toggle" id="theme-btn" title="Alternar tema">🌙</button></div>
+    <div class="hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+  </div>
+</header>
+<div id="mobile-nav">
+  <button onclick="closeMobileNav()" style="position:absolute;top:20px;right:20px;font-size:1.4rem;background:none;border:none;cursor:pointer;color:var(--text)">✕</button>
+  <div style="margin-top:24px">
+    <a class="mobile-nav-item" href="/">Início <span>→</span></a>
+    <a class="mobile-nav-item" href="/#tools">Ferramentas <span>→</span></a>
+    <a class="mobile-nav-item" href="/faq/">FAQ <span>→</span></a>
+  </div>
+</div>
+
+<main class="inst-wrap" id="main-content">
+  <nav style="margin-bottom:32px;font-size:.82rem;color:var(--text-muted)">
+    <a href="/" style="color:var(--blue)">Início</a><span style="margin:0 6px">›</span><span>Como funciona</span>
+  </nav>
+
+  <div class="inst-hero">
+    <h1>⚙️ Como o TudoPDF funciona</h1>
+    <p>Entenda por que o TudoPDF é diferente: processamento 100% local no seu navegador, sem servidores, sem upload, sem riscos.</p>
+  </div>
+
+  <div class="highlight-box">
+    <h3>🔒 Seu arquivo nunca sai do seu dispositivo</h3>
+    <p>Ao contrário de outras plataformas, o TudoPDF processa seus documentos diretamente no seu navegador usando JavaScript moderno. Não existe nenhum servidor recebendo seus arquivos. Tudo acontece no seu computador ou celular, localmente.</p>
+  </div>
+
+  <div class="inst-section">
+    <h2>Como usar qualquer ferramenta</h2>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><h3>Escolha a ferramenta</h3><p>Acesse a ferramenta desejada na página inicial ou pelo menu. Cada ferramenta foi projetada para uma tarefa específica com PDF.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><h3>Carregue seu arquivo</h3><p>Arraste o arquivo para a área indicada ou clique para selecionar. O arquivo é carregado diretamente no navegador — zero upload para servidores.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><h3>Configure as opções</h3><p>Ajuste as configurações conforme necessário (qualidade, formato, posição, senha, etc). Cada ferramenta tem opções específicas.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-content"><h3>Processe e baixe</h3><p>Clique no botão de ação. O processamento acontece instantaneamente no seu navegador. Baixe o resultado com um clique.</p></div></div>
+    </div>
+  </div>
+
+  <div class="inst-section">
+    <h2>A tecnologia por trás do TudoPDF</h2>
+    <p>O TudoPDF utiliza bibliotecas JavaScript de ponta que permitem processar PDFs completamente no navegador, sem dependência de servidores:</p>
+    <div class="tech-grid">
+      <div class="tech-card"><div class="tech-icon">📄</div><div class="tech-title">PDF.js (Mozilla)</div><div class="tech-desc">Renderiza e extrai conteúdo de PDFs diretamente no navegador com alta fidelidade.</div></div>
+      <div class="tech-card"><div class="tech-icon">⚙️</div><div class="tech-title">pdf-lib</div><div class="tech-desc">Cria, modifica, assina e protege PDFs com suporte completo ao formato.</div></div>
+      <div class="tech-card"><div class="tech-icon">🔍</div><div class="tech-title">Tesseract.js</div><div class="tech-desc">Motor OCR que reconhece texto em imagens e PDFs escaneados, suportando 40+ idiomas.</div></div>
+      <div class="tech-card"><div class="tech-icon">🖼️</div><div class="tech-title">Canvas API</div><div class="tech-desc">Permite renderização, edição visual e conversão de imagens diretamente no navegador.</div></div>
+      <div class="tech-card"><div class="tech-icon">📊</div><div class="tech-title">PptxGenJS</div><div class="tech-desc">Gera apresentações PowerPoint .pptx com alta qualidade.</div></div>
+      <div class="tech-card"><div class="tech-icon">📈</div><div class="tech-title">SheetJS</div><div class="tech-desc">Cria planilhas Excel .xlsx com dados extraídos de tabelas em PDF.</div></div>
+    </div>
+  </div>
+
+  <div class="inst-section">
+    <h2>Por que o processamento local é melhor</h2>
+    <p>Muitas plataformas enviam seus arquivos para servidores remotos para processamento. Isso cria riscos de privacidade, lentidão por transferência de dados e dependência de uma boa conexão à internet.</p>
+    <p>O TudoPDF escolheu uma abordagem diferente: usar o poder de processamento do seu próprio dispositivo. Isso garante:</p>
+    <div class="tech-grid">
+      <div class="tech-card"><div class="tech-icon">🔒</div><div class="tech-title">Privacidade total</div><div class="tech-desc">Nenhum dado sai do dispositivo. Documentos confidenciais permanecem privados.</div></div>
+      <div class="tech-card"><div class="tech-icon">⚡</div><div class="tech-title">Velocidade</div><div class="tech-desc">Sem upload/download. O resultado é gerado instantaneamente.</div></div>
+      <div class="tech-card"><div class="tech-icon">📡</div><div class="tech-title">Funciona offline</div><div class="tech-desc">Após carregado, várias ferramentas funcionam sem internet.</div></div>
+      <div class="tech-card"><div class="tech-icon">♾️</div><div class="tech-title">Sem limites</div><div class="tech-desc">Sem restrições de uso ou tamanho impostas por servidores.</div></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px">
+    <p style="color:var(--text-muted);margin-bottom:16px;font-size:.95rem">Pronto para experimentar?</p>
+    <a href="/#tools" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--blue);color:white;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 4px 16px rgba(0,123,255,.3)">Ver todas as ferramentas →</a>
+  </div>
+</main>
+
+<footer id="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="logo" href="/" style="color:white;margin-bottom:14px;text-decoration:none;display:flex;align-items:center;gap:8px"><div class="logo-icon">📄</div>Tudo<span style="color:#475569">PDF</span></a>
+        <p>A plataforma completa de ferramentas PDF online — grátis, rápido e seguro.</p>
+        <div class="footer-social" style="margin-top:14px"><div class="social-btn">𝕏</div><div class="social-btn">f</div><div class="social-btn">📸</div><div class="social-btn">in</div></div>
+      </div>
+      <div class="footer-col"><h4>Ferramentas</h4><ul><li><a href="/tools/comprimir-pdf/">Comprimir PDF</a></li><li><a href="/tools/juntar-pdf/">Juntar PDF</a></li><li><a href="/tools/ocr-pdf/">OCR PDF</a></li><li><a href="/#tools">Ver todas →</a></li></ul></div>
+      <div class="footer-col"><h4>Empresa</h4><ul><li><a href="/sobre/">Sobre nós</a></li>
+              <li><a href="/caracteristicas/">Características</a></li>
+              <li><a href="/precos/">Preços</a></li>
+              <li><a href="/seguranca/">Segurança</a></li><li><a href="/como-funciona/">Como funciona</a></li><li><a href="/faq/">FAQ</a></li><li><a href="/contato/">Contato</a></li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li><a href="/privacidade/">Privacidade</a></li><li><a href="/termos/">Termos</a></li><li><a href="/cookies/">Cookies</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p class="footer-copy">&copy; 2025 TudoPDF. Todos os direitos reservados.</p><p class="footer-watermark">TUDOPDF.SITE</p></div>
+  </div>
+</footer>
+<script src="/assets/js/main.js"></script>
+<script type="module" src="/assets/js/firebase-auth.js"></script>
+</body>
+</html>

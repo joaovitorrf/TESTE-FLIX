@@ -1,22 +1,185 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": true,
   "headers": [
     {
-      "source": "/sitemap.xml",
+      "source": "/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     },
     {
-      "source": "/robots.txt",
+      "source": "/assets/(.*)",
       "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/filmes/:slug", "destination": "/filmes/:slug.html" },
-    { "source": "/series/:slug", "destination": "/series/:slug.html" }
+    {
+      "source": "/tools/:tool",
+      "destination": "/tools/:tool/index.html"
+    },
+    {
+      "source": "/tools/:tool/",
+      "destination": "/tools/:tool/index.html"
+    },
+    {
+      "source": "/sobre",
+      "destination": "/sobre/index.html"
+    },
+    {
+      "source": "/sobre/",
+      "destination": "/sobre/index.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/faq/",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/como-funciona",
+      "destination": "/como-funciona/index.html"
+    },
+    {
+      "source": "/como-funciona/",
+      "destination": "/como-funciona/index.html"
+    },
+    {
+      "source": "/contato",
+      "destination": "/contato/index.html"
+    },
+    {
+      "source": "/contato/",
+      "destination": "/contato/index.html"
+    },
+    {
+      "source": "/privacidade",
+      "destination": "/privacidade/index.html"
+    },
+    {
+      "source": "/privacidade/",
+      "destination": "/privacidade/index.html"
+    },
+    {
+      "source": "/termos",
+      "destination": "/termos/index.html"
+    },
+    {
+      "source": "/termos/",
+      "destination": "/termos/index.html"
+    },
+    {
+      "source": "/cookies",
+      "destination": "/cookies/index.html"
+    },
+    {
+      "source": "/cookies/",
+      "destination": "/cookies/index.html"
+    },
+    {
+      "source": "/ferramentas",
+      "destination": "/ferramentas/index.html"
+    },
+    {
+      "source": "/ferramentas/",
+      "destination": "/ferramentas/index.html"
+    },
+    {
+      "source": "/empresarial",
+      "destination": "/empresarial/index.html"
+    },
+    {
+      "source": "/empresarial/",
+      "destination": "/empresarial/index.html"
+    },
+    {
+      "source": "/ensino",
+      "destination": "/ensino/index.html"
+    },
+    {
+      "source": "/ensino/",
+      "destination": "/ensino/index.html"
+    },
+    {
+      "source": "/legal-juridico",
+      "destination": "/legal-juridico/index.html"
+    },
+    {
+      "source": "/legal-juridico/",
+      "destination": "/legal-juridico/index.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/blog/",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/caracteristicas",
+      "destination": "/caracteristicas/index.html"
+    },
+    {
+      "source": "/caracteristicas/",
+      "destination": "/caracteristicas/index.html"
+    },
+    {
+      "source": "/precos",
+      "destination": "/precos/index.html"
+    },
+    {
+      "source": "/precos/",
+      "destination": "/precos/index.html"
+    },
+    {
+      "source": "/seguranca",
+      "destination": "/seguranca/index.html"
+    },
+    {
+      "source": "/seguranca/",
+      "destination": "/seguranca/index.html"
+    }
   ],
-  "cleanUrls": true
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/404/index.html",
+      "status": 404
+    }
+  ]
 }

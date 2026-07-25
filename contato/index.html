@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="google-adsense-account" content="ca-pub-9029786875800750">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <title>Contate-nos — TudoPDF | Ferramentas PDF Online Grátis</title>
+  <meta name="description" content="Entre em contato com a equipe do TudoPDF. Envie sugestões, reporte bugs ou tire dúvidas sobre nossas ferramentas PDF gratuitas."/>
+  <meta name="keywords" content="contato TudoPDF, suporte PDF online, reportar bug PDF, sugestão TudoPDF"/>
+  <meta name="robots" content="index, follow"/>
+  <meta name="author" content="TudoPDF"/>
+  <meta name="theme-color" content="#007BFF"/>
+  <link rel="canonical" href="https://www.tudopdf.site/contato/"/>
+  <meta property="og:title" content="Contate-nos — TudoPDF"/>
+  <meta property="og:description" content="Entre em contato com a equipe do TudoPDF."/>
+  <meta property="og:url" content="https://www.tudopdf.site/contato/"/>
+  <meta property="og:image" content="https://www.tudopdf.site/assets/img/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@300;400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/></noscript>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <style>
+    .inst-wrap{max-width:700px;margin:0 auto;padding:48px 24px 80px}
+    .inst-hero{text-align:center;margin-bottom:48px}
+    .inst-hero h1{font-family:'Montserrat',sans-serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--text);margin-bottom:14px}
+    .inst-hero p{color:var(--text-muted);font-size:1.05rem;max-width:480px;margin:0 auto;line-height:1.7}
+    .contact-form{background:var(--card-bg);border:1px solid var(--gray-2);border-radius:16px;padding:32px}
+    .form-group{margin-bottom:20px}
+    .form-label{display:block;font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:7px}
+    .form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;border-radius:11px;border:1.5px solid var(--gray-2);background:var(--card-bg);font-family:'Open Sans',sans-serif;font-size:.9rem;color:var(--text);transition:border-color .2s}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--blue)}
+    .form-textarea{min-height:140px;resize:vertical}
+    .form-submit{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:12px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:background .2s,transform .2s}
+    .form-submit:hover{background:var(--blue-dark);transform:translateY(-1px)}
+    .contact-alt{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:28px}
+    .alt-card{background:var(--gray-1);border:1px solid var(--gray-2);border-radius:12px;padding:18px;text-align:center}
+    .alt-icon{font-size:1.8rem;margin-bottom:8px}
+    .alt-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;color:var(--text);margin-bottom:4px}
+    .alt-val{font-size:.8rem;color:var(--text-muted)}
+    .success-msg{display:none;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:20px;text-align:center;font-family:'Montserrat',sans-serif;font-weight:700;color:#15803d;margin-top:16px}
+    @media(max-width:640px){.inst-wrap{padding:32px 16px 60px}.contact-alt{grid-template-columns:1fr}.contact-form{padding:20px}}
+@media (max-width: 767px) {
+  .ad-leaderboard,
+  .ad-banner468,
+  .ad-halfpage { display: none !important; }
+}
+@media (min-width: 768px) {
+  .ad-mobile320 { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<button id="back-top" aria-label="Voltar ao topo" onclick="backToTop()">↑</button>
+<header id="header">
+  <div class="header-inner">
+    <a class="logo" href="/"><div class="logo-icon">📄</div>Tudo<span>PDF</span></a>
+    <nav>
+      <div class="nav-item"><a class="nav-link" href="/tools/juntar-pdf/">Juntar PDF</a></div>
+      <div class="nav-item"><a class="nav-link" href="/tools/dividir-pdf/">Dividir PDF</a></div>
+      <div class="nav-item"><a class="nav-link" href="/tools/comprimir-pdf/">Comprimir PDF</a></div>
+      <div class="nav-item">
+        <span class="nav-link">Todas as Ferramentas <span class="arrow">▾</span></span>
+        <div class="dropdown" style="min-width:200px;left:auto;right:0;transform:none">
+          <a class="dropdown-item" href="/#tools"><span class="di">⚡</span> Ver todas</a>
+        </div>
+      </div>
+    </nav>
+    <div class="header-right"><button class="theme-toggle" id="theme-btn" title="Alternar tema">🌙</button></div>
+    <div class="hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+  </div>
+</header>
+<div id="mobile-nav">
+  <button onclick="closeMobileNav()" style="position:absolute;top:20px;right:20px;font-size:1.4rem;background:none;border:none;cursor:pointer;color:var(--text)">✕</button>
+  <div style="margin-top:24px">
+    <a class="mobile-nav-item" href="/">Início <span>→</span></a>
+    <a class="mobile-nav-item" href="/#tools">Ferramentas <span>→</span></a>
+    <a class="mobile-nav-item" href="/faq/">FAQ <span>→</span></a>
+  </div>
+</div>
+
+<main class="inst-wrap" id="main-content">
+  <nav style="margin-bottom:32px;font-size:.82rem;color:var(--text-muted)">
+    <a href="/" style="color:var(--blue)">Início</a><span style="margin:0 6px">›</span><span>Contato</span>
+  </nav>
+
+  <div class="inst-hero">
+    <h1>✉️ Fale conosco</h1>
+    <p>Tem alguma sugestão, encontrou um bug ou quer saber mais? Adoramos receber mensagens!</p>
+  </div>
+
+  <div class="contact-form">
+    <div class="form-group">
+      <label class="form-label" for="contact-name">Seu nome</label>
+      <input class="form-input" type="text" id="contact-name" placeholder="Como podemos te chamar?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="contact-email">Seu e-mail</label>
+      <input class="form-input" type="email" id="contact-email" placeholder="para@responder.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="contact-subject">Assunto</label>
+      <select class="form-select" id="contact-subject">
+        <option value="">Selecione o assunto...</option>
+        <option value="bug">🐛 Reportar um problema/bug</option>
+        <option value="suggestion">💡 Sugestão de ferramenta</option>
+        <option value="feedback">⭐ Feedback geral</option>
+        <option value="business">🏢 Parceria empresarial</option>
+        <option value="other">💬 Outro assunto</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="contact-msg">Mensagem</label>
+      <textarea class="form-textarea" id="contact-msg" placeholder="Descreva com detalhes..."></textarea>
+    </div>
+    <button class="form-submit" onclick="submitContact()">📨 Abrir e-mail para enviar</button>
+    <div class="success-msg" id="success-msg">✅ Seu aplicativo de e-mail vai abrir com a mensagem pronta — é só confirmar o envio para contato@tudopdf.site.</div>
+  </div>
+
+  <div class="contact-alt">
+    <div class="alt-card"><div class="alt-icon">📧</div><div class="alt-title">E-mail direto</div><div class="alt-val"><a href="mailto:contato@tudopdf.site" style="color:var(--blue)">contato@tudopdf.site</a></div></div>
+    <div class="alt-card"><div class="alt-icon">❓</div><div class="alt-title">Tem uma dúvida?</div><div class="alt-val"><a href="/faq/" style="color:var(--blue)">Veja o FAQ primeiro →</a></div></div>
+  </div>
+</main>
+
+<footer id="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="logo" href="/" style="color:white;margin-bottom:14px;text-decoration:none;display:flex;align-items:center;gap:8px"><div class="logo-icon">📄</div>Tudo<span style="color:#475569">PDF</span></a>
+        <p>A plataforma completa de ferramentas PDF online — grátis, rápido e seguro.</p>
+        <div class="footer-social" style="margin-top:14px"><div class="social-btn">𝕏</div><div class="social-btn">f</div><div class="social-btn">📸</div><div class="social-btn">in</div></div>
+      </div>
+      <div class="footer-col"><h4>Ferramentas</h4><ul><li><a href="/tools/comprimir-pdf/">Comprimir PDF</a></li><li><a href="/tools/juntar-pdf/">Juntar PDF</a></li><li><a href="/#tools">Ver todas →</a></li></ul></div>
+      <div class="footer-col"><h4>Empresa</h4><ul><li><a href="/sobre/">Sobre nós</a></li>
+              <li><a href="/caracteristicas/">Características</a></li>
+              <li><a href="/precos/">Preços</a></li>
+              <li><a href="/seguranca/">Segurança</a></li><li><a href="/como-funciona/">Como funciona</a></li><li><a href="/faq/">FAQ</a></li></ul></div>
+      <div class="footer-col"><h4>Legal</h4><ul><li><a href="/privacidade/">Privacidade</a></li><li><a href="/termos/">Termos</a></li><li><a href="/cookies/">Cookies</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p class="footer-copy">&copy; 2025 TudoPDF. Todos os direitos reservados.</p><p class="footer-watermark">TUDOPDF.SITE</p></div>
+  </div>
+</footer>
+<script src="/assets/js/main.js"></script>
+<script>
+function submitContact() {
+  const name = document.getElementById('contact-name').value.trim();
+  const email = document.getElementById('contact-email').value.trim();
+  const subjectSelect = document.getElementById('contact-subject');
+  const subjectLabel = subjectSelect.options[subjectSelect.selectedIndex]?.text || 'Outro assunto';
+  const msg = document.getElementById('contact-msg').value.trim();
+  if (!name || !email || !msg) { showToast('⚠️ Preencha todos os campos obrigatórios.'); return; }
+  if (!email.includes('@')) { showToast('⚠️ Informe um e-mail válido.'); return; }
+
+  // Abre o cliente de e-mail do usuário com a mensagem pronta para envio.
+  // Isso garante que a mensagem realmente chega — nada fica "preso" no site.
+  const to = 'contato@tudopdf.site';
+  const subject = `[TudoPDF] ${subjectLabel} — via site`;
+  const body = `Nome: ${name}\nE-mail para resposta: ${email}\n\nMensagem:\n${msg}`;
+  const mailtoUrl = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  window.location.href = mailtoUrl;
+  document.getElementById('success-msg').style.display = 'block';
+}
+</script>
+<script type="module" src="/assets/js/firebase-auth.js"></script>
+</body>
+</html>
