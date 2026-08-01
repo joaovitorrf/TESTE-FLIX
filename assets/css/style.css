@@ -304,6 +304,13 @@ input { font-family: var(--font-body); }
   margin-top: var(--header-h);
   overflow: hidden;
 }
+/* Wrapper interno — no mobile ocupa 100% do .hero (mesmo visual de sempre).
+   No desktop (ver media query abaixo) vira o "cartão" arredondado do banner. */
+.hero-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 
 /* Slides */
 .hero-slides { position: absolute; inset: 0; }
@@ -513,6 +520,69 @@ input { font-family: var(--font-body); }
   width: 24px;
   background: var(--red);
   box-shadow: 0 0 8px var(--red-glow);
+}
+
+/* ─── Banner em cartão flutuante — SOMENTE DESKTOP ───
+   No mobile o hero continua exatamente como era (edge-to-edge, cheio de tela).
+   A partir de 769px o banner vira um cartão arredondado, com respiro nas
+   laterais, setas fora da imagem e os pontinhos abaixo do cartão. */
+@media (min-width: 769px) {
+  .hero {
+    --hero-gutter: clamp(1.5rem, 5vw, 4rem);
+    height: calc(min(58vh, 560px) + 3.5rem);
+    margin-top: calc(var(--header-h) + 1.5rem);
+    margin-bottom: 0.5rem;
+    overflow: visible;
+  }
+  .hero-frame {
+    position: absolute;
+    top: 0;
+    left: var(--hero-gutter);
+    right: var(--hero-gutter);
+    width: auto;
+    height: min(58vh, 560px);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .hero-content {
+    padding: 2rem 2.5rem 2.25rem;
+    max-width: 620px;
+  }
+  .hero-title { font-size: clamp(1.9rem, 3vw, 3.1rem); margin-bottom: 0.65rem; }
+  .hero-badge { margin-bottom: 0.75rem; }
+  .hero-meta { margin-bottom: 0.75rem; }
+  .hero-synopsis { font-size: 0.9rem; -webkit-line-clamp: 2; margin-bottom: 1.25rem; }
+
+  /* Setas: fora do cartão, no respiro lateral, centralizadas verticalmente */
+  .hero-arrows {
+    top: 0;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: min(58vh, 560px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 max(2px, calc(var(--hero-gutter) / 2 - 24px));
+    pointer-events: none;
+  }
+  .hero-arrows .hero-arrow { pointer-events: auto; }
+  .hero-arrow {
+    width: clamp(36px, 3vw, 48px);
+    height: clamp(36px, 3vw, 48px);
+    border-radius: 50%;
+    background: rgba(10,10,14,0.55);
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+
+  /* Pontinhos: abaixo do cartão, dentro do respiro reservado no .hero */
+  .hero-dots {
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
