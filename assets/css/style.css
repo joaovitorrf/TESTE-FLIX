@@ -1988,6 +1988,63 @@ input { font-family: var(--font-body); }
 .telegram-arrow { color: #0088cc; font-size: 1.25rem; }
 
 /* ═══════════════════════════════════════
+   VIP PROMO BANNER
+═══════════════════════════════════════ */
+.vip-promo-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(245,197,24,0.10), rgba(255,45,67,0.06)), var(--card);
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--r-lg);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem clamp(1rem,5vw,3.5rem);
+  text-decoration: none;
+  transition: all var(--t-normal);
+}
+.vip-promo-banner:hover {
+  border-color: rgba(245,197,24,0.6);
+  box-shadow: 0 0 24px rgba(245,197,24,0.18);
+  transform: translateY(-1px);
+}
+.vip-promo-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--gold), var(--red));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.4rem;
+}
+.vip-promo-body { flex: 1; min-width: 0; }
+.vip-promo-title { font-weight: 700; color: var(--text-1); font-size: 0.95rem; margin-bottom: 0.2rem; }
+.vip-promo-desc { font-size: 0.8rem; color: var(--text-3); line-height: 1.5; }
+.vip-promo-cta {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 0.35rem;
+  background: linear-gradient(135deg, var(--gold), #ffdd6b);
+  color: #1a1206;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+/* Some sumido pra quem já é VIP */
+.pflix-vip-ativo .vip-promo-banner { display: none !important; }
+
+@media (max-width: 600px) {
+  .vip-promo-banner {
+    flex-wrap: wrap;
+    padding: 1.1rem 1.25rem;
+    gap: 0.85rem;
+  }
+  .vip-promo-icon { width: 40px; height: 40px; font-size: 1.15rem; }
+  .vip-promo-title { font-size: 0.88rem; }
+  .vip-promo-desc { font-size: 0.76rem; }
+  .vip-promo-cta { width: 100%; justify-content: center; padding: 0.7rem 1rem; }
+}
+
+/* ═══════════════════════════════════════
    "NÃO SABE O QUE ASSISTIR?" (home)
 ═══════════════════════════════════════ */
 .discover-section {
