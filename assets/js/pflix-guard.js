@@ -31,6 +31,7 @@
     'simplisticpride.com',
     'sophisticatedpin.com',
     'sorrowfulpsychology.com',
+    'massivesalad.com',
   ];
 
   const AD_SELECTORS = [
