@@ -331,6 +331,7 @@
 <script src="assets/js/watched.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script src="assets/js/thumb-loader.js"></script>
 
 <script>
 // ── Toast ──
@@ -405,7 +406,8 @@ function showToast(msg, dur) {
       function mkCard(item) {
         var d = document.createElement('div'); d.className = 'card';
         var page = item.isSerie ? 'serie.html' : 'filme.html';
-        d.innerHTML = '<div class="card-thumb-wrap"><img class="card-thumb" src="' + (item.capa||'') + '" alt="' + item.nome + '" loading="lazy" onerror="this.src=\'https://placehold.co/300x450/13131a/333?text=Sem+Capa\'"><span class="card-badge">' + (item.isSerie ? 'Série' : 'Filme') + '</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="card-info"><div class="card-name">' + item.nome + '</div><div class="card-meta-row"><span>' + (item.ano||'') + '</span></div></div>';
+        var cat1 = (item.categoria || '').split(',')[0].trim();
+        d.innerHTML = '<div class="card-thumb-wrap"><img class="card-thumb" src="' + (item.capa||'') + '" alt="' + item.nome + '" data-cat="' + cat1 + '" loading="lazy" onerror="this.src=\'https://placehold.co/300x450/13131a/333?text=Sem+Capa\'"><span class="card-badge">' + (item.isSerie ? 'Série' : 'Filme') + '</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="card-info"><div class="card-name">' + item.nome + '</div><div class="card-meta-row"><span>' + (item.ano||'') + '</span></div></div>';
         d.addEventListener('click', function() { location.href = page + '?nome=' + encodeURIComponent(item.nome); });
         return d;
       }
@@ -419,7 +421,9 @@ function showToast(msg, dur) {
       var deb = PipocaSearch.debounce(doSearch, 250);
       var dInput = document.getElementById('desktopSearchInput');
       var mInput = document.getElementById('mobileSearchInput');
-      if (dInput) dInput.addEventListener('input', function(e) { deb(e.target.value); });
+      if (dInput) dInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); var v = e.target.value.trim(); window.location.href = 'buscar.html' + (v ? ('?q=' + encodeURIComponent(v)) : ''); }
+      });
       if (mInput) mInput.addEventListener('input', function(e) { deb(e.target.value); });
     } catch(e) { console.warn('[Feed] Search setup failed:', e); }
   }

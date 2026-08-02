@@ -307,6 +307,7 @@
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script src="assets/js/thumb-loader.js"></script>
 <script>
 const PER_PAGE = 10;
 let allContent = [], filtered = [], currentPage = 1;
@@ -352,7 +353,7 @@ function mkCard(item) {
   const isFav = window.PipocaFavoritos && window.PipocaFavoritos.has(item.nome);
   div.innerHTML = `
     <div class="card-thumb-wrap" style="position:relative">
-      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" data-cat="${cat1}" loading="lazy"
         onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
       <span class="card-badge">${item.isSerie?'📺 Série':'🎬 Filme'}</span>
       <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
@@ -644,7 +645,9 @@ function setupSearch(allItems) {
     resultsOverlay.classList.add('active');
   }
   const deb = PipocaSearch.debounce(doSearch, 250);
-  document.getElementById('desktopSearchInput').addEventListener('input', e=>deb(e.target.value));
+  document.getElementById('desktopSearchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); const v = e.target.value.trim(); window.location.href = 'buscar.html' + (v ? ('?q=' + encodeURIComponent(v)) : ''); }
+  });
   document.getElementById('mobileSearchInput').addEventListener('input', e=>deb(e.target.value));
 }
 

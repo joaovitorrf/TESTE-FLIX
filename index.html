@@ -477,48 +477,16 @@
 <!-- ═══ SCRIPTS ═══ -->
 <script src="assets/js/security.js"></script>
 <script src="assets/js/favoritos.js"></script>
+<script src="assets/js/progress.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script src="assets/js/thumb-loader.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════
    PIPOCAFLIX INDEX.JS v2 — com todas as novas features
 ═══════════════════════════════════════════════════════ */
 
-// ── PipocaProgress (Tarefa 1) ──
-window.PipocaProgress = (function() {
-  const PREFIX = 'pflix_progress_';
-  function _key(titulo) { return PREFIX + (titulo||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'_'); }
-  function save(titulo, currentTime, duration, capa, tipo) {
-    if (!titulo || !duration) return;
-    const pct = currentTime / duration;
-    if (pct >= 0.95) { remove(titulo); return; }
-    if (currentTime < 10) return;
-    try {
-      localStorage.setItem(_key(titulo), JSON.stringify({
-        titulo, currentTime, duration, pct, capa: capa||'', tipo: tipo||'filme', ts: Date.now()
-      }));
-    } catch {}
-  }
-  function get(titulo) {
-    try { const v = localStorage.getItem(_key(titulo)); return v ? JSON.parse(v) : null; } catch { return null; }
-  }
-  function getAll() {
-    const out = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (!k || !k.startsWith(PREFIX)) continue;
-      try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.pct < 0.95) out.push(v); } catch {}
-    }
-    return out.sort((a,b) => b.ts - a.ts);
-  }
-  function remove(titulo) { try { localStorage.removeItem(_key(titulo)); } catch {} }
-  function clear() {
-    const keys = [];
-    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(PREFIX)) keys.push(k); }
-    keys.forEach(k => localStorage.removeItem(k));
-  }
-  return { save, get, getAll, remove, clear };
-})();
+// ── PipocaProgress (Tarefa 1) — agora carregado de assets/js/progress.js ──
 
 // ── PipocaWatched — salva filmes/séries marcados como assistidos ──
 window.PipocaWatched = (function() {
@@ -721,7 +689,7 @@ function mkCard(item, opts = {}) {
 
   div.innerHTML = `
     <div class="card-thumb-wrap" style="position:relative">
-      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy"
+      <img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" data-cat="${cat1}" loading="lazy"
         onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'">
       <span class="card-badge">${item.isSerie?'📺 Série':'🎬 Filme'}</span>
       <div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
@@ -1154,7 +1122,14 @@ function setupSearch(allContent) {
     resultsOverlay.classList.add('active');
   }
   const deb = PipocaSearch.debounce(doSearch, 250);
-  document.getElementById('desktopSearchInput').addEventListener('input', e=>deb(e.target.value));
+  // Desktop: não busca "ao vivo" na própria página — leva para a página dedicada de busca (mesma experiência do celular)
+  document.getElementById('desktopSearchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const v = e.target.value.trim();
+      window.location.href = 'buscar.html' + (v ? ('?q=' + encodeURIComponent(v)) : '');
+    }
+  });
   mobileInput.addEventListener('input', e=>deb(e.target.value));
   resultsOverlay.addEventListener('click', e=>{
     if(e.target===resultsOverlay){resultsOverlay.classList.remove('active');document.getElementById('desktopSearchInput').value='';mobileInput.value='';}

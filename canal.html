@@ -317,6 +317,7 @@ l.parentNode.insertBefore(s, l);
 <script src="assets/js/security.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script src="assets/js/thumb-loader.js"></script>
 
 <script>
 function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
@@ -331,10 +332,12 @@ document.getElementById('mobileSearchClose').addEventListener('click',()=>{docum
 function setupSearch(allItems) {
   PipocaSearch.indexContent(allItems);
   const overlay=document.getElementById('searchResultsOverlay'),grid=document.getElementById('searchResultsGrid'),label=document.getElementById('searchQueryLabel');
-  function mkCard(item){const d=document.createElement('div');d.className='card';const page=item.isSerie?'serie.html':'filme.html';d.innerHTML=`<div class="card-thumb-wrap"><img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" loading="lazy" onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'"><span class="card-badge">${item.isSerie?'Série':'Filme'}</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="card-info"><div class="card-name">${item.nome}</div></div>`;d.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(item.nome)}`);return d;}
+  function mkCard(item){const d=document.createElement('div');d.className='card';const page=item.isSerie?'serie.html':'filme.html';const cat1=(item.categoria||'').split(',')[0].trim();d.innerHTML=`<div class="card-thumb-wrap"><img class="card-thumb" src="${item.capa||''}" alt="${item.nome}" data-cat="${cat1}" loading="lazy" onerror="this.src='https://placehold.co/300x450/13131a/333?text=Sem+Capa'"><span class="card-badge">${item.isSerie?'Série':'Filme'}</span><div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><div class="card-info"><div class="card-name">${item.nome}</div></div>`;d.addEventListener('click',()=>location.href=`${page}?nome=${encodeURIComponent(item.nome)}`);return d;}
   function doSearch(q){if(!q||q.length<2){overlay.classList.remove('active');return;}const res=PipocaSearch.search(q,30);label.textContent=q;grid.innerHTML='';res.forEach(i=>grid.appendChild(mkCard(i)));overlay.classList.add('active');}
   const deb=PipocaSearch.debounce(doSearch,250);
-  document.getElementById('desktopSearchInput').addEventListener('input',e=>deb(e.target.value));
+  document.getElementById('desktopSearchInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); const v = e.target.value.trim(); window.location.href = 'buscar.html' + (v ? ('?q=' + encodeURIComponent(v)) : ''); }
+  });
   document.getElementById('mobileSearchInput').addEventListener('input',e=>deb(e.target.value));
 }
 

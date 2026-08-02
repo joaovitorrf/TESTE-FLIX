@@ -220,6 +220,7 @@
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/search.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/thumb-loader.js"></script>
 <script>
 var _allContent = [];
 var _filtroAtivo = 'todos';
@@ -253,7 +254,7 @@ function mkCardSearch(item) {
   }
   var isNew = item.ano && (item.ano === '2025' || item.ano === '2026');
   div.innerHTML = '<div class="card-thumb-wrap" style="position:relative">'
-    + '<img class="card-thumb" src="'+(item.capa||'')+'" alt="'+item.nome+'" loading="lazy" onerror="this.src=\'https://placehold.co/300x450/13131a/333?text=Sem+Capa\'">'
+    + '<img class="card-thumb" src="'+(item.capa||'')+'" alt="'+item.nome+'" data-cat="'+((item.categoria||'').split(',')[0].trim())+'" loading="lazy" onerror="this.src=\'https://placehold.co/300x450/13131a/333?text=Sem+Capa\'">'
     + '<span class="card-badge">'+(item.isSerie ? '📺 Série' : '🎬 Filme')+'</span>'
     + '<div class="card-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
     + audioBadge
