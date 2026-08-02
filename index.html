@@ -15,6 +15,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="apple-touch-startup-image" href="assets/img/splash.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="assets/css/style.css">
@@ -27,6 +28,46 @@
 </script>
 </head>
 <body>
+<!-- ═══ SPLASH DE CARREGAMENTO — só aparece no app instalado (PWA), não no navegador ═══ -->
+<style>
+  #pflixSplash {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background-color: #000;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 0.5s ease;
+  }
+  #pflixSplash.pflix-splash-hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+<div id="pflixSplash" role="presentation" aria-hidden="true"></div>
+<script>
+  (function () {
+    var splash = document.getElementById('pflixSplash');
+    if (!splash) return;
+    // Detecta se está rodando como app instalado (standalone), não como aba de navegador comum
+    var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    if (!isStandalone) { splash.remove(); return; }
+    splash.style.display = 'block';
+    splash.style.backgroundImage = "url('assets/img/splash.png')";
+    var hidden = false;
+    function hideSplash() {
+      if (hidden) return;
+      hidden = true;
+      splash.classList.add('pflix-splash-hide');
+      setTimeout(function () { splash.remove(); }, 550);
+    }
+    // Sai quando a página termina de carregar (ou no máximo após 2.5s, pra não travar o usuário)
+    window.addEventListener('load', hideSplash);
+    setTimeout(hideSplash, 2500);
+  })();
+</script>
 <script src="assets/js/avisos.js" defer></script>
 
 <script type="module">
