@@ -814,7 +814,31 @@ input { font-family: var(--font-body); }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: filter var(--t-normal), transform var(--t-slow);
+  opacity: 0;
+  transition: filter var(--t-normal), transform var(--t-slow), opacity 0.5s ease;
+}
+.card-thumb.pflix-loaded {
+  opacity: 1;
+}
+/* Enquanto a capa carrega, mostra um shimmer sutil sobre o fundo colorido da categoria */
+.card-thumb-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: pflix-shimmer 1.6s ease-in-out infinite;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.card-thumb-wrap.pflix-thumb-loaded::before,
+.card-thumb-wrap:has(.card-thumb.pflix-loaded)::before {
+  opacity: 0;
+}
+@keyframes pflix-shimmer {
+  0%   { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
 }
 .card:hover .card-thumb {
   filter: brightness(0.45) saturate(0.7);
