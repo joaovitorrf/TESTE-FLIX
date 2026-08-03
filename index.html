@@ -265,6 +265,29 @@
   </div>
 </section>
 
+<!-- ═══ AVISO INSTALAR APP ═══ -->
+<div id="installBannerHome" style="display:none;max-width:1200px;margin:0 auto 8px;padding:0 clamp(1rem,5vw,3.5rem)">
+  <a href="instalar-app.html" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 16px;text-decoration:none;transition:border-color var(--t-fast)" onmouseover="this.style.borderColor='var(--border-light)'" onmouseout="this.style.borderColor='var(--border)'">
+    <span style="font-size:1.4rem;flex-shrink:0">📲</span>
+    <span style="flex:1;min-width:0">
+      <span style="display:block;color:var(--text-1);font-weight:700;font-size:0.88rem">Instale o app do PipocaFlix</span>
+      <span style="display:block;color:var(--text-3);font-size:0.78rem">Acesso mais rápido, direto da tela inicial</span>
+    </span>
+    <span style="flex-shrink:0;color:var(--red);font-weight:700;font-size:0.82rem;white-space:nowrap">Instalar →</span>
+    <button onclick="event.preventDefault();event.stopPropagation();document.getElementById('installBannerHome').style.display='none';try{localStorage.setItem('pflix_install_banner_dismissed','1')}catch(e){}" aria-label="Fechar aviso" style="flex-shrink:0;background:none;border:none;color:var(--text-3);font-size:1.1rem;cursor:pointer;padding:2px 4px;line-height:1">×</button>
+  </a>
+</div>
+<script>
+(function () {
+  var banner = document.getElementById('installBannerHome');
+  if (!banner) return;
+  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  var dismissed = false;
+  try { dismissed = localStorage.getItem('pflix_install_banner_dismissed') === '1'; } catch (e) {}
+  if (!isStandalone && !dismissed) banner.style.display = 'block';
+})();
+</script>
+
 <!-- ═══ CONTINUAR ASSISTINDO ═══ -->
 <section class="content-section" id="continueSection" style="display:none">
   <div class="section-header">

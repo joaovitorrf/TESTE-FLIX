@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — PipocaFlix</title>
+<meta name="description" content="Entre no PipocaFlix com sua conta Google e aproveite muito mais: comente nos filmes, veja o que já assistiu e monte sua lista.">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+  body { overflow-x: hidden; }
+
+  .login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 100px 20px 60px;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,45,67,.16) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 45% at 100% 100%, rgba(255,45,67,.08) 0%, transparent 60%),
+      var(--void);
+    overflow: hidden;
+  }
+  .login-page::before,
+  .login-page::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .login-page::before {
+    width: 380px; height: 380px;
+    background: var(--red);
+    top: -120px; left: -120px;
+  }
+  .login-page::after {
+    width: 320px; height: 320px;
+    background: var(--gold);
+    opacity: 0.12;
+    bottom: -100px; right: -80px;
+  }
+
+  .login-topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px clamp(16px, 5vw, 40px);
+  }
+  .login-topbar img { height: 32px; width: auto; display: block; }
+  .login-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    transition: border-color var(--t-fast), color var(--t-fast);
+  }
+  .login-back:hover { color: var(--text-1); border-color: var(--border-light); }
+
+  .login-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+  }
+
+  .buddy-photo-wrap {
+    width: 148px;
+    height: 148px;
+    margin: 0 auto 22px;
+    position: relative;
+  }
+  .buddy-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--red);
+    box-shadow: var(--shadow-red);
+    display: block;
+  }
+  .buddy-badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: var(--gold);
+    color: #1a1300;
+    font-size: 1.1rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--void);
+  }
+
+  .buddy-bubble {
+    background: var(--panel);
+    border: 1px solid var(--border-light);
+    border-radius: var(--r-lg);
+    padding: 24px 26px;
+    margin-bottom: 26px;
+    text-align: left;
+    position: relative;
+  }
+  .buddy-bubble::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 16px;
+    height: 16px;
+    background: var(--panel);
+    border-left: 1px solid var(--border-light);
+    border-top: 1px solid var(--border-light);
+  }
+  .buddy-bubble h1 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-1);
+    margin-bottom: 10px;
+  }
+  .buddy-bubble p {
+    color: var(--text-2);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .buddy-bubble p:last-child { margin-bottom: 0; }
+  .buddy-bubble strong { color: var(--text-1); }
+  .buddy-signoff {
+    color: var(--red) !important;
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  .login-perks {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .login-perk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-3);
+    font-size: 0.72rem;
+    font-weight: 600;
+    max-width: 90px;
+  }
+  .login-perk span.ic { font-size: 1.3rem; }
+
+  .btn-google {
+    width: 100%;
+    padding: 16px;
+    background: #fff;
+    color: #1f1f1f;
+    border: none;
+    border-radius: var(--r-md);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: transform var(--t-fast), box-shadow var(--t-fast);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  .btn-google:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+  .btn-google:active { transform: translateY(0); }
+  .btn-google:disabled { opacity: 0.7; cursor: default; transform: none; }
+
+  #loginStatus {
+    color: var(--text-3);
+    font-size: 0.8rem;
+    margin-top: 16px;
+    min-height: 18px;
+  }
+  #loginStatus.is-error { color: var(--red); }
+
+  .login-footnote {
+    color: var(--text-3);
+    font-size: 0.75rem;
+    margin-top: 22px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<script src="assets/js/avisos.js" defer></script>
+
+<div class="login-topbar">
+  <a href="index.html" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix"></a>
+  <a href="index.html" class="login-back">← Voltar</a>
+</div>
+
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="buddy-photo-wrap">
+      <img class="buddy-photo" src="https://i.pinimg.com/736x/af/85/a4/af85a4b09205feb6eff098f32693024b.jpg" alt="Seu parceiro do PipocaFlix">
+      <div class="buddy-badge">🍿</div>
+    </div>
+
+    <div class="buddy-bubble">
+      <h1>Eaí, mano! 👊</h1>
+      <p>Faz o login aí, pô, rapidinho — <strong>vale muito a pena</strong>, sério. Com sua conta você pode <strong>comentar nos filmes</strong>, ver td que <strong>já assistiu</strong>, marcar aquele filme pra <strong>assistir mais tarde</strong> e mais um monte de coisa boa.</p>
+      <p>Você vai gostar, pode confiar. 😉</p>
+      <p class="buddy-signoff">— o amigão da vizinhança aqui.</p>
+    </div>
+
+    <div class="login-perks">
+      <div class="login-perk"><span class="ic">💬</span>Comenta nos filmes</div>
+      <div class="login-perk"><span class="ic">✅</span>Marca o que já viu</div>
+      <div class="login-perk"><span class="ic">🕒</span>Assiste depois</div>
+      <div class="login-perk"><span class="ic">❤️</span>Monta sua lista</div>
+    </div>
+
+    <button id="btnLoginGoogle" class="btn-google" onclick="fazerLogin()">
+      <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8C43.8 37.5 46.5 31.4 46.5 24.5z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.8 23.8 0 0 0 0 24c0 3.9.9 7.5 2.5 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6.1C6.6 42.6 14.7 48 24 48z"/></svg>
+      Entrar com Google
+    </button>
+    <p id="loginStatus"></p>
+
+    <p class="login-footnote">É rapidinho e gratuito. A gente só usa sua conta Google pra identificar seu perfil — nada de spam, nada de zoeira.</p>
+  </div>
+</div>
+
+<!-- ═══ Firebase Auth ═══ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app       = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth      = getAuth(app);
+  const provider  = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  // Se a pessoa já está logada, não precisa ficar aqui — manda pra onde ela ia.
+  onAuthStateChanged(auth, function (user) {
+    if (user) irParaDestino();
+  });
+</script>
+
+<script>
+function getRedirect() {
+  var r = new URLSearchParams(location.search).get('redirect');
+  if (!r) return 'index.html';
+  // Só permite redirecionar dentro do próprio site (evita open-redirect)
+  if (/^https?:\/\//i.test(r) || r.indexOf('//') === 0) return 'index.html';
+  return r;
+}
+function irParaDestino() {
+  window.location.href = getRedirect();
+}
+async function fazerLogin() {
+  var btn = document.getElementById('btnLoginGoogle');
+  var status = document.getElementById('loginStatus');
+  btn.disabled = true;
+  status.className = '';
+  status.textContent = 'Entrando...';
+  try {
+    await window.PipocaAuth.login();
+    status.textContent = 'Beleza! Redirecionando...';
+    irParaDestino();
+  } catch (err) {
+    console.error(err);
+    status.className = 'is-error';
+    status.textContent = 'Deu ruim ao entrar. Tenta de novo aí.';
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>

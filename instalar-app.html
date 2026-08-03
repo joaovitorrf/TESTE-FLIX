@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instalar o App — PipocaFlix</title>
+<meta name="description" content="Instale o PipocaFlix no seu celular ou computador e tenha o catálogo completo a um toque de distância.">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<style>
+.guide-hero {
+  text-align:center;
+  padding:4rem 1rem 2rem;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,45,67,.14) 0%, transparent 70%);
+  position: relative;
+}
+.guide-hero h1 {
+  font-family:var(--font-display);
+  font-size:clamp(2rem,6vw,3.5rem);
+  font-weight:800;
+  margin-bottom:.75rem;
+  color: var(--text-1);
+}
+.app-hero-img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 6px solid var(--red);
+  box-shadow: var(--shadow-red);
+  margin: 1rem auto;
+  display: block;
+}
+.guide-hero p {
+  color:var(--text-2);
+  font-size:1.1rem;
+  max-width:560px;
+  margin:0 auto;
+  font-style: italic;
+}
+.guide-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.5rem;
+  padding:2rem clamp(1rem,5vw,3.5rem) 1rem;
+  max-width:1200px;
+  margin:0 auto;
+}
+.guide-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:1.75rem;
+  transition:transform .2s,border-color .2s;
+  position:relative;
+  overflow:hidden;
+}
+.guide-card::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--red),var(--gold));
+}
+.guide-card:hover { transform:translateY(-4px); border-color:var(--red); }
+.app-icon {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--red);
+  margin-bottom: 1rem;
+  box-shadow: 0 0 25px rgba(255,45,67,.3);
+}
+.guide-card h2 {
+  font-family:var(--font-display);
+  font-size:1.2rem;
+  font-weight:700;
+  margin-bottom:.6rem;
+  color:var(--text-1);
+}
+.guide-card p { color:var(--text-2); font-size:.93rem; line-height:1.7; }
+
+.back-btn {
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  background:var(--surface-2, var(--panel));
+  color:var(--text-2);
+  padding:.6rem 1.4rem;
+  border-radius:var(--r-pill);
+  border: 1px solid var(--border);
+  font-weight:600;
+  font-size: 0.85rem;
+  text-decoration:none;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.back-btn:hover { color: var(--text-1); border-color: var(--border-light); }
+
+.install-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 18px clamp(16px, 5vw, 40px) 0;
+}
+.install-topbar img { height: 30px; width: auto; display: block; }
+
+/* ── Bloco de instalação ── */
+.install-cta {
+  max-width: 640px;
+  margin: 1rem auto 4rem;
+  padding: 0 clamp(1rem,5vw,3.5rem);
+  text-align: center;
+}
+.install-cta-box {
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-xl);
+  padding: 2.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.install-cta-box::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,45,67,.1), transparent 70%);
+  pointer-events: none;
+}
+.install-cta-box h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-1);
+  margin-bottom: .6rem;
+  position: relative;
+}
+.install-cta-box > p {
+  color: var(--text-2);
+  font-size: .95rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+}
+.btn-install {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--red), var(--red-dim));
+  color: #fff;
+  border: none;
+  padding: 16px 34px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-red);
+  transition: transform var(--t-fast);
+}
+.btn-install:hover { transform: translateY(-2px) scale(1.02); }
+.btn-install:active { transform: translateY(0) scale(1); }
+.btn-install svg { flex-shrink: 0; }
+
+#installStatus {
+  position: relative;
+  margin-top: 18px;
+  color: var(--text-2);
+  font-size: .88rem;
+  line-height: 1.6;
+  display: none;
+}
+
+#iosSteps {
+  position: relative;
+  display: none;
+  text-align: left;
+  margin-top: 6px;
+}
+#iosSteps ol { padding-left: 1.2rem; color: var(--text-2); font-size: .92rem; line-height: 2; }
+#iosSteps strong { color: var(--text-1); }
+#iosSteps .ios-share-icon {
+  display:inline-flex; align-items:center; justify-content:center;
+  width: 22px; height: 22px; vertical-align: -5px;
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: 5px;
+  margin: 0 2px;
+}
+
+.install-note {
+  color: var(--text-3);
+  font-size: .78rem;
+  margin-top: 1.75rem;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<script src="assets/js/avisos.js" defer></script>
+
+<div class="install-topbar">
+  <a href="index.html" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix"></a>
+  <a href="index.html" class="back-btn">← Voltar ao Início</a>
+</div>
+
+<div class="guide-hero">
+  <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Guia do app PipocaFlix" class="app-hero-img">
+  <h1>Leve o PipocaFlix com você 🍿</h1>
+  <p>Existe um jeitinho mais rápido e mais bonito de assistir por aqui... deixa eu te mostrar.</p>
+</div>
+
+<div class="guide-grid">
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Ícone na tela" class="app-icon">
+    <h2>Um Ícone Só Seu</h2>
+    <p>Instale o PipocaFlix e ganhe um ícone guardadinho na tela do seu celular ou computador — como um portal sempre à mão, pronto pra abrir quando bater aquela vontade de assistir algo.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/b0/75/eb/b075ebe01a679a3adf5ce00dd7ed880e.jpg" alt="Tela cheia, sem navegador" class="app-icon">
+    <h2>Sem Barra, Sem Distração</h2>
+    <p>O app abre em tela cheia, sem a barra do navegador atrapalhando. É como entrar direto na história, sem precisar passar por corredor nenhum.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/1200x/a4/99/d5/a499d57866c9ef142d53072cee473210.jpg" alt="Acesso rápido" class="app-icon">
+    <h2>Mais Rápido de Abrir</h2>
+    <p>Sem digitar nada, sem esperar o navegador carregar tudo de novo. Um toque no ícone e você já tá lá, prontinho pra escolher o que assistir.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/1200x/be/cf/5d/becf5d60cf718713ed778fd85ae4ef3d.jpg" alt="Avisos de lançamento" class="app-icon">
+    <h2>Avisos de Lançamento</h2>
+    <p>Mesmo instalado, você continua recebendo normalmente os avisos e notificações do site — nada se perde no caminho.</p>
+  </div>
+
+  <div class="guide-card">
+    <img src="https://i.pinimg.com/736x/78/ea/08/78ea08f46f7731f59286bb4eb2863ddd.jpg" alt="Funciona em qualquer aparelho" class="app-icon">
+    <h2>Em Qualquer Aparelho</h2>
+    <p>Android, iPhone ou computador — não importa por onde você anda, o PipocaFlix te acompanha do mesmo jeitinho, em qualquer um deles.</p>
+  </div>
+
+</div>
+
+<div class="install-cta">
+  <div class="install-cta-box">
+    <h2>Bora instalar?</h2>
+    <p>É de graça, é rapidinho e não ocupa quase nada de espaço.</p>
+
+    <button id="installBtn" class="btn-install" onclick="instalarApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Instalar o App
+    </button>
+
+    <div id="iosSteps">
+      <p style="color:var(--text-2);font-size:.92rem;margin-bottom:.5rem">No iPhone é rapidinho também, só que é a Apple quem manda nesse passo — faz assim:</p>
+      <ol>
+        <li>Toque no ícone de <strong>compartilhar</strong> <span class="ios-share-icon">⬆️</span> lá embaixo do Safari</li>
+        <li>Desça e toque em <strong>"Adicionar à Tela de Início"</strong></li>
+        <li>Toque em <strong>"Adicionar"</strong> no canto superior — pronto! 🎉</li>
+      </ol>
+    </div>
+
+    <p id="installStatus"></p>
+
+    <p class="install-note">Continua tudo igual: notificações, avisos de novidade e o catálogo completo — só que agora com um atalho só seu.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var installBtn = document.getElementById('installBtn');
+  var installStatus = document.getElementById('installStatus');
+  var iosSteps = document.getElementById('iosSteps');
+  var deferredPrompt = null;
+
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+  function showStatus(msg) {
+    installStatus.textContent = msg;
+    installStatus.style.display = 'block';
+  }
+
+  if (isStandalone()) {
+    installBtn.style.display = 'none';
+    showStatus('Você já tá com o app instalado! Pode fechar essa página e abrir direto pelo ícone. 🎉');
+    return;
+  }
+
+  if (isIOS()) {
+    installBtn.style.display = 'none';
+    iosSteps.style.display = 'block';
+    return;
+  }
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  window.addEventListener('appinstalled', function () {
+    installBtn.style.display = 'none';
+    showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉');
+  });
+
+  window.instalarApp = async function () {
+    if (!deferredPrompt) {
+      showStatus('Seu navegador ainda não liberou a instalação automática por aqui. Procura por "Instalar app" ou "Adicionar à tela inicial" no menu (⋮ ou ⋯) do seu navegador.');
+      return;
+    }
+    deferredPrompt.prompt();
+    var choice = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (choice.outcome === 'accepted') {
+      showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉');
+    } else {
+      showStatus('Tranquilo, você pode instalar quando quiser — o botão continua aqui.');
+    }
+  };
+})();
+</script>
+
+</body>
+</html>
