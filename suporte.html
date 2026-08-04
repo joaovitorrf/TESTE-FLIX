@@ -55,7 +55,7 @@
     } else {
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
       btn.title = 'Entrar com Google';
-      btn.onclick = function() { window.PipocaAuth.login(); };
+      btn.onclick = function() { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); };
     }
   });
 </script>
@@ -149,7 +149,7 @@
   <!-- Formulário de novo ticket -->
   <div class="ticket-form-card" id="ticketFormCard">
     <p class="ticket-login-prompt" id="ticketLoginPrompt">
-      🔒 <button class="ticket-login-link" onclick="window.PipocaAuth && window.PipocaAuth.login()">Faça login</button> para abrir um ticket.
+      🔒 <button class="ticket-login-link" onclick="window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)">Faça login</button> para abrir um ticket.
     </p>
     <div class="ticket-form" id="ticketForm" style="display:none">
       <h2>Abrir um Ticket</h2>

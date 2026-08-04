@@ -59,7 +59,7 @@
     } else {
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
       btn.title = 'Entrar com Google';
-      btn.onclick = function() { window.PipocaAuth.login(); };
+      btn.onclick = function() { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); };
     }
   });
 </script>
@@ -247,7 +247,7 @@
   <div id="commentFormWrap">
     <div id="commentLoginPrompt" style="display:none;text-align:center;padding:20px;color:var(--text-3)">
       <p>Faça login para comentar</p>
-      <button onclick="window.PipocaAuth && window.PipocaAuth.login()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:1rem;margin-top:8px">Entrar com Google</button>
+      <button onclick="window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 24px;cursor:pointer;font-size:1rem;margin-top:8px">Entrar com Google</button>
     </div>
     <div id="commentForm" style="display:none">
       <textarea id="commentInput" placeholder="Escreva seu comentário..." style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text-1);font-family:inherit;font-size:0.95rem;resize:vertical;min-height:80px;box-sizing:border-box"></textarea>

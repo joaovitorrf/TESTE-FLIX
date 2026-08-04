@@ -56,7 +56,7 @@
     } else {
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
       btn.title = 'Entrar com Google';
-      btn.onclick = function() { window.PipocaAuth.login(); };
+      btn.onclick = function() { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); };
     }
   });
 </script>
@@ -159,7 +159,7 @@
   <div id="feedPostFormWrap" style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:24px">
     <div id="feedPostLoginPrompt" style="display:none;text-align:center;padding:10px;color:var(--text-3)">
       <p>Faça login para participar das discussões</p>
-      <button onclick="window.PipocaAuth && window.PipocaAuth.login()"
+      <button onclick="window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)"
         style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 20px;cursor:pointer;margin-top:8px">
         Entrar com Google
       </button>

@@ -67,7 +67,7 @@
     } else {
       btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
       btn.title = 'Entrar com Google';
-      btn.onclick = function() { window.PipocaAuth.login(); };
+      btn.onclick = function() { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); };
     }
   });
 </script>
@@ -152,7 +152,7 @@
   <!-- Não logado -->
   <div id="profileNotLogged" style="display:none;text-align:center;padding:60px 20px;color:var(--text-3)">
     <p style="font-size:1.2rem;margin-bottom:20px">Você não está logado.</p>
-    <button onclick="window.PipocaAuth && window.PipocaAuth.login()"
+    <button onclick="window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)"
       style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 32px;cursor:pointer;font-size:1rem">
       Entrar com Google
     </button>
