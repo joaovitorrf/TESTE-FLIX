@@ -9,8 +9,53 @@
 <link rel="apple-touch-icon" href="favicon.jpg">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
+/* ═══════════════════════════════════════
+   TOKENS — com fallback pra funcionar
+   mesmo fora do site (usa var do tema
+   global se existir, senão usa o padrão)
+   ═══════════════════════════════════════ */
+.install-page {
+  --pf-red: var(--red, #ff2d43);
+  --pf-red-dark: var(--red-dark, #c4001a);
+  --pf-amber: #ffb43c;
+  --pf-card: var(--card, #16161a);
+  --pf-border: var(--border, #26262e);
+  --pf-border-light: var(--border-light, #34343e);
+  --pf-text-1: var(--text-1, #f5f5f7);
+  --pf-text-2: var(--text-2, #a3a3ad);
+  --pf-text-3: var(--text-3, #6b6b76);
+  --pf-font-display: var(--font-display, 'Poppins', sans-serif);
+  --pf-font-body: 'Inter', sans-serif;
+  font-family: var(--pf-font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-page *, .install-page *::before, .install-page *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── faixa de perfuração (motivo de filme, usado como assinatura visual) ─── */
+.sprocket {
+  height: 14px;
+  background-image: radial-gradient(circle 2.5px, var(--pf-border-light) 97%, transparent);
+  background-size: 22px 100%;
+  background-repeat: repeat-x;
+  background-position: center;
+  opacity: .55;
+}
+.sprocket--accent {
+  background-image: radial-gradient(circle 2.5px, rgba(255,45,67,.55) 97%, transparent);
+}
+
 /* ─── TOPBAR ─── */
 .install-topbar {
   display: flex;
@@ -29,169 +74,202 @@
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: rgba(255,255,255,.04);
-  color: var(--text-2);
-  padding: 10px 18px;
+  color: var(--pf-text-2);
+  padding: 10px 18px 10px 14px;
   border-radius: 99px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--pf-border);
   font-weight: 600;
   font-size: .85rem;
   text-decoration: none;
   backdrop-filter: blur(8px);
-  transition: all .22s ease;
+  transition: color .22s ease, border-color .22s ease, background .22s ease, transform .22s ease;
 }
+.back-btn svg { transition: transform .22s ease; flex-shrink: 0; }
 .back-btn:hover {
-  color: var(--text-1);
-  border-color: var(--red);
+  color: var(--pf-text-1);
+  border-color: var(--pf-red);
   background: rgba(255,45,67,.08);
-  transform: translateX(-3px);
+}
+.back-btn:hover svg { transform: translateX(-3px); }
+.back-btn:focus-visible,
+.btn-install:focus-visible,
+.install-topbar a:focus-visible {
+  outline: 2px solid var(--pf-red);
+  outline-offset: 3px;
+  border-radius: 99px;
 }
 
 /* ─── HERO ─── */
 .guide-hero {
   text-align: center;
-  padding: 3.5rem 1.25rem 2.5rem;
+  padding: 3.25rem 1.25rem 2.25rem;
   background:
     radial-gradient(ellipse 90% 55% at 50% -10%, rgba(255,45,67,.18) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 80% 20%, rgba(255,180,50,.06) 0%, transparent 60%);
+    radial-gradient(ellipse 50% 40% at 80% 20%, rgba(255,180,50,.07) 0%, transparent 60%);
   position: relative;
   overflow: hidden;
 }
-.guide-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 99px;
+  background: rgba(255,45,67,.1);
+  border: 1px solid rgba(255,45,67,.3);
+  color: var(--pf-red);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 1.4rem;
+}
+.hero-eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--pf-red);
+  box-shadow: 0 0 0 3px rgba(255,45,67,.18);
 }
 .app-hero-img {
-  width: 140px;
-  height: 140px;
+  width: 128px;
+  height: 128px;
   object-fit: cover;
-  border-radius: 32px;
+  border-radius: 30px;
   border: 4px solid rgba(255,45,67,.7);
   box-shadow:
-    0 0 0 8px rgba(255,45,67,.12),
-    0 20px 50px rgba(255,45,67,.35),
+    0 0 0 8px rgba(255,45,67,.1),
+    0 20px 50px rgba(255,45,67,.3),
     0 8px 20px rgba(0,0,0,.4);
-  margin: 0 auto 1.5rem;
+  margin: 0 auto 1.6rem;
   display: block;
-  transition: transform .35s ease;
+  transition: transform .35s cubic-bezier(.22,1,.36,1);
 }
 .app-hero-img:hover { transform: scale(1.05) rotate(-2deg); }
 .guide-hero h1 {
-  font-family: var(--font-display);
-  font-size: clamp(2.1rem, 5.5vw, 3.4rem);
+  font-family: var(--pf-font-display);
+  font-size: clamp(2rem, 5.5vw, 3.2rem);
   font-weight: 800;
-  margin-bottom: .7rem;
-  color: var(--text-1);
+  margin-bottom: .65rem;
+  color: var(--pf-text-1);
   letter-spacing: -.02em;
   line-height: 1.15;
 }
 .guide-hero p {
-  color: var(--text-2);
-  font-size: 1.08rem;
-  max-width: 520px;
+  color: var(--pf-text-2);
+  font-size: 1.06rem;
+  max-width: 480px;
   margin: 0 auto;
   line-height: 1.65;
-  opacity: .9;
 }
+.hero-sprocket { max-width: 340px; margin: 2.1rem auto 0; }
 
 /* ─── GRID DE CARDS ─── */
 .guide-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 1.4rem;
-  padding: 2.5rem clamp(1.2rem, 5vw, 3.5rem) 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.35rem;
+  padding: 2.75rem clamp(1.2rem, 5vw, 3.5rem) 1.5rem;
   max-width: 1180px;
   margin: 0 auto;
 }
 .guide-card {
-  background: var(--card);
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  padding: 1.9rem 1.6rem 1.7rem;
-  position: relative;
+  background: var(--pf-card);
+  border: 1.5px solid var(--pf-border);
+  border-radius: 18px;
   overflow: hidden;
   transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .25s, box-shadow .28s;
 }
-.guide-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--red), #ff8a3d, var(--red));
-  background-size: 200% 100%;
-  opacity: .85;
-}
 .guide-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(255,45,67,.55);
-  box-shadow: 0 18px 40px rgba(255,45,67,.15), 0 6px 16px rgba(0,0,0,.25);
+  transform: translateY(-6px);
+  border-color: rgba(255,45,67,.5);
+  box-shadow: 0 18px 40px rgba(255,45,67,.14), 0 6px 16px rgba(0,0,0,.25);
+}
+.guide-card .sprocket { opacity: .4; }
+.guide-card:hover .sprocket { opacity: .8; }
+.guide-card-body { padding: 1.6rem 1.5rem 1.7rem; }
+.app-icon-frame {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  padding: 4px;
+  background: linear-gradient(135deg, rgba(255,45,67,.35), rgba(255,180,50,.15));
+  margin-bottom: 1.1rem;
 }
 .app-icon {
-  width: 68px;
-  height: 68px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 18px;
-  border: 2.5px solid rgba(255,45,67,.5);
-  margin-bottom: 1.15rem;
-  box-shadow: 0 8px 24px rgba(255,45,67,.22);
-  transition: transform .3s ease;
+  border-radius: 12px;
+  display: block;
 }
-.guide-card:hover .app-icon { transform: scale(1.08); }
 .guide-card h2 {
-  font-family: var(--font-display);
-  font-size: 1.18rem;
+  font-family: var(--pf-font-display);
+  font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: .55rem;
-  color: var(--text-1);
+  margin-bottom: .5rem;
+  color: var(--pf-text-1);
   letter-spacing: -.01em;
 }
 .guide-card p {
-  color: var(--text-2);
-  font-size: .9rem;
-  line-height: 1.7;
+  color: var(--pf-text-2);
+  font-size: .89rem;
+  line-height: 1.65;
   margin: 0;
 }
 
 /* ─── CTA DE INSTALAÇÃO ─── */
 .install-cta {
-  max-width: 620px;
-  margin: 1.5rem auto 5rem;
+  max-width: 600px;
+  margin: 1.25rem auto 5rem;
   padding: 0 clamp(1.2rem, 5vw, 3rem);
   text-align: center;
 }
 .install-cta-box {
-  background: var(--card);
-  border: 1.5px solid var(--border);
-  border-radius: 24px;
-  padding: 2.8rem 2.2rem 2.4rem;
-  position: relative;
+  background: var(--pf-card);
+  border: 1.5px solid var(--pf-border);
+  border-radius: 22px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,.25);
 }
-.install-cta-box::before {
+.install-cta-inner {
+  position: relative;
+  padding: 2.6rem 2.2rem 2.3rem;
+}
+.install-cta-inner::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255,45,67,.16), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255,45,67,.15), transparent 70%),
     radial-gradient(ellipse 40% 30% at 90% 80%, rgba(255,140,50,.06), transparent 60%);
   pointer-events: none;
 }
+.cta-badge {
+  position: relative;
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 99px;
+  background: rgba(255,180,60,.12);
+  border: 1px solid rgba(255,180,60,.3);
+  color: var(--pf-amber);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 1.1rem;
+}
 .install-cta-box h2 {
-  font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-family: var(--pf-font-display);
+  font-size: 1.6rem;
   font-weight: 800;
-  color: var(--text-1);
+  color: var(--pf-text-1);
   margin-bottom: .5rem;
   position: relative;
   letter-spacing: -.02em;
 }
-.install-cta-box > p {
-  color: var(--text-2);
+.install-cta-box > .install-cta-inner > p {
+  color: var(--pf-text-2);
   font-size: .95rem;
   margin-bottom: 1.8rem;
   position: relative;
@@ -201,181 +279,316 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   background: linear-gradient(135deg, #ff2d43 0%, #e0001b 100%);
   color: #fff;
   border: none;
-  padding: 17px 38px;
+  padding: 16px 36px;
   border-radius: 99px;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-family: var(--pf-font-display);
+  font-size: 1.02rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 10px 32px rgba(255,45,67,.4), 0 2px 8px rgba(0,0,0,.2);
+  box-shadow: 0 10px 32px rgba(255,45,67,.38), 0 2px 8px rgba(0,0,0,.2);
   transition: transform .2s ease, box-shadow .2s ease, filter .2s;
   letter-spacing: .01em;
+  overflow: hidden;
+  min-width: 210px;
 }
+.btn-install::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: skewX(-20deg);
+  transition: left .55s ease;
+}
+.btn-install:hover::after { left: 130%; }
 .btn-install:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 14px 40px rgba(255,45,67,.5), 0 4px 12px rgba(0,0,0,.25);
-  filter: brightness(1.05);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 40px rgba(255,45,67,.48), 0 4px 12px rgba(0,0,0,.25);
 }
-.btn-install:active {
-  transform: translateY(0) scale(.98);
+.btn-install:active { transform: translateY(0) scale(.98); }
+.btn-install:disabled {
+  cursor: default;
+  opacity: .85;
+  transform: none;
 }
 .btn-install svg { flex-shrink: 0; }
+.btn-install .spinner {
+  width: 17px; height: 17px;
+  border: 2.5px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pf-spin .7s linear infinite;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
 
 #installStatus {
   position: relative;
-  margin-top: 1.3rem;
-  color: var(--text-2);
-  font-size: .9rem;
-  line-height: 1.65;
+  margin-top: 1.25rem;
+  color: var(--pf-text-2);
+  font-size: .88rem;
+  line-height: 1.6;
   display: none;
-  padding: 12px 16px;
+  align-items: flex-start;
+  gap: 9px;
+  text-align: left;
+  padding: 12px 14px;
   background: rgba(255,255,255,.04);
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--pf-border);
+  border-left: 3px solid var(--pf-border-light);
 }
+#installStatus.is-visible { display: flex; }
+#installStatus .status-icon { flex-shrink: 0; margin-top: 1px; }
+#installStatus.status-success { border-left-color: #35c76e; background: rgba(53,199,110,.07); }
+#installStatus.status-success .status-icon { color: #35c76e; }
+#installStatus.status-info { border-left-color: var(--pf-red); background: rgba(255,45,67,.06); }
+#installStatus.status-info .status-icon { color: var(--pf-red); }
+#installStatus.status-neutral { border-left-color: var(--pf-border-light); }
 
-/* ─── iOS STEPS ─── */
+/* ─── PASSOS iOS (stepper) ─── */
 #iosSteps {
   position: relative;
   display: none;
   text-align: left;
   margin-top: 1.4rem;
   background: rgba(255,255,255,.03);
-  border: 1px solid var(--border);
+  border: 1px solid var(--pf-border);
   border-radius: 16px;
-  padding: 1.4rem 1.5rem 1.3rem;
+  padding: 1.5rem 1.5rem 1.4rem;
 }
-#iosSteps > p {
-  color: var(--text-2);
+#iosSteps > p.ios-lead {
+  color: var(--pf-text-2);
   font-size: .92rem;
-  margin-bottom: .9rem;
+  margin-bottom: 1.1rem;
   line-height: 1.5;
 }
 #iosSteps ol {
-  padding-left: 1.35rem;
-  color: var(--text-2);
-  font-size: .93rem;
-  line-height: 2.05;
+  list-style: none;
+  padding: 0;
   margin: 0;
+  counter-reset: ios-step;
 }
-#iosSteps strong { color: var(--text-1); }
+#iosSteps li {
+  counter-increment: ios-step;
+  position: relative;
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding-bottom: 1.15rem;
+  padding-left: 2px;
+}
+#iosSteps li:last-child { padding-bottom: 0; }
+#iosSteps li::before {
+  content: counter(ios-step);
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(255,45,67,.14);
+  border: 1.5px solid rgba(255,45,67,.4);
+  color: var(--pf-red);
+  font-family: var(--pf-font-display);
+  font-weight: 700;
+  font-size: .82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#iosSteps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 26px;
+  width: 1.5px;
+  height: calc(100% - 24px);
+  background: var(--pf-border-light);
+}
+#iosSteps li span.step-text {
+  color: var(--pf-text-2);
+  font-size: .93rem;
+  line-height: 1.6;
+  padding-top: 3px;
+}
+#iosSteps strong { color: var(--pf-text-1); }
 #iosSteps .ios-share-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   vertical-align: -6px;
-  background: var(--surface, #1a1a1e);
-  border: 1px solid var(--border-light, #333);
+  background: var(--pf-card);
+  border: 1px solid var(--pf-border-light);
   border-radius: 6px;
-  margin: 0 3px;
-  font-size: .85rem;
+  margin: 0 2px;
+  font-size: .8rem;
 }
 
 .install-note {
-  color: var(--text-3);
+  color: var(--pf-text-3);
   font-size: .8rem;
-  margin-top: 1.9rem;
-  line-height: 1.65;
+  margin-top: 1.8rem;
+  line-height: 1.6;
   position: relative;
-  opacity: .85;
+}
+
+/* ─── entrada suave ─── */
+@media (prefers-reduced-motion: no-preference) {
+  .guide-hero > * { animation: pf-rise .6s cubic-bezier(.22,1,.36,1) both; }
+  .guide-hero .hero-eyebrow { animation-delay: 0s; }
+  .guide-hero .app-hero-img { animation-delay: .06s; }
+  .guide-hero h1 { animation-delay: .12s; }
+  .guide-hero p { animation-delay: .18s; }
+  .guide-hero .hero-sprocket { animation-delay: .24s; }
+  .guide-card {
+    animation: pf-rise .55s cubic-bezier(.22,1,.36,1) both;
+  }
+  .guide-grid .guide-card:nth-child(1) { animation-delay: .05s; }
+  .guide-grid .guide-card:nth-child(2) { animation-delay: .1s; }
+  .guide-grid .guide-card:nth-child(3) { animation-delay: .15s; }
+  .guide-grid .guide-card:nth-child(4) { animation-delay: .2s; }
+  .guide-grid .guide-card:nth-child(5) { animation-delay: .25s; }
+}
+@keyframes pf-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── RESPONSIVO ─── */
+@media (max-width: 860px) {
+  .guide-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+}
 @media (max-width: 600px) {
-  .guide-hero { padding: 2.8rem 1rem 2rem; }
-  .app-hero-img { width: 120px; height: 120px; border-radius: 26px; }
-  .guide-grid { gap: 1.15rem; padding-top: 2rem; }
-  .guide-card { padding: 1.5rem 1.3rem; }
-  .install-cta-box { padding: 2.2rem 1.4rem 2rem; border-radius: 20px; }
-  .btn-install { padding: 15px 28px; font-size: .98rem; width: 100%; justify-content: center; }
+  .guide-hero { padding: 2.6rem 1rem 1.8rem; }
+  .app-hero-img { width: 108px; height: 108px; border-radius: 24px; }
+  .guide-grid { gap: 1.1rem; padding-top: 2rem; grid-template-columns: 1fr; }
+  .install-cta-inner { padding: 2.1rem 1.4rem 1.9rem; }
+  .btn-install { padding: 15px 26px; font-size: .96rem; width: 100%; }
   .install-topbar { padding: 16px 16px 0; }
+  .back-btn span { display: none; }
+  .back-btn { padding: 10px 12px; }
 }
 </style>
 </head>
 <body>
 <script src="assets/js/avisos.js" defer></script>
 
-<div class="install-topbar">
-  <a href="index.html" aria-label="PipocaFlix Home">
-    <img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix">
-  </a>
-  <a href="index.html" class="back-btn">← Voltar ao Início</a>
-</div>
+<div class="install-page">
 
-<div class="guide-hero">
-  <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Guia do app PipocaFlix" class="app-hero-img">
-  <h1>Leve o PipocaFlix com você 🍿</h1>
-  <p>Existe um jeitinho mais rápido e mais bonito de assistir por aqui... deixa eu te mostrar.</p>
-</div>
-
-<div class="guide-grid">
-  <div class="guide-card">
-    <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Ícone na tela" class="app-icon">
-    <h2>Um Ícone Só Seu</h2>
-    <p>Instale o PipocaFlix e ganhe um ícone guardadinho na tela do seu celular ou computador — como um portal sempre à mão, pronto pra abrir quando bater aquela vontade de assistir algo.</p>
-  </div>
-  <div class="guide-card">
-    <img src="https://i.pinimg.com/736x/b0/75/eb/b075ebe01a679a3adf5ce00dd7ed880e.jpg" alt="Tela cheia, sem navegador" class="app-icon">
-    <h2>Sem Barra, Sem Distração</h2>
-    <p>O app abre em tela cheia, sem a barra do navegador atrapalhando. É como entrar direto na história, sem precisar passar por corredor nenhum.</p>
-  </div>
-  <div class="guide-card">
-    <img src="https://i.pinimg.com/1200x/a4/99/d5/a499d57866c9ef142d53072cee473210.jpg" alt="Acesso rápido" class="app-icon">
-    <h2>Mais Rápido de Abrir</h2>
-    <p>Sem digitar nada, sem esperar o navegador carregar tudo de novo. Um toque no ícone e você já tá lá, prontinho pra escolher o que assistir.</p>
-  </div>
-  <div class="guide-card">
-    <img src="https://i.pinimg.com/1200x/be/cf/5d/becf5d60cf718713ed778fd85ae4ef3d.jpg" alt="Avisos de lançamento" class="app-icon">
-    <h2>Avisos de Lançamento</h2>
-    <p>Mesmo instalado, você continua recebendo normalmente os avisos e notificações do site — nada se perde no caminho.</p>
-  </div>
-  <div class="guide-card">
-    <img src="https://i.pinimg.com/736x/78/ea/08/78ea08f46f7731f59286bb4eb2863ddd.jpg" alt="Funciona em qualquer aparelho" class="app-icon">
-    <h2>Em Qualquer Aparelho</h2>
-    <p>Android, iPhone ou computador — não importa por onde você anda, o PipocaFlix te acompanha do mesmo jeitinho, em qualquer um deles.</p>
-  </div>
-</div>
-
-<div class="install-cta">
-  <div class="install-cta-box">
-    <h2>Bora instalar?</h2>
-    <p>É de graça, é rapidinho e não ocupa quase nada de espaço.</p>
-    
-    <button id="installBtn" class="btn-install" onclick="instalarApp()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
+  <div class="install-topbar">
+    <a href="index.html" aria-label="PipocaFlix Home">
+      <img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix">
+    </a>
+    <a href="index.html" class="back-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+        <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
       </svg>
-      Instalar o App
-    </button>
-
-    <div id="iosSteps">
-      <p>No iPhone é rapidinho também, só que é a Apple quem manda nesse passo — faz assim:</p>
-      <ol>
-        <li>Toque no ícone de <strong>compartilhar</strong> <span class="ios-share-icon">⬆️</span> lá embaixo do Safari</li>
-        <li>Desça e toque em <strong>"Adicionar à Tela de Início"</strong></li>
-        <li>Toque em <strong>"Adicionar"</strong> no canto superior — pronto! 🎉</li>
-      </ol>
-    </div>
-
-    <p id="installStatus"></p>
-    <p class="install-note">Continua tudo igual: notificações, avisos de novidade e o catálogo completo — só que agora com um atalho só seu.</p>
+      <span>Voltar ao Início</span>
+    </a>
   </div>
+
+  <div class="guide-hero">
+    <span class="hero-eyebrow"><span class="dot" aria-hidden="true"></span> App Web · Instalação grátis</span>
+    <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Ícone do app PipocaFlix" class="app-hero-img">
+    <h1>Leve o PipocaFlix com você 🍿</h1>
+    <p>Existe um jeitinho mais rápido e mais bonito de assistir por aqui... deixa eu te mostrar.</p>
+    <div class="sprocket sprocket--accent hero-sprocket" aria-hidden="true"></div>
+  </div>
+
+  <div class="guide-grid">
+    <div class="guide-card">
+      <div class="sprocket" aria-hidden="true"></div>
+      <div class="guide-card-body">
+        <div class="app-icon-frame"><img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="" class="app-icon"></div>
+        <h2>Um Ícone Só Seu</h2>
+        <p>Instale o PipocaFlix e ganhe um ícone guardadinho na tela do seu celular ou computador — como um portal sempre à mão, pronto pra abrir quando bater aquela vontade de assistir algo.</p>
+      </div>
+    </div>
+    <div class="guide-card">
+      <div class="sprocket" aria-hidden="true"></div>
+      <div class="guide-card-body">
+        <div class="app-icon-frame"><img src="https://i.pinimg.com/736x/b0/75/eb/b075ebe01a679a3adf5ce00dd7ed880e.jpg" alt="" class="app-icon"></div>
+        <h2>Sem Barra, Sem Distração</h2>
+        <p>O app abre em tela cheia, sem a barra do navegador atrapalhando. É como entrar direto na história, sem precisar passar por corredor nenhum.</p>
+      </div>
+    </div>
+    <div class="guide-card">
+      <div class="sprocket" aria-hidden="true"></div>
+      <div class="guide-card-body">
+        <div class="app-icon-frame"><img src="https://i.pinimg.com/1200x/a4/99/d5/a499d57866c9ef142d53072cee473210.jpg" alt="" class="app-icon"></div>
+        <h2>Mais Rápido de Abrir</h2>
+        <p>Sem digitar nada, sem esperar o navegador carregar tudo de novo. Um toque no ícone e você já tá lá, prontinho pra escolher o que assistir.</p>
+      </div>
+    </div>
+    <div class="guide-card">
+      <div class="sprocket" aria-hidden="true"></div>
+      <div class="guide-card-body">
+        <div class="app-icon-frame"><img src="https://i.pinimg.com/1200x/be/cf/5d/becf5d60cf718713ed778fd85ae4ef3d.jpg" alt="" class="app-icon"></div>
+        <h2>Avisos de Lançamento</h2>
+        <p>Mesmo instalado, você continua recebendo normalmente os avisos e notificações do site — nada se perde no caminho.</p>
+      </div>
+    </div>
+    <div class="guide-card">
+      <div class="sprocket" aria-hidden="true"></div>
+      <div class="guide-card-body">
+        <div class="app-icon-frame"><img src="https://i.pinimg.com/736x/78/ea/08/78ea08f46f7731f59286bb4eb2863ddd.jpg" alt="" class="app-icon"></div>
+        <h2>Em Qualquer Aparelho</h2>
+        <p>Android, iPhone ou computador — não importa por onde você anda, o PipocaFlix te acompanha do mesmo jeitinho, em qualquer um deles.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="install-cta">
+    <div class="install-cta-box">
+      <div class="sprocket sprocket--accent" aria-hidden="true"></div>
+      <div class="install-cta-inner">
+        <span class="cta-badge">Grátis · Leva 10 segundos</span>
+        <h2>Bora instalar?</h2>
+        <p>Não ocupa quase nada de espaço e você pode remover quando quiser.</p>
+
+        <button id="installBtn" class="btn-install" onclick="instalarApp()">
+          <svg class="icon-download" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span class="btn-label">Instalar o App</span>
+        </button>
+
+        <div id="iosSteps">
+          <p class="ios-lead">No iPhone é rapidinho também, só que é a Apple quem manda nesse passo — faz assim:</p>
+          <ol>
+            <li><span class="step-text">Toque no ícone de <strong>compartilhar</strong> <span class="ios-share-icon" aria-hidden="true">⬆️</span> lá embaixo do Safari</span></li>
+            <li><span class="step-text">Desça e toque em <strong>"Adicionar à Tela de Início"</strong></span></li>
+            <li><span class="step-text">Toque em <strong>"Adicionar"</strong> no canto superior — pronto! 🎉</span></li>
+          </ol>
+        </div>
+
+        <p id="installStatus" role="status" aria-live="polite"></p>
+        <p class="install-note">Continua tudo igual: notificações, avisos de novidade e o catálogo completo — só que agora com um atalho só seu.</p>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
 (function () {
   var installBtn = document.getElementById('installBtn');
+  var btnLabel = installBtn.querySelector('.btn-label');
   var installStatus = document.getElementById('installStatus');
   var iosSteps = document.getElementById('iosSteps');
   var deferredPrompt = null;
+
+  var ICONS = {
+    success: '<svg class="status-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>',
+    info: '<svg class="status-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
+    neutral: '<svg class="status-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+  };
 
   function isStandalone() {
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
@@ -383,14 +596,15 @@
   function isIOS() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   }
-  function showStatus(msg) {
-    installStatus.textContent = msg;
-    installStatus.style.display = 'block';
+  function showStatus(msg, type) {
+    type = type || 'neutral';
+    installStatus.innerHTML = (ICONS[type] || ICONS.neutral) + '<span>' + msg + '</span>';
+    installStatus.className = 'is-visible status-' + type;
   }
 
   if (isStandalone()) {
     installBtn.style.display = 'none';
-    showStatus('Você já tá com o app instalado! Pode fechar essa página e abrir direto pelo ícone. 🎉');
+    showStatus('Você já tá com o app instalado! Pode fechar essa página e abrir direto pelo ícone. 🎉', 'success');
     return;
   }
   if (isIOS()) {
@@ -406,21 +620,31 @@
 
   window.addEventListener('appinstalled', function () {
     installBtn.style.display = 'none';
-    showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉');
+    showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉', 'success');
   });
 
   window.instalarApp = async function () {
     if (!deferredPrompt) {
-      showStatus('Seu navegador ainda não liberou a instalação automática por aqui. Procura por "Instalar app" ou "Adicionar à tela inicial" no menu (⋮ ou ⋯) do seu navegador.');
+      showStatus('Seu navegador ainda não liberou a instalação automática por aqui. Procura por "Instalar app" ou "Adicionar à tela inicial" no menu (⋮ ou ⋯) do seu navegador.', 'info');
       return;
     }
+    installBtn.disabled = true;
+    btnLabel.textContent = 'Instalando…';
+    installBtn.insertAdjacentHTML('beforeend', '<span class="spinner" aria-hidden="true"></span>');
+
     deferredPrompt.prompt();
     var choice = await deferredPrompt.userChoice;
     deferredPrompt = null;
+
+    var spinner = installBtn.querySelector('.spinner');
+    if (spinner) spinner.remove();
+    installBtn.disabled = false;
+    btnLabel.textContent = 'Instalar o App';
+
     if (choice.outcome === 'accepted') {
-      showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉');
+      showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉', 'success');
     } else {
-      showStatus('Tranquilo, você pode instalar quando quiser — o botão continua aqui.');
+      showStatus('Tranquilo, você pode instalar quando quiser — o botão continua aqui.', 'neutral');
     }
   };
 })();
