@@ -158,6 +158,14 @@
   font-size: 0.68rem;
   font-weight: 800;
 }
+.plano-features li.feature-bloqueada {
+  color: var(--text-3);
+}
+.plano-features li.feature-bloqueada::before {
+  content: '✕';
+  background: rgba(255,255,255,0.06);
+  color: var(--text-3);
+}
 
 /* ─── BOTÃO ASSINAR ─── */
 .btn-assinar {
@@ -378,6 +386,7 @@
       <li>Mais de 200 canais abertos e fechados</li>
       <li>App e site sem anúncios</li>
       <li>Baixe filmes e séries</li>
+      <li>📋 Crie listas personalizadas</li>
       <li>Suporte prioritário</li>
     </ul>
     <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/3ccvrnz_916550', 'Gold')">
@@ -402,6 +411,7 @@
       <li>Mais de 200 canais abertos e fechados</li>
       <li>App e site sem anúncios</li>
       <li>Baixe filmes e séries</li>
+      <li>📋 Crie listas personalizadas</li>
       <li>Suporte prioritário</li>
     </ul>
     <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/3dm4q7q', 'Casal')">
@@ -426,6 +436,7 @@
       <li>Mais de 200 canais abertos e fechados</li>
       <li>App e site sem anúncios</li>
       <li>Baixe filmes e séries</li>
+      <li>📋 Crie listas personalizadas</li>
       <li>Suporte prioritário</li>
     </ul>
     <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/53x84bm', 'Família')">
@@ -449,6 +460,7 @@
       <li>Mais de 200 canais abertos e fechados</li>
       <li>Baixe filmes e séries</li>
       <li style="color:var(--text-3)">⚠️ Anúncios no site e no app</li>
+      <li class="feature-bloqueada">🚫 Sem listas personalizadas</li>
       <li style="color:var(--text-3)">Suporte padrão</li>
     </ul>
     <a href="index.html" class="btn-assinar btn-assinar-gratis">

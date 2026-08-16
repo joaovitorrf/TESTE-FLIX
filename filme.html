@@ -154,6 +154,7 @@
           Assistir Agora
         </button>
         <button class="btn-secondary" id="favDetailBtn">🤍 Favoritar</button>
+        <button class="btn-secondary" id="listaDetailBtn">📋 Minha Lista</button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
         <button class="btn-watched" id="watchedBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
@@ -268,6 +269,18 @@
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
   import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
+  // Espelha o comentário/resposta numa coleção por usuário, pra poder
+  // listar "Meus Comentários" no perfil sem precisar varrer o site inteiro.
+  function espelharComentario(db, user, texto, contentName, isReply) {
+    addDoc(collection(db, "users", user.uid, "meusComentarios"), {
+      text: texto,
+      contentName: contentName,
+      tipo: "filme",
+      isReply: !!isReply,
+      ts: serverTimestamp()
+    }).catch(function(e) { console.warn("[Perfil] Falha ao espelhar comentário:", e); });
+  }
+
   function waitForAuth(cb, tries) {
     tries = tries || 0;
     if (window.PipocaAuth) { cb(); return; }
@@ -305,6 +318,7 @@
             photo: user.photoURL || "",
             ts: serverTimestamp()
           });
+          espelharComentario(db, user, text, contentName, false);
           document.getElementById("commentInput").value = "";
         } catch(e) { alert("Erro ao enviar comentário."); }
         this.disabled = false;
@@ -382,6 +396,7 @@
                 photo: currentUser.photoURL || "",
                 ts: serverTimestamp()
               });
+              espelharComentario(db, currentUser, replyText, contentName, true);
               document.getElementById("reply-input-" + commentId).value = "";
               document.getElementById("reply-form-" + commentId).style.display = "none";
             } catch(e) { alert("Erro ao enviar resposta."); }
@@ -454,6 +469,7 @@
 <script src="assets/js/progress.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script type="module" src="assets/js/listas.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
 <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
 <script src="assets/js/player.js"></script>
@@ -711,6 +727,15 @@ async function init() {
       const updateFavBtn=()=>{const isFav=window.PipocaFavoritos.has(item.nome);favBtn.textContent=isFav?'❤️ Na lista':'🤍 Favoritar';};
       updateFavBtn();
       favBtn.addEventListener('click',()=>{const added=window.PipocaFavoritos.toggle(item);showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');updateFavBtn();});
+    }
+
+    // Botão "Minha Lista" (Premium) — abre o seletor/criador de listas
+    const listaBtn=document.getElementById('listaDetailBtn');
+    if(listaBtn){
+      listaBtn.addEventListener('click',()=>{
+        if(!window.PipocaListas){ showToast('⚠️ Recurso indisponível no momento.'); return; }
+        window.PipocaListas.abrirSeletor({ nome:item.nome, capa:item.capa, isSerie:false });
+      });
     }
 
     // ── Poster Play Button ──

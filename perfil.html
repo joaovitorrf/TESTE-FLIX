@@ -215,6 +215,18 @@
       <div id="profileProgress" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px"></div>
     </div>
 
+    <!-- Meus Comentários -->
+    <div style="margin-bottom:32px">
+      <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0 0 14px">💬 Meus Comentários</h2>
+      <div id="profileComments" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <!-- Minhas Listas (Premium) -->
+    <div style="margin-bottom:32px">
+      <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0 0 14px">📋 Minhas Listas</h2>
+      <div id="profileListas"></div>
+    </div>
+
   </div>
 </main>
 
@@ -244,8 +256,12 @@
 <script src="assets/js/watched.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script type="module" src="assets/js/listas.js"></script>
 
 <script>
+// Toast
+function showToast(msg,ms=2500){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._pflixToastTimer);t._pflixToastTimer=setTimeout(function(){t.classList.remove('show');},ms);}
+
 // Tema
 (function(){
   var btn = document.getElementById('themeToggle');
@@ -388,6 +404,149 @@ waitForAuth(function() {
     }
   });
 });
+</script>
+
+<script type="module">
+  import { getFirestore, collection, query, orderBy, limit, getDocs }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+  import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+  function waitForAuth(cb, tries) {
+    tries = tries || 0;
+    if (window.PipocaAuth) { cb(); return; }
+    if (tries > 30) return;
+    setTimeout(function() { waitForAuth(cb, tries+1); }, 200);
+  }
+
+  function formatarData(ts) {
+    try {
+      var d = ts && typeof ts.toDate === 'function' ? ts.toDate() : null;
+      if (!d) return '';
+      return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    } catch(e) { return ''; }
+  }
+
+  function escapeHtml(s) {
+    return (s||'').replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  waitForAuth(function() {
+    var app = getApps()[0];
+    if (!app) return;
+    var db = getFirestore(app);
+
+    window.PipocaAuth.onAuthChanged(async function(user) {
+      if (!user) return;
+
+      // ── Meus Comentários ──
+      var commentsGrid = document.getElementById('profileComments');
+      if (commentsGrid) {
+        commentsGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Carregando...</p>';
+        try {
+          var q = query(collection(db, 'users', user.uid, 'meusComentarios'), orderBy('ts', 'desc'), limit(20));
+          var snap = await getDocs(q);
+          if (snap.empty) {
+            commentsGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Você ainda não comentou em nada. Comente num filme ou série pra aparecer aqui!</p>';
+          } else {
+            var todosConteudos = [];
+            try { if (window.PipocaAPI && window.PipocaAPI.getTodosConteudos) todosConteudos = await window.PipocaAPI.getTodosConteudos(); } catch(e) {}
+
+            commentsGrid.innerHTML = '';
+            snap.forEach(function(docSnap) {
+              var c = docSnap.data();
+              var page = c.tipo === 'serie' ? 'serie.html' : 'filme.html';
+              var conteudo = todosConteudos.find(function(x){ return x && x.nome === c.contentName; });
+              var capa = conteudo ? conteudo.capa : '';
+
+              var row = document.createElement('a');
+              row.href = page + '?nome=' + encodeURIComponent(c.contentName || '');
+              row.style.cssText = 'display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--panel);border:1px solid var(--border);border-radius:10px;text-decoration:none';
+              row.innerHTML =
+                (capa
+                  ? '<img src="' + capa + '" style="width:44px;height:64px;object-fit:cover;border-radius:6px;flex-shrink:0" loading="lazy">'
+                  : '<div style="width:44px;height:64px;border-radius:6px;flex-shrink:0;background:var(--card-hover);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎬</div>') +
+                '<div style="flex:1;min-width:0">' +
+                  '<div style="color:var(--text-1);font-weight:600;font-size:0.88rem;margin-bottom:2px">' + (c.isReply ? '↳ Resposta em ' : '') + escapeHtml(c.contentName || '') + '</div>' +
+                  '<div style="color:var(--text-2);font-size:0.85rem;line-height:1.4">' + escapeHtml(c.text || '') + '</div>' +
+                  '<div style="color:var(--text-3);font-size:0.75rem;margin-top:4px">' + formatarData(c.ts) + '</div>' +
+                '</div>';
+              commentsGrid.appendChild(row);
+            });
+          }
+        } catch(e) {
+          console.error('[Perfil] Erro ao carregar comentários:', e);
+          commentsGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Não foi possível carregar seus comentários agora.</p>';
+        }
+      }
+
+      // ── Minhas Listas (Premium) ──
+      var listasWrap = document.getElementById('profileListas');
+      if (listasWrap) {
+        listasWrap.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Carregando...</p>';
+        try {
+          var listas = window.PipocaListas ? await window.PipocaListas.getMinhasListas() : [];
+          if (!listas.length) {
+            listasWrap.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Você ainda não criou nenhuma lista. É um recurso Premium — <a href="planos.html" style="color:var(--red)">veja os planos</a>.</p>';
+          } else {
+            listasWrap.innerHTML = '';
+            listas.forEach(function(lista) {
+              var itens = Array.isArray(lista.itens) ? lista.itens : [];
+
+              var card = document.createElement('div');
+              card.style.cssText = 'background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px';
+
+              var header = document.createElement('div');
+              header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px';
+              header.innerHTML = '<div style="font-weight:700;color:var(--text-1);font-size:0.95rem">' + escapeHtml(lista.nome) +
+                ' <span style="color:var(--text-3);font-weight:400;font-size:0.8rem">(' + itens.length + ')</span></div>';
+
+              var delBtn = document.createElement('button');
+              delBtn.textContent = '🗑️';
+              delBtn.title = 'Excluir lista';
+              delBtn.style.cssText = 'background:none;border:none;color:var(--text-3);cursor:pointer;font-size:1rem;padding:4px';
+              delBtn.addEventListener('click', async function() {
+                if (!confirm('Excluir a lista "' + lista.nome + '"? Essa ação não pode ser desfeita.')) return;
+                try {
+                  await window.PipocaListas.excluirLista(lista.id);
+                  card.remove();
+                  showToast('🗑️ Lista excluída');
+                } catch(e) {
+                  console.error('[Perfil]', e);
+                  showToast('⚠️ Erro ao excluir a lista');
+                }
+              });
+              header.appendChild(delBtn);
+              card.appendChild(header);
+
+              var grid = document.createElement('div');
+              grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px';
+              if (!itens.length) {
+                grid.innerHTML = '<p style="color:var(--text-3);font-size:0.82rem;grid-column:1/-1;margin:0">Lista vazia — adicione filmes/séries pelo botão "📋 Minha Lista" na página deles.</p>';
+              } else {
+                itens.forEach(function(it) {
+                  var page = it.isSerie ? 'serie.html' : 'filme.html';
+                  var a = document.createElement('a');
+                  a.href = page + '?nome=' + encodeURIComponent(it.nome);
+                  a.style.cssText = 'display:block;border-radius:8px;overflow:hidden;background:var(--card-hover);text-decoration:none';
+                  a.innerHTML = it.capa
+                    ? '<img src="' + it.capa + '" style="width:100%;aspect-ratio:2/3;object-fit:cover" loading="lazy">'
+                    : '<div style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:0.65rem;padding:4px;text-align:center">' + escapeHtml(it.nome) + '</div>';
+                  grid.appendChild(a);
+                });
+              }
+              card.appendChild(grid);
+              listasWrap.appendChild(card);
+            });
+          }
+        } catch(e) {
+          console.error('[Perfil] Erro ao carregar listas:', e);
+          listasWrap.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Não foi possível carregar suas listas agora.</p>';
+        }
+      }
+    });
+  });
 </script>
 
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>

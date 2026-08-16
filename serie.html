@@ -149,6 +149,7 @@
           Ver Episódios
         </button>
         <button class="btn-secondary" id="favDetailBtn">🤍 Favoritar</button>
+        <button class="btn-secondary" id="listaDetailBtn">📋 Minha Lista</button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
         <button class="btn-watched" id="watchedBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
@@ -261,6 +262,18 @@
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
   import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
+  // Espelha o comentário/resposta numa coleção por usuário, pra poder
+  // listar "Meus Comentários" no perfil sem precisar varrer o site inteiro.
+  function espelharComentario(db, user, texto, contentName, isReply) {
+    addDoc(collection(db, "users", user.uid, "meusComentarios"), {
+      text: texto,
+      contentName: contentName,
+      tipo: "serie",
+      isReply: !!isReply,
+      ts: serverTimestamp()
+    }).catch(function(e) { console.warn("[Perfil] Falha ao espelhar comentário:", e); });
+  }
+
   function waitForAuth(cb, tries) {
     tries = tries || 0;
     if (window.PipocaAuth) { cb(); return; }
@@ -298,6 +311,7 @@
             photo: user.photoURL || "",
             ts: serverTimestamp()
           });
+          espelharComentario(db, user, text, contentName, false);
           document.getElementById("commentInput").value = "";
         } catch(e) { alert("Erro ao enviar comentário."); }
         this.disabled = false;
@@ -375,6 +389,7 @@
                 photo: currentUser.photoURL || "",
                 ts: serverTimestamp()
               });
+              espelharComentario(db, currentUser, replyText, contentName, true);
               document.getElementById("reply-input-" + commentId).value = "";
               document.getElementById("reply-form-" + commentId).style.display = "none";
             } catch(e) { alert("Erro ao enviar resposta."); }
@@ -447,6 +462,7 @@
 <script src="assets/js/progress.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
+<script type="module" src="assets/js/listas.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
 <script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
 <script src="assets/js/player.js"></script>
@@ -597,7 +613,51 @@ function renderCast(nomes,fotos){if(!nomes)return;const ns=nomes.split(',').map(
 
 function renderTemporadas(){const tabs=document.getElementById('seasonTabs'),nums=Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);if(!nums.length){document.getElementById('noEpsMsg').style.display='block';return;}tabs.innerHTML='';nums.forEach(t=>{const btn=document.createElement('button');btn.className='season-tab'+(t===temporadaAtual?' active':'');btn.textContent=`Temporada ${t}`;btn.setAttribute('role','tab');btn.setAttribute('aria-selected',t===temporadaAtual?'true':'false');btn.addEventListener('click',()=>{temporadaAtual=t;tabs.querySelectorAll('.season-tab').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false');});btn.classList.add('active');btn.setAttribute('aria-selected','true');renderEpisodios();});tabs.appendChild(btn);});renderEpisodios();}
 
-function renderEpisodios(){const lista=document.getElementById('episodesList'),eps=temporadasData[temporadaAtual]||[];lista.innerHTML='';if(!eps.length){lista.innerHTML='<p style="color:var(--text-3);padding:1rem 0">Sem episódios para esta temporada.</p>';return;}eps.forEach(ep=>{const btn=document.createElement('button');btn.className='episode-btn';btn.setAttribute('role','listitem');btn.innerHTML=`<span class="ep-num">${String(ep.episodio).padStart(2,'0')}</span><span class="ep-name">${nomeSerie} — T${ep.temporada} EP${ep.episodio}</span><span class="ep-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`;btn.addEventListener('click',()=>tocar(ep));lista.appendChild(btn);});}
+function renderEpisodios(){
+  const lista=document.getElementById('episodesList'),eps=temporadasData[temporadaAtual]||[];
+  lista.innerHTML='';
+  if(!eps.length){lista.innerHTML='<p style="color:var(--text-3);padding:1rem 0">Sem episódios para esta temporada.</p>';return;}
+  eps.forEach(ep=>{
+    const epId=`ep-${ep.temporada}-${ep.episodio}`;
+    const btn=document.createElement('button');
+    btn.className='episode-btn';
+    btn.setAttribute('role','listitem');
+    btn.innerHTML=`<span class="ep-num">${String(ep.episodio).padStart(2,'0')}</span>`+
+      `<span class="ep-thumb-wrap" id="${epId}-thumb"><span class="ep-thumb-placeholder">🎬</span></span>`+
+      `<span class="ep-info">`+
+        `<span class="ep-name" id="${epId}-name">${nomeSerie} — T${ep.temporada} EP${ep.episodio}</span>`+
+        `<span class="ep-sub">Temporada ${ep.temporada} · Episódio ${ep.episodio}</span>`+
+      `</span>`+
+      `<span class="ep-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`;
+    btn.addEventListener('click',()=>tocar(ep));
+    lista.appendChild(btn);
+  });
+  enriquecerEpisodiosTMDB(temporadaAtual);
+}
+
+// Busca nome + capa dos episódios no TMDB (via proxy) e "veste" os botões
+// já renderizados. A QUANTIDADE de episódios não muda — só vem da planilha.
+async function enriquecerEpisodiosTMDB(temporadaAlvo){
+  try{
+    const anoSerie = _serieItem ? _serieItem.ano : '';
+    const mapa = await PipocaAPI.getTmdbEpisodiosTemporada(nomeSerie, anoSerie, temporadaAlvo);
+    if(!mapa || Object.keys(mapa).length===0) return;
+    if(temporadaAlvo !== temporadaAtual) return; // usuário já trocou de aba, ignora resultado antigo
+    (temporadasData[temporadaAlvo]||[]).forEach(ep=>{
+      const info=mapa[ep.episodio];
+      if(!info) return;
+      const epId=`ep-${ep.temporada}-${ep.episodio}`;
+      const thumbWrap=document.getElementById(epId+'-thumb');
+      const nameEl=document.getElementById(epId+'-name');
+      if(thumbWrap && info.imagem){
+        thumbWrap.innerHTML=`<img class="ep-thumb" src="${info.imagem}" alt="${(info.nome||'').replace(/"/g,'')}" loading="lazy">`;
+      }
+      if(nameEl && info.nome){
+        nameEl.textContent=`${ep.episodio}. ${info.nome}`;
+      }
+    });
+  }catch(e){ console.warn('[Série] Erro ao enriquecer episódios via TMDB:', e); }
+}
 
 const REPRODUCTION_WORKER='https://shy-dream-7986.slacarambafdsosobrenome.workers.dev';
 function resolveVideoUrl(raw){if(!raw)return'';raw=raw.trim();if(raw.startsWith('http://')||raw.startsWith('https://'))return raw;return REPRODUCTION_WORKER+(raw.startsWith('/')?raw:'/'+raw);}
@@ -833,6 +893,15 @@ async function init(){
     // Botão favorito no detalhe
     const favBtn=document.getElementById('favDetailBtn');
     if(favBtn&&window.PipocaFavoritos){const updateFavBtn=()=>{const isFav=window.PipocaFavoritos.has(item.nome);favBtn.textContent=isFav?'❤️ Na lista':'🤍 Favoritar';};updateFavBtn();favBtn.addEventListener('click',()=>{const added=window.PipocaFavoritos.toggle(item);showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');updateFavBtn();});}
+
+    // Botão "Minha Lista" (Premium) — abre o seletor/criador de listas
+    const listaBtn=document.getElementById('listaDetailBtn');
+    if(listaBtn){
+      listaBtn.addEventListener('click',()=>{
+        if(!window.PipocaListas){ showToast('⚠️ Recurso indisponível no momento.'); return; }
+        window.PipocaListas.abrirSeletor({ nome:item.nome, capa:item.capa, isSerie:true });
+      });
+    }
 
     document.getElementById('scrollToEpsBtn').addEventListener('click',()=>document.getElementById('seasonsSection').scrollIntoView({behavior:'smooth'}));
 
