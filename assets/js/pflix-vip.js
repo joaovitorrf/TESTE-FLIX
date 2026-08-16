@@ -26,7 +26,17 @@
   }
 
   // Expõe status VIP globalmente para outras partes do site usarem
-  window.PipocaVIP = { ativo: false, plano: null };
+  // "pronto" indica que a checagem (cache ou Firestore) já terminou —
+  // outras partes do site (ex: listas.js) podem esperar por isso antes
+  // de decidir se liberam um recurso Premium.
+  window.PipocaVIP = { ativo: false, plano: null, pronto: false };
+
+  function marcarPronto() {
+    window.PipocaVIP.pronto = true;
+    document.dispatchEvent(new CustomEvent('pflix:vip-checado', {
+      detail: { ativo: window.PipocaVIP.ativo, plano: window.PipocaVIP.plano }
+    }));
+  }
 
   function matarAnuncios() {
     window.PipocaVIP.ativo = true;
@@ -104,6 +114,7 @@
       window.PipocaVIP.plano = cached.plano || null;
       if (cached.is_vip === true) matarAnuncios();
       else liberarAnuncios();
+      marcarPronto();
       return;
     }
 
@@ -113,10 +124,12 @@
 
     if (resultado.ativo) matarAnuncios();
     else liberarAnuncios();
+    marcarPronto();
   }
 
   function usuarioNaoLogado() {
     liberarAnuncios();
+    marcarPronto();
   }
 
   if (!window.__origOpen) window.__origOpen = window.open.bind(window);
@@ -140,6 +153,7 @@
       if (tentativas > 60) {
         clearInterval(intervalo);
         liberarAnuncios();
+        marcarPronto();
         return;
       }
       var auth = window.PipocaAuth;

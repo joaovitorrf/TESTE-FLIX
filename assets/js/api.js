@@ -399,3 +399,109 @@ async function getTop10Names() {
 }
 
 window.PipocaAPI.getTop10Names = getTop10Names;
+
+/* ─────────────────────────────────────────────
+   TMDB — títulos e capas de episódios
+   (via proxy Cloudflare Worker, sem expor api_key)
+
+   IMPORTANTE:
+   - A proxy só aceita requisições com Origin
+     "https://pipocaflix.fun". Em localhost ou em
+     previews da Vercel ela retorna 403 — nesse caso
+     as funções abaixo falham silenciosamente e o
+     site cai de volta pro título genérico (T1 EP1),
+     sem quebrar nada.
+   - A QUANTIDADE de episódios/temporadas nunca vem
+     daqui — continua vindo 100% da planilha via
+     getEpisodiosPorSerie(). O TMDB só é usado pra
+     "vestir" (nome + imagem) os episódios que a
+     planilha já determinou que existem.
+───────────────────────────────────────────── */
+const TMDB_PROXY_BASE = 'https://tmbdnewchame.canalpedroid.workers.dev';
+const TMDB_IMG_BASE   = 'https://image.tmdb.org/t/p/w300';
+const CACHE_TTL_TMDB_ID     = 24 * 60 * 60 * 1000; // 24h — id de uma série não muda
+const CACHE_TTL_TMDB_ID_NEG = 30 * 60 * 1000;      // 30min — cache curto quando não achou
+const CACHE_TTL_TMDB_TEMP   = 6  * 60 * 60 * 1000; // 6h — episódios de uma temporada
+
+async function tmdbFetch(path, params) {
+  const url = new URL(TMDB_PROXY_BASE + path);
+  url.searchParams.set('language', 'pt-BR');
+  if (params) {
+    Object.keys(params).forEach(k => {
+      if (params[k] !== undefined && params[k] !== null && params[k] !== '') {
+        url.searchParams.set(k, params[k]);
+      }
+    });
+  }
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(url.toString(), { signal: ctrl.signal, headers: { 'Accept': 'application/json' } });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+// Busca o ID da série no TMDB pelo nome (com cache).
+// Se "ano" for informado, prioriza resultado cujo ano de estreia bate.
+async function buscarTmdbIdSerie(nomeSerie, ano) {
+  const cacheKey = 'tmdb_id_' + normalizeStr(nomeSerie);
+  const cached = _cache[cacheKey];
+  if (cached && Date.now() - cached.ts < cached.ttl) {
+    return cached.data;
+  }
+
+  const data = await tmdbFetch('/3/search/tv', { query: nomeSerie });
+  const results = (data && Array.isArray(data.results)) ? data.results : [];
+
+  let escolhido = null;
+  if (results.length) {
+    if (ano) {
+      escolhido = results.find(r => (r.first_air_date || '').slice(0, 4) === String(ano).trim());
+    }
+    if (!escolhido) escolhido = results[0];
+  }
+
+  const id = escolhido ? escolhido.id : null;
+  _cache[cacheKey] = { data: id, ts: Date.now(), ttl: id ? CACHE_TTL_TMDB_ID : CACHE_TTL_TMDB_ID_NEG };
+  return id;
+}
+
+// Retorna um mapa { numeroDoEpisodio: { nome, imagem, sinopse } } pra uma temporada.
+// Nunca decide QUANTOS episódios existem — isso é papel da planilha.
+async function getTmdbEpisodiosTemporada(nomeSerie, ano, temporada) {
+  try {
+    const id = await buscarTmdbIdSerie(nomeSerie, ano);
+    if (!id) return {};
+
+    const cacheKey = 'tmdb_season_' + id + '_' + temporada;
+    const cached = _cache[cacheKey];
+    if (cached && Date.now() - cached.ts < CACHE_TTL_TMDB_TEMP) {
+      return cached.data;
+    }
+
+    const data = await tmdbFetch('/3/tv/' + id + '/season/' + temporada);
+    const episodios = (data && Array.isArray(data.episodes)) ? data.episodes : [];
+
+    const mapa = {};
+    episodios.forEach(ep => {
+      mapa[ep.episode_number] = {
+        nome:    ep.name || '',
+        imagem:  ep.still_path ? (TMDB_IMG_BASE + ep.still_path) : '',
+        sinopse: ep.overview || ''
+      };
+    });
+
+    _cache[cacheKey] = { data: mapa, ts: Date.now() };
+    return mapa;
+  } catch (e) {
+    console.warn('[TMDB] Falha ao buscar episódios:', e.message);
+    return {};
+  }
+}
+
+window.PipocaAPI.getTmdbEpisodiosTemporada = getTmdbEpisodiosTemporada;
