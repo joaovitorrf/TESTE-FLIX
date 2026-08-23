@@ -27,7 +27,7 @@
 })();
 </script>
 </head>
-<body>
+<body class="has-bottom-nav">
 <!-- ═══ SPLASH DE CARREGAMENTO — só aparece no app instalado (PWA), não no navegador ═══ -->
 <style>
   #pflixSplash {
@@ -189,6 +189,34 @@
   <a href="planos.html" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
 </div>
 
+<!-- ═══ MENU INFERIOR MOBILE (só na Home) ═══ -->
+<nav class="bottom-nav-mobile" id="bottomNavMobile" aria-label="Navegação inferior">
+  <a href="index.html" class="bottom-nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
+    </svg>
+    <span>Início</span>
+  </a>
+  <a href="Shorts.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/>
+    </svg>
+    <span>Shorts</span>
+  </a>
+  <a href="baixar.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v11m0 0l-4-4m4 4l4-4"/><path d="M4 20h16"/>
+    </svg>
+    <span>Baixar</span>
+  </a>
+  <a href="canais.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/>
+    </svg>
+    <span>TV Online</span>
+  </a>
+</nav>
+
 <!-- ═══ SEARCH RESULTS ═══ -->
 <div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados">
   <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
@@ -334,6 +362,22 @@
     <div class="carousel-track top10-track" id="top10Track"></div>
     <button class="carousel-arrow next" id="top10Next" aria-label="Próximo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ PLATAFORMAS DE STREAMING ═══ -->
+<section class="content-section platforms-section" id="platformsSection" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">📡 Plataformas de Streaming</h2>
+  </div>
+  <div class="platforms-grid" id="platformsGrid">
+    <div style="color:var(--text-3);padding:20px">Carregando plataformas...</div>
+  </div>
+  <div class="platforms-more-wrap" id="platformsMoreWrap" style="display:none">
+    <button class="platforms-more-btn" id="platformsMoreBtn">
+      Ver mais plataformas
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
     </button>
   </div>
 </section>
@@ -1301,13 +1345,64 @@ async function renderTop10(allContent) {
   top10.slice(0, 10).forEach(function(item, idx) {
     var card = mkCard(item);
     var rankBadge = document.createElement('div');
-    rankBadge.className = 'top10-rank';
+    rankBadge.className = 'top10-rank' + (idx === 0 ? ' top10-rank-gold' : '');
     rankBadge.textContent = idx + 1;
     var thumbWrap = card.querySelector('.card-thumb-wrap');
     if (thumbWrap) thumbWrap.appendChild(rankBadge);
     track.appendChild(card);
   });
   setupCarouselArrows('top10Track', 'top10Prev', 'top10Next');
+}
+
+// ── Plataformas de Streaming ──
+async function renderPlatforms() {
+  var section = document.getElementById('platformsSection');
+  var grid = document.getElementById('platformsGrid');
+  var moreWrap = document.getElementById('platformsMoreWrap');
+  var moreBtn = document.getElementById('platformsMoreBtn');
+  if (!section || !grid) return;
+
+  var list = [];
+  try { list = await window.PipocaAPI.getPlataformas(); } catch(e) {}
+
+  if (!list.length) { section.style.display = 'none'; return; }
+
+  section.style.display = '';
+  grid.innerHTML = '';
+
+  list.forEach(function(p, idx) {
+    var card = document.createElement('div');
+    card.className = 'platform-card' + (idx >= 10 ? ' platform-hidden' : '');
+    if (p.capa) {
+      card.style.backgroundImage = 'url(' + p.capa.replace(/'/g,"%27").replace(/"/g,'%22') + ')';
+    }
+    var overlay = document.createElement('div');
+    overlay.className = 'platform-card-overlay';
+    var name = document.createElement('div');
+    name.className = 'platform-card-name';
+    name.textContent = p.nome;
+    card.appendChild(overlay);
+    card.appendChild(name);
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('click', function() {
+      location.href = 'catalogo.html?plataforma=' + encodeURIComponent(p.nome);
+    });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') card.click();
+    });
+    grid.appendChild(card);
+  });
+
+  if (list.length > 10) {
+    moreWrap.style.display = 'flex';
+    moreBtn.addEventListener('click', function() {
+      grid.querySelectorAll('.platform-hidden').forEach(function(el) {
+        el.classList.remove('platform-hidden');
+      });
+      moreWrap.style.display = 'none';
+    });
+  }
 }
 
 // ── INIT ──
@@ -1334,6 +1429,7 @@ async function init() {
 
     renderHotSection(allContent);
     renderTop10(allContent); // async
+    renderPlatforms(); // async, independente do allContent
 
     // Lazy load para Romance, Ação, Terror (Tarefa 11)
     setupLazySection('romanceTrack','romance','romancePrev','romanceNext', allContent);

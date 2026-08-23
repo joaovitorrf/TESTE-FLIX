@@ -311,7 +311,7 @@
 <script>
 const PER_PAGE = 10;
 let allContent = [], filtered = [], currentPage = 1;
-let activeFilters = { tipo:'todos', cat:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[], letra:'todos', decada:'todos' };
+let activeFilters = { tipo:'todos', cat:null, plataforma:null, audio:'todos', yearMin:1980, yearMax:2025, sort:'default', cats:[], letra:'todos', decada:'todos' };
 let isFavMode = false;
 
 function showToast(msg,ms=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
@@ -470,6 +470,10 @@ function applyAllFilters() {
     if (activeFilters.cat) {
       const n = activeFilters.cat.toLowerCase();
       result = result.filter(c=>c.categoria&&c.categoria.toLowerCase().includes(n));
+    }
+    if (activeFilters.plataforma) {
+      const n = activeFilters.plataforma.toLowerCase().trim();
+      result = result.filter(c=>c.plataforma&&c.plataforma.toLowerCase().trim()===n);
     }
   }
 
@@ -657,9 +661,10 @@ function getEmoji(cat){if(!cat)return'🎬';const k=cat.toLowerCase().normalize(
 
 // ── INIT ──
 async function init() {
-  const tipo    = getParam('tipo') || 'todos';
-  const cat     = getParam('cat');
-  const lista   = getParam('lista');
+  const tipo       = getParam('tipo') || 'todos';
+  const cat        = getParam('cat');
+  const plataforma = getParam('plataforma');
+  const lista      = getParam('lista');
   isFavMode = lista === 'favoritos';
 
   if (isFavMode) {
@@ -673,6 +678,10 @@ async function init() {
     document.getElementById('catalogSidebar').style.display = 'none';
     document.getElementById('filterFab').style.display = 'none';
     document.getElementById('mainLayout').style.gridTemplateColumns = '1fr';
+  } else if (plataforma) {
+    document.getElementById('catPageIcon').textContent = '📡';
+    document.getElementById('catPageTitle').textContent = plataforma;
+    document.title = `${plataforma} — PipocaFlix`;
   } else if (cat) {
     document.getElementById('catPageIcon').textContent = getEmoji(cat);
     document.getElementById('catPageTitle').textContent = cat;
@@ -687,8 +696,9 @@ async function init() {
     document.title = 'Séries — PipocaFlix';
   }
 
-  activeFilters.tipo = cat ? 'todos' : tipo;
-  activeFilters.cat  = cat || null;
+  activeFilters.tipo       = (cat || plataforma) ? 'todos' : tipo;
+  activeFilters.cat        = cat || null;
+  activeFilters.plataforma = plataforma || null;
 
   if (!isFavMode) setupTypeFilters(cat ? 'todos' : tipo);
 
