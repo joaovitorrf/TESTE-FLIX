@@ -169,6 +169,7 @@ function mapFilme(row) {
     player4:      row[18] || '',  // coluna S — player alternativo 4 (iframe)
     player5:      row[19] || '',  // coluna T — player alternativo 5 (iframe)
     backdrop:     row[20] || '',  // coluna U — imagem paisagem para hero desktop
+    plataforma:   row[24] || '',  // coluna Y — plataforma de streaming
     isSerie:      false
   };
 }
@@ -189,6 +190,7 @@ function mapSerie(row) {
     audio:      row[12] || '',
     totalTemp:  row[13] || '1',
     backdrop:   row[20] || '',  // coluna U — imagem paisagem para hero desktop
+    plataforma: row[24] || '',  // coluna Y — plataforma de streaming (se a aba de séries tiver essa coluna)
     isSerie:    true
   };
 }
@@ -399,6 +401,38 @@ async function getTop10Names() {
 }
 
 window.PipocaAPI.getTop10Names = getTop10Names;
+
+/* ─────────────────────────────────────────────
+   getPlataformas — busca a aba de Plataformas
+   Coluna A (a partir da linha 2): nome da plataforma
+   Coluna B (a partir da linha 2): link da capa/logo
+───────────────────────────────────────────── */
+const PLATAFORMAS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=1359259950';
+const CACHE_TTL_PLATAFORMAS = 10 * 60 * 1000;
+
+async function getPlataformas() {
+  const cacheKey = 'plataformas_csv';
+  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_PLATAFORMAS) {
+    return _cache[cacheKey].data;
+  }
+  try {
+    const res = await fetch(PLATAFORMAS_CSV_URL);
+    const text = await res.text();
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+    const rows = lines.slice(1).map(parseCSVLine).filter(r => r && r[0] && r[0].trim());
+    const data = rows.map(row => ({
+      nome: (row[0] || '').trim(),
+      capa: (row[1] || '').trim(),
+    })).filter(p => p.nome);
+    _cache[cacheKey] = { data, ts: Date.now() };
+    return data;
+  } catch (e) {
+    console.error('[API] getPlataformas error:', e);
+    return [];
+  }
+}
+
+window.PipocaAPI.getPlataformas = getPlataformas;
 
 /* ─────────────────────────────────────────────
    TMDB — títulos e capas de episódios
