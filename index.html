@@ -367,17 +367,17 @@
 </section>
 
 <!-- ═══ PLATAFORMAS DE STREAMING ═══ -->
-<section class="content-section platforms-section" id="platformsSection" style="display:none">
+<section class="content-section" id="platformsSection" style="display:none">
   <div class="section-header">
     <h2 class="section-title">📡 Plataformas de Streaming</h2>
   </div>
-  <div class="platforms-grid" id="platformsGrid">
-    <div style="color:var(--text-3);padding:20px">Carregando plataformas...</div>
-  </div>
-  <div class="platforms-more-wrap" id="platformsMoreWrap" style="display:none">
-    <button class="platforms-more-btn" id="platformsMoreBtn">
-      Ver mais plataformas
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+  <div class="carousel-wrap">
+    <button class="carousel-arrow prev" id="platformsPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="carousel-track platforms-track" id="platformsTrack"></div>
+    <button class="carousel-arrow next" id="platformsNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
 </section>
@@ -1357,10 +1357,8 @@ async function renderTop10(allContent) {
 // ── Plataformas de Streaming ──
 async function renderPlatforms() {
   var section = document.getElementById('platformsSection');
-  var grid = document.getElementById('platformsGrid');
-  var moreWrap = document.getElementById('platformsMoreWrap');
-  var moreBtn = document.getElementById('platformsMoreBtn');
-  if (!section || !grid) return;
+  var track = document.getElementById('platformsTrack');
+  if (!section || !track) return;
 
   var list = [];
   try { list = await window.PipocaAPI.getPlataformas(); } catch(e) {}
@@ -1368,11 +1366,11 @@ async function renderPlatforms() {
   if (!list.length) { section.style.display = 'none'; return; }
 
   section.style.display = '';
-  grid.innerHTML = '';
+  track.innerHTML = '';
 
-  list.forEach(function(p, idx) {
+  list.forEach(function(p) {
     var card = document.createElement('div');
-    card.className = 'platform-card' + (idx >= 10 ? ' platform-hidden' : '');
+    card.className = 'platform-card';
     if (p.capa) {
       card.style.backgroundImage = 'url(' + p.capa.replace(/'/g,"%27").replace(/"/g,'%22') + ')';
     }
@@ -1391,18 +1389,10 @@ async function renderPlatforms() {
     card.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') card.click();
     });
-    grid.appendChild(card);
+    track.appendChild(card);
   });
 
-  if (list.length > 10) {
-    moreWrap.style.display = 'flex';
-    moreBtn.addEventListener('click', function() {
-      grid.querySelectorAll('.platform-hidden').forEach(function(el) {
-        el.classList.remove('platform-hidden');
-      });
-      moreWrap.style.display = 'none';
-    });
-  }
+  setupCarouselArrows('platformsTrack', 'platformsPrev', 'platformsNext');
 }
 
 // ── INIT ──
