@@ -16,7 +16,9 @@
   ],
   "rewrites": [
     { "source": "/filmes/:slug", "destination": "/filmes/:slug.html" },
-    { "source": "/series/:slug", "destination": "/series/:slug.html" }
+    { "source": "/series/:slug", "destination": "/series/:slug.html" },
+    { "source": "/Shorts", "destination": "https://reproduvideocurto.canalpedroid.workers.dev/Shorts" },
+    { "source": "/Shorts/:path*", "destination": "https://reproduvideocurto.canalpedroid.workers.dev/Shorts/:path*" }
   ],
   "cleanUrls": true
 }
