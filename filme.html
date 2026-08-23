@@ -18,7 +18,7 @@
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
-<body>
+<body class="has-bottom-nav">
 <script src="assets/js/avisos.js" defer></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -127,6 +127,28 @@
 
   <a href="suporte.html">🎫 Suporte</a></div>
 
+<!-- ═══ MENU INFERIOR MOBILE ═══ -->
+<nav class="bottom-nav-mobile" id="bottomNavMobile" aria-label="Navegação inferior">
+  <a href="index.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
+    </svg>
+    <span>Início</span>
+  </a>
+  <a href="Shorts.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/>
+    </svg>
+    <span>Shorts</span>
+  </a>
+  <a href="canais.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/>
+    </svg>
+    <span>TV Online</span>
+  </a>
+</nav>
+
 <div class="search-results-overlay" id="searchResultsOverlay">
   <p class="search-results-label">Resultados para: <strong id="searchQueryLabel"></strong></p>
   <div class="cards-grid" id="searchResultsGrid"></div>
@@ -164,6 +186,22 @@
     </div>
   </div>
 </section>
+
+<!-- Banner in-content (realocado do duplicado que ficava escondido embaixo do fixo) -->
+<div class="ad-mid-content">
+<script>
+(function(dmiy){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = dmiy || {};
+s.src = "//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+</div>
 
 <!-- Player Section -->
 <section class="player-section" id="playerSection" style="display:none">
@@ -996,21 +1034,6 @@ s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})
 </script>
-<!-- Banner Mobile Ad -->
-<div class="mobile-banner-ad">
-<script>
-(function(dmiy){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = dmiy || {};
-s.src = "//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
-</div>
 <!-- Mobile Banner Ad (novo) -->
 <div class="mobile-banner-ad" id="mobileBannerAdNew">
 <script>
