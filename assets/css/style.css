@@ -1353,6 +1353,8 @@ input { font-family: var(--font-body); }
   width: 0%;
   pointer-events: none;
   box-shadow: 0 0 8px var(--red-glow);
+  position: relative;
+  z-index: 2;
 }
 
 .player-ctrl-row {
@@ -1388,7 +1390,6 @@ input { font-family: var(--font-body); }
   .player-ctrl-row { gap: 4px; }
   .ctrl-btn { width: 28px; height: 28px; min-width: 28px; }
   .ctrl-btn svg { width: 14px; height: 14px; }
-  .ctrl-boost-btn, .ctrl-shot-btn { display: none !important; }
   .ctrl-pip-btn, .ctrl-cast-btn { width: 26px; height: 26px; min-width: 26px; }
   .player-header { padding: 10px 12px; }
   .player-header-title { font-size: 0.82rem; }
@@ -1397,6 +1398,436 @@ input { font-family: var(--font-body); }
   .ctrl-btn { width: 26px; height: 26px; min-width: 26px; }
   .ctrl-btn svg { width: 13px; height: 13px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PLAYER — upgrades v5.0 (HLS/legendas/buffer/preview/próximo ep)
+   Tudo aqui usa os tokens do :root — nada de cor/raio hardcoded,
+   pra acompanhar automaticamente qualquer ajuste de paleta futuro.
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Ícones dos botões (SVG puro, sem fill/width fixos no JS) ── */
+.ctrl-btn svg { fill: #fff; }
+.ctrl-btn { color: #fff; font-family: var(--font-body); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.2px; }
+.ctrl-cast-btn svg { fill: currentColor; } /* mantém o esquema dim→branco→pulso vermelho já definido pro cast */
+
+/* ── OSD central: feedback de atalho de teclado (play/pause/volume) ── */
+.player-toast-inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: rgba(10,10,14,0.82);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-pill);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 18;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+  box-shadow: var(--shadow-card);
+}
+.player-toast-inner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.player-toast-icon { width: 18px; height: 18px; display: flex; }
+.player-toast-icon svg { width: 100%; height: 100%; fill: var(--text-1); }
+
+/* ── Feedback de toque ±10s (dois toques nas laterais do vídeo) ── */
+.player-tap-feedback {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.85);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 14px 18px;
+  background: rgba(10,10,14,0.55);
+  border-radius: 50%;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 13;
+  transition: opacity 0.22s var(--ease), transform 0.22s var(--ease);
+}
+.player-tap-feedback--left { left: 12%; }
+.player-tap-feedback--right { right: 12%; }
+.player-tap-feedback.show { opacity: 1; transform: translateY(-50%) scale(1); }
+.player-tap-feedback svg { width: 22px; height: 22px; fill: #fff; }
+
+/* ── Barra de progresso: buffer + thumb + tooltip + preview ── */
+.player-progress-buffered {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0%;
+  background: var(--gold-soft);
+  border-radius: 2px;
+  z-index: 1;
+  pointer-events: none;
+  transition: width var(--t-fast);
+}
+.player-progress-thumb {
+  position: absolute;
+  right: -6px; top: 50%;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateY(-50%) scale(0);
+  transition: transform var(--t-fast);
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+.player-progress:hover .player-progress-thumb { transform: translateY(-50%) scale(1); }
+.player-progress-tooltip {
+  position: absolute;
+  bottom: 16px;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-fast);
+  z-index: 4;
+}
+.player-progress:hover .player-progress-tooltip { opacity: 1; }
+.player-progress-preview {
+  position: absolute;
+  bottom: 38px;
+  transform: translateX(-50%);
+  width: 160px; height: 90px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+  background: var(--deep);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-fast);
+  z-index: 4;
+}
+.player-progress:hover .player-progress-preview.has-frame { opacity: 1; }
+.player-progress-preview canvas { width: 100%; height: 100%; display: block; }
+
+/* ── Buffering: spinner central (some quando o vídeo volta a rodar) ── */
+.player-container::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 40px; height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: var(--red);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 16;
+  transition: opacity var(--t-fast);
+}
+.player-container.buffering::after { opacity: 1; animation: pflix-spin 0.9s linear infinite; }
+@keyframes pflix-spin { to { transform: rotate(360deg); } }
+
+/* ── Volume ── */
+.ctrl-vol-wrap { display: flex; align-items: center; }
+.ctrl-vol-slider-wrap {
+  width: 0;
+  overflow: hidden;
+  transition: width var(--t-normal);
+  display: flex; align-items: center;
+}
+.ctrl-vol-wrap:hover .ctrl-vol-slider-wrap,
+.ctrl-vol-wrap:focus-within .ctrl-vol-slider-wrap { width: 72px; }
+.ctrl-vol-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 64px; height: 3px; margin-left: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px; outline: none; cursor: pointer;
+}
+.ctrl-vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--red); cursor: pointer;
+  box-shadow: 0 0 6px var(--red-glow);
+}
+.ctrl-vol-slider::-moz-range-thumb {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--red); border: none; cursor: pointer;
+  box-shadow: 0 0 6px var(--red-glow);
+}
+
+/* ── Menu popup genérico (reaproveitado por Legendas/Qualidade/Velocidade) ── */
+.ctrl-popup { position: relative; }
+.ctrl-popup-btn { min-width: 32px; padding: 0 6px; }
+.ctrl-popup-menu {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  min-width: 130px;
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-card);
+  padding: 6px;
+  display: flex; flex-direction: column; gap: 2px;
+  opacity: 0; transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+  z-index: 30;
+}
+.ctrl-popup.open .ctrl-popup-menu { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.ctrl-popup-option {
+  background: none; border: none;
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+  white-space: nowrap;
+}
+.ctrl-popup-option:hover { background: var(--card-hover); color: var(--text-1); }
+.ctrl-popup-option.active { color: var(--gold); font-weight: 700; }
+.ctrl-cc.cc-active .ctrl-popup-btn svg { fill: var(--gold); }
+
+/* ── Menu "mais opções" (⋮) — some por trás do botão em telas estreitas ── */
+.ctrl-more-btn { display: none; }
+.ctrl-more-panel { display: contents; }
+.ctrl-more-wrap { position: relative; }
+@media (max-width: 500px) {
+  .ctrl-more-btn { display: flex; }
+  .ctrl-more-panel { display: none; }
+  .ctrl-more-wrap.open .ctrl-more-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 0;
+    background: var(--panel);
+    border: 1px solid var(--border-light);
+    border-radius: var(--r-sm);
+    box-shadow: var(--shadow-card);
+    padding: 6px;
+    z-index: 30;
+    min-width: 140px;
+  }
+  .ctrl-more-wrap.open .ctrl-more-panel .ctrl-btn,
+  .ctrl-more-wrap.open .ctrl-more-panel .ctrl-popup { width: 100%; }
+  .ctrl-more-wrap.open .ctrl-more-panel .ctrl-popup-menu { position: static; opacity: 1; transform: none; pointer-events: auto; box-shadow: none; border: none; padding: 4px 0 0; }
+  .ctrl-more-wrap.open .ctrl-more-panel .ctrl-popup.open .ctrl-popup-menu { display: flex; }
+  .ctrl-more-wrap.open .ctrl-more-panel .ctrl-popup .ctrl-popup-menu { display: none; }
+}
+
+/* ── Badge VIP dourado no header (só aparece pra quem tem VIP ativo) ── */
+.player-header-vip-badge {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, var(--gold), #ffdd6b);
+  color: #1a1400;
+  box-shadow: 0 0 14px var(--gold-soft);
+}
+
+/* ── Próximo episódio: miniatura + anel de contagem regressiva ── */
+.next-ep-card {
+  position: absolute;
+  right: 16px; bottom: 84px;
+  width: min(320px, calc(100% - 32px));
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-float);
+  padding: 12px;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity var(--t-normal), transform var(--t-normal);
+  z-index: 17;
+}
+.next-ep-card.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.next-ep-cancel {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--card-hover);
+  border: 1px solid var(--border-light);
+  color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.next-ep-cancel:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.next-ep-cancel svg { width: 11px; height: 11px; }
+.next-ep-thumb-wrap {
+  width: 92px; height: 52px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--card-hover);
+}
+.next-ep-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+.next-ep-body { flex: 1; min-width: 0; }
+.next-ep-label {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+.next-ep-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-1);
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  margin-bottom: 8px;
+}
+.next-ep-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 6px 12px 6px 6px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+.next-ep-btn:hover { background: var(--red-dim); }
+.next-ep-btn svg:last-child { width: 12px; height: 12px; flex-shrink: 0; }
+.next-ep-ring { width: 22px; height: 22px; flex-shrink: 0; transform: rotate(-90deg); }
+.next-ep-ring-bg, .next-ep-ring-progress {
+  fill: none; stroke-width: 3;
+}
+.next-ep-ring-bg { stroke: rgba(255,255,255,0.25); }
+.next-ep-ring-progress {
+  stroke: var(--gold);
+  stroke-linecap: round;
+  stroke-dasharray: 126;
+  stroke-dashoffset: 0;
+}
+.next-ep-card.counting .next-ep-ring-progress {
+  animation-name: next-ep-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes next-ep-countdown { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 126; } }
+
+@media (max-width: 500px) {
+  .next-ep-card { right: 8px; left: 8px; width: auto; bottom: 76px; }
+}
+
+/* ── Respeita "reduzir movimento" do sistema ── */
+@media (prefers-reduced-motion: reduce) {
+  .player-toast-inner, .player-tap-feedback, .next-ep-card,
+  .ctrl-popup-menu, .ctrl-vol-slider-wrap, .player-progress-thumb,
+  .player-progress-tooltip, .player-progress-preview, .player-controls,
+  .player-header, .player-center-controls { transition: none !important; }
+  .player-container.buffering::after,
+  .next-ep-card.counting .next-ep-ring-progress,
+  .ctrl-cast-btn.casting { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANÚNCIO VAST — mesma linguagem visual do player (antes usava
+   sans-serif genérica e cantos quadrados, destoando do resto)
+═══════════════════════════════════════════════════════════════ */
+.vast-ad-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+}
+.vast-ad-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.vast-ad-bar {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.9), transparent);
+  z-index: 2;
+}
+.vast-ad-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-2);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border-light);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.3px;
+}
+.vast-ad-skip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border-light);
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: var(--r-pill);
+  cursor: not-allowed;
+  transition: all var(--t-fast);
+}
+.vast-ad-skip.can-skip {
+  background: var(--red);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 16px var(--red-glow);
+}
+.vast-ad-skip.can-skip:hover { background: var(--red-dim); }
+.vast-ad-skip svg { width: 13px; height: 13px; }
+.vast-ad-tap {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.55);
+  cursor: pointer;
+  text-align: center;
+  padding: 1.5rem;
+  z-index: 10;
+}
+.vast-ad-tap-icon {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 40px var(--red-glow);
+}
+.vast-ad-tap-icon svg { width: 26px; height: 26px; fill: #fff; margin-left: 3px; }
+.vast-ad-tap-title { font-family: var(--font-display); font-weight: 700; color: var(--text-1); font-size: 1rem; }
+.vast-ad-tap-sub { font-size: 0.8rem; color: var(--text-3); }
 
 /* ═══════════════════════════════════════════════════════════════
    TRAILER
