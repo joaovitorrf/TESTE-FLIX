@@ -14,14 +14,15 @@ window.PipocaProgress = (function () {
     return PREFIX + (titulo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '_');
   }
 
-  function save(titulo, currentTime, duration, capa, tipo) {
+  function save(titulo, currentTime, duration, capa, tipo, serieNome) {
     if (!titulo || !duration) return;
     const pct = currentTime / duration;
     if (pct >= 0.95) { remove(titulo); return; }
     if (currentTime < 10) return;
     try {
       localStorage.setItem(_key(titulo), JSON.stringify({
-        titulo, currentTime, duration, pct, capa: capa || '', tipo: tipo || 'filme', ts: Date.now()
+        titulo, currentTime, duration, pct, capa: capa || '', tipo: tipo || 'filme',
+        serieNome: serieNome || '', ts: Date.now()
       }));
     } catch (e) {}
   }

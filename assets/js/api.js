@@ -170,6 +170,7 @@ function mapFilme(row) {
     player5:      row[19] || '',  // coluna T — player alternativo 5 (iframe)
     backdrop:     row[20] || '',  // coluna U — imagem paisagem para hero desktop
     plataforma:   row[24] || '',  // coluna Y — plataforma de streaming
+    legendas:     row[25] || '',  // coluna Z — legendas (opcional). Formato: "Rótulo:idioma:url|Rótulo2:idioma2:url2"
     isSerie:      false
   };
 }
@@ -191,6 +192,7 @@ function mapSerie(row) {
     totalTemp:  row[13] || '1',
     backdrop:   row[20] || '',  // coluna U — imagem paisagem para hero desktop
     plataforma: row[24] || '',  // coluna Y — plataforma de streaming (se a aba de séries tiver essa coluna)
+    legendas:   row[25] || '',  // coluna Z — legendas padrão da série (opcional, mesmo formato de mapFilme)
     isSerie:    true
   };
 }
@@ -207,7 +209,28 @@ function mapEpisodio(row) {
     player4:   (row[7] || '').trim(),   // coluna H
     player5:   (row[8] || '').trim(),   // coluna I
     player6:   (row[9] || '').trim(),   // coluna J
+    legendas:  (row[10] || '').trim(),  // coluna K — legendas específicas do episódio (opcional)
   };
+}
+
+/* ─────────────────────────────────────────────
+   parseLegendas — converte a string da planilha em
+   faixas utilizáveis pelo player.
+   Formato aceito: "Rótulo:idioma:url|Rótulo2:idioma2:url2"
+   Ex: "Português:pt-BR:https://cdn.site.com/pt.vtt"
+   Linhas mal formadas são ignoradas silenciosamente.
+───────────────────────────────────────────── */
+function parseLegendas(str) {
+  if (!str || !str.trim()) return [];
+  return str.split('|').map(function (part) {
+    var bits = part.split(':');
+    if (bits.length < 3) return null;
+    var label = (bits[0] || '').trim();
+    var lang = (bits[1] || '').trim();
+    var url = bits.slice(2).join(':').trim(); // rejunta o resto (a url pode ter "://")
+    if (!label || !lang || !url) return null;
+    return { label: label, lang: lang, src: url };
+  }).filter(Boolean);
 }
 
 /* ─────────────────────────────────────────────
@@ -401,6 +424,7 @@ async function getTop10Names() {
 }
 
 window.PipocaAPI.getTop10Names = getTop10Names;
+window.PipocaAPI.parseLegendas = parseLegendas;
 
 /* ─────────────────────────────────────────────
    getPlataformas — busca a aba de Plataformas
