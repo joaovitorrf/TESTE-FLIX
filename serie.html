@@ -14,7 +14,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
 <link rel="stylesheet" href="assets/css/style.css">
-<link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
@@ -186,7 +185,7 @@
 <section class="player-section" id="playerSection" style="display:none">
   <p class="player-section-title" id="playerSectionTitle">🎬 Player</p>
   <div class="player-container" id="playerBox" style="display:none">
-    <video id="video" class="video-js" preload="metadata" playsinline crossorigin="anonymous"></video>
+    <video id="video" preload="metadata" playsinline crossorigin="anonymous"></video>
 
     <!-- Header: voltar + título (some junto com os controles) -->
     <div class="player-header" id="playerHeader">
@@ -486,7 +485,6 @@
 <script src="assets/js/search.js"></script>
 <script type="module" src="assets/js/listas.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
-<script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
 <script src="assets/js/player.js"></script>
 <script>
 
@@ -521,32 +519,32 @@ function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
   /* ── Overlay de tela cheia ── */
   var ov=document.createElement('div');
   ov.id='vastAdOverlay';
-  ov.style.cssText='position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+  ov.className='vast-ad-overlay';
 
   /* ── Vídeo ── */
   var vid=document.createElement('video');
-  vid.style.cssText='width:100%;max-height:100vh;display:block;background:#000';
+  vid.className='vast-ad-video';
   vid.src=mp4Url; vid.playsInline=true; vid.controls=false;
 
   /* ── Barra superior ── */
   var bar=document.createElement('div');
-  bar.style.cssText='position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+  bar.className='vast-ad-bar';
   var lbl=document.createElement('span');
+  lbl.className='vast-ad-label';
   lbl.textContent='Anúncio';
-  lbl.style.cssText='background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
   var skip=document.createElement('button');
+  skip.className='vast-ad-skip';
   skip.textContent='Aguarde...'; skip.disabled=true;
-  skip.style.cssText='background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
   bar.appendChild(lbl); bar.appendChild(skip);
   ov.appendChild(bar); ov.appendChild(vid);
 
   /* ── Tela de toque para mobile (iOS bloqueia autoplay sem gesto direto) ── */
   if(isMobile){
     var tap=document.createElement('div');
-    tap.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
-    tap.innerHTML='<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 0 32px rgba(255,45,67,0.5)"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
-      +'<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.8)">Toque para continuar</div>'
-      +'<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o episódio começará</div>';
+    tap.className='vast-ad-tap';
+    tap.innerHTML='<div class="vast-ad-tap-icon"><svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M8 5v14l11-7z"/></svg></div>'
+      +'<div class="vast-ad-tap-title">Toque para continuar</div>'
+      +'<div class="vast-ad-tap-sub">Assista ao anúncio e o episódio começará</div>';
     ov.appendChild(tap);
     tap.addEventListener('click',function(){
       tap.style.display='none';
@@ -590,8 +588,8 @@ function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
     } else if(!canSkip){
       canSkip=true;
       skip.textContent='⏭ Pular anúncio';
-      skip.disabled=false; skip.style.cursor='pointer';
-      skip.style.background='rgba(255,255,255,0.25)';
+      skip.disabled=false;
+      skip.classList.add('can-skip');
     }
     [{k:'firstQuartile',t:0.25},{k:'midpoint',t:0.5},{k:'thirdQuartile',t:0.75}].forEach(function(ev){
       if(!qf[ev.k]&&pct>=ev.t){ qf[ev.k]=true; track(ev.k); }
@@ -746,7 +744,7 @@ function showEpisodePlayerButtons(ep, titulo, videoUrl) {
     btn1.addEventListener('click', function() {
       fecharIframes();
       if (!seriePlayer) return;
-      seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '');
+      seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '', PipocaAPI.parseLegendas(ep.legendas || (_serieItem ? _serieItem.legendas : '') || ''));
       document.getElementById('playerBox').style.display = 'block';
       document.getElementById('playerBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
@@ -797,13 +795,33 @@ function tocar(ep){
     const eps = temporadasData[ep.temporada] || [];
     const idxAtual = eps.findIndex(e => e.episodio === ep.episodio);
     const proxEp = eps[idxAtual + 1];
+
+    // Busca a miniatura real do próximo episódio no TMDB (mesma fonte já usada
+    // na lista de episódios) e atualiza o cartão assim que chegar — o cartão
+    // já aparece com um fallback (capa da série) enquanto isso.
+    function buscarThumbEEnviar(epAlvo) {
+      const anoSerie = _serieItem ? _serieItem.ano : '';
+      PipocaAPI.getTmdbEpisodiosTemporada(nomeSerie, anoSerie, epAlvo.temporada).then(mapa => {
+        const info = mapa && mapa[epAlvo.episodio];
+        if (!info) return;
+        seriePlayer.updateNextEpMeta({
+          label: info.nome ? (epAlvo.episodio + '. ' + info.nome) : undefined,
+          thumb: info.imagem || undefined
+        });
+      }).catch(() => {});
+    }
+
     if (proxEp) {
-      seriePlayer.setNextEpCallback(function() { tocar(proxEp); });
+      const meta = { label: nomeSerie + ' — T' + proxEp.temporada + ' EP' + proxEp.episodio, thumb: _serieItem ? _serieItem.capa : '' };
+      seriePlayer.setNextEpCallback(function() { tocar(proxEp); }, meta);
+      buscarThumbEEnviar(proxEp);
     } else {
       const nums = Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);
       const idxTemp = nums.indexOf(ep.temporada);
       const proxTemp = nums[idxTemp + 1];
       if (proxTemp && temporadasData[proxTemp] && temporadasData[proxTemp].length > 0) {
+        const primeiroProxTemp = temporadasData[proxTemp][0];
+        const meta = { label: nomeSerie + ' — T' + primeiroProxTemp.temporada + ' EP' + primeiroProxTemp.episodio, thumb: _serieItem ? _serieItem.capa : '' };
         seriePlayer.setNextEpCallback(function() {
           temporadaAtual = proxTemp;
           document.querySelectorAll('.season-tab').forEach(b => {
@@ -813,7 +831,8 @@ function tocar(ep){
           });
           renderEpisodios();
           tocar(temporadasData[proxTemp][0]);
-        });
+        }, meta);
+        buscarThumbEEnviar(primeiroProxTemp);
       } else {
         seriePlayer.setNextEpCallback(null);
       }

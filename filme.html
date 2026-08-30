@@ -14,7 +14,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
 <link rel="stylesheet" href="assets/css/style.css">
-<link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
@@ -207,7 +206,7 @@ l.parentNode.insertBefore(s, l);
 <section class="player-section" id="playerSection" style="display:none">
   <p class="player-section-title">🎬 Player</p>
   <div class="player-container" id="playerBox" style="display:none">
-    <video id="video" class="video-js" preload="metadata" playsinline></video>
+    <video id="video" preload="metadata" playsinline></video>
 
     <!-- Header: voltar + título (some junto com os controles) -->
     <div class="player-header" id="playerHeader">
@@ -509,7 +508,6 @@ l.parentNode.insertBefore(s, l);
 <script src="assets/js/search.js"></script>
 <script type="module" src="assets/js/listas.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
-<script src="https://vjs.zencdn.net/8.23.4/video.min.js"></script>
 <script src="assets/js/player.js"></script>
 <script>
 
@@ -541,26 +539,26 @@ function runVAST(onComplete) {
 function showVASTPlayer(mp4Url, doc, onComplete, isMobile){
   var ov = document.createElement('div');
   ov.id = 'vastAdOverlay';
-  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
+  ov.className = 'vast-ad-overlay';
   var vid = document.createElement('video');
-  vid.style.cssText = 'width:100%;max-height:100vh;display:block;background:#000';
+  vid.className = 'vast-ad-video';
   vid.src = mp4Url; vid.playsInline = true; vid.controls = false;
   var bar = document.createElement('div');
-  bar.style.cssText = 'position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
+  bar.className = 'vast-ad-bar';
   var lbl = document.createElement('span');
+  lbl.className = 'vast-ad-label';
   lbl.textContent = 'Anúncio';
-  lbl.style.cssText = 'background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
   var skip = document.createElement('button');
+  skip.className = 'vast-ad-skip';
   skip.textContent = 'Aguarde...'; skip.disabled = true;
-  skip.style.cssText = 'background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
   bar.appendChild(lbl); bar.appendChild(skip);
   ov.appendChild(bar); ov.appendChild(vid);
   if(isMobile){
     var tap = document.createElement('div');
-    tap.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
-    tap.innerHTML = '<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
-      + '<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif">Toque para continuar</div>'
-      + '<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o filme começará</div>';
+    tap.className = 'vast-ad-tap';
+    tap.innerHTML = '<div class="vast-ad-tap-icon"><svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M8 5v14l11-7z"/></svg></div>'
+      + '<div class="vast-ad-tap-title">Toque para continuar</div>'
+      + '<div class="vast-ad-tap-sub">Assista ao anúncio e o filme começará</div>';
     ov.appendChild(tap);
     tap.addEventListener('click', function(){
       tap.style.display = 'none';
@@ -589,7 +587,7 @@ function showVASTPlayer(mp4Url, doc, onComplete, isMobile){
     if(!vid.duration) return;
     var pct = vid.currentTime/vid.duration, rem = Math.ceil(skipDelay-vid.currentTime);
     if(rem > 0){ skip.textContent = 'Pular em '+rem+'s'; }
-    else if(!canSkip){ canSkip=true; skip.textContent='\u23ed Pular an\u00FAncio'; skip.disabled=false; skip.style.cursor='pointer'; skip.style.background='rgba(255,255,255,0.25)'; }
+    else if(!canSkip){ canSkip=true; skip.textContent='\u23ed Pular an\u00FAncio'; skip.disabled=false; skip.classList.add('can-skip'); }
     [{k:'firstQuartile',t:0.25},{k:'midpoint',t:0.5},{k:'thirdQuartile',t:0.75}].forEach(function(ev){
       if(!qf[ev.k]&&pct>=ev.t){ qf[ev.k]=true; track(ev.k); }
     });
@@ -893,13 +891,14 @@ async function init() {
     // ── Inicializar player interno ──
     const video = document.getElementById('video');
     video.poster = item.capa || '';
-    if (item.linkMP4) { const src = document.createElement('source'); src.src = item.linkMP4; src.type = 'video/mp4'; video.appendChild(src); }
     document.getElementById('playerTitle').textContent = item.nome + (item.ano ? ' (' + item.ano + ')' : '');
 
     PipocaPlayer.initControls({
       playerBoxId: 'playerBox', videoId: 'video',
       overlayId: 'playerOverlay', centerPlayId: 'centerPlay', controlsId: 'playerControls',
-      titulo: item.nome, capa: item.capa || ''
+      titulo: item.nome, capa: item.capa || '',
+      src: item.linkMP4 || '',
+      legendas: PipocaAPI.parseLegendas(item.legendas || '')
     });
 
     const ytUrl = ytEmbed(item.trailer);
