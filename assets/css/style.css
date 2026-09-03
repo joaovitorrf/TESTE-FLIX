@@ -67,6 +67,16 @@
 /* ─── RESET ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; }
+
+/* ─── Cursor personalizado (só desktop com mouse de verdade) ─── */
+@media (hover: hover) and (pointer: fine) {
+  * { cursor: url('assets/img/cursor-pointer.png') 2 2, auto !important; }
+  input, textarea, select, [contenteditable="true"] { cursor: text !important; }
+  input[type="checkbox"], input[type="radio"], input[type="range"] {
+    cursor: url('assets/img/cursor-pointer.png') 2 2, pointer !important;
+  }
+}
+
 body {
   background: var(--void);
   color: var(--text-1);
@@ -810,6 +820,14 @@ input { font-family: var(--font-body); }
   position: relative;
   background: var(--panel);
 }
+
+/* ─── CARD WIDE (Continuar Assistindo — retangular, usa o backdrop) ─── */
+.card--wide {
+  width: clamp(220px, 34vw, 340px);
+}
+.card--wide .card-thumb-wrap { aspect-ratio: 16/9; }
+.card--wide .card-badge { display: none; } /* redundante numa fileira só de "continuar" */
+.card--wide .card-info { padding: 0.6rem 0.75rem 0.75rem; }
 .card-thumb {
   width: 100%;
   height: 100%;
