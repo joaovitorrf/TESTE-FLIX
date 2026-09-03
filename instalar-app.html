@@ -3,202 +3,316 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instalar o App — PipocaFlix</title>
-<meta name="description" content="Instale o PipocaFlix no seu celular ou computador e tenha o catálogo completo a um toque de distância.">
+<title>Instalar o PipocaFlix</title>
+<meta name="description" content="Instale o PipocaFlix no seu celular, iPhone ou computador e tenha o catálogo completo a um toque de distância.">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
 <link rel="manifest" href="/manifest.json">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
-.guide-hero {
-  text-align:center;
-  padding:4rem 1rem 2rem;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,45,67,.14) 0%, transparent 70%);
-  position: relative;
-}
-.guide-hero h1 {
-  font-family:var(--font-display);
-  font-size:clamp(2rem,6vw,3.5rem);
-  font-weight:800;
-  margin-bottom:.75rem;
-  color: var(--text-1);
-}
-.app-hero-img {
-  width: 160px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 6px solid var(--red);
-  box-shadow: var(--shadow-red);
-  margin: 1rem auto;
-  display: block;
-}
-.guide-hero p {
-  color:var(--text-2);
-  font-size:1.1rem;
-  max-width:560px;
-  margin:0 auto;
-  font-style: italic;
-}
-.guide-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:1.5rem;
-  padding:2rem clamp(1rem,5vw,3.5rem) 1rem;
-  max-width:1200px;
-  margin:0 auto;
-}
-.guide-card {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:1.75rem;
-  transition:transform .2s,border-color .2s;
-  position:relative;
-  overflow:hidden;
-}
-.guide-card::before {
-  content:'';
-  position:absolute;
-  top:0; left:0; right:0;
-  height:3px;
-  background:linear-gradient(90deg,var(--red),var(--gold));
-}
-.guide-card:hover { transform:translateY(-4px); border-color:var(--red); }
-.app-icon {
-  width: 78px;
-  height: 78px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid var(--red);
-  margin-bottom: 1rem;
-  box-shadow: 0 0 25px rgba(255,45,67,.3);
-}
-.guide-card h2 {
-  font-family:var(--font-display);
-  font-size:1.2rem;
-  font-weight:700;
-  margin-bottom:.6rem;
-  color:var(--text-1);
-}
-.guide-card p { color:var(--text-2); font-size:.93rem; line-height:1.7; }
-.back-btn {
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  background:var(--surface-2, var(--panel));
-  color:var(--text-2);
-  padding:.6rem 1.4rem;
-  border-radius:var(--r-pill);
-  border: 1px solid var(--border);
-  font-weight:600;
-  font-size: 0.85rem;
-  text-decoration:none;
-  transition: color var(--t-fast), border-color var(--t-fast);
-}
-.back-btn:hover { color: var(--text-1); border-color: var(--border-light); }
+body { overflow-x: hidden; }
+
+/* ═══════════════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════════════ */
 .install-topbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding: 18px clamp(16px, 5vw, 40px) 0;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px clamp(16px, 5vw, 44px);
 }
-.install-topbar img { height: 30px; width: auto; display: block; }
-/* ── Bloco de instalação ── */
-.install-cta {
-  max-width: 640px;
-  margin: 1rem auto 4rem;
-  padding: 0 clamp(1rem,5vw,3.5rem);
+.install-topbar img { height: 30px; width: auto; display: block; filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5)); }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-1);
+  padding: 9px 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(255,255,255,0.16);
+  backdrop-filter: blur(8px);
+  font-weight: 600; font-size: 0.82rem;
+  text-decoration: none;
+  transition: background var(--t-fast), transform var(--t-fast);
+}
+.back-btn:hover { background: rgba(255,255,255,0.16); transform: translateX(-2px); }
+
+/* ═══════════════════════════════════════════════════════
+   HERO — imagem de fundo, tipografia grande, glow
+═══════════════════════════════════════════════════════ */
+.guide-hero {
+  position: relative;
+  min-height: min(72vh, 620px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center;
+  padding: 110px 1.25rem 4rem;
+  background-image:
+    radial-gradient(ellipse 90% 70% at 50% 100%, rgba(6,6,10,0.35) 0%, var(--void) 78%),
+    linear-gradient(180deg, rgba(6,6,10,0.55) 0%, rgba(6,6,10,0.25) 35%, var(--void) 96%),
+    url('https://i.pinimg.com/1200x/b5/6b/41/b56b41abf700982f1d933e6c8bec5667.jpg');
+  background-size: cover;
+  background-position: center 30%;
 }
-.install-cta-box {
+.guide-hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.76rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 18px;
+}
+.guide-hero-eyebrow::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+.guide-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 6vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.08;
+  color: #fff;
+  text-shadow: 0 6px 30px rgba(0,0,0,0.6);
+  margin-bottom: 16px;
+  max-width: 780px;
+}
+.guide-hero h1 span { color: var(--red); }
+.guide-hero p {
+  color: rgba(255,255,255,0.75);
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  max-width: 560px;
+  line-height: 1.6;
+}
+.guide-hero-scroll {
+  margin-top: 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+  animation: guide-bounce 2s ease-in-out infinite;
+}
+@keyframes guide-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* ═══════════════════════════════════════════════════════
+   ESTADO: JÁ INSTALADO
+═══════════════════════════════════════════════════════ */
+#alreadyInstalledState { display: none; max-width: 620px; margin: -2.5rem auto 4rem; padding: 0 1.25rem; position: relative; z-index: 2; }
+.already-card {
   background: var(--panel);
   border: 1px solid var(--border-light);
   border-radius: var(--r-xl);
   padding: 2.5rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+.already-icon {
+  width: 64px; height: 64px; margin: 0 auto 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #ffdd6b);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 30px var(--gold-soft);
+}
+.already-icon svg { width: 30px; height: 30px; stroke: #1a1400; }
+.already-card h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--text-1); margin-bottom: 8px; }
+.already-card p { color: var(--text-2); font-size: 0.92rem; line-height: 1.6; margin-bottom: 22px; }
+.already-card .btn-primary { display: inline-flex; }
+.already-reset {
+  display: block; margin-top: 18px;
+  color: var(--text-3); font-size: 0.78rem; text-decoration: underline; cursor: pointer;
+  background: none; border: none; font-family: var(--font-body);
+}
+.already-reset:hover { color: var(--text-2); }
+
+/* ═══════════════════════════════════════════════════════
+   3 OPÇÕES DE INSTALAÇÃO
+═══════════════════════════════════════════════════════ */
+#installOptionsState { max-width: 1100px; margin: -3.5rem auto 4rem; padding: 0 clamp(1rem, 4vw, 2.5rem); position: relative; z-index: 2; }
+.install-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+@media (max-width: 860px) { .install-options-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
+
+.install-card {
+  background: var(--panel);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-xl);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform var(--t-normal), border-color var(--t-normal);
 }
-.install-cta-box::before {
-  content:'';
-  position:absolute; inset:0;
-  background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,45,67,.1), transparent 70%);
-  pointer-events: none;
+.install-card:hover { transform: translateY(-4px); border-color: rgba(255,45,67,0.35); }
+.install-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--red), var(--gold));
+  opacity: 0; transition: opacity var(--t-fast);
 }
-.install-cta-box h2 {
-  font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--text-1);
-  margin-bottom: .6rem;
-  position: relative;
+.install-card:hover::before { opacity: 1; }
+.install-card.is-recommended { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold-soft), var(--shadow-card); }
+.install-card-badge {
+  display: none;
+  position: absolute; top: 14px; right: 14px;
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase;
+  color: #1a1400;
+  background: linear-gradient(135deg, var(--gold), #ffdd6b);
+  padding: 4px 10px; border-radius: var(--r-pill);
 }
-.install-cta-box > p {
-  color: var(--text-2);
-  font-size: .95rem;
-  margin-bottom: 1.75rem;
-  position: relative;
+.install-card.is-recommended .install-card-badge { display: inline-block; }
+.install-card-icon {
+  width: 56px; height: 56px; margin: 0 auto 16px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--card-hover);
+  font-size: 1.7rem;
 }
-.btn-install {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, var(--red), var(--red-dim));
-  color: #fff;
-  border: none;
-  padding: 16px 34px;
+.install-card h3 { font-family: var(--font-display); font-size: 1.08rem; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
+.install-card p { color: var(--text-3); font-size: 0.83rem; line-height: 1.55; margin-bottom: 20px; min-height: 58px; }
+.install-card .btn-install {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--red);
+  color: #fff; border: none;
+  padding: 12px 18px;
   border-radius: var(--r-pill);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-body); font-size: 0.86rem; font-weight: 700;
   cursor: pointer;
-  box-shadow: var(--shadow-red);
-  transition: transform var(--t-fast);
+  transition: background var(--t-fast), transform var(--t-fast);
 }
-.btn-install:hover { transform: translateY(-2px) scale(1.02); }
-.btn-install:active { transform: translateY(0) scale(1); }
-.btn-install svg { flex-shrink: 0; }
-#installStatus {
-  position: relative;
-  margin-top: 18px;
-  color: var(--text-2);
-  font-size: .88rem;
-  line-height: 1.6;
-  display: none;
+.install-card .btn-install:hover { background: var(--red-dim); transform: translateY(-1px); }
+.install-card .btn-install svg { width: 16px; height: 16px; flex-shrink: 0; }
+.install-card-status {
+  margin-top: 12px; font-size: 0.78rem; color: var(--text-2); line-height: 1.5; display: none;
 }
-#iosSteps {
-  position: relative;
-  display: none;
-  text-align: left;
-  margin-top: 6px;
-}
-#iosSteps ol { padding-left: 1.2rem; color: var(--text-2); font-size: .92rem; line-height: 2; }
+
+/* Passos do iPhone (sempre manual, sem botão de instalar) */
+#iosSteps { text-align: left; margin-top: 4px; }
+#iosSteps ol { padding-left: 1.1rem; color: var(--text-3); font-size: 0.82rem; line-height: 1.9; }
 #iosSteps strong { color: var(--text-1); }
 #iosSteps .ios-share-icon {
-  display:inline-flex; align-items:center; justify-content:center;
-  width: 22px; height: 22px; vertical-align: -5px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; vertical-align: -5px;
   background: var(--surface); border: 1px solid var(--border-light); border-radius: 5px;
   margin: 0 2px;
 }
-.install-note {
+
+/* ═══════════════════════════════════════════════════════
+   GRID DE FUNCIONALIDADES (mantido, só re-estilizado)
+═══════════════════════════════════════════════════════ */
+.guide-section-label {
+  text-align: center;
   color: var(--text-3);
-  font-size: .78rem;
-  margin-top: 1.75rem;
+  font-size: 0.76rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  margin: 1rem 0 0.5rem;
+}
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+  padding: 1.5rem clamp(1rem, 5vw, 3.5rem) 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.guide-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.6rem;
+  transition: transform var(--t-normal), border-color var(--t-normal);
+  position: relative;
+  overflow: hidden;
+}
+.guide-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--red), var(--gold));
+}
+.guide-card:hover { transform: translateY(-4px); border-color: var(--red); }
+.app-icon {
+  width: 70px; height: 70px; object-fit: cover; border-radius: 50%;
+  border: 3px solid var(--red);
+  margin-bottom: 1rem;
+  box-shadow: 0 0 25px rgba(255,45,67,.3);
+}
+.guide-card h2 { font-family: var(--font-display); font-size: 1.12rem; font-weight: 700; margin-bottom: .5rem; color: var(--text-1); }
+.guide-card p { color: var(--text-2); font-size: .88rem; line-height: 1.65; }
+
+.install-footnote {
+  text-align: center;
+  color: var(--text-3);
+  font-size: 0.8rem;
+  max-width: 480px;
+  margin: 1rem auto 4rem;
+  padding: 0 1.25rem;
   line-height: 1.6;
 }
 </style>
 </head>
 <body>
 <script src="assets/js/avisos.js" defer></script>
+
 <div class="install-topbar">
   <a href="index.html" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix"></a>
-  <a href="index.html" class="back-btn">← Voltar ao Início</a>
+  <a href="index.html" class="back-btn">← Voltar ao início</a>
 </div>
+
 <div class="guide-hero">
-  <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Guia do app PipocaFlix" class="app-hero-img">
-  <h1>Leve o PipocaFlix com você 🍿</h1>
-  <p>Existe um jeitinho mais rápido e mais bonito de assistir por aqui... deixa eu te mostrar.</p>
+  <span class="guide-hero-eyebrow">🍿 PipocaFlix, sempre à mão</span>
+  <h1>Leve o PipocaFlix<br>com <span>você</span>.</h1>
+  <p>Sem barra de navegador, sem digitar endereço. Um toque no ícone e você já tá escolhendo o que assistir.</p>
 </div>
+
+<!-- ═══ Já instalado ═══ -->
+<div id="alreadyInstalledState">
+  <div class="already-card">
+    <div class="already-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+    <h2>Você já tem o PipocaFlix instalado! 🎉</h2>
+    <p>Pode fechar essa aba tranquilo e abrir direto pelo ícone que já tá guardado no seu aparelho.</p>
+    <a href="index.html" class="btn-primary">Ir para o catálogo</a>
+    <button class="already-reset" id="resetInstallFlag" type="button">Instalei em outro lugar / quero ver as opções de novo</button>
+  </div>
+</div>
+
+<!-- ═══ Opções de instalação ═══ -->
+<div id="installOptionsState">
+  <div class="install-options-grid">
+
+    <div class="install-card" id="cardMobile">
+      <span class="install-card-badge">Recomendado</span>
+      <div class="install-card-icon">📱</div>
+      <h3>Baixar para o Celular</h3>
+      <p>Android — instala como um app de verdade, com ícone na tela e tudo.</p>
+      <button class="btn-install" onclick="instalarPWA('mobile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar para o celular
+      </button>
+      <p class="install-card-status" id="installStatusMobile"></p>
+    </div>
+
+    <div class="install-card" id="cardWindows">
+      <span class="install-card-badge">Recomendado</span>
+      <div class="install-card-icon">💻</div>
+      <h3>Baixar para o Windows</h3>
+      <p>Instala como programa no seu computador, com atalho na área de trabalho.</p>
+      <button class="btn-install" onclick="instalarPWA('windows')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar para o Windows
+      </button>
+      <p class="install-card-status" id="installStatusWindows"></p>
+    </div>
+
+    <div class="install-card" id="cardIphone">
+      <span class="install-card-badge">Recomendado</span>
+      <div class="install-card-icon">🍎</div>
+      <h3>Baixar para o iPhone</h3>
+      <p>No iPhone quem manda nesse passo é a Apple — é rapidinho, só seguir 3 passos.</p>
+      <div id="iosSteps">
+        <ol>
+          <li>Toque no ícone de <strong>compartilhar</strong> <span class="ios-share-icon">⬆️</span> no Safari</li>
+          <li>Desça e toque em <strong>"Adicionar à Tela de Início"</strong></li>
+          <li>Toque em <strong>"Adicionar"</strong> — pronto! 🎉</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<p class="guide-section-label">O que muda pra você</p>
 <div class="guide-grid">
   <div class="guide-card">
     <img src="https://i.pinimg.com/736x/9b/15/59/9b1559efdd3fbe43449e9d794bbbca35.jpg" alt="Ícone na tela" class="app-icon">
@@ -226,75 +340,91 @@
     <p>Android, iPhone ou computador — não importa por onde você anda, o PipocaFlix te acompanha do mesmo jeitinho, em qualquer um deles.</p>
   </div>
 </div>
-<div class="install-cta">
-  <div class="install-cta-box">
-    <h2>Bora instalar?</h2>
-    <p>É de graça, é rapidinho e não ocupa quase nada de espaço.</p>
-    <button id="installBtn" class="btn-install" onclick="instalarApp()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Instalar o App
-    </button>
-    <div id="iosSteps">
-      <p style="color:var(--text-2);font-size:.92rem;margin-bottom:.5rem">No iPhone é rapidinho também, só que é a Apple quem manda nesse passo — faz assim:</p>
-      <ol>
-        <li>Toque no ícone de <strong>compartilhar</strong> <span class="ios-share-icon">⬆️</span> lá embaixo do Safari</li>
-        <li>Desça e toque em <strong>"Adicionar à Tela de Início"</strong></li>
-        <li>Toque em <strong>"Adicionar"</strong> no canto superior — pronto! 🎉</li>
-      </ol>
-    </div>
-    <p id="installStatus"></p>
-    <p class="install-note">Continua tudo igual: notificações, avisos de novidade e o catálogo completo — só que agora com um atalho só seu.</p>
-  </div>
-</div>
+
+<p class="install-footnote">É de graça, é rapidinho e não ocupa quase nada de espaço. Continua tudo igual: notificações, avisos de novidade e o catálogo completo — só que agora com um atalho só seu.</p>
+
 <script>
 (function () {
-  var installBtn = document.getElementById('installBtn');
-  var installStatus = document.getElementById('installStatus');
-  var iosSteps = document.getElementById('iosSteps');
-  var deferredPrompt = null;
   function isStandalone() {
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   }
-  function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+  function isAndroid() { return /Android/i.test(navigator.userAgent); }
+
+  var installedState = document.getElementById('alreadyInstalledState');
+  var optionsState = document.getElementById('installOptionsState');
+
+  function getInstalledFlag() {
+    try { return localStorage.getItem('pflix_app_installed') === '1'; } catch (e) { return false; }
   }
-  function showStatus(msg) {
-    installStatus.textContent = msg;
-    installStatus.style.display = 'block';
+  function setInstalledFlag() {
+    try { localStorage.setItem('pflix_app_installed', '1'); } catch (e) {}
   }
-  if (isStandalone()) {
-    installBtn.style.display = 'none';
-    showStatus('Você já tá com o app instalado! Pode fechar essa página e abrir direto pelo ícone. 🎉');
-    return;
+  function clearInstalledFlag() {
+    try { localStorage.removeItem('pflix_app_installed'); } catch (e) {}
   }
-  if (isIOS()) {
-    installBtn.style.display = 'none';
-    iosSteps.style.display = 'block';
-    return;
+
+  function showAlreadyInstalled() {
+    installedState.style.display = 'block';
+    optionsState.style.display = 'none';
   }
+  function showOptions() {
+    installedState.style.display = 'none';
+    optionsState.style.display = '';
+  }
+
+  if (isStandalone() || getInstalledFlag()) {
+    if (isStandalone()) setInstalledFlag(); // garante o flag mesmo se chegou aqui direto pelo app
+    showAlreadyInstalled();
+  } else {
+    showOptions();
+  }
+
+  var resetBtn = document.getElementById('resetInstallFlag');
+  if (resetBtn) resetBtn.addEventListener('click', function () {
+    clearInstalledFlag();
+    showOptions();
+  });
+
+  // Destaca a opção que combina com o aparelho atual
+  var recId = isIOS() ? 'cardIphone' : (isAndroid() ? 'cardMobile' : 'cardWindows');
+  var recCard = document.getElementById(recId);
+  if (recCard) recCard.classList.add('is-recommended');
+
+  var deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault();
     deferredPrompt = e;
   });
   window.addEventListener('appinstalled', function () {
-    installBtn.style.display = 'none';
-    showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉');
+    setInstalledFlag();
+    showAlreadyInstalled();
   });
-  window.instalarApp = async function () {
+
+  function showCardStatus(origem, msg) {
+    var el = document.getElementById(origem === 'windows' ? 'installStatusWindows' : 'installStatusMobile');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  window.instalarPWA = async function (origem) {
+    if (getInstalledFlag() || isStandalone()) { showAlreadyInstalled(); return; }
     if (!deferredPrompt) {
-      showStatus('Seu navegador ainda não liberou a instalação automática por aqui. Procura por "Instalar app" ou "Adicionar à tela inicial" no menu (⋮ ou ⋯) do seu navegador.');
+      showCardStatus(origem, 'Seu navegador não liberou a instalação automática por aqui. Procure por "Instalar app" ou "Adicionar à tela inicial" no menu (⋮ ou ⋯) do seu navegador.');
       return;
     }
     deferredPrompt.prompt();
     var choice = await deferredPrompt.userChoice;
     deferredPrompt = null;
     if (choice.outcome === 'accepted') {
-      showStatus('Boa! App instalado com sucesso. Já pode abrir direto da tela inicial. 🎉');
+      setInstalledFlag();
+      showAlreadyInstalled();
     } else {
-      showStatus('Tranquilo, você pode instalar quando quiser — o botão continua aqui.');
+      showCardStatus(origem, 'Tranquilo, você pode instalar quando quiser — o botão continua aqui.');
     }
   };
 })();
 </script>
 </body>
-</html> 
+</html>
