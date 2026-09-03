@@ -135,3 +135,24 @@
 
   window.PipocaSearch = { indexContent, search, debounce, norm };
 })();
+
+/* ─────────────────────────────────────────────
+   Desktop: clicar na busca do header já leva pra
+   página de busca — evita a fricção de digitar e
+   não ver nada até apertar Enter. Só com mouse de
+   verdade (hover:hover + pointer:fine); no touch a
+   caixa continua se comportando normalmente.
+───────────────────────────────────────────── */
+(function () {
+  var input = document.getElementById('desktopSearchInput');
+  if (!input) return;
+  var isDesktop = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (!isDesktop) return;
+  var redirected = false;
+  input.addEventListener('focus', function () {
+    if (redirected) return;
+    redirected = true;
+    var v = input.value.trim();
+    window.location.href = 'buscar.html' + (v ? ('?q=' + encodeURIComponent(v)) : '');
+  });
+})();
