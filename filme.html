@@ -221,6 +221,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
           Marcar como assistido
         </button>
+        <button class="btn-secondary" id="reportarBtn" title="Relatar um problema com este filme">🚩 Reportar problema</button>
       </div>
     </div>
   </div>
@@ -508,6 +509,7 @@ l.parentNode.insertBefore(s, l);
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script type="module" src="assets/js/listas.js"></script>
+<script type="module" src="assets/js/reportar.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
 <script src="assets/js/player.js"></script>
 <script>
@@ -695,7 +697,10 @@ async function init() {
   try {
     // Busca tudo para busca global + recomendações
     const [filmes, series] = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
-    const allContent = [...filmes, ...series];
+    // allContent (busca + recomendações) respeita a coluna W (visivel=FALSE).
+    // "filmes" continua completo pra achar o item mesmo se ele estiver invisível —
+    // link direto sempre funciona, só não aparece pesquisando nem é recomendado.
+    const allContent = PipocaAPI.filtrarVisiveis([...filmes, ...series]);
     setupSearch(allContent);
 
     const normNome=PipocaAPI.normalizeStr(nome);
@@ -772,6 +777,15 @@ async function init() {
       listaBtn.addEventListener('click',()=>{
         if(!window.PipocaListas){ showToast('⚠️ Recurso indisponível no momento.'); return; }
         window.PipocaListas.abrirSeletor({ nome:item.nome, capa:item.capa, isSerie:false });
+      });
+    }
+
+    // Botão "Reportar problema" — abre o modal do reportar.js
+    const reportarBtn = document.getElementById('reportarBtn');
+    if (reportarBtn) {
+      reportarBtn.addEventListener('click', () => {
+        if (!window.PipocaReportar) { showToast('⚠️ Recurso indisponível no momento.'); return; }
+        window.PipocaReportar.abrirModal({ nome: item.nome, isSerie: false });
       });
     }
 

@@ -371,7 +371,8 @@ async function init() {
   try {
     var filmes = await window.PipocaAPI.getFilmes();
     var series = await window.PipocaAPI.getSeries();
-    _allContent = [...filmes, ...series];
+    // Coluna W (visivel=FALSE) não aparece na busca.
+    _allContent = window.PipocaAPI.filtrarVisiveis([...filmes, ...series]);
 
     // Pre-busca se tinha query na URL
     var q = document.getElementById('buscarInput').value;

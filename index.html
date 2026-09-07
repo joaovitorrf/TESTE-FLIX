@@ -1430,7 +1430,12 @@ async function renderPlatforms() {
 // ── INIT ──
 async function init() {
   try {
-    const [filmes, series] = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
+    const [filmesRaw, seriesRaw] = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
+    // Coluna W da planilha (visivel=FALSE) some da home inteira: hero, categorias,
+    // Em Alta, Top10, sessões de gênero e as fileiras de Filmes/Séries — todas
+    // essas rotinas partem de filmes/series/allContent, então filtrar aqui já basta.
+    const filmes = PipocaAPI.filtrarVisiveis(filmesRaw);
+    const series = PipocaAPI.filtrarVisiveis(seriesRaw);
     // Torna o catálogo acessível para outras rotinas da página (ex.: cruzar
 // backdrop no "Continuar Assistindo") sem precisar re-buscar/duplicar dados.
 const allContent = [...filmes, ...series];

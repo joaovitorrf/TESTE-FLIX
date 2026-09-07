@@ -329,7 +329,7 @@ function showToast(msg, dur) {
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  var TIPO_LABELS = { reclamacao: '⚠️ Reclamação', pedido: '🎬 Pedido de Filme/Série', duvida: '❓ Dúvida' };
+  var TIPO_LABELS = { reclamacao: '⚠️ Reclamação', pedido: '🎬 Pedido de Filme/Série', duvida: '❓ Dúvida', conteudo: '🚩 Problema no Conteúdo' };
 
   waitForAuth(function() {
     var app = getApps()[0];
@@ -444,6 +444,12 @@ function showToast(msg, dur) {
           '<span class="ticket-status-badge ' + (resolvido ? 'is-resolvido' : 'is-aberto') + '">' + (resolvido ? 'RESOLVIDO' : 'ABERTO') + '</span>' +
         '</div>' +
         '<div class="ticket-tipo-label">' + (TIPO_LABELS[t.tipo] || '💬 Mensagem') + '</div>' +
+        (t.tipo === 'conteudo' && t.conteudoNome
+          ? '<a class="ticket-conteudo-ref" href="' + escapeHtml(t.conteudoUrl || '#') + '" target="_blank" rel="noopener">' +
+              (t.conteudoTipo === 'serie' ? '📺' : '🎬') + ' ' + escapeHtml(t.conteudoNome) +
+              (t.conteudoMotivoLabel ? ' <span>· ' + escapeHtml(t.conteudoMotivoLabel) + '</span>' : '') +
+            '</a>'
+          : '') +
         '<p class="ticket-texto">' + escapeHtml(t.texto || '') + '</p>' +
         '<div class="ticket-respostas" id="tr-' + ticketId + '"></div>' +
         '<div class="ticket-reply-form">' +
