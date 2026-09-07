@@ -169,6 +169,7 @@ function mapFilme(row) {
     player4:      row[18] || '',  // coluna S — player alternativo 4 (iframe)
     player5:      row[19] || '',  // coluna T — player alternativo 5 (iframe)
     backdrop:     row[20] || '',  // coluna U — imagem paisagem para hero desktop
+    visivel:      (row[22] || '').trim().toUpperCase() !== 'FALSE', // coluna W — TRUE/vazio = aparece, FALSE = some da busca/recomendações
     plataforma:   row[24] || '',  // coluna Y — plataforma de streaming
     legendas:     row[25] || '',  // coluna Z — legendas (opcional). Formato: "Rótulo:idioma:url|Rótulo2:idioma2:url2"
     isSerie:      false
@@ -191,6 +192,7 @@ function mapSerie(row) {
     audio:      row[12] || '',
     totalTemp:  row[13] || '1',
     backdrop:   row[20] || '',  // coluna U — imagem paisagem para hero desktop
+    visivel:    (row[22] || '').trim().toUpperCase() !== 'FALSE', // coluna W — TRUE/vazio = aparece, FALSE = some da busca/recomendações
     plataforma: row[24] || '',  // coluna Y — plataforma de streaming (se a aba de séries tiver essa coluna)
     legendas:   row[25] || '',  // coluna Z — legendas padrão da série (opcional, mesmo formato de mapFilme)
     isSerie:    true
@@ -389,6 +391,19 @@ async function getCanais() {
   }
 }
 
+/* ─────────────────────────────────────────────
+   isVisivel / filtrarVisiveis — coluna W (planilha)
+   TRUE ou vazio = aparece normalmente.
+   FALSE         = some da busca e das recomendações
+                   (mas continua acessível por link direto).
+───────────────────────────────────────────── */
+function isVisivel(item) {
+  return !item || item.visivel !== false;
+}
+function filtrarVisiveis(lista) {
+  return (lista || []).filter(isVisivel);
+}
+
 // Exporta para uso global
 window.PipocaAPI = {
   getFilmes,
@@ -399,6 +414,8 @@ window.PipocaAPI = {
   getFeedNoticias,
   getCanais,
   normalizeStr,
+  isVisivel,
+  filtrarVisiveis,
 };
 
 /* ─────────────────────────────────────────────

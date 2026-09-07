@@ -95,9 +95,12 @@
     return score;
   }
 
-  /* ── Indexar ── */
+  /* ── Indexar ──
+     Itens com visivel === false (coluna W da planilha = FALSE) nunca
+     entram no índice de busca — ficam de fora dos resultados, mas
+     continuam acessíveis por link direto na própria página do filme/série. */
   function indexContent(contents) {
-    _allContent = contents.map(item => ({ ...item }));
+    _allContent = contents.filter(item => item.visivel !== false).map(item => ({ ...item }));
     _indexed = true;
   }
 
