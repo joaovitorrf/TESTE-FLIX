@@ -66,7 +66,11 @@
 
 /* ─── RESET ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
+/* scroll-padding-top compensa o .header fixo (72px/56px) em QUALQUER
+   scrollIntoView()/âncora do site — sem isso, o topo do elemento-alvo
+   (ex.: o player ao clicar em Assistir ou trocar de episódio) fica
+   escondido atrás do menu fixo. Um único lugar resolve pra tudo. */
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: calc(var(--header-h) + 14px); }
 
 /* ─── Cursor personalizado (só desktop com mouse de verdade) ─── */
 @media (hover: hover) and (pointer: fine) {
@@ -4578,5 +4582,229 @@ body.pflix-vip-ativo #supportBannerOverlay {
   visibility: hidden !important;
   height: 0 !important;
   overflow: hidden !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SUPORTE / TICKETS (suporte.html) + modal de Reportar (reportar.js)
+═══════════════════════════════════════════════════════════════ */
+.suporte-hero {
+  margin-top: var(--header-h);
+  text-align: center;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3rem clamp(1rem, 5vw, 2rem) 2rem;
+}
+.suporte-hero-icon { font-size: 2.75rem; margin-bottom: 0.75rem; }
+.suporte-hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.75rem;
+}
+.suporte-hero h1 span { color: var(--red); }
+.suporte-hero p { color: var(--text-2); font-size: 0.92rem; line-height: 1.6; }
+
+.suporte-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 5vw, 2rem) 4rem;
+}
+
+/* ── Formulário: novo ticket / novo report ── */
+.ticket-form-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: var(--shadow-card);
+}
+.ticket-login-prompt { text-align: center; color: var(--text-2); font-size: 0.92rem; padding: 0.5rem; }
+.ticket-login-link {
+  background: none; border: none; color: var(--red); font-weight: 700;
+  font-size: inherit; font-family: inherit; cursor: pointer;
+  text-decoration: underline; padding: 0;
+}
+.ticket-form h2 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; }
+.ticket-tipo-select,
+.ticket-textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 11px 14px;
+  margin-bottom: 0.85rem;
+  transition: border-color var(--t-fast);
+}
+.ticket-tipo-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+.ticket-textarea { min-height: 110px; line-height: 1.5; resize: vertical; margin-bottom: 0; }
+.ticket-tipo-select:focus, .ticket-textarea:focus { outline: none; border-color: var(--red); }
+.ticket-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.ticket-char-count { font-size: 0.76rem; color: var(--text-3); }
+.ticket-submit-btn {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 11px 22px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background var(--t-fast), transform var(--t-fast);
+  white-space: nowrap;
+}
+.ticket-submit-btn:hover { background: var(--red-dim); transform: translateY(-1px); }
+.ticket-submit-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+/* ── Lista de tickets ── */
+.ticket-list-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; }
+.ticket-empty { color: var(--text-3); text-align: center; padding: 2rem 1rem; font-size: 0.9rem; }
+.ticket-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.ticket-card.is-resolvido { opacity: 0.72; }
+.ticket-card-top { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.85rem; }
+.ticket-avatar {
+  width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  flex-shrink: 0; border: 1px solid var(--border-light);
+}
+.ticket-meta { flex: 1; min-width: 0; }
+.ticket-autor { font-weight: 700; font-size: 0.9rem; color: var(--text-1); }
+.ticket-email-admin { font-weight: 400; color: var(--text-3); font-size: 0.78rem; }
+.ticket-data { font-size: 0.76rem; color: var(--text-3); margin-top: 2px; }
+.ticket-status-badge {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+}
+.ticket-status-badge.is-aberto { background: var(--red-soft); color: var(--red); border: 1px solid rgba(255,45,67,0.3); }
+.ticket-status-badge.is-resolvido { background: rgba(70,200,120,0.12); color: #4dd67f; border: 1px solid rgba(70,200,120,0.3); }
+.ticket-tipo-label {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  padding: 3px 11px;
+  margin-bottom: 0.6rem;
+}
+.ticket-conteudo-ref {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  transition: border-color var(--t-fast);
+}
+.ticket-conteudo-ref:hover { border-color: var(--red); }
+.ticket-conteudo-ref span { font-weight: 400; color: var(--text-3); }
+.ticket-texto { color: var(--text-1); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 0.9rem; }
+
+/* ── Respostas ── */
+.ticket-respostas { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.9rem; }
+.ticket-resposta { display: flex; gap: 10px; }
+.ticket-resposta-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-top: 2px; }
+.ticket-resposta-bubble {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+}
+.ticket-resposta.is-admin .ticket-resposta-bubble { background: var(--red-ultra); border-color: rgba(255,45,67,0.25); }
+.ticket-resposta-autor {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 0.82rem; font-weight: 700; color: var(--text-1); margin-bottom: 3px;
+}
+.ticket-verified { color: var(--red); font-size: 0.78rem; }
+.ticket-resposta-data { font-weight: 400; font-size: 0.72rem; color: var(--text-3); margin-left: auto; white-space: nowrap; }
+.ticket-resposta-texto { font-size: 0.86rem; color: var(--text-2); line-height: 1.55; white-space: pre-wrap; }
+
+/* ── Responder / alterar status ── */
+.ticket-reply-form { border-top: 1px solid var(--border); padding-top: 0.9rem; }
+.ticket-reply-input {
+  width: 100%;
+  min-height: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  padding: 10px 12px;
+  resize: vertical;
+  margin-bottom: 0.6rem;
+  transition: border-color var(--t-fast);
+}
+.ticket-reply-input:focus { outline: none; border-color: var(--red); }
+.ticket-reply-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.ticket-toggle-status-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  border-radius: var(--r-sm);
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t-fast);
+  white-space: nowrap;
+}
+.ticket-toggle-status-btn:hover { border-color: var(--border-light); color: var(--text-1); }
+.ticket-reply-submit {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 8px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  margin-left: auto;
+}
+.ticket-reply-submit:hover { background: var(--red-dim); }
+.ticket-reply-submit:disabled { opacity: 0.6; cursor: default; }
+
+@media (max-width: 600px) {
+  .ticket-card-top { flex-wrap: wrap; }
+  .ticket-status-badge { margin-left: auto; }
+  .ticket-form-footer { flex-direction: column; align-items: stretch; }
+  .ticket-submit-btn { width: 100%; }
 }
 
