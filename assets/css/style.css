@@ -74,10 +74,10 @@ html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: calc(var(--
 
 /* ─── Cursor personalizado (só desktop com mouse de verdade) ─── */
 @media (hover: hover) and (pointer: fine) {
-  * { cursor: url('assets/img/cursor-pointer.png') 2 2, auto !important; }
+  * { cursor: url('../img/cursor-pointer.png') 2 2, auto !important; }
   input, textarea, select, [contenteditable="true"] { cursor: text !important; }
   input[type="checkbox"], input[type="radio"], input[type="range"] {
-    cursor: url('assets/img/cursor-pointer.png') 2 2, pointer !important;
+    cursor: url('../img/cursor-pointer.png') 2 2, pointer !important;
   }
 }
 
@@ -3572,6 +3572,11 @@ input { font-family: var(--font-body); }
   border-color: var(--red);
   color: var(--red);
 }
+.player-select-btn.is-active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
 .player-badge {
   background: var(--red);
   color: #fff;
@@ -3633,6 +3638,29 @@ input { font-family: var(--font-body); }
   border: none;
   min-height: 300px;
 }
+.alt-player-frame-wrap { position: relative; }
+.alt-player-loading {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 2;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+.alt-player-loading.hidden { opacity: 0; pointer-events: none; }
+.alt-player-spinner {
+  width: 34px; height: 34px;
+  border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: pflix-spin 0.9s linear infinite;
+}
+.alt-player-loading span { font-size: 0.85rem; color: var(--text-2); letter-spacing: 0.3px; }
 @media (max-width: 600px) {
   .alt-player-iframe { min-height: 220px; }
 }
