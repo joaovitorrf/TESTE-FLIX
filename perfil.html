@@ -221,6 +221,15 @@
       <div id="profileComments" style="display:flex;flex-direction:column;gap:10px"></div>
     </div>
 
+    <!-- Meus Reports (filme/série) -->
+    <div style="margin-bottom:32px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0">🚩 Meus Reports</h2>
+        <a href="suporte.html" style="color:var(--red);font-size:0.85rem;text-decoration:none">Ir pro Suporte →</a>
+      </div>
+      <div id="profileReports" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
     <!-- Minhas Listas (Premium) -->
     <div style="margin-bottom:32px">
       <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0 0 14px">📋 Minhas Listas</h2>
@@ -407,7 +416,7 @@ waitForAuth(function() {
 </script>
 
 <script type="module">
-  import { getFirestore, collection, query, orderBy, limit, getDocs }
+  import { getFirestore, collection, query, where, orderBy, limit, getDocs }
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
   import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
@@ -478,6 +487,73 @@ waitForAuth(function() {
         } catch(e) {
           console.error('[Perfil] Erro ao carregar comentários:', e);
           commentsGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Não foi possível carregar seus comentários agora.</p>';
+        }
+      }
+
+      // ── Meus Reports (filme/série) ──
+      var reportsWrap = document.getElementById('profileReports');
+      if (reportsWrap) {
+        reportsWrap.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Carregando...</p>';
+        try {
+          var qReports = query(collection(db, 'tickets'), where('uid', '==', user.uid), orderBy('ultimaAtividade', 'desc'), limit(50));
+          var snapReports = await getDocs(qReports);
+          var meusReports = [];
+          snapReports.forEach(function(d) {
+            var t = d.data();
+            if (t.tipo === 'conteudo') meusReports.push({ id: d.id, data: t });
+          });
+
+          if (!meusReports.length) {
+            reportsWrap.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Você ainda não reportou nenhum problema. Dá pra reportar direto na página do filme/série.</p>';
+          } else {
+            reportsWrap.innerHTML = '';
+            for (var ri = 0; ri < meusReports.length; ri++) {
+              var rep = meusReports[ri];
+              var t2 = rep.data;
+              var resolvido = t2.status === 'resolvido';
+
+              var respostasHtml = '<p style="color:var(--text-3);font-size:0.82rem;padding:6px 0 0">🕐 Ainda sem resposta.</p>';
+              try {
+                var qResp = query(collection(db, 'tickets', rep.id, 'respostas'), orderBy('ts', 'asc'), limit(50));
+                var snapResp = await getDocs(qResp);
+                if (!snapResp.empty) {
+                  respostasHtml = '<div class="ticket-respostas">';
+                  snapResp.forEach(function(rd) {
+                    var r = rd.data();
+                    respostasHtml +=
+                      '<div class="ticket-resposta' + (r.isAdmin ? ' is-admin' : '') + '">' +
+                        '<img src="' + escapeHtml(r.autorFoto || 'https://placehold.co/30x30/1a1a24/f0f0f6?text=%3F') + '" class="ticket-resposta-avatar" alt="" onerror="this.src=\'https://placehold.co/30x30/1a1a24/f0f0f6?text=%3F\'">' +
+                        '<div class="ticket-resposta-bubble">' +
+                          '<div class="ticket-resposta-autor">' + escapeHtml(r.autor || 'Anônimo') + (r.isAdmin ? ' <span class="ticket-verified" title="Equipe PipocaFlix">✓</span>' : '') + '<span class="ticket-resposta-data">' + formatarData(r.ts) + '</span></div>' +
+                          '<div class="ticket-resposta-texto">' + escapeHtml(r.texto || '') + '</div>' +
+                        '</div>' +
+                      '</div>';
+                  });
+                  respostasHtml += '</div>';
+                }
+              } catch (e) { console.error('[Perfil] Erro ao carregar resposta do report:', e); }
+
+              var card = document.createElement('div');
+              card.className = 'ticket-card' + (resolvido ? ' is-resolvido' : '');
+              card.innerHTML =
+                '<div class="ticket-card-top">' +
+                  '<div class="ticket-meta"><div class="ticket-data">' + formatarData(t2.ts) + '</div></div>' +
+                  '<span class="ticket-status-badge ' + (resolvido ? 'is-resolvido' : 'is-aberto') + '">' + (resolvido ? 'RESOLVIDO' : 'ABERTO') + '</span>' +
+                '</div>' +
+                (t2.conteudoNome
+                  ? '<a class="ticket-conteudo-ref" href="' + escapeHtml(t2.conteudoUrl || '#') + '">' +
+                      (t2.conteudoTipo === 'serie' ? '📺' : '🎬') + ' ' + escapeHtml(t2.conteudoNome) +
+                      (t2.conteudoMotivoLabel ? ' <span>· ' + escapeHtml(t2.conteudoMotivoLabel) + '</span>' : '') +
+                    '</a>'
+                  : '') +
+                '<p class="ticket-texto">' + escapeHtml(t2.texto || '') + '</p>' +
+                respostasHtml;
+              reportsWrap.appendChild(card);
+            }
+          }
+        } catch (e) {
+          console.error('[Perfil] Erro ao carregar reports:', e);
+          reportsWrap.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Não foi possível carregar seus reports agora.</p>';
         }
       }
 

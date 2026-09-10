@@ -624,6 +624,9 @@ function showVASTPlayer(mp4Url,doc,onComplete,isMobile){
 
 
 let seriePlayer=null, temporadaAtual=1, temporadasData={}, nomeSerie='';
+// Lembra qual player a pessoa escolheu (Player 1, 2, 3...) pra manter o mesmo
+// ao trocar de episódio — assim ela não precisa clicar de novo toda vez.
+let _playerAtivoNome = null;
 
 window.addEventListener('scroll',()=>{document.getElementById('mainHeader').classList.toggle('scrolled',window.scrollY>60);document.getElementById('backToTop').classList.toggle('visible',window.scrollY>400);},{passive:true});
 document.getElementById('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
@@ -707,11 +710,26 @@ function abrirPlayerIframe(src, nome) {
         '<button class="alt-player-btn" id="altPlayerClose" title="Fechar">✕</button>' +
       '</div>' +
     '</div>' +
-    '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
-    ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
-    ' referrerpolicy="no-referrer-when-downgrade" scrolling="no" frameborder="0"></iframe>';
+    '<div class="alt-player-frame-wrap" id="altPlayerFrameWrap">' +
+      '<div class="alt-player-loading" id="altPlayerLoading">' +
+        '<div class="alt-player-spinner"></div>' +
+        '<span>⏳ Carregando, aguarda aí irmão...</span>' +
+      '</div>' +
+      '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
+      ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
+      ' referrerpolicy="no-referrer-when-downgrade" scrolling="no" frameborder="0"></iframe>' +
+    '</div>';
   playerSection.appendChild(iframeWrap);
   iframeWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Esconde o "carregando" assim que o embed terminar de montar (evento
+  // 'load' do iframe) — com um teto de segurança caso o embed nunca dispare.
+  var loadingEl = document.getElementById('altPlayerLoading');
+  var esconderLoading = function () { if (loadingEl) loadingEl.classList.add('hidden'); };
+  var iframeEl = document.getElementById('altPlayerIframe');
+  if (iframeEl) iframeEl.addEventListener('load', esconderLoading);
+  setTimeout(esconderLoading, 8000);
+
   document.getElementById('altPlayerClose').addEventListener('click', function() {
     fecharIframes();
     var bc = document.getElementById('playerBtnsContainer');
@@ -741,56 +759,62 @@ function showEpisodePlayerButtons(ep, titulo, videoUrl) {
   btnContainer.style.display = 'flex';
   fecharIframes();
 
-  var temAlgumPlayer = false;
-
-  // Player 1 — sempre mostrar para séries se tiver link
-  if (videoUrl) {
-    temAlgumPlayer = true;
-    var btn1 = document.createElement('button');
-    btn1.className = 'player-select-btn player-select-btn--primary';
-    btn1.innerHTML = '▶ Player 1 <span class="player-badge">Oficial</span>';
-    btn1.addEventListener('click', function() {
-      fecharIframes();
-      if (!seriePlayer) return;
-      seriePlayer.loadEpisode(videoUrl, titulo, _serieItem ? _serieItem.capa : '', PipocaAPI.parseLegendas(ep.legendas || (_serieItem ? _serieItem.legendas : '') || ''));
-      document.getElementById('playerBox').style.display = 'block';
-      document.getElementById('playerBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
-    btnContainer.appendChild(btn1);
-  }
-
-  // Players alternativos 2-6
-  var alts = [
-    { link: ep.player2, nome: 'Player 2' },
-    { link: ep.player3, nome: 'Player 3' },
-    { link: ep.player4, nome: 'Player 4' },
-    { link: ep.player5, nome: 'Player 5' },
-    { link: ep.player6, nome: 'Player 6' },
-  ];
-  alts.forEach(function(p) {
-    if (!p.link || p.link.trim() === '') return;
-    temAlgumPlayer = true;
-    var btn = document.createElement('button');
-    btn.className = 'player-select-btn';
-    btn.innerHTML = '▶ ' + p.nome;
-    btn.addEventListener('click', (function(link, nome) {
-      return function() {
-        fecharIframes();
-        abrirPlayerIframe(link, nome);
-      };
-    })(p.link, p.nome));
-    btnContainer.appendChild(btn);
+  // Monta as opções de player disponíveis pra este episódio, na ordem de exibição.
+  var opcoes = [];
+  if (videoUrl) opcoes.push({ tipo: 'oficial', nome: 'Player 1', link: videoUrl });
+  [ep.player2, ep.player3, ep.player4, ep.player5, ep.player6].forEach(function(link, i) {
+    if (link && link.trim() !== '') opcoes.push({ tipo: 'alt', nome: 'Player ' + (i + 2), link: link });
   });
 
-  if (!temAlgumPlayer) {
+  if (!opcoes.length) {
     var msg = document.createElement('p');
     msg.className = 'no-player-msg';
     msg.textContent = '😔 Nenhum player disponível para este episódio no momento.';
     btnContainer.appendChild(msg);
+    playerSection.style.display = 'block';
+    playerSection.scrollIntoView({ behavior: 'smooth' });
+    return;
   }
+
+  function carregarOpcao(opcao, btnEl) {
+    _playerAtivoNome = opcao.nome;
+    btnContainer.querySelectorAll('.player-select-btn').forEach(function(b) { b.classList.remove('is-active'); });
+    if (btnEl) btnEl.classList.add('is-active');
+    if (opcao.tipo === 'oficial') {
+      fecharIframes();
+      if (!seriePlayer) return;
+      seriePlayer.loadEpisode(opcao.link, titulo, _serieItem ? _serieItem.capa : '', PipocaAPI.parseLegendas(ep.legendas || (_serieItem ? _serieItem.legendas : '') || ''));
+      document.getElementById('playerBox').style.display = 'block';
+    } else {
+      var vidEl = document.getElementById('video');
+      if (vidEl) vidEl.pause();
+      var pb = document.getElementById('playerBox');
+      if (pb) pb.style.display = 'none';
+      abrirPlayerIframe(opcao.link, opcao.nome);
+    }
+  }
+
+  // Mantém o mesmo player da escolha anterior, se ele existir pra este
+  // episódio também; senão usa o primeiro disponível (Player 1 se tiver).
+  var idxEscolhido = opcoes.findIndex(function(o) { return o.nome === _playerAtivoNome; });
+  if (idxEscolhido === -1) idxEscolhido = 0;
+
+  var botoes = opcoes.map(function(opcao) {
+    var btn = document.createElement('button');
+    btn.className = 'player-select-btn' + (opcao.tipo === 'oficial' ? ' player-select-btn--primary' : '');
+    btn.innerHTML = '▶ ' + opcao.nome + (opcao.tipo === 'oficial' ? ' <span class="player-badge">Oficial</span>' : '');
+    btn.addEventListener('click', function() { carregarOpcao(opcao, btn); });
+    btnContainer.appendChild(btn);
+    return btn;
+  });
 
   playerSection.style.display = 'block';
   playerSection.scrollIntoView({ behavior: 'smooth' });
+
+  // Já carrega direto — a pessoa clicou no episódio esperando ver o vídeo,
+  // não escolher um player antes. Quem quiser trocar de mirror, os botões
+  // continuam ali embaixo.
+  carregarOpcao(opcoes[idxEscolhido], botoes[idxEscolhido]);
 }
 
 function tocar(ep){

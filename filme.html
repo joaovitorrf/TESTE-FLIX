@@ -817,11 +817,26 @@ async function init() {
             '<button class="alt-player-btn" id="altPlayerClose" title="Fechar">✕</button>' +
           '</div>' +
         '</div>' +
-        '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
-        ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
-        ' referrerpolicy="no-referrer-when-downgrade" scrolling="no" frameborder="0"></iframe>';
+        '<div class="alt-player-frame-wrap" id="altPlayerFrameWrap">' +
+          '<div class="alt-player-loading" id="altPlayerLoading">' +
+            '<div class="alt-player-spinner"></div>' +
+            '<span>⏳ Carregando, aguarda aí irmão...</span>' +
+          '</div>' +
+          '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
+          ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
+          ' referrerpolicy="no-referrer-when-downgrade" scrolling="no" frameborder="0"></iframe>' +
+        '</div>';
       playerSection.appendChild(iframeWrap);
       iframeWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Esconde o "carregando" assim que o embed terminar de montar (evento
+      // 'load' do iframe) — com um teto de segurança caso o embed nunca dispare.
+      var loadingEl = document.getElementById('altPlayerLoading');
+      var esconderLoading = function () { if (loadingEl) loadingEl.classList.add('hidden'); };
+      var iframeEl = document.getElementById('altPlayerIframe');
+      if (iframeEl) iframeEl.addEventListener('load', esconderLoading);
+      setTimeout(esconderLoading, 8000);
+
       document.getElementById('altPlayerClose').addEventListener('click', function() {
         fecharIframes();
         var bc = document.getElementById('playerBtnsContainer');
@@ -840,51 +855,14 @@ async function init() {
       var btnContainer = document.createElement('div');
       btnContainer.id = 'playerBtnsContainer';
       btnContainer.className = 'player-btns-container';
-      var temAlgumPlayer = false;
 
-      // Player 1 — só mostra se coluna P estiver preenchida
+      var opcoes = [];
       if (item.playerStatus && item.playerStatus.trim() !== '' && item.linkMP4) {
-        temAlgumPlayer = true;
-        var btn1 = document.createElement('button');
-        btn1.className = 'player-select-btn player-select-btn--primary';
-        btn1.innerHTML = '▶ Player 1 <span class="player-badge">Oficial</span>';
-        btn1.addEventListener('click', function() {
-          fecharIframes();
-          document.getElementById('playerBox').style.display = 'block';
-          document.getElementById('playerBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          document.getElementById('video').play().catch(function(){});
-        });
-        btnContainer.appendChild(btn1);
+        opcoes.push({ tipo: 'oficial', nome: 'Player 1' });
       }
-
-      // Players alternativos 2-5
-      var alts = [
-        { link: item.player2, nome: 'Player 2' },
-        { link: item.player3, nome: 'Player 3' },
-        { link: item.player4, nome: 'Player 4' },
-        { link: item.player5, nome: 'Player 5' },
-      ];
-      alts.forEach(function(p) {
-        if (!p.link || p.link.trim() === '') return;
-        temAlgumPlayer = true;
-        var btn = document.createElement('button');
-        btn.className = 'player-select-btn';
-        btn.innerHTML = '▶ ' + p.nome;
-        btn.addEventListener('click', (function(link, nome) {
-          return function() {
-            fecharIframes();
-            abrirPlayerIframe(link, nome);
-          };
-        })(p.link, p.nome));
-        btnContainer.appendChild(btn);
+      [item.player2, item.player3, item.player4, item.player5].forEach(function(link, i) {
+        if (link && link.trim() !== '') opcoes.push({ tipo: 'alt', nome: 'Player ' + (i + 2), link: link });
       });
-
-      if (!temAlgumPlayer) {
-        var msg = document.createElement('p');
-        msg.className = 'no-player-msg';
-        msg.textContent = '😔 Nenhum player disponível para este título no momento.';
-        btnContainer.appendChild(msg);
-      }
 
       // Limpar playerSection e adicionar botões
       var existingBtns = document.getElementById('playerBtnsContainer');
@@ -895,6 +873,43 @@ async function init() {
       else playerSection.appendChild(btnContainer);
       playerSection.style.display = 'block';
       playerSection.scrollIntoView({ behavior: 'smooth' });
+
+      if (!opcoes.length) {
+        var msg = document.createElement('p');
+        msg.className = 'no-player-msg';
+        msg.textContent = '😔 Nenhum player disponível para este título no momento.';
+        btnContainer.appendChild(msg);
+        return;
+      }
+
+      function carregarOpcao(opcao, btnEl) {
+        btnContainer.querySelectorAll('.player-select-btn').forEach(function(b) { b.classList.remove('is-active'); });
+        if (btnEl) btnEl.classList.add('is-active');
+        if (opcao.tipo === 'oficial') {
+          fecharIframes();
+          document.getElementById('playerBox').style.display = 'block';
+          document.getElementById('video').play().catch(function(){});
+        } else {
+          var vidEl = document.getElementById('video');
+          if (vidEl) vidEl.pause();
+          var pb = document.getElementById('playerBox');
+          if (pb) pb.style.display = 'none';
+          abrirPlayerIframe(opcao.link, opcao.nome);
+        }
+      }
+
+      var botoes = opcoes.map(function(opcao) {
+        var btn = document.createElement('button');
+        btn.className = 'player-select-btn' + (opcao.tipo === 'oficial' ? ' player-select-btn--primary' : '');
+        btn.innerHTML = '▶ ' + opcao.nome + (opcao.tipo === 'oficial' ? ' <span class="player-badge">Oficial</span>' : '');
+        btn.addEventListener('click', function() { carregarOpcao(opcao, btn); });
+        btnContainer.appendChild(btn);
+        return btn;
+      });
+
+      // Já carrega direto o primeiro disponível — clicou em Assistir Agora
+      // esperando ver o vídeo, não escolher o player antes.
+      carregarOpcao(opcoes[0], botoes[0]);
     }
 
     // ── watchNowBtn click ──
