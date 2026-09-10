@@ -112,22 +112,31 @@ async function excluirLista(listaId) {
   await deleteDoc(doc(db, 'users', user.uid, 'listas', listaId));
 }
 
-/* ─── Espera o auth resolver (getUser fica null até o Firebase confirmar) ─── */
+/* ─── Espera o auth resolver (getUser fica null até o Firebase confirmar) ───
+   Antes isso sempre esperava o timeout INTEIRO quando a pessoa não estava
+   logada (getUser() nunca fica "true", só fica null igual antes de checar).
+   Agora escuta o próprio onAuthChanged — que dispara assim que o Firebase
+   confirma o estado (logado ou não) — e só usa o timeout como rede de
+   segurança, não como o caminho normal. */
 function waitForAuthUser(timeoutMs) {
-  timeoutMs = timeoutMs || 6000;
+  timeoutMs = timeoutMs || 3000;
   return new Promise(resolve => {
     const jaLogado = getUser();
     if (jaLogado) { resolve(jaLogado); return; }
+    if (!window.PipocaAuth || typeof window.PipocaAuth.onAuthChanged !== 'function') { resolve(null); return; }
     let resolvido = false;
-    let decorrido = 0;
-    const passo = 150;
-    const intervalo = setInterval(() => {
+    const safety = setTimeout(() => {
       if (resolvido) return;
-      const u = getUser();
-      decorrido += passo;
-      if (u) { resolvido = true; clearInterval(intervalo); resolve(u); return; }
-      if (decorrido >= timeoutMs) { resolvido = true; clearInterval(intervalo); resolve(null); }
-    }, passo);
+      resolvido = true;
+      resolve(getUser());
+    }, timeoutMs);
+    const unsubscribe = window.PipocaAuth.onAuthChanged(user => {
+      if (resolvido) return;
+      resolvido = true;
+      clearTimeout(safety);
+      if (typeof unsubscribe === 'function') unsubscribe();
+      resolve(user || null);
+    });
   });
 }
 

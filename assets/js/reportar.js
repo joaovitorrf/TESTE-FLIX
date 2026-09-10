@@ -34,19 +34,24 @@ function getUser() {
 }
 
 function waitForAuthUser(timeoutMs) {
-  timeoutMs = timeoutMs || 6000;
+  timeoutMs = timeoutMs || 3000;
   return new Promise(resolve => {
     const jaLogado = getUser();
     if (jaLogado) { resolve(jaLogado); return; }
-    let resolvido = false, decorrido = 0;
-    const passo = 150;
-    const intervalo = setInterval(() => {
+    if (!window.PipocaAuth || typeof window.PipocaAuth.onAuthChanged !== 'function') { resolve(null); return; }
+    let resolvido = false;
+    const safety = setTimeout(() => {
       if (resolvido) return;
-      const u = getUser();
-      decorrido += passo;
-      if (u) { resolvido = true; clearInterval(intervalo); resolve(u); return; }
-      if (decorrido >= timeoutMs) { resolvido = true; clearInterval(intervalo); resolve(null); }
-    }, passo);
+      resolvido = true;
+      resolve(getUser());
+    }, timeoutMs);
+    const unsubscribe = window.PipocaAuth.onAuthChanged(user => {
+      if (resolvido) return;
+      resolvido = true;
+      clearTimeout(safety);
+      if (typeof unsubscribe === 'function') unsubscribe();
+      resolve(user || null);
+    });
   });
 }
 

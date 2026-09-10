@@ -191,8 +191,8 @@ function mapSerie(row) {
     tipo:       row[11] || 'Série',
     audio:      row[12] || '',
     totalTemp:  row[13] || '1',
+    visivel:    (row[14] || '').trim().toUpperCase() !== 'FALSE', // coluna O (aba séries) — TRUE/vazio = aparece, FALSE = some da busca/recomendações
     backdrop:   row[20] || '',  // coluna U — imagem paisagem para hero desktop
-    visivel:    (row[22] || '').trim().toUpperCase() !== 'FALSE', // coluna W — TRUE/vazio = aparece, FALSE = some da busca/recomendações
     plataforma: row[24] || '',  // coluna Y — plataforma de streaming (se a aba de séries tiver essa coluna)
     legendas:   row[25] || '',  // coluna Z — legendas padrão da série (opcional, mesmo formato de mapFilme)
     isSerie:    true
