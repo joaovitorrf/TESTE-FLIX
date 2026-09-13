@@ -1512,7 +1512,11 @@ async function loadCanaisHome() {
 }
 
 // ── Carregar Jogos de Futebol de Hoje ──
-const JOGOS_API_URL = 'https://superflixapi.monster/lista?category=eventos&sport=futebol&format=json';
+// TROCAR AQUI: depois de dar deploy no worker-jogos.js (ver instruções no
+// próprio arquivo), troca essa URL pela URL do seu worker + "/jogos".
+// Chamar https://superflixapi.monster direto do navegador não funciona
+// (CORS bloqueado) — por isso passa pelo worker, igual a planilha.
+const JOGOS_API_URL = 'https://jogosdehoje.slacarambafdsosobrenome.workers.dev';
 
 // Normaliza texto pra comparação (minúsculas, sem acento, sem pontuação)
 function jogoNormalize(str) {
