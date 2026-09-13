@@ -271,19 +271,15 @@
   </div>
 </section>
 
-<!-- ═══ CATEGORIAS ═══ -->
-<section class="categories-section">
+<!-- ═══ JOGOS DE FUTEBOL DE HOJE ═══ -->
+<section class="jogos-section content-section" id="jogosSection" style="display:none">
   <div class="section-header">
-    <h2 class="section-title">Explorar Categorias</h2>
+    <h2 class="section-title">⚽ Jogos de Hoje</h2>
   </div>
-  <div class="cat-scroll-wrap">
-    <button class="carousel-arrow prev" id="catPrev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="cat-scroll" id="catScroll"></div>
-    <button class="carousel-arrow next" id="catNext" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
+  <div class="jogos-scroll-wrap">
+    <div class="jogos-track" id="jogosTrack">
+      <div style="color:var(--text-3);padding:20px">Carregando jogos...</div>
+    </div>
   </div>
 </section>
 
@@ -431,6 +427,22 @@
       <div class="skeleton" style="width:160px;flex-shrink:0"></div>
     </div>
     <button class="carousel-arrow next" id="serieNext" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ═══ CATEGORIAS ═══ -->
+<section class="categories-section">
+  <div class="section-header">
+    <h2 class="section-title">Explorar Categorias</h2>
+  </div>
+  <div class="cat-scroll-wrap">
+    <button class="carousel-arrow prev" id="catPrev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="cat-scroll" id="catScroll"></div>
+    <button class="carousel-arrow next" id="catNext" aria-label="Próximo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -1499,7 +1511,121 @@ async function loadCanaisHome() {
   } catch(e) { console.warn('[Canais Home]', e); }
 }
 
-document.addEventListener('DOMContentLoaded', function() { init(); loadCanaisHome(); });
+// ── Carregar Jogos de Futebol de Hoje ──
+const JOGOS_API_URL = 'https://superflixapi.monster/lista?category=eventos&sport=futebol&format=json';
+
+// Normaliza texto pra comparação (minúsculas, sem acento, sem pontuação)
+function jogoNormalize(str) {
+  return (str || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Compara nomes de canal evitando falso-positivo tipo "Reacher" ⊂ "Preacher":
+// só bate se forem iguais OU se um aparecer como PALAVRA INTEIRA dentro do outro.
+function jogoCanalMatch(nomeA, nomeB) {
+  var a = jogoNormalize(nomeA), b = jogoNormalize(nomeB);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  var escA = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var escB = b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var reA = new RegExp('(^|\\s)' + escA + '(\\s|$)');
+  var reB = new RegExp('(^|\\s)' + escB + '(\\s|$)');
+  return reA.test(b) || reB.test(a);
+}
+
+// Procura, entre os embeds do jogo (JSON da API de eventos), um canal que
+// também exista na nossa planilha de Canais Ao Vivo. Retorna o objeto do
+// canal (nome/embedUrl/etc — vindo do getCanais()) ou null se não achar.
+function achaCanalDoJogo(embeds, canaisSite) {
+  if (!embeds || !embeds.length || !canaisSite || !canaisSite.length) return null;
+  for (var i = 0; i < embeds.length; i++) {
+    var emb = embeds[i];
+    if (!emb || emb.type !== 'channel' || !emb.provider) continue;
+    for (var j = 0; j < canaisSite.length; j++) {
+      if (jogoCanalMatch(emb.provider, canaisSite[j].nome)) return canaisSite[j];
+    }
+  }
+  return null;
+}
+
+// Data de "hoje" no fuso de Brasília (a API já manda os horários nesse fuso)
+function jogoHojeBrasilISO() {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  } catch (e) {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+async function loadJogosHome() {
+  const section = document.getElementById('jogosSection');
+  const track = document.getElementById('jogosTrack');
+  if (!section || !track) return;
+  try {
+    const [jogosRes, canaisSite] = await Promise.all([
+      fetch(JOGOS_API_URL, { headers: { 'Accept': 'application/json' } }),
+      window.PipocaAPI.getCanais().catch(function () { return []; })
+    ]);
+    if (!jogosRes.ok) throw new Error('HTTP ' + jogosRes.status);
+    const json = await jogosRes.json();
+    const todos = (json && json.data) || [];
+
+    const hoje = jogoHojeBrasilISO();
+    let jogosHoje = todos.filter(function (j) {
+      return j.start_time && j.start_time.slice(0, 10) === hoje;
+    });
+    jogosHoje.sort(function (a, b) { return (a.start_time || '').localeCompare(b.start_time || ''); });
+
+    if (!jogosHoje.length) { section.style.display = 'none'; return; }
+
+    track.innerHTML = '';
+    jogosHoje.slice(0, 40).forEach(function (jogo) {
+      const nomesTitulo = (jogo.title || '').split(/\s+x\s+/i);
+      const time1Nome = jogo.time1_name || nomesTitulo[0] || '';
+      const time2Nome = jogo.time2_name || nomesTitulo[1] || '';
+      const time1Logo = jogo.time1 || jogo.event_logo || '';
+      const time2Logo = jogo.time2 || jogo.event_logo || '';
+      const horario   = jogo.start_time ? jogo.start_time.slice(11, 16) : '';
+      const isLive    = jogo.status === 'live';
+
+      const canal = achaCanalDoJogo(jogo.embeds, canaisSite);
+
+      const card = document.createElement(canal ? 'a' : 'div');
+      card.className = 'jogo-card' + (canal ? '' : ' jogo-sem-canal');
+      if (canal) card.href = 'canal.html?nome=' + encodeURIComponent(canal.nome);
+      card.title = jogo.title || '';
+      card.innerHTML = ''
+        + '<div class="jogo-competicao">' + (jogo.competition || '') + '</div>'
+        + '<div class="jogo-times">'
+        +   '<div class="jogo-time">'
+        +     (time1Logo ? '<img class="jogo-escudo" src="' + time1Logo + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<div class="jogo-escudo"></div>')
+        +     '<span class="jogo-time-nome">' + time1Nome + '</span>'
+        +   '</div>'
+        +   '<span class="jogo-vs">x</span>'
+        +   '<div class="jogo-time">'
+        +     (time2Logo ? '<img class="jogo-escudo" src="' + time2Logo + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<div class="jogo-escudo"></div>')
+        +     '<span class="jogo-time-nome">' + time2Nome + '</span>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="jogo-rodape">'
+        +   (isLive ? '<span class="jogo-live-badge">AO VIVO</span>' : '<span class="jogo-horario">' + horario + '</span>')
+        +   (canal ? '<span class="jogo-canal-tag">' + canal.nome + '</span>' : '<span class="jogo-canal-tag">Sem canal</span>')
+        + '</div>';
+      track.appendChild(card);
+    });
+
+    section.style.display = 'block';
+  } catch (e) {
+    console.warn('[Jogos Home]', e);
+    section.style.display = 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() { init(); loadCanaisHome(); loadJogosHome(); });
 </script>
 
 <script>
