@@ -287,9 +287,7 @@ async function getEpisodiosPorSerie(nomeSerieOriginal) {
   // Filtra só os episódios da série pedida
   const filtrados = todosEpisodios.filter(e => {
     const serieNorm = normalizeStr(e.serie);
-    return serieNorm.includes(nomeNorm)
-      || nomeNorm.includes(serieNorm)
-      || e.serie.toLowerCase() === nomeSerieOriginal.toLowerCase();
+    return isNomeSerieMatch(serieNorm, nomeNorm);
   });
 
   console.log(`[API] getEpisodiosPorSerie: ${filtrados.length} episódios encontrados para "${nomeSerieOriginal}"`);
@@ -331,6 +329,36 @@ function normalizeStr(str) {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\s]/g, '')
     .trim();
+}
+
+/* ─────────────────────────────────────────────
+   isNomeSerieMatch — compara o nome da série da aba
+   de episódios com o nome pedido pela página.
+
+   BUG CORRIGIDO (13/09/2026): a versão antiga usava
+   serieNorm.includes(nomeNorm) || nomeNorm.includes(serieNorm),
+   um includes() "cru". Isso causava falso-positivo em
+   pares tipo "Reacher" x "Preacher": normalizeStr("Preacher")
+   é "preacher", que CONTÉM "reacher" como substring — então
+   os episódios de uma série apareciam colados na outra (e
+   vice-versa).
+
+   Testei também uma versão "por palavra inteira" (ex: exigir
+   que "reacher" apareça como palavra separada, não dentro de
+   outra palavra) — mas ISSO AINDA quebra em pares tipo "Dark"
+   x "Dark Matter" (duas séries reais e diferentes), porque
+   "Dark" é uma palavra inteira dentro de "Dark Matter".
+
+   Por isso a versão final exige MATCH EXATO (após normalizar:
+   minúsculas, sem acento/pontuação). É a única forma de garantir
+   ZERO contaminação entre séries diferentes. Se depois desse
+   fix uma série específica ficar sem episódios, o motivo é o
+   nome dela na planilha de Séries estar diferente do nome usado
+   na coluna "série" das abas de Episódios — aí é só igualar os
+   dois nomes na planilha (mais seguro que o código "adivinhar").
+───────────────────────────────────────────── */
+function isNomeSerieMatch(serieNorm, nomeNorm) {
+  return !!serieNorm && !!nomeNorm && serieNorm === nomeNorm;
 }
 
 /* ─────────────────────────────────────────────
