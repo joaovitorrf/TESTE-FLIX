@@ -3906,6 +3906,75 @@ input { font-family: var(--font-body); }
   border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase;
 }
 
+/* ══ JOGOS DE FUTEBOL (HOME) ══ */
+.jogos-section { padding: 0 0 2rem; }
+.jogos-section .section-header { display: flex; align-items: center; gap: 12px; padding: 0 1.5rem 1rem; flex-wrap: wrap; }
+.jogos-section .section-title { margin: 0; }
+
+.jogos-scroll-wrap { position: relative; overflow: hidden; }
+.jogos-track {
+  display: flex; gap: 12px; overflow-x: auto; padding: 0 1.5rem 1rem;
+  scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.jogos-track::-webkit-scrollbar { display: none; }
+
+.jogo-card {
+  flex-shrink: 0; width: 220px; min-height: 128px;
+  background: var(--surface-2); border-radius: 10px;
+  border: 2px solid var(--border); cursor: pointer;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 10px 12px; position: relative; overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+.jogo-card:hover {
+  transform: scale(1.04);
+  border-color: var(--red);
+  box-shadow: 0 0 16px rgba(255,45,67,0.4);
+}
+.jogo-card.jogo-sem-canal { cursor: default; opacity: 0.72; }
+.jogo-card.jogo-sem-canal:hover { transform: none; border-color: var(--border); box-shadow: none; }
+
+.jogo-competicao {
+  font-size: 0.66rem; font-weight: 700; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+
+.jogo-times { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 8px 0; }
+.jogo-time { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; min-width: 0; }
+.jogo-escudo { width: 36px; height: 36px; object-fit: contain; }
+.jogo-time-nome {
+  font-size: 0.62rem; font-weight: 600; color: var(--text-2);
+  text-align: center; line-height: 1.15;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.jogo-vs { font-size: 0.7rem; font-weight: 800; color: var(--text-3); flex-shrink: 0; }
+
+.jogo-rodape { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.jogo-horario {
+  font-size: 0.72rem; font-weight: 700; color: var(--text-1);
+  background: var(--surface-3); border-radius: 4px; padding: 2px 7px;
+}
+.jogo-live-badge {
+  background: var(--red); color: #fff; font-size: 0.62rem; font-weight: 800;
+  padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;
+  animation: pulseLive 1.5s ease-in-out infinite;
+}
+.jogo-canal-tag {
+  font-size: 0.6rem; color: var(--text-3); max-width: 100px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .jogos-track .jogo-card { width: 180px !important; min-height: 118px !important; padding: 8px 10px !important; }
+  .jogos-track .jogo-escudo { width: 30px !important; height: 30px !important; }
+  .jogos-track .jogo-time { width: 54px !important; }
+  .jogos-track .jogo-time-nome { font-size: 0.58rem; }
+  .jogos-track { gap: 8px !important; padding: 4px 0.75rem 12px !important; }
+}
+
 /* ── Canal Player Page ── */
 .canal-detail-wrap { max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
 .canal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 1.5rem; flex-wrap: wrap; }
