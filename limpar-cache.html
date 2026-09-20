@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ff2d43">
+<title>Atualizando… — PipocaFlix</title>
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){try{document.documentElement.setAttribute('data-theme',localStorage.getItem('pflix_theme')||'dark');}catch(e){}})();</script>
+<style>
+  /* Tela de "carregando" — igual à do aviso de atualização (assets/js/avisos.js) */
+  .lc-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
+    background:var(--void,#050507);color:var(--text-1,#f0f0f6);font-family:var(--font-body,'DM Sans',system-ui,sans-serif);text-align:center}
+  .lc-box{max-width:340px}
+  .lc-spin{width:38px;height:38px;margin:0 auto 1.1rem;border-radius:50%;
+    border:3px solid var(--border-light,rgba(255,255,255,.12));border-top-color:var(--red,#ff2d43);
+    animation:lcSpin .8s linear infinite}
+  .lc-title{font-family:var(--font-display,'Syne',system-ui,sans-serif);font-weight:700;font-size:1.15rem;margin:0 0 .35rem}
+  .lc-sub{margin:0;font-size:.85rem;line-height:1.5;color:var(--text-3,#5a5a72)}
+  @keyframes lcSpin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.lc-spin{animation:none;border-top-color:var(--red,#ff2d43);border-right-color:var(--red,#ff2d43)}}
+</style>
+</head>
+<body>
+<!--
+  COMO FUNCIONA (não precisa mexer):
+  O vercel.json manda o cabeçalho  Clear-Site-Data: "cache", "cookies"  nesta página.
+  Quando o navegador recebe esse cabeçalho, ele mesmo apaga o cache e os cookies do
+  PipocaFlix (é o único jeito oficial de um site limpar isso — só JavaScript não consegue).
+  NÃO apaga favoritos, histórico, listas nem o login (isso fica no localStorage/IndexedDB,
+  e de propósito NÃO usamos a opção "storage").
+  Depois de limpar, esta página devolve a pessoa pra onde ela estava.
+-->
+<main class="lc-wrap" role="status" aria-live="polite">
+  <div class="lc-box">
+    <div class="lc-spin" aria-hidden="true"></div>
+    <p class="lc-title">Atualizando o PipocaFlix…</p>
+    <p class="lc-sub">Só mais um instante, você já volta pro que estava vendo.</p>
+  </div>
+</main>
+<script>
+(function () {
+  // Volta pra página de onde a pessoa veio. Só aceita caminho interno do próprio site
+  // (começa com uma única "/") — assim ninguém consegue usar esta página pra mandar
+  // o usuário pra outro site.
+  var volta = '/';
+  try {
+    var pedido = new URLSearchParams(location.search).get('volta') || '/';
+    if (pedido.charAt(0) === '/' && pedido.charAt(1) !== '/' && pedido.charAt(1) !== '\\') volta = pedido;
+  } catch (e) {}
+  volta = volta.split('#')[0];
+
+  // "_u=" faz a URL ser nova → a página volta baixando tudo de novo (o avisos.js tira esse "_u" da barra de endereço)
+  var destino = volta + (volta.indexOf('?') === -1 ? '?' : '&') + '_u=' + Date.now();
+  setTimeout(function () { location.replace(destino); }, 900);
+})();
+</script>
+</body>
+</html>
