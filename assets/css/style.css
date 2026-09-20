@@ -72,12 +72,139 @@
    escondido atrás do menu fixo. Um único lugar resolve pra tudo. */
 html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: calc(var(--header-h) + 14px); }
 
-/* ─── Cursor personalizado (só desktop com mouse de verdade) ─── */
+/* ─── Cursor personalizado (só desktop com mouse de verdade) ───────────────
+   A setinha vermelha continua sendo o padrão, mas agora o cursor MUDA de forma:
+     • setinha  → cursor-pointer.png   (padrão)
+     • mãozinha → cursor-link.png      (links, botões, cards, tudo que é clicável)
+     • "I"      → cursor-text.png      (textos e campos de digitar)
+     • mão aberta / fechada → cursor-grab.png / cursor-grabbing.png (arrastar)
+   Como funciona: todas as regras abaixo usam :where() (especificidade zero) e
+   !important, então quem vence é SEMPRE a ordem — a regra mais embaixo ganha.
+   Por isso a ordem importa: padrão → texto → clicável → campos → desativado → arrastar.
+   ⚠ Criou uma classe nova clicável (ex.: um card feito com <div>)? Basta o CSS dela
+   ter "cursor: pointer" e adicionar o nome dela na lista "clicável" (item 3) abaixo.
+   Botões (<button>), links (<a href>) e elementos com onclick já entram sozinhos. */
 @media (hover: hover) and (pointer: fine) {
+
+  /* 1 · Padrão: setinha em tudo */
   * { cursor: url('../img/cursor-pointer.png') 2 2, auto !important; }
-  input, textarea, select, [contenteditable="true"] { cursor: text !important; }
-  input[type="checkbox"], input[type="radio"], input[type="range"] {
-    cursor: url('../img/cursor-pointer.png') 2 2, pointer !important;
+
+  /* 2 · Texto: "I" quando estiver em cima de texto que dá pra selecionar */
+  :where(p, h1, h2, h3, h4, h5, h6, li, dt, dd, blockquote, pre, code, td, th,
+         figcaption, cite, q, em, strong, b, i, small, mark, time, address, span) {
+    cursor: url('../img/cursor-text.png') 20 20, text !important;
+  }
+
+  /* 3 · Clicável: mãozinha (o elemento e tudo que estiver dentro dele) */
+  :where(
+    a[href],
+    button,
+    summary,
+    label,
+    select,
+    [role="button"],
+    [role="tab"],
+    [role="link"],
+    [onclick],
+    input[type="checkbox"],
+    input[type="radio"],
+    input[type="range"],
+    input[type="submit"],
+    input[type="button"],
+    input[type="reset"],
+    input[type="file"],
+    input[type="color"],
+    [style*="cursor:pointer"],
+    [style*="cursor: pointer"],
+    /* classes que o site já marca como clicáveis */
+    .btn-assinar, .faq-q, .btn-google, .already-reset,
+    .install-card .btn-install, .btn, .search-btn, .ator-card,
+    .ator-modal-fechar, .ator-bio-btn, .ator-filmo-item, .buscar-clear,
+    .filter-chip, .btn-primary, .btn-secondary, .hero-arrow,
+    .hero-dot, .cat-card, .carousel-arrow, .card,
+    .page-btn, .unlock-btn, .player-overlay, .player-header-back,
+    .ctrl-btn-lg, .center-play-btn, .player-progress, .ctrl-btn,
+    .ctrl-vol-slider, .ctrl-popup-option, .next-ep-cancel, .next-ep-btn,
+    .vast-ad-skip.can-skip, .vast-ad-tap, .cast-item, .season-tab,
+    .episode-btn, .pflix-modal-close, .pflix-lista-item, .pflix-lista-checkbox,
+    .pflix-nova-lista-btn, .back-to-top, .hamburger-btn, .push-modal-accept,
+    .push-modal-decline, .fav-hint-close, .discover-card, .theme-toggle-btn,
+    .card-fav-btn, .card-hover-btn, .filter-select, .filter-clear-btn,
+    .filter-mobile-fab, .resume-toast-btns button, .btn-watched, .btn-watched-overlay,
+    .letter-btn, .decade-btn, .player-select-btn, .alt-player-btn,
+    .poster-play-btn, .auth-btn, .nav-dropdown-btn, .canal-card,
+    .jogo-card, .canal-fullscreen-btn, .platform-card, .ticket-login-link,
+    .ticket-submit-btn, .ticket-toggle-status-btn, .ticket-reply-submit
+  ),
+  :where(
+    a[href],
+    button,
+    summary,
+    label,
+    select,
+    [role="button"],
+    [role="tab"],
+    [role="link"],
+    [onclick],
+    input[type="checkbox"],
+    input[type="radio"],
+    input[type="range"],
+    input[type="submit"],
+    input[type="button"],
+    input[type="reset"],
+    input[type="file"],
+    input[type="color"],
+    [style*="cursor:pointer"],
+    [style*="cursor: pointer"],
+    .btn-assinar, .faq-q, .btn-google, .already-reset,
+    .install-card .btn-install, .btn, .search-btn, .ator-card,
+    .ator-modal-fechar, .ator-bio-btn, .ator-filmo-item, .buscar-clear,
+    .filter-chip, .btn-primary, .btn-secondary, .hero-arrow,
+    .hero-dot, .cat-card, .carousel-arrow, .card,
+    .page-btn, .unlock-btn, .player-overlay, .player-header-back,
+    .ctrl-btn-lg, .center-play-btn, .player-progress, .ctrl-btn,
+    .ctrl-vol-slider, .ctrl-popup-option, .next-ep-cancel, .next-ep-btn,
+    .vast-ad-skip.can-skip, .vast-ad-tap, .cast-item, .season-tab,
+    .episode-btn, .pflix-modal-close, .pflix-lista-item, .pflix-lista-checkbox,
+    .pflix-nova-lista-btn, .back-to-top, .hamburger-btn, .push-modal-accept,
+    .push-modal-decline, .fav-hint-close, .discover-card, .theme-toggle-btn,
+    .card-fav-btn, .card-hover-btn, .filter-select, .filter-clear-btn,
+    .filter-mobile-fab, .resume-toast-btns button, .btn-watched, .btn-watched-overlay,
+    .letter-btn, .decade-btn, .player-select-btn, .alt-player-btn,
+    .poster-play-btn, .auth-btn, .nav-dropdown-btn, .canal-card,
+    .jogo-card, .canal-fullscreen-btn, .platform-card, .ticket-login-link,
+    .ticket-submit-btn, .ticket-toggle-status-btn, .ticket-reply-submit
+  ) * {
+    cursor: url('../img/cursor-link.png') 16 3, pointer !important;
+  }
+
+  /* 4 · Campos de digitar: "I" (ganha do item 3, ex.: <input> dentro de <label>) */
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="submit"],
+         [type="button"], [type="reset"], [type="file"], [type="color"], [type="image"]),
+         textarea, [contenteditable=""], [contenteditable="true"]) {
+    cursor: url('../img/cursor-text.png') 20 20, text !important;
+  }
+
+  /* 5 · Desativado / não clicável: volta pra setinha */
+  :where(:disabled, [aria-disabled="true"], .jogo-card.jogo-sem-canal,
+         .vast-ad-skip:not(.can-skip)),
+  :where(:disabled, [aria-disabled="true"], .jogo-card.jogo-sem-canal,
+         .vast-ad-skip:not(.can-skip)) * {
+    cursor: url('../img/cursor-pointer.png') 2 2, not-allowed !important;
+  }
+
+  /* 6 · Áreas de arrastar (carrosséis, categorias): mão aberta */
+  :where(.carousel-track, .canais-track, .jogos-track,
+         [style*="cursor:grab"], [style*="cursor: grab"]) {
+    cursor: url('../img/cursor-grab.png') 18 20, grab !important;
+  }
+
+  /* 7 · Enquanto está arrastando: mão fechada em TUDO (inclusive por cima dos cards) */
+  :where(.carousel-track.dragging, .canais-track.dragging, .jogos-track.dragging,
+         [style*="cursor:grabbing"], [style*="cursor: grabbing"]),
+  :where(.carousel-track.dragging, .canais-track.dragging, .jogos-track.dragging,
+         [style*="cursor:grabbing"], [style*="cursor: grabbing"]) * {
+    cursor: url('../img/cursor-grabbing.png') 19 22, grabbing !important;
   }
 }
 
@@ -3935,6 +4062,26 @@ input { font-family: var(--font-body); }
 }
 .jogo-card.jogo-sem-canal { cursor: default; opacity: 0.72; }
 .jogo-card.jogo-sem-canal:hover { transform: none; border-color: var(--border); box-shadow: none; }
+
+/* ── Arrastar pro lado no PC (Canais Ao Vivo + Jogos de Hoje) ──
+   No celular o toque já rola sozinho; no PC quem faz isso é o JS "enableDragScroll"
+   (index.html). Aqui só evitamos seleção de texto, o "fantasma" do link/imagem sendo
+   arrastado e o efeito de hover atrapalhando enquanto arrasta — igual ao .carousel-track. */
+.canais-track, .jogos-track {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.canais-track img, .jogos-track img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+.canais-track.dragging, .jogos-track.dragging {
+  scroll-behavior: auto !important;
+}
+.canais-track.dragging .canal-card,
+.jogos-track.dragging .jogo-card {
+  pointer-events: none;
+}
 
 .jogo-competicao {
   font-size: 0.66rem; font-weight: 700; color: var(--text-3);
