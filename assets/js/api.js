@@ -391,6 +391,11 @@ async function getFeedNoticias() {
 /* ─────────────────────────────────────────────
    getCanais — busca a aba de Canais Ao Vivo
    Coluna C: nome | D: categoria | E: embedUrl | F: logoUrl
+   Coluna J (SITUAÇÃO): vazio/TRUE = aparece normal.
+                        FALSE      = o canal SOME do site inteiro
+                        (home, lista de canais, jogos de hoje e página do canal).
+   O filtro é feito AQUI, na origem, então nenhuma página consegue
+   mostrar um canal FALSE por engano.
 ───────────────────────────────────────────── */
 const CANAIS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=319480319';
 const CACHE_TTL_CANAIS = 10 * 60 * 1000;
@@ -410,7 +415,8 @@ async function getCanais() {
       categoria:(row[3] || '').trim(),
       embedUrl: (row[4] || '').trim(),
       logoUrl:  (row[5] || '').trim(),
-    })).filter(c => c.nome);
+      visivel:  (row[9] || '').trim().toUpperCase() !== 'FALSE', // coluna J (SITUAÇÃO)
+    })).filter(c => c.nome && c.visivel);
     _cache[cacheKey] = { data, ts: Date.now() };
     return data;
   } catch(e) {
@@ -608,3 +614,102 @@ async function getTmdbEpisodiosTemporada(nomeSerie, ano, temporada) {
 }
 
 window.PipocaAPI.getTmdbEpisodiosTemporada = getTmdbEpisodiosTemporada;
+
+
+/* ─────────────────────────────────────────────
+   Schema.org (JSON-LD) — dados estruturados pro Google
+
+   As páginas filme.html / serie.html montam o conteúdo no navegador (a
+   partir da planilha), então o JSON-LD também é montado aqui, quando o
+   filme/série já foi encontrado. O Google renderiza JavaScript e lê esse
+   bloco normalmente.
+
+   Só entra o que EXISTE na planilha. De propósito NÃO tem aggregateRating
+   (nota): o site não coleta avaliações próprias, e nota inventada/copiada
+   de outro site é motivo de penalidade manual no Google.
+
+   Itens ocultos (visivel = FALSE) não recebem o bloco — são itens que o
+   dono escondeu da busca, então também não divulgamos pro Google.
+───────────────────────────────────────────── */
+
+// "2h 15min", "1h45", "105 min", "1:45", "01:45:00", "90" → "PT2H15M" (ISO 8601)
+function duracaoParaISO(txt) {
+  const s = String(txt || '').toLowerCase().trim();
+  if (!s) return '';
+  let h = 0, m = 0, mt;
+  if ((mt = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/))) {
+    h = +mt[1]; m = +mt[2];
+  } else {
+    const hm = s.match(/(\d+)\s*(?:horas?|hrs?|h)/);
+    const mm = s.match(/(\d+)\s*(?:minutos?|mins?|m)\b/);
+    if (hm) h = +hm[1];
+    if (mm) m = +mm[1];
+    if (hm && !mm) {                       // "1h45" (sem escrever "min")
+      const tail = s.match(/(?:horas?|hrs?|h)\s*(\d{1,2})\s*$/);
+      if (tail) m = +tail[1];
+    }
+    if (!hm && !mm && /^\d{1,3}$/.test(s)) m = +s;   // só o número = minutos
+  }
+  const total = h * 60 + m;
+  if (!total || total > 1500) return '';   // vazio ou absurdo → não publica
+  const H = Math.floor(total / 60), M = total % 60;
+  return 'PT' + (H ? H + 'H' : '') + (M ? M + 'M' : '');
+}
+
+function montarSchemaOrg(item) {
+  if (!item || !item.nome) return null;
+  const isSerie = !!item.isSerie;
+  const lista = s => String(s || '').split(',').map(x => x.trim()).filter(Boolean);
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': isSerie ? 'TVSeries' : 'Movie',
+    name: item.nome,
+    url: location.origin + location.pathname + '?nome=' + encodeURIComponent(item.nome),
+  };
+
+  if (item.sinopse) schema.description = item.sinopse;
+  if (/^https?:\/\//i.test(item.capa || '')) schema.image = item.capa;
+
+  const ano = String(item.ano || '').match(/\b(?:19|20)\d{2}\b/);
+  if (ano) { if (isSerie) schema.startDate = ano[0]; else schema.datePublished = ano[0]; }
+
+  const generos = lista(item.categoria);
+  if (generos.length) schema.genre = generos;
+
+  const elenco = lista(item.nomeElenco).slice(0, 15).map(n => ({ '@type': 'Person', name: n }));
+  if (elenco.length) schema.actor = elenco;
+
+  if (isSerie) {
+    const t = parseInt(item.totalTemp, 10);
+    if (t > 0) schema.numberOfSeasons = t;
+  } else {
+    const dur = duracaoParaISO(item.duracao);
+    if (dur) schema.duration = dur;
+  }
+  return schema;
+}
+
+// Coloca (ou atualiza) o <script type="application/ld+json"> no <head>.
+function injetarSchemaOrg(item) {
+  try {
+    if (!isVisivel(item)) return;
+    const schema = montarSchemaOrg(item);
+    if (!schema) return;
+    let el = document.getElementById('pflix-jsonld');
+    if (!el) {
+      el = document.createElement('script');
+      el.type = 'application/ld+json';
+      el.id = 'pflix-jsonld';
+      document.head.appendChild(el);
+    }
+    // "<" escapado: o JSON continua válido e nunca "fecha" a tag <script> por acidente
+    el.textContent = JSON.stringify(schema).replace(/</g, '\\u003c');
+  } catch (e) {
+    console.warn('[SEO] Schema.org falhou (o site segue normal):', e);
+  }
+}
+
+window.PipocaAPI.injetarSchemaOrg = injetarSchemaOrg;
+window.PipocaAPI.montarSchemaOrg  = montarSchemaOrg;
+window.PipocaAPI.duracaoParaISO   = duracaoParaISO;
