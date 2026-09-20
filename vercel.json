@@ -12,6 +12,20 @@
       "headers": [
         { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
       ]
+    },
+    {
+      "source": "/limpar-cache",
+      "headers": [
+        { "key": "Clear-Site-Data", "value": "\"cache\", \"cookies\"" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/limpar-cache.html",
+      "headers": [
+        { "key": "Clear-Site-Data", "value": "\"cache\", \"cookies\"" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
     }
   ],
   "rewrites": [
