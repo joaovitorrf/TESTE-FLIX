@@ -708,6 +708,9 @@ async function init() {
 
     if(!item){document.getElementById('loadingMsg').textContent='⚠️ Filme não encontrado.';return;}
 
+    // SEO: dados estruturados (Schema.org / JSON-LD) pro Google — ver PipocaAPI.injetarSchemaOrg em api.js
+    if (PipocaAPI.injetarSchemaOrg) PipocaAPI.injetarSchemaOrg(item);
+
     document.getElementById('detailBg').style.backgroundImage=`url(${item.capa||''})`;
     const poster=document.getElementById('detailPoster');poster.src=item.capa||'https://placehold.co/300x450/13131a/333?text=Sem+Capa';poster.alt=item.nome;
 

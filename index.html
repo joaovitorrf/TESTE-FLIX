@@ -1488,6 +1488,54 @@ window._pflixAllContent = allContent;
 }
 
 
+// ── Arrastar pro lado com o mouse (PC) — Canais Ao Vivo e Jogos de Hoje ──
+// No celular o toque já rola sozinho. No PC essas duas seções não tinham NADA que
+// fizesse o "clica e arrasta" (e a barra de rolagem é escondida), então ficavam presas.
+// Os cards são <a> (link): sem o preventDefault no mousedown o navegador tenta arrastar
+// o LINK em vez de rolar a lista. Mesma ideia do setupCarouselArrows, sem depender de setas.
+function enableDragScroll(track) {
+  if (!track || track.dataset.dragReady) return;
+  track.dataset.dragReady = '1';
+  var st = { active: false, startX: 0, startScroll: 0, dist: 0 };
+
+  track.addEventListener('mousedown', function (e) {
+    if (e.button !== 0) return;                            // só botão esquerdo
+    if (track.scrollWidth <= track.clientWidth + 1) return; // nada pra rolar
+    st.active = true;
+    st.startX = e.pageX;
+    st.startScroll = track.scrollLeft;
+    st.dist = 0;
+    e.preventDefault(); // não arrasta o link/imagem nem seleciona texto
+  });
+
+  function move(e) {
+    if (!st.active) return;
+    var dx = e.pageX - st.startX;
+    st.dist = Math.max(st.dist, Math.abs(dx));
+    // Só vira "arrasto" depois de mover uns pixels. Antes disso é um clique normal —
+    // se a classe "dragging" (que desliga o mouse nos cards) entrasse já no mousedown,
+    // o clique simples num card deixaria de funcionar.
+    if (st.dist > 5) track.classList.add('dragging');
+    if (st.dist > 5) track.scrollLeft = st.startScroll - dx;
+  }
+  function stop() {
+    if (!st.active) return;
+    st.active = false;
+    track.classList.remove('dragging');
+    // zera depois do "click" que o navegador dispara logo após o mouseup
+    setTimeout(function () { st.dist = 0; }, 0);
+  }
+  document.addEventListener('mousemove', move);
+  document.addEventListener('mouseup', stop);
+  window.addEventListener('blur', stop);
+  track.addEventListener('dragstart', function (e) { e.preventDefault(); });
+
+  // Se foi arrasto (e não um clique de verdade), o card não pode abrir o link
+  track.addEventListener('click', function (e) {
+    if (st.dist > 5) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+}
+
 // ── Carregar Canais Ao Vivo ──
 async function loadCanaisHome() {
   try {
@@ -1629,7 +1677,11 @@ async function loadJogosHome() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() { init(); loadCanaisHome(); loadJogosHome(); });
+document.addEventListener('DOMContentLoaded', function() {
+  enableDragScroll(document.getElementById('canaisTrack'));
+  enableDragScroll(document.getElementById('jogosTrack'));
+  init(); loadCanaisHome(); loadJogosHome();
+});
 </script>
 
 <script>
