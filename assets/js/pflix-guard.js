@@ -32,7 +32,12 @@
     'sophisticatedpin.com',
     'sorrowfulpsychology.com',
     'massivesalad.com',
+    'vapid-size.com',        // popunder novo (só PC) — VIP nunca recebe
   ];
+
+  // Domínios de anúncio que, em aparelho que NÃO é computador, não podem nem ser
+  // carregados nem abertos em nova aba (o link direto/popunder é só pra PC).
+  const SO_DESKTOP = ['vapid-size.com', 'sorrowfulpsychology.com'];
 
   const AD_SELECTORS = [
     '.ad-banner-wrap',
@@ -40,6 +45,37 @@
     '#mobileBannerAdNew',
     '#supportBannerOverlay',
   ];
+
+  // ─── É computador de verdade? (mesma regra do pflix-ads-desktop.js) ───
+  function ehComputador() {
+    try {
+      var ua = navigator.userAgent || '';
+      if (/Android|iPhone|iPad|iPod|Mobile|BlackBerry|IEMobile|Opera Mini|Silk|Kindle|webOS/i.test(ua)) return false;
+      if (navigator.userAgentData && navigator.userAgentData.mobile) return false;
+      if (/Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1) return false;
+      var mm = window.matchMedia;
+      if (!mm || !mm('(pointer: fine)').matches || !mm('(hover: hover)').matches) return false;
+      if (Math.max(screen.width || 0, screen.height || 0) < 1024 || Math.min(screen.width || 0, screen.height || 0) < 600) return false;
+      return true;
+    } catch (e) { return false; }
+  }
+  var IS_DESKTOP = ehComputador();
+
+  function ehSoDesktop(url) {
+    url = String(url || '');
+    for (var i = 0; i < SO_DESKTOP.length; i++) if (url.indexOf(SO_DESKTOP[i]) !== -1) return true;
+    return false;
+  }
+
+  // Fora do PC: qualquer window.open pra domínio de anúncio é descartado
+  // (o "link direto" não pode abrir no celular em HIPÓTESE nenhuma).
+  if (!IS_DESKTOP && typeof window.open === 'function') {
+    var _openOriginal = window.open;
+    window.open = function (url) {
+      if (ehUrlDeAd(url) ) return null;
+      return _openOriginal.apply(window, arguments);
+    };
+  }
 
   // null = ainda não sabemos (estado inicial, enquanto aguarda Firestore)
   // true = é VIP → bloqueia para sempre
@@ -80,8 +116,13 @@
   function ehScriptDeAd(node) {
     return node && node.tagName === 'SCRIPT' && ehUrlDeAd(node.src || '');
   }
+  // script de anúncio que só pode existir no PC e estamos num celular/tablet → some
+  function bloqueadoNesteAparelho(node) {
+    return !IS_DESKTOP && node && node.tagName === 'SCRIPT' && ehSoDesktop(node.src || '');
+  }
 
   Node.prototype.insertBefore = function (newNode, referenceNode) {
+    if (bloqueadoNesteAparelho(newNode)) return newNode;
     if (decisao !== false && ehScriptDeAd(newNode)) {
       // Decisão ainda não confirmada como "não-VIP" → segura na fila
       fila.push({ node: newNode, parent: this, ref: referenceNode, metodo: 'insertBefore' });
@@ -91,6 +132,7 @@
   };
 
   Node.prototype.appendChild = function (newNode) {
+    if (bloqueadoNesteAparelho(newNode)) return newNode;
     if (decisao !== false && ehScriptDeAd(newNode)) {
       fila.push({ node: newNode, parent: this, ref: null, metodo: 'appendChild' });
       return newNode;

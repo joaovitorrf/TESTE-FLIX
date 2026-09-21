@@ -624,9 +624,9 @@ window.PipocaAPI.getTmdbEpisodiosTemporada = getTmdbEpisodiosTemporada;
    filme/série já foi encontrado. O Google renderiza JavaScript e lê esse
    bloco normalmente.
 
-   Só entra o que EXISTE na planilha. De propósito NÃO tem aggregateRating
-   (nota): o site não coleta avaliações próprias, e nota inventada/copiada
-   de outro site é motivo de penalidade manual no Google.
+   Só entra o que EXISTE na planilha. A nota (aggregateRating) só entra com
+   avaliações REAIS feitas no site (estrelas de 1 a 5, mín. 3 avaliações) —
+   nunca inventada nem copiada de outro site (isso dá penalidade no Google).
 
    Itens ocultos (visivel = FALSE) não recebem o bloco — são itens que o
    dono escondeu da busca, então também não divulgamos pro Google.
@@ -656,7 +656,7 @@ function duracaoParaISO(txt) {
   return 'PT' + (H ? H + 'H' : '') + (M ? M + 'M' : '');
 }
 
-function montarSchemaOrg(item) {
+function montarSchemaOrg(item, extra) {
   if (!item || !item.nome) return null;
   const isSerie = !!item.isSerie;
   const lista = s => String(s || '').split(',').map(x => x.trim()).filter(Boolean);
@@ -687,14 +687,19 @@ function montarSchemaOrg(item) {
     const dur = duracaoParaISO(item.duracao);
     if (dur) schema.duration = dur;
   }
+  // Nota REAL: só entra quando existem avaliações de verdade feitas no site (stats.js), com no mínimo 3.
+  const rt = extra && extra.rating;
+  if (rt && rt.qtd >= 3 && rt.media >= 1 && rt.media <= 5) {
+    schema.aggregateRating = { '@type': 'AggregateRating', ratingValue: Number(rt.media.toFixed(1)), ratingCount: rt.qtd, bestRating: 5, worstRating: 1 };
+  }
   return schema;
 }
 
 // Coloca (ou atualiza) o <script type="application/ld+json"> no <head>.
-function injetarSchemaOrg(item) {
+function injetarSchemaOrg(item, extra) {
   try {
     if (!isVisivel(item)) return;
-    const schema = montarSchemaOrg(item);
+    const schema = montarSchemaOrg(item, extra);
     if (!schema) return;
     let el = document.getElementById('pflix-jsonld');
     if (!el) {
@@ -713,3 +718,165 @@ function injetarSchemaOrg(item) {
 window.PipocaAPI.injetarSchemaOrg = injetarSchemaOrg;
 window.PipocaAPI.montarSchemaOrg  = montarSchemaOrg;
 window.PipocaAPI.duracaoParaISO   = duracaoParaISO;
+
+
+/* ═════════════════════════════════════════════════════════════════════
+   NOVAS ABAS DA PLANILHA (rodada 2)
+   ─ Avatares  (gid 712895202): A = categoria | B = links separados por vírgula
+   ─ Seções    (gid 1958765563): A = nome da seção | B = Filmes / Series / Series/Filmes
+                                 C = nomes EXATOS (como na planilha), separados por vírgula
+   Estas abas usam um leitor de CSV que aguenta vírgula e quebra de linha
+   DENTRO de uma célula (é o que acontece com uma lista de links/nomes).
+═════════════════════════════════════════════════════════════════════ */
+const SHEET_ID_PIPOCA = '1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU';
+const AVATARES_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID_PIPOCA + '/export?format=csv&gid=712895202';
+const SECOES_CSV_URL   = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID_PIPOCA + '/export?format=csv&gid=1958765563';
+const CACHE_TTL_NOVAS_ABAS = 5 * 60 * 1000;
+
+// CSV completo (várias linhas por célula, aspas duplas escapadas com "")
+function parseCSVCompleto(text) {
+  const rows = []; let row = [], cur = '', q = false;
+  text = String(text || '').replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cur); cur = ''; rows.push(row); row = [];
+    } else cur += c;
+  }
+  if (cur.length || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+
+async function baixarAba(url, cacheKey) {
+  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_NOVAS_ABAS) return _cache[cacheKey].data;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const rows = parseCSVCompleto(await res.text());
+  _cache[cacheKey] = { data: rows, ts: Date.now() };
+  return rows;
+}
+
+/* getAvatares → [{ categoria: 'Anime', avatares: ['https://…', …] }, …]
+   Categorias repetidas em linhas diferentes são juntadas numa só. */
+async function getAvatares() {
+  try {
+    const rows = (await baixarAba(AVATARES_CSV_URL, 'avatares_csv')).slice(1);
+    const porCat = new Map();
+    rows.forEach(r => {
+      const cat = (r[0] || '').trim();
+      const links = ((r[1] || '').match(/https?:\/\/[^\s,;"|]+/g) || []);
+      if (!cat || !links.length) return;
+      if (!porCat.has(cat)) porCat.set(cat, []);
+      links.forEach(l => { if (!porCat.get(cat).includes(l)) porCat.get(cat).push(l); });
+    });
+    return Array.from(porCat, ([categoria, avatares]) => ({ categoria, avatares }));
+  } catch (e) {
+    console.error('[API] getAvatares error:', e);
+    return [];
+  }
+}
+
+/* getSecoesHome → [{ titulo, tipo: 'filmes'|'series'|'ambos', nomes: ['Nome A', …] }, …] */
+function tipoDaSecao(txt) {
+  const t = normalizeStr(txt || '');
+  const s = t.includes('serie'), f = t.includes('filme');
+  return (s && f) ? 'ambos' : s ? 'series' : f ? 'filmes' : 'ambos';
+}
+async function getSecoesHome() {
+  try {
+    const rows = (await baixarAba(SECOES_CSV_URL, 'secoes_csv')).slice(1);
+    return rows.map(r => ({
+      titulo: (r[0] || '').trim(),
+      tipo: tipoDaSecao(r[1]),
+      // vírgula, ponto e vírgula, barra vertical ou quebra de linha separam os nomes
+      nomes: String(r[2] || '').split(/\s*[,;|\n]\s*/).map(s => s.trim()).filter(Boolean),
+      brutoC: String(r[2] || ''),
+    })).filter(s => s.titulo && s.nomes.length);
+  } catch (e) {
+    console.error('[API] getSecoesHome error:', e);
+    return [];
+  }
+}
+
+/* Resolve os nomes da seção contra o catálogo. Aceita título que TEM vírgula
+   (ex.: "Bad Boys, Parte 2"): tenta juntar pedaços vizinhos e vê se bate com
+   um título real do catálogo antes de considerar cada pedaço isolado. */
+function resolverSecao(secao, filmes, series) {
+  const pool = secao.tipo === 'filmes' ? filmes : secao.tipo === 'series' ? series : filmes.concat(series);
+  const mapa = new Map();
+  pool.forEach(i => { const k = normalizeStr(i.nome); if (!mapa.has(k)) mapa.set(k, i); });
+  const partes = secao.nomes, out = [], usados = new Set();
+  for (let i = 0; i < partes.length; i++) {
+    let achou = null, fim = i;
+    for (let j = Math.min(partes.length - 1, i + 3); j >= i; j--) {   // tenta o maior "grudado" primeiro
+      const cand = mapa.get(normalizeStr(partes.slice(i, j + 1).join(', ')));
+      if (cand) { achou = cand; fim = j; break; }
+    }
+    if (achou && !usados.has(achou.nome)) { out.push(achou); usados.add(achou.nome); }
+    i = fim;
+  }
+  return out;
+}
+
+/* montarSecoesHome(filmes, series) → [{ titulo, tipo, itens: [...] }] (só as que têm itens) */
+async function montarSecoesHome(filmes, series) {
+  const secoes = await getSecoesHome();
+  return secoes
+    .map(s => ({ titulo: s.titulo, tipo: s.tipo, itens: resolverSecao(s, filmes, series) }))
+    .filter(s => s.itens.length);
+}
+
+/* ═════════════════════════════════════════════════════════════════════
+   TMDB — busca de filme/série (usada em pedidos.html) e checagem PRECISA
+   de "esse título já existe no site?"
+═════════════════════════════════════════════════════════════════════ */
+async function buscarTmdb(tipo, query) {
+  query = String(query || '').trim();
+  if (query.length < 2) return [];
+  const data = await tmdbFetch(tipo === 'serie' ? '/3/search/tv' : '/3/search/movie', { query: query, include_adult: 'false' });
+  const results = (data && Array.isArray(data.results)) ? data.results : [];
+  return results.slice(0, 12).map(r => ({
+    id: r.id, tipo: tipo === 'serie' ? 'serie' : 'filme',
+    titulo: r.title || r.name || '',
+    tituloOriginal: r.original_title || r.original_name || '',
+    ano: String(r.release_date || r.first_air_date || '').slice(0, 4),
+    capa: r.poster_path ? 'https://image.tmdb.org/t/p/w342' + r.poster_path : '',
+    sinopse: r.overview || '',
+  })).filter(r => r.titulo);
+}
+
+/* acharNoSite(resultadoTmdb, filmes, series)
+   → { status: 'tem' | 'nao' | 'mesmo-nome-outro-ano', item?, outroAno? }
+   Regras (busca precisa, sem "parecido"):
+     1) só compara dentro do mesmo tipo (filme com filme, série com série);
+     2) o nome tem que ser IGUAL depois de tirar acento, maiúscula e pontuação —
+        vale o título em português OU o original;
+     3) se os dois lados têm ano, o ano tem que bater (±1 pelo fuso/estreia).
+        Mesmo nome com ano bem diferente = outro filme (refilmagem) → "nao". */
+function acharNoSite(r, filmes, series) {
+  const pool = r.tipo === 'serie' ? series : filmes;
+  const alvos = [r.titulo, r.tituloOriginal].map(x => normalizeStr(x || '')).filter(Boolean);   // tolera campo ausente
+  const mesmoNome = pool.filter(i => alvos.includes(normalizeStr(i.nome || '')));
+  if (!mesmoNome.length) return { status: 'nao' };
+  const anoR = parseInt(r.ano, 10);
+  const bate = mesmoNome.find(i => {
+    const a = parseInt(String(i.ano || '').match(/\d{4}/), 10);
+    return !anoR || !a || Math.abs(a - anoR) <= 1;
+  });
+  if (bate) return { status: 'tem', item: bate };
+  return { status: 'mesmo-nome-outro-ano', outroAno: mesmoNome[0] };
+}
+
+window.PipocaAPI.getAvatares      = getAvatares;
+window.PipocaAPI.getSecoesHome    = getSecoesHome;
+window.PipocaAPI.resolverSecao    = resolverSecao;
+window.PipocaAPI.montarSecoesHome = montarSecoesHome;
+window.PipocaAPI.buscarTmdb       = buscarTmdb;
+window.PipocaAPI.acharNoSite      = acharNoSite;
+window.PipocaAPI.parseCSVCompleto = parseCSVCompleto;
