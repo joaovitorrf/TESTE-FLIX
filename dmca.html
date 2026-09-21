@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
@@ -26,14 +27,15 @@
   <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html">📡 Canais</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       <a href="suporte.html">🎫 Suporte</a></div>
@@ -46,7 +48,8 @@
 <div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
-  <a href="index.html">🏠 Início</a><a href="catalogo.html?tipo=filmes">🎥 Filmes</a><a href="catalogo.html?tipo=series">📺 Séries</a><a href="canais.html">📡 Canais</a><a href="catalogo.html">🎬 Catálogo</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a>
+  <a href="index.html">🏠 Início</a><a href="filmes.html">🎥 Filmes</a><a href="series.html">📺 Séries</a><a href="canais.html">📡 Canais</a><a href="catalogo.html">🎬 Catálogo</a>
+<a href="pedidos.html">📝 Pedidos</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a>
 
   <a href="suporte.html">🎫 Suporte</a></div>
 
@@ -96,8 +99,9 @@
 (function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
-<script>(function(){var isMobile=/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<768;if(isMobile)return;var popped=false;document.addEventListener('click',function handler(){if(popped)return;popped=true;var win=window.open('https://sorrowfulpsychology.com/7YQ2ye','_blank');if(win){try{win.blur();window.focus();}catch(e){}}document.removeEventListener('click',handler);},true);})();</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
 <div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px"><div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center"><button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer">×</button><div style="font-size:1.5rem;margin-bottom:8px">🍿</div><p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p><p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios mantêm o site gratuito. Obrigado! ❤️</p><button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">Fechar</button></div></div>
 <script>setTimeout(function(){var el=document.getElementById('supportBannerOverlay');if(el)el.style.display='block';},30*60*1000);</script>
+<script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>

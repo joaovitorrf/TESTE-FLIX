@@ -5,7 +5,7 @@
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meu Perfil — PipocaFlix</title>
-<meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo em HD.">
+<meta name="description" content="Seu perfil no PipocaFlix: assistidos, favoritos, comentários, listas e pedidos.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -16,6 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>
 // Aplicar tema ANTES do render para evitar flash
@@ -90,14 +91,15 @@
   <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html">📡 Canais</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       <a href="suporte.html">🎫 Suporte</a></div>
@@ -135,10 +137,11 @@
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
-  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
-  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html">📺 Séries</a>
   <a href="canais.html">📡 Canais</a>
   <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="pedidos.html">📝 Pedidos</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   
@@ -147,97 +150,95 @@
   <a href="suporte.html">🎫 Suporte</a></div>
 
 
-<main style="max-width:900px;margin:90px auto 60px;padding:0 16px">
+<main class="perf-page" id="conteudoPrincipal">
 
   <!-- Não logado -->
-  <div id="profileNotLogged" style="display:none;text-align:center;padding:60px 20px;color:var(--text-3)">
-    <p style="font-size:1.2rem;margin-bottom:20px">Você não está logado.</p>
-    <button onclick="window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)"
-      style="background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 32px;cursor:pointer;font-size:1rem">
-      Entrar com Google
-    </button>
+  <div id="profileNotLogged" class="perf-naologado" style="display:none">
+    <p>Você não está logado.</p>
+    <button type="button" class="perf-btn perf-btn--main" onclick="window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)">Entrar com Google</button>
   </div>
 
   <!-- Conteúdo do perfil -->
   <div id="profileContent" style="display:none">
 
-    <!-- Card de perfil -->
-    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:32px;padding:24px;background:var(--surface-2);border-radius:16px;border:1px solid var(--border)">
-      <img id="profilePhoto" src="" alt="Foto de perfil"
-        style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--red);flex-shrink:0">
-      <div style="flex:1;min-width:180px">
-        <h1 id="profileName" style="font-size:1.5rem;font-weight:700;color:var(--text-1);margin:0 0 4px"></h1>
-        <p id="profileEmail" style="color:var(--text-3);font-size:0.88rem;margin:0 0 12px"></p>
-        <button onclick="if(confirm('Deseja sair?')) window.PipocaAuth.logout().then(function(){location.href='index.html'})"
-          style="background:var(--surface-1);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:6px 16px;cursor:pointer;font-size:0.85rem">
-          Sair da conta
-        </button>
+    <!-- Cartão principal: só o básico -->
+    <section class="perf-hero" aria-label="Seu perfil">
+      <div class="perf-foto">
+        <img id="profilePhoto" src="" alt="Foto de perfil">
+        <button type="button" class="perf-foto-edit" id="btnEditFoto" aria-label="Trocar avatar" title="Trocar avatar">✏️</button>
+      </div>
+      <div class="perf-info">
+        <h1 id="profileName"></h1>
+        <p id="profileEmail"></p>
+        <span class="perf-selo" id="seloVip" hidden>⭐ Assinante VIP</span>
+        <div class="perf-acoes">
+          <button type="button" class="perf-btn perf-btn--main" id="btnEditPerfil">✏️ Editar perfil</button>
+          <button type="button" class="perf-btn" id="btnSair">Sair da conta</button>
+        </div>
+      </div>
+      <dl class="perf-stats">
+        <div><dt>Assistidos</dt><dd id="statAssistidos">0</dd></div>
+        <div><dt>Favoritos</dt><dd id="statFavoritos">0</dd></div>
+        <div><dt>Em andamento</dt><dd id="statProgresso">0</dd></div>
+      </dl>
+    </section>
+
+    <div class="perf-layout">
+
+      <!-- Menu: lateral no PC, grade sempre visível no celular -->
+      <nav class="perf-menu" aria-label="Seções do perfil">
+        <div role="tablist" aria-orientation="vertical" class="perf-menu-lista">
+          <button type="button" role="tab" class="perf-tab" data-tab="assistidos" id="tab-assistidos" aria-controls="painel-assistidos"><span class="perf-tab-ico" aria-hidden="true">✅</span><span class="perf-tab-txt">Assistidos</span><span class="perf-tab-n" data-n="assistidos"></span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="favoritos" id="tab-favoritos" aria-controls="painel-favoritos"><span class="perf-tab-ico" aria-hidden="true">❤️</span><span class="perf-tab-txt">Favoritos</span><span class="perf-tab-n" data-n="favoritos"></span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="andamento" id="tab-andamento" aria-controls="painel-andamento"><span class="perf-tab-ico" aria-hidden="true">▶️</span><span class="perf-tab-txt">Em andamento</span><span class="perf-tab-n" data-n="andamento"></span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="comentarios" id="tab-comentarios" aria-controls="painel-comentarios"><span class="perf-tab-ico" aria-hidden="true">💬</span><span class="perf-tab-txt">Meus comentários</span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="reports" id="tab-reports" aria-controls="painel-reports"><span class="perf-tab-ico" aria-hidden="true">🚩</span><span class="perf-tab-txt">Meus reports</span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="listas" id="tab-listas" aria-controls="painel-listas"><span class="perf-tab-ico" aria-hidden="true">📋</span><span class="perf-tab-txt">Minhas listas</span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="pedidos" id="tab-pedidos" aria-controls="painel-pedidos"><span class="perf-tab-ico" aria-hidden="true">📝</span><span class="perf-tab-txt">Meus pedidos</span><span class="perf-tab-n" data-n="pedidos"></span></button>
+        </div>
+      </nav>
+
+      <div class="perf-paineis">
+        <section role="tabpanel" class="perf-painel" id="painel-assistidos" data-panel="assistidos" aria-labelledby="tab-assistidos" hidden>
+          <header class="perf-painel-topo"><h2>✅ Assistidos</h2><a href="assistidos.html">Página completa →</a></header>
+          <div id="profileWatched" class="perf-grid"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-favoritos" data-panel="favoritos" aria-labelledby="tab-favoritos" hidden>
+          <header class="perf-painel-topo"><h2>❤️ Favoritos</h2><a href="catalogo.html?lista=favoritos">Ver no catálogo →</a></header>
+          <div id="profileFavorites" class="perf-grid"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-andamento" data-panel="andamento" aria-labelledby="tab-andamento" hidden>
+          <header class="perf-painel-topo"><h2>▶️ Em andamento</h2></header>
+          <div id="profileProgress" class="perf-grid"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-comentarios" data-panel="comentarios" aria-labelledby="tab-comentarios" hidden>
+          <header class="perf-painel-topo"><h2>💬 Meus comentários</h2></header>
+          <div id="profileComments" class="perf-lista"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-reports" data-panel="reports" aria-labelledby="tab-reports" hidden>
+          <header class="perf-painel-topo"><h2>🚩 Meus reports</h2><a href="suporte.html">Ir pro Suporte →</a></header>
+          <div id="profileReports" class="perf-lista"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-listas" data-panel="listas" aria-labelledby="tab-listas" hidden>
+          <header class="perf-painel-topo"><h2>📋 Minhas listas</h2></header>
+          <div id="profileListas"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-pedidos" data-panel="pedidos" aria-labelledby="tab-pedidos" hidden>
+          <header class="perf-painel-topo"><h2>📝 Meus pedidos</h2><a class="perf-btn perf-btn--main perf-btn--link" href="pedidos.html">➕ Fazer um pedido</a></header>
+          <p class="perf-dica">Pediu um filme ou série que não achou? Acompanhe aqui: quando a gente adicionar, o pedido vira <b>Atendido</b>.</p>
+          <div id="profilePedidos" class="perf-lista"></div>
+        </section>
       </div>
     </div>
-
-    <!-- Stats -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:32px">
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-        <div id="statAssistidos" style="font-size:2rem;font-weight:700;color:var(--red)">0</div>
-        <div style="color:var(--text-3);font-size:0.85rem;margin-top:4px">Assistidos</div>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-        <div id="statFavoritos" style="font-size:2rem;font-weight:700;color:var(--red)">0</div>
-        <div style="color:var(--text-3);font-size:0.85rem;margin-top:4px">Favoritos</div>
-      </div>
-      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-        <div id="statProgresso" style="font-size:2rem;font-weight:700;color:var(--red)">0</div>
-        <div style="color:var(--text-3);font-size:0.85rem;margin-top:4px">Em Andamento</div>
-      </div>
-    </div>
-
-    <!-- Últimos assistidos -->
-    <div style="margin-bottom:32px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0">✅ Últimos Assistidos</h2>
-        <a href="assistidos.html" style="color:var(--red);font-size:0.85rem;text-decoration:none">Ver todos →</a>
-      </div>
-      <div id="profileWatched" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px"></div>
-    </div>
-
-    <!-- Favoritos -->
-    <div style="margin-bottom:32px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0">❤️ Favoritos</h2>
-        <a href="catalogo.html?lista=favoritos" style="color:var(--red);font-size:0.85rem;text-decoration:none">Ver todos →</a>
-      </div>
-      <div id="profileFavorites" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px"></div>
-    </div>
-
-    <!-- Em andamento -->
-    <div style="margin-bottom:32px">
-      <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0 0 14px">▶️ Continuar Assistindo</h2>
-      <div id="profileProgress" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px"></div>
-    </div>
-
-    <!-- Meus Comentários -->
-    <div style="margin-bottom:32px">
-      <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0 0 14px">💬 Meus Comentários</h2>
-      <div id="profileComments" style="display:flex;flex-direction:column;gap:10px"></div>
-    </div>
-
-    <!-- Meus Reports (filme/série) -->
-    <div style="margin-bottom:32px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0">🚩 Meus Reports</h2>
-        <a href="suporte.html" style="color:var(--red);font-size:0.85rem;text-decoration:none">Ir pro Suporte →</a>
-      </div>
-      <div id="profileReports" style="display:flex;flex-direction:column;gap:10px"></div>
-    </div>
-
-    <!-- Minhas Listas (Premium) -->
-    <div style="margin-bottom:32px">
-      <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-1);margin:0 0 14px">📋 Minhas Listas</h2>
-      <div id="profileListas"></div>
-    </div>
-
   </div>
 </main>
+
 
 <footer class="footer">
   <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
@@ -263,9 +264,11 @@
 <script src="assets/js/security.js"></script>
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/watched.js"></script>
+<script src="assets/js/progress.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script type="module" src="assets/js/listas.js"></script>
+<script type="module" src="assets/js/pedidos.js"></script>
 
 <script>
 // Toast
@@ -289,6 +292,21 @@ window.addEventListener('scroll',function(){
 var btt=document.getElementById('backToTop');
 if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
 
+// Busca do celular (ícone de lupa do cabeçalho → overlay → página de busca)
+(function(){
+  var tg=document.getElementById('mobileSearchToggle'), ov=document.getElementById('mobileSearchOverlay'),
+      inp=document.getElementById('mobileSearchInput'), cl=document.getElementById('mobileSearchClose');
+  if(!tg||!ov||!inp) return;
+  function abrir(){ ov.classList.add('open'); tg.setAttribute('aria-expanded','true'); setTimeout(function(){inp.focus();},80); }
+  function fechar(){ ov.classList.remove('open'); tg.setAttribute('aria-expanded','false'); }
+  tg.addEventListener('click', abrir);
+  if(cl) cl.addEventListener('click', fechar);
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); var v=inp.value.trim(); if(v.length>=2) location.href='buscar.html?q='+encodeURIComponent(v); }
+    if(e.key==='Escape') fechar();
+  });
+})();
+
 // Hamburger
 (function(){
   var btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');
@@ -297,122 +315,145 @@ if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:
   menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.classList.remove('open');});});
   document.addEventListener('click',function(e){if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
 })();
+(function(){
 
-// Auth state → mostrar perfil
+// ═══ Perfil: dados locais + abas + pedidos ═══
 function waitForAuth(cb, tries) {
   tries = tries || 0;
   if (window.PipocaAuth) { cb(); return; }
   if (tries > 30) return;
   setTimeout(function() { waitForAuth(cb, tries+1); }, 200);
 }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function $(id){ return document.getElementById(id); }
+function vazio(el, msg){ el.innerHTML = '<p class="perf-vazio">'+msg+'</p>'; }
 
+/* ── Abas ── */
+var TABS = ['assistidos','favoritos','andamento','comentarios','reports','listas','pedidos'];
+function abrirAba(nome, foco) {
+  if (TABS.indexOf(nome) === -1) nome = 'assistidos';
+  document.querySelectorAll('.perf-tab').forEach(function(b){
+    var on = b.getAttribute('data-tab') === nome;
+    b.classList.toggle('is-ativa', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    b.tabIndex = on ? 0 : -1;
+    if (on && foco) b.focus();
+  });
+  document.querySelectorAll('.perf-painel').forEach(function(p){ p.hidden = p.getAttribute('data-panel') !== nome; });
+  try { history.replaceState(null, '', '#' + nome); } catch(e) {}
+}
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.perf-tab'));
+  tabs.forEach(function(b, i){
+    b.addEventListener('click', function(){ abrirAba(b.getAttribute('data-tab')); });
+    b.addEventListener('keydown', function(e){
+      var d = (e.key==='ArrowDown'||e.key==='ArrowRight') ? 1 : (e.key==='ArrowUp'||e.key==='ArrowLeft') ? -1 : 0;
+      if (e.key==='Home') d = -i; if (e.key==='End') d = tabs.length-1-i;
+      if (!d) return; e.preventDefault();
+      abrirAba(tabs[(i + d + tabs.length) % tabs.length].getAttribute('data-tab'), true);
+    });
+  });
+  abrirAba((location.hash||'').replace('#',''));
+  window.addEventListener('hashchange', function(){ abrirAba((location.hash||'').replace('#','')); });
+})();
+
+/* ── Cartão de capa ── */
+function pagina(isSerie){ return isSerie ? 'serie.html' : 'filme.html'; }
+function cartao(o) {
+  var a = document.createElement('a');
+  a.className = 'perf-poster';
+  a.href = pagina(o.isSerie) + '?nome=' + encodeURIComponent(o.nome);
+  a.innerHTML =
+    (o.capa ? '<img src="'+esc(o.capa)+'" alt="" loading="lazy" referrerpolicy="no-referrer">'
+            : '<div class="perf-poster-vazio" aria-hidden="true">'+(o.isSerie?'📺':'🎬')+'</div>') +
+    (o.pct != null ? '<div class="perf-poster-barra"><span style="width:'+Math.max(3,Math.min(100,Math.round(o.pct*100)))+'%"></span></div>' : '') +
+    '<span class="perf-poster-nome">'+esc(o.rotulo || o.nome)+'</span>';
+  return a;
+}
+function preencher(gridId, itens, msgVazio) {
+  var g = $(gridId); if (!g) return;
+  g.innerHTML = '';
+  if (!itens.length) { vazio(g, msgVazio); return; }
+  var frag = document.createDocumentFragment();
+  itens.forEach(function(o){ frag.appendChild(cartao(o)); });
+  g.appendChild(frag);
+}
+function badge(nome, n) { var el = document.querySelector('[data-n="'+nome+'"]'); if (el) el.textContent = n > 0 ? String(n) : ''; }
+
+function renderLocais() {
+  var watched = [], favs = [], prog = [];
+  try { watched = (window.PipocaWatched && PipocaWatched.getAll()) || []; } catch(e) {}
+  try { favs = (window.PipocaFavoritos && PipocaFavoritos.getAll()) || []; } catch(e) {}
+  try { prog = (window.PipocaProgress && PipocaProgress.getAll()) || []; } catch(e) {}
+
+  var w = watched.map(function(i){ return { nome:i.nome||i.titulo||'', capa:i.capa||'', isSerie: !!i.isSerie || i.tipo==='serie' }; }).filter(function(i){return i.nome;});
+  var f = favs.map(function(i){ return { nome:i.nome, capa:i.capa||'', isSerie: !!i.isSerie }; }).filter(function(i){return i.nome;});
+  var p = prog.map(function(i){
+    var serie = i.tipo === 'serie';
+    var nome = serie && i.serieNome ? i.serieNome : i.titulo;
+    return { nome:nome, capa:i.capa||'', isSerie:serie, pct:i.pct||0, rotulo: serie && i.serieNome ? i.serieNome + ' — ' + i.titulo : i.titulo };
+  }).filter(function(i){return i.nome;});
+
+  $('statAssistidos').textContent = w.length; $('statFavoritos').textContent = f.length; $('statProgresso').textContent = p.length;
+  badge('assistidos', w.length); badge('favoritos', f.length); badge('andamento', p.length);
+  preencher('profileWatched', w, 'Nenhum assistido ainda. Marque como assistido nos filmes e séries que você já viu.');
+  preencher('profileFavorites', f, 'Nenhum favorito ainda. Toque no ❤️ de um filme ou série pra guardar aqui.');
+  preencher('profileProgress', p, 'Nada em andamento agora.');
+}
+
+/* ── Cabeçalho ── */
+var usuarioAtual = null;
+function renderCabecalho(user) {
+  if (!user) return;
+  var P = window.PipocaPerfil;
+  $('profilePhoto').src = (P ? P.avatarExibicao(user) : user.photoURL) || 'https://placehold.co/96x96/1a1a24/f0f0f6?text=%3F';
+  $('profileName').textContent = (P ? P.nomeExibicao(user) : user.displayName) || 'Usuário';
+  $('profileEmail').textContent = user.email || '';
+}
+function renderVip() {
+  var v = window.PipocaVIP; var el = $('seloVip');
+  if (el) el.hidden = !(v && v.ativo);
+}
+document.addEventListener('pflix:vip-checado', renderVip);
+document.addEventListener('pflix:vip-ativo', renderVip);
+window.addEventListener('pflix:perfil', function(){ renderCabecalho(usuarioAtual); });
+
+$('btnEditPerfil').addEventListener('click', function(){ if (window.PipocaPerfil) PipocaPerfil.abrirEditor({modo:'editar'}); else showToast('Carregando… tenta de novo em um segundo'); });
+$('btnEditFoto').addEventListener('click', function(){ if (window.PipocaPerfil) PipocaPerfil.abrirEditor({modo:'editar'}); });
+$('btnSair').addEventListener('click', function(){ if (confirm('Deseja sair?')) window.PipocaAuth.logout().then(function(){ location.href = 'index.html'; }); });
+
+/* ── Pedidos ── */
+function renderPedidos() {
+  var box = $('profilePedidos'); if (!box) return;
+  box.innerHTML = '<p class="perf-vazio">Carregando…</p>';
+  var tent = 0;
+  (function esperar(){
+    if (!window.PipocaPedidos) { if (++tent < 50) return setTimeout(esperar, 200); return vazio(box, 'Não foi possível carregar seus pedidos agora.'); }
+    Promise.all([
+      PipocaPedidos.listarMeus(),
+      Promise.all([window.PipocaAPI.getFilmes(), window.PipocaAPI.getSeries()]).catch(function(){ return [[],[]]; })
+    ]).then(function(r){
+      var pedidos = r[0], cat = { filmes:(r[1][0]||[]).filter(function(x){return x.visivel!==false;}), series:(r[1][1]||[]).filter(function(x){return x.visivel!==false;}) };
+      badge('pedidos', pedidos.filter(function(p){ return p.status === 'pendente'; }).length);
+      box.innerHTML = '';
+      if (!pedidos.length) return vazio(box, 'Você ainda não fez nenhum pedido.');
+      pedidos.forEach(function(p){ box.appendChild(PipocaPedidos.montarCartao(p, { catalogo: cat, permitirCancelar: true, aoMudar: renderPedidos })); });
+    }).catch(function(e){ console.warn('[Perfil] pedidos:', e && e.code || e); vazio(box, 'Não foi possível carregar seus pedidos agora.'); });
+  })();
+}
+
+/* ── Auth ── */
 waitForAuth(function() {
   window.PipocaAuth.onAuthChanged(function(user) {
-    var notLogged = document.getElementById('profileNotLogged');
-    var content = document.getElementById('profileContent');
-
-    if (!user) {
-      if(notLogged) notLogged.style.display = 'block';
-      if(content) content.style.display = 'none';
-      return;
-    }
-    if(notLogged) notLogged.style.display = 'none';
-    if(content) content.style.display = 'block';
-
-    // Dados básicos
-    var photo = document.getElementById('profilePhoto');
-    var name = document.getElementById('profileName');
-    var email = document.getElementById('profileEmail');
-    if(photo) photo.src = user.photoURL || 'https://placehold.co/90x90/333/fff?text=?';
-    if(name) name.textContent = user.displayName || 'Usuário';
-    if(email) email.textContent = user.email || '';
-
-    // Stats do localStorage
-    var watched = [];
-    var favorites = [];
-    var progress = [];
-    try {
-      var w = localStorage.getItem('pflix_watched_list');
-      if(w) watched = JSON.parse(w);
-      // Favoritos
-      for(var k in localStorage) {
-        if(k.startsWith('pflix_fav_')) favorites.push(k.replace('pflix_fav_',''));
-      }
-      // Progresso
-      for(var k2 in localStorage) {
-        if(k2.startsWith('pflix_progress_')) {
-          try { var p = JSON.parse(localStorage.getItem(k2)); if(p && p.pct < 0.95) progress.push(p); } catch(e) {}
-        }
-      }
-    } catch(e) {}
-
-    var statA = document.getElementById('statAssistidos');
-    var statF = document.getElementById('statFavoritos');
-    var statP = document.getElementById('statProgresso');
-    if(statA) statA.textContent = watched.length;
-    if(statF) statF.textContent = favorites.length;
-    if(statP) statP.textContent = progress.length;
-
-    // Últimos 6 assistidos
-    var watchedGrid = document.getElementById('profileWatched');
-    if(watchedGrid) {
-      var lastW = watched.slice(0,6);
-      if(!lastW.length) {
-        watchedGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Nenhum assistido ainda.</p>';
-      } else {
-        lastW.forEach(function(item) {
-          var nome = typeof item === 'string' ? item : (item.titulo||item.nome||'');
-          var capa = typeof item === 'object' ? (item.capa||'') : '';
-          var tipo = typeof item === 'object' ? (item.tipo||'filme') : 'filme';
-          var a = document.createElement('a');
-          a.href = (tipo==='serie'?'serie.html':'filme.html') + '?nome=' + encodeURIComponent(nome);
-          a.style.cssText = 'display:block;border-radius:8px;overflow:hidden;background:var(--surface-2);text-decoration:none';
-          a.innerHTML = capa
-            ? '<img src="'+capa+'" style="width:100%;aspect-ratio:2/3;object-fit:cover" loading="lazy">'
-            : '<div style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:var(--surface-3);color:var(--text-3);font-size:0.7rem;padding:6px;text-align:center">'+nome+'</div>';
-          watchedGrid.appendChild(a);
-        });
-      }
-    }
-
-    // Favoritos (6 primeiros)
-    var favGrid = document.getElementById('profileFavorites');
-    if(favGrid) {
-      if(!favorites.length) {
-        favGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Nenhum favorito ainda.</p>';
-      } else {
-        favorites.slice(0,6).forEach(function(nome) {
-          var a = document.createElement('a');
-          a.href = 'filme.html?nome=' + encodeURIComponent(nome);
-          a.style.cssText = 'display:block;border-radius:8px;overflow:hidden;background:var(--surface-2);text-decoration:none';
-          a.innerHTML = '<div style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:var(--surface-3);color:var(--text-3);font-size:0.7rem;padding:6px;text-align:center">'+nome+'</div>';
-          favGrid.appendChild(a);
-        });
-      }
-    }
-
-    // Em andamento
-    var progGrid = document.getElementById('profileProgress');
-    if(progGrid) {
-      if(!progress.length) {
-        progGrid.innerHTML = '<p style="color:var(--text-3);font-size:0.88rem">Nada em andamento.</p>';
-      } else {
-        progress.slice(0,6).forEach(function(p) {
-          var a = document.createElement('a');
-          var page = p.tipo==='serie' ? 'serie.html' : 'filme.html';
-          a.href = page + '?nome=' + encodeURIComponent(p.titulo||p.nome||'');
-          a.style.cssText = 'display:block;border-radius:8px;overflow:hidden;background:var(--surface-2);text-decoration:none;position:relative';
-          var pct = Math.round((p.pct||0)*100);
-          a.innerHTML = (p.capa
-            ? '<img src="'+p.capa+'" style="width:100%;aspect-ratio:2/3;object-fit:cover" loading="lazy">'
-            : '<div style="aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:var(--surface-3);color:var(--text-3);font-size:0.7rem;padding:6px;text-align:center">'+(p.titulo||'')+'</div>')
-            + '<div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.2)"><div style="height:100%;width:'+pct+'%;background:var(--red)"></div></div>';
-          progGrid.appendChild(a);
-        });
-      }
-    }
+    usuarioAtual = user || null;
+    var notLogged = $('profileNotLogged'), content = $('profileContent');
+    if (!user) { notLogged.style.display = 'block'; content.style.display = 'none'; return; }
+    notLogged.style.display = 'none'; content.style.display = 'block';
+    renderCabecalho(user); renderVip(); renderLocais(); renderPedidos();
   });
 });
+
+})();
 </script>
 
 <script type="module">
@@ -627,5 +668,5 @@ waitForAuth(function() {
 
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
 <script src="assets/js/pflix-vip.js"></script>
+<script type="module" src="assets/js/conta.js"></script>
 </body>
-</html>

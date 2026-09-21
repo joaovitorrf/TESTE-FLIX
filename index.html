@@ -18,6 +18,7 @@
 <link rel="apple-touch-startup-image" href="assets/img/splash.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>
 // Aplicar tema ANTES do render para evitar flash
@@ -132,8 +133,8 @@
   <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html">📡 Canais</a>
     
     <div class="nav-dropdown">
@@ -141,6 +142,7 @@
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       </div>
@@ -178,10 +180,11 @@
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
-  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
-  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html">📺 Séries</a>
   <a href="canais.html">📡 Canais</a>
   <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="pedidos.html">📝 Pedidos</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   
@@ -467,46 +470,27 @@
 
 
 
-<!-- ═══ ROMANCE ═══ -->
-<section class="content-section" id="genreSection1">
-  <div class="section-header">
-    <h2 class="section-title" id="genreTitle1">🎯 Pipoca</h2>
-    <a href="catalogo.html" class="see-all-link" id="genreLink1">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
-  </div>
-  <div class="carousel-wrap">
-    <button class="carousel-arrow prev" id="genre1Prev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="carousel-track" id="genre1Track" aria-label="Gênero">
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-    </div>
-    <button class="carousel-arrow next" id="genre1Next" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
+<!-- ═══ CARDÁPIO FILMES / SÉRIES (aparece só no celular — no PC o menu do topo já leva pra lá) ═══ -->
+<section class="content-section cardapio-mobile" aria-labelledby="cardapioTitulo">
+  <div class="section-header"><h2 class="section-title" id="cardapioTitulo">🍿 O que vamos ver hoje?</h2></div>
+  <div class="cardapio-grid">
+    <a class="cardapio-card cardapio-card--filmes" href="filmes.html">
+      <span class="cardapio-ico" aria-hidden="true">🎬</span>
+      <span class="cardapio-tit">Filmes</span>
+      <span class="cardapio-sub">Ação, terror, comédia e mais</span>
+      <span class="cardapio-seta" aria-hidden="true">→</span>
+    </a>
+    <a class="cardapio-card cardapio-card--series" href="series.html">
+      <span class="cardapio-ico" aria-hidden="true">📺</span>
+      <span class="cardapio-tit">Séries</span>
+      <span class="cardapio-sub">Pra maratonar sem parar</span>
+      <span class="cardapio-seta" aria-hidden="true">→</span>
+    </a>
   </div>
 </section>
 
-<section class="content-section" id="genreSection2">
-  <div class="section-header">
-    <h2 class="section-title" id="genreTitle2">🎯 Pipoca</h2>
-    <a href="catalogo.html" class="see-all-link" id="genreLink2">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>
-  </div>
-  <div class="carousel-wrap">
-    <button class="carousel-arrow prev" id="genre2Prev" aria-label="Anterior">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <div class="carousel-track" id="genre2Track" aria-label="Gênero">
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-      <div class="skeleton" style="width:160px;flex-shrink:0"></div>
-    </div>
-    <button class="carousel-arrow next" id="genre2Next" aria-label="Próximo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
-  </div>
-</section>
+<!-- ═══ SEÇÕES DA PLANILHA (aba "Seções": nome, tipo e títulos) — montadas pelo renderSecoesPlanilha() ═══ -->
+<div id="secoesPlanilha"></div>
 
 <!-- ═══ NÃO SABE O QUE ASSISTIR? ═══ -->
 <section class="discover-section">
@@ -1075,36 +1059,24 @@ function renderFavSection() {
 }
 
 // ── Seção Em Alta ──
-function renderHotSection(allContent) {
-  let hotItems = getHotItems();
-  // Inicializar com dados simulados na primeira visita
-  if (hotItems.length < 3 && allContent.length > 0) {
-    const randomized = [...allContent].sort(() => Math.random()-0.5).slice(0,15);
-    try {
-      const data = JSON.parse(localStorage.getItem(CLICKS_KEY) || '{}');
-      randomized.forEach(item => {
-        if (!data[item.nome]) {
-          data[item.nome] = {
-            count: Math.floor(Math.random()*90)+10,
-            lastClick: Date.now()-Math.random()*86400000,
-            capa: item.capa||'', isSerie: !!item.isSerie,
-            categoria: item.categoria||'', ano: item.ano||''
-          };
-        }
-      });
-      localStorage.setItem(CLICKS_KEY, JSON.stringify(data));
-    } catch {}
-    hotItems = getHotItems();
-  }
+async function renderHotSection(allContent) {
+  // "Em alta" agora vem do Firestore (stats.js): visualizações reais + notas de 1 a 5.
+  // Antes contava só os cliques do próprio navegador e até inventava números na 1ª visita.
   const section = document.getElementById('hotSection');
   const track   = document.getElementById('hotTrack');
-  if (hotItems.length < 3) { section.style.display='none'; return; }
+  if (!section || !track) return;
+  let trend = [];
+  try {
+    for (let i = 0; i < 30 && !window.PipocaStats; i++) await new Promise(r => setTimeout(r, 200)); // stats.js é módulo: chega depois
+    if (window.PipocaStats) trend = await window.PipocaStats.getTrending({ limite: 15 });
+  } catch (e) { console.warn('[PipocaFlix] em alta:', e); }
+  const porChave = new Map();
+  if (window.PipocaStats) allContent.forEach(c => porChave.set(window.PipocaStats.chave(c), c));
+  const itens = trend.map(t => ({ item: porChave.get(t.chave), views: t.views })).filter(x => x.item);
+  if (itens.length < 3) { section.style.display = 'none'; return; }   // sem dado de verdade, sem seção
   section.style.display = '';
   track.innerHTML = '';
-  hotItems.forEach(h => {
-    const item = allContent.find(c=>c.nome===h.nome) || { nome:h.nome, capa:h.capa, isSerie:h.isSerie, categoria:h.categoria, ano:h.ano, sinopse:'', audio:'' };
-    track.appendChild(mkCard(item, { hotCount: h.count }));
-  });
+  itens.forEach(x => track.appendChild(mkCard(x.item, x.views > 0 ? { hotCount: x.views } : undefined)));
   setupCarouselArrows('hotTrack','hotPrev','hotNext');
 }
 
@@ -1221,39 +1193,32 @@ function setupLazySection(trackId, category, prevId, nextId, allContent) {
   observer.observe(section);
 }
 
-// ── Duas fileiras "Pipoca <Gênero>" com gênero sorteado a cada visita ──
-const GENRE_DISPLAY_NAMES = {
-  'acao': 'Ação', 'romance': 'Romance', 'terror': 'Terror', 'comedia': 'Comédia',
-  'drama': 'Drama', 'ficcao': 'Ficção', 'animacao': 'Animação', 'aventura': 'Aventura',
-  'thriller': 'Thriller', 'crime': 'Crime', 'fantasia': 'Fantasia',
-  'documentario': 'Documentário', 'faroeste': 'Faroeste', 'guerra': 'Guerra',
-  'musical': 'Musical', 'familia': 'Família'
-};
-function setupRandomGenreSections(allContent) {
-  // Só entram no sorteio gêneros com conteúdo suficiente pra render uma fileira decente
-  const candidates = Object.keys(GENRE_DISPLAY_NAMES).filter(
-    key => filterByCategory(allContent, key, 9999).length >= 6
-  );
-  // Embaralha (Fisher-Yates)
-  for (let i = candidates.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-  }
-  const chosen = candidates.slice(0, 2);
-  const slots = [
-    { title: 'genreTitle1', link: 'genreLink1', track: 'genre1Track', prev: 'genre1Prev', next: 'genre1Next', section: 'genreSection1' },
-    { title: 'genreTitle2', link: 'genreLink2', track: 'genre2Track', prev: 'genre2Prev', next: 'genre2Next', section: 'genreSection2' }
-  ];
-  slots.forEach((slot, i) => {
-    const key = chosen[i];
-    const section = document.getElementById(slot.section);
-    if (!key) { if (section) section.style.display = 'none'; return; } // fallback raro: catálogo pequeno demais
-    const displayName = GENRE_DISPLAY_NAMES[key];
-    const cfg = getCatConfig(key);
-    document.getElementById(slot.title).textContent = `${cfg.emoji} Pipoca ${displayName}`;
-    document.getElementById(slot.link).href = `catalogo.html?cat=${encodeURIComponent(displayName)}`;
-    document.getElementById(slot.track).setAttribute('aria-label', displayName);
-    setupLazySection(slot.track, key, slot.prev, slot.next, allContent);
+// ── Seções da planilha (aba "Seções") ──
+// A2 = nome da seção | B2 = Filmes / Series / Series/Filmes | C2 = títulos separados por vírgula.
+// Cada linha da aba vira uma fileira aqui. Substitui as antigas "Pipoca <gênero>" sorteadas.
+async function renderSecoesPlanilha(filmes, series) {
+  const host = document.getElementById('secoesPlanilha');
+  if (!host) return;
+  let secoes = [];
+  try { secoes = await PipocaAPI.montarSecoesHome(filmes, series); }
+  catch (e) { console.warn('[PipocaFlix] seções da planilha:', e); }
+  host.innerHTML = '';
+  secoes.forEach((s, i) => {
+    const id = 'secPlan' + i;
+    const sec = document.createElement('section');
+    sec.className = 'content-section secao-planilha';
+    sec.innerHTML =
+      '<div class="section-header"><h2 class="section-title"></h2></div>' +
+      '<div class="carousel-wrap">' +
+        '<button class="carousel-arrow prev" id="' + id + 'Prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '<div class="carousel-track" id="' + id + 'Track"></div>' +
+        '<button class="carousel-arrow next" id="' + id + 'Next" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>' +
+      '</div>';
+    sec.querySelector('.section-title').textContent = s.titulo;   // textContent: nada da planilha vira HTML
+    sec.querySelector('.carousel-track').setAttribute('aria-label', s.titulo);
+    host.appendChild(sec);
+    fillTrack(id + 'Track', s.itens, 30);
+    setupCarouselArrows(id + 'Track', id + 'Prev', id + 'Next');
   });
 }
 
@@ -1391,8 +1356,8 @@ async function renderTop10(allContent) {
     var rankBadge = document.createElement('div');
     rankBadge.className = 'top10-rank' + (idx === 0 ? ' top10-rank-gold' : '');
     rankBadge.textContent = idx + 1;
-    var thumbWrap = card.querySelector('.card-thumb-wrap');
-    if (thumbWrap) thumbWrap.appendChild(rankBadge);
+    rankBadge.setAttribute('aria-hidden', 'true');
+    card.appendChild(rankBadge);   // no card (e não no thumb-wrap): assim o número pode passar da borda da capa
     track.appendChild(card);
   });
   setupCarouselArrows('top10Track', 'top10Prev', 'top10Next');
@@ -1475,8 +1440,8 @@ window._pflixAllContent = allContent;
     renderTop10(allContent); // async
     renderPlatforms(); // async, independente do allContent
 
-    // Lazy load para Romance, Ação, Terror (Tarefa 11)
-    setupRandomGenreSections(allContent);
+    // Seções montadas pela aba "Seções" da planilha (no lugar das "Pipoca <gênero>")
+    renderSecoesPlanilha(filmes, series); // async
 
     // Busca global com todos os conteúdos
     setupSearch(allContent);
@@ -1760,23 +1725,7 @@ l.parentNode.insertBefore(s, l);
 </div>
 
 
-<script>
-/* ── POPUNDER SOMENTE DESKTOP ── */
-(function() {
-  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-                 || window.innerWidth < 768;
-  if (isMobile) return;
-  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
-  var popped = false;
-  document.addEventListener('click', function handler() {
-    if (popped) return;
-    popped = true;
-    var win = window.open(POPUNDER_URL, '_blank');
-    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
-    document.removeEventListener('click', handler);
-  }, true);
-})();
-</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
 <!-- Banner apoio 30 min -->
 <div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
   <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
@@ -1800,5 +1749,7 @@ setTimeout(function() {
 <script src="assets/js/pflix-vip.js"></script>
  
 <script src="assets/js/anti-adblock.js" defer></script>
+<script type="module" src="assets/js/conta.js"></script>
+<script type="module" src="assets/js/stats.js"></script>
 </body>
 </html>

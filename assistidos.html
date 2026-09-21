@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="favicon.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -76,14 +77,15 @@
   <a href="index.html" class="logo" aria-label="PipocaFlix">PipocaFlix</a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html">📡 Canais</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       <a href="suporte.html">🎫 Suporte</a></div>
@@ -115,8 +117,9 @@
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
   <a href="catalogo.html">🎬 Catálogo</a>
-  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
-  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="pedidos.html">📝 Pedidos</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html">📺 Séries</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   
@@ -426,23 +429,7 @@ l.parentNode.insertBefore(s, l);
 </div>
 
 
-<script>
-/* ── POPUNDER SOMENTE DESKTOP ── */
-(function() {
-  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-                 || window.innerWidth < 768;
-  if (isMobile) return;
-  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
-  var popped = false;
-  document.addEventListener('click', function handler() {
-    if (popped) return;
-    popped = true;
-    var win = window.open(POPUNDER_URL, '_blank');
-    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
-    document.removeEventListener('click', handler);
-  }, true);
-})();
-</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
 <!-- Banner apoio 30 min -->
 <div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
   <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">

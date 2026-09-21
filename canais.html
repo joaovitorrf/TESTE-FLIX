@@ -2,6 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <script src="assets/js/pflix-guard.js"></script>
+<script src="assets/js/canais-vip.js"></script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
 <link rel="apple-touch-icon" href="favicon.jpg">
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
@@ -42,14 +44,15 @@
   </a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html" class="active">📡 Canais</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       <a href="suporte.html">🎫 Suporte</a></div>
@@ -74,10 +77,11 @@
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
-  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
-  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html">📺 Séries</a>
   <a href="canais.html">📡 Canais</a>
   <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="pedidos.html">📝 Pedidos</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   
@@ -112,7 +116,7 @@
   <div class="cards-grid" id="searchResultsGrid"></div>
 </div>
 
-<div style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
+<div data-vip-only style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap">
     <h1 style="font-size:1.8rem;font-weight:800;margin:0">📡 Canais Ao Vivo</h1>
     <span class="live-badge">AO VIVO</span>
@@ -240,23 +244,14 @@ async function init() {
     document.getElementById('canaisLoading').textContent = '⚠️ Erro ao carregar canais.';
   }
 }
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', function () {
+  // canais são só pra VIP: a lista só carrega depois que o canais-vip.js confirmar a assinatura
+  (window.PflixCanaisVip ? window.PflixCanaisVip.pronto : Promise.resolve(true)).then(function (ok) { if (ok) init(); });
+});
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
 
-<script>
-(function() {
-  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-  if (isMobile) return;
-  var popped = false;
-  document.addEventListener('click', function handler() {
-    if (popped) return; popped = true;
-    var win = window.open('https://sorrowfulpsychology.com/7YQ2ye', '_blank');
-    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
-    document.removeEventListener('click', handler);
-  }, true);
-})();
-</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
 
 <!-- Banner Mobile Ad -->
 <div class="mobile-banner-ad" id="mobileBannerAdNew">
@@ -287,5 +282,6 @@ l.parentNode.insertBefore(s, l);
 
 <script src="assets/js/pflix-vip.js"></script>
 <script src="assets/js/anti-adblock.js" defer></script>
+<script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>

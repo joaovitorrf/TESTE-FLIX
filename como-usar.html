@@ -7,6 +7,7 @@
 <meta name="description" content="Aprenda a usar o PipocaFlix: assista filmes e séries online grátis, sem cadastro.">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
@@ -260,22 +261,7 @@
 
 <!-- Scripts originais mantidos -->
 <script src="assets/js/security.js" defer></script>
-<script>
-/* POPUNDER SOMENTE DESKTOP */
-(function() {
-  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-  if (isMobile) return;
-  var POPUNDER_URL = 'https://sorrowfulpsychology.com/7YQ2ye';
-  var popped = false;
-  document.addEventListener('click', function handler() {
-    if (popped) return;
-    popped = true;
-    var win = window.open(POPUNDER_URL, '_blank');
-    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
-    document.removeEventListener('click', handler);
-  }, true);
-})();
-</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
 
 <!-- Banner apoio 30 min -->
 <div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">

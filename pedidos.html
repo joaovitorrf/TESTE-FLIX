@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fazer pedido — PipocaFlix</title>
+<meta name="description" content="Não achou o filme ou série que queria? Faça seu pedido no PipocaFlix e acompanhe o andamento no seu perfil.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+// Aplicar tema ANTES do render para evitar flash
+(function(){
+  const t = localStorage.getItem('pflix_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+</head>
+<body>
+<script src="assets/js/avisos.js" defer></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
+      btn.title = 'Sair da conta';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
+      btn.title = 'Ver meu perfil';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.title = 'Entrar com Google';
+      btn.onclick = function() { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); };
+    }
+  });
+</script>
+
+<!-- ═══ MOBILE SEARCH OVERLAY ═══ -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog" aria-label="Busca">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn">Mais ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="como-usar.html">❓ Como Usar</a>
+        <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
+        <a href="feed.html">📰 Feed</a>
+        <a href="elenco.html">🎭 Elenco</a>
+      <a href="suporte.html">🎫 Suporte</a></div>
+    </div>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
+  <button class="auth-btn" id="authBtn" aria-label="Login">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+  Entrar
+</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- ═══ MOBILE NAV MENU ═══ -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="pedidos.html">📝 Pedidos</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  
+  
+
+  <a href="suporte.html">🎫 Suporte</a></div>
+
+
+<main class="ped-page" id="conteudoPrincipal">
+
+  <section class="ped-intro">
+    <h1>Não achou o que queria? <span>Peça aqui</span> 🍿</h1>
+    <p>Conta pra gente o que você quer assistir. A gente confere se já tem no site e, se ainda não tiver, você faz o pedido e acompanha o andamento no seu perfil.</p>
+  </section>
+
+  <!-- Balão: o que você quer assistir? -->
+  <section class="ped-conversa" aria-labelledby="pedBolhaTexto">
+    <div class="ped-bolha">
+      <img class="ped-bolha-avatar" src="favicon.jpg" alt="" width="44" height="44">
+      <div class="ped-bolha-corpo">
+        <b class="ped-bolha-nome">PipocaFlix</b>
+        <p id="pedBolhaTexto">Oi! O que você quer ver? Marque se é <b>filme</b> ou <b>série</b>, escreva o nome e clique em pesquisar que eu confiro se já temos por aqui.</p>
+      </div>
+    </div>
+
+    <div class="ped-resposta">
+      <fieldset class="ped-tipo">
+        <legend class="sr-only">Tipo do conteúdo</legend>
+        <label class="ped-tipo-op"><input type="radio" name="pedTipo" value="filme" checked><span>🎬 Filme</span></label>
+        <label class="ped-tipo-op"><input type="radio" name="pedTipo" value="serie"><span>📺 Série</span></label>
+      </fieldset>
+      <div class="ped-busca">
+        <label class="sr-only" for="pedQuery">Nome do filme ou série</label>
+        <input id="pedQuery" type="search" maxlength="80" placeholder="Digite o nome… ex.: Interestelar" autocomplete="off" spellcheck="false">
+        <button type="button" id="pedBuscar" class="ped-b-pri">Pesquisar</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="pedResultados" class="ped-resultados" aria-live="polite" hidden></section>
+
+  <!-- Título escolhido: mensagem opcional + enviar -->
+  <section id="pedEscolhido" class="ped-escolhido" hidden aria-labelledby="pedEscolhidoTit">
+    <h2 id="pedEscolhidoTit">Seu pedido</h2>
+    <div id="pedEscolhidoCard"></div>
+    <button type="button" id="pedMaisBtn" class="ped-b-link" aria-expanded="false" aria-controls="pedMaisBox">💬 Quer dizer mais alguma coisa? <small>(opcional)</small></button>
+    <div id="pedMaisBox" class="ped-mais" hidden>
+      <label class="sr-only" for="pedMsg">Mensagem opcional</label>
+      <textarea id="pedMsg" rows="3" maxlength="500" placeholder="Ex.: prefiro dublado, é a versão de 2019, quero a temporada 2…"></textarea>
+      <div class="ped-cont"><span id="pedMsgCont">0/500</span></div>
+    </div>
+    <p id="pedLoginAviso" class="ped-aviso" hidden>🔐 Você precisa estar logado pra fazer o pedido. <a id="pedLoginLink" href="login.html">Entrar com Google</a></p>
+    <div class="ped-acoes-fim">
+      <button type="button" id="pedEnviar" class="ped-b-pri">📨 Fazer pedido</button>
+      <button type="button" id="pedTrocar" class="ped-b-sec">Escolher outro</button>
+    </div>
+    <p id="pedErro" class="ped-erro" role="alert" hidden></p>
+  </section>
+
+  <section id="pedSucesso" class="ped-sucesso" hidden role="status">
+    <div class="ped-sucesso-ico" aria-hidden="true">✅</div>
+    <h2>Pedido enviado!</h2>
+    <p>Agora é só aguardar. Você acompanha o andamento em <a href="perfil.html#pedidos">Meu perfil → Meus pedidos</a>. Quando o título entrar no site, o pedido vira <b>Atendido</b>.</p>
+    <div class="ped-acoes-fim">
+      <a class="ped-b-pri" href="perfil.html#pedidos">Ver meus pedidos</a>
+      <button type="button" id="pedOutro" class="ped-b-sec">Fazer outro pedido</button>
+    </div>
+  </section>
+
+  <!-- Só o admin enxerga -->
+  <section id="pedAdmin" class="ped-admin" hidden aria-labelledby="pedAdminTit">
+    <h2 id="pedAdminTit">🛡️ Pedidos dos usuários</h2>
+    <div class="ped-filtros" role="tablist" aria-label="Filtrar pedidos" id="pedFiltros"></div>
+    <div id="pedAdminLista" class="perf-lista"></div>
+  </section>
+</main>
+
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
+    <span style="color:var(--red)">Feito com ❤️ para fãs de cinema</span>
+  </div>
+    <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+      <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+      <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+      <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+    <a href="suporte.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Suporte</a></div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
+<script type="module" src="assets/js/pedidos.js"></script>
+
+<script>
+// Toast
+function showToast(msg,ms=2500){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._pflixToastTimer);t._pflixToastTimer=setTimeout(function(){t.classList.remove('show');},ms);}
+
+// Tema
+(function(){
+  var btn = document.getElementById('themeToggle');
+  function applyTheme(t) { document.documentElement.setAttribute('data-theme',t); if(btn) btn.textContent = t==='dark'?'🌙':'☀️'; localStorage.setItem('pflix_theme',t); }
+  applyTheme(localStorage.getItem('pflix_theme')||'dark');
+  if(btn) btn.addEventListener('click',function(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
+})();
+
+// Header scroll
+window.addEventListener('scroll',function(){
+  var h=document.getElementById('mainHeader');
+  if(h) h.classList.toggle('scrolled',window.scrollY>60);
+  var b=document.getElementById('backToTop');
+  if(b) b.classList.toggle('visible',window.scrollY>400);
+},{passive:true});
+var btt=document.getElementById('backToTop');
+if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+
+// Busca do celular (ícone de lupa do cabeçalho → overlay → página de busca)
+(function(){
+  var tg=document.getElementById('mobileSearchToggle'), ov=document.getElementById('mobileSearchOverlay'),
+      inp=document.getElementById('mobileSearchInput'), cl=document.getElementById('mobileSearchClose');
+  if(!tg||!ov||!inp) return;
+  function abrir(){ ov.classList.add('open'); tg.setAttribute('aria-expanded','true'); setTimeout(function(){inp.focus();},80); }
+  function fechar(){ ov.classList.remove('open'); tg.setAttribute('aria-expanded','false'); }
+  tg.addEventListener('click', abrir);
+  if(cl) cl.addEventListener('click', fechar);
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); var v=inp.value.trim(); if(v.length>=2) location.href='buscar.html?q='+encodeURIComponent(v); }
+    if(e.key==='Escape') fechar();
+  });
+})();
+
+// Hamburger
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');
+  if(!btn||!menu) return;
+  btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.classList.toggle('open',o);btn.setAttribute('aria-expanded',o.toString());});
+  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.classList.remove('open');});});
+  document.addEventListener('click',function(e){if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
+})();
+</script>
+<script>
+(function(){
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+var catalogo = { filmes: [], series: [] };
+var escolhido = null;      // resultado do TMDB que a pessoa quer pedir
+var usuario = null;
+
+/* catálogo do site (só o que aparece de verdade) — usado na checagem "já tem?" */
+var catalogoPronto = Promise.all([window.PipocaAPI.getFilmes(), window.PipocaAPI.getSeries()]).then(function(r){
+  catalogo.filmes = (r[0]||[]).filter(function(x){ return x.visivel !== false; });
+  catalogo.series = (r[1]||[]).filter(function(x){ return x.visivel !== false; });
+}).catch(function(){ /* sem catálogo: a checagem vira "não temos", o pedido ainda funciona */ });
+
+function tipoAtual(){ var r = document.querySelector('input[name="pedTipo"]:checked'); return r ? r.value : 'filme'; }
+function irLoginUrl(){ return 'login.html?redirect=' + encodeURIComponent('pedidos.html'); }
+
+/* ── Busca ── */
+async function pesquisar() {
+  var termo = $('pedQuery').value.trim();
+  var box = $('pedResultados');
+  $('pedSucesso').hidden = true;
+  if (termo.length < 2) { box.hidden = false; box.innerHTML = '<p class="ped-vazio">Digite pelo menos 2 letras 🙂</p>'; return; }
+  box.hidden = false; box.innerHTML = '<p class="ped-vazio">Pesquisando…</p>';
+  $('pedBuscar').disabled = true;
+  try {
+    await catalogoPronto;
+    var tipo = tipoAtual();
+    var res = await window.PipocaAPI.buscarTmdb(tipo, termo);
+    box.innerHTML = '';
+    if (!res.length) { box.innerHTML = '<p class="ped-vazio">Não achei nenhum ' + (tipo==='serie'?'série':'filme') + ' com esse nome. Confere a escrita ou tenta o nome original.</p>'; return; }
+    res.slice(0, 8).forEach(function(r){ box.appendChild(cartaoResultado(r)); });
+  } catch (e) {
+    console.warn('[Pedidos] busca:', e);
+    box.innerHTML = '<p class="ped-vazio">Não consegui pesquisar agora. Tenta de novo em instantes.</p>';
+  } finally { $('pedBuscar').disabled = false; }
+}
+
+function cartaoResultado(r) {
+  var chk = window.PipocaAPI.acharNoSite(r, catalogo.filmes, catalogo.series);
+  var el = document.createElement('article');
+  el.className = 'ped-res';
+  var msg, acao = '';
+  if (chk.status === 'tem') {
+    var pg = r.tipo === 'serie' ? 'serie.html' : 'filme.html';
+    msg = '<p class="ped-status ped-status--tem">✅ <b>Esse título já está no site!</b></p>';
+    acao = '<a class="ped-b-pri" href="' + pg + '?nome=' + encodeURIComponent(chk.item.nome) + '">▶ Assistir agora</a>';
+  } else if (chk.status === 'mesmo-nome-outro-ano') {
+    msg = '<p class="ped-status ped-status--nao">🍿 <b>Essa versão ainda não temos.</b> Temos um título com o mesmo nome' + (chk.outroAno.ano ? ' (' + esc(chk.outroAno.ano) + ')' : '') + ', mas é outro.</p>';
+    acao = '<button type="button" class="ped-b-pri" data-pedir>Pedir esta</button>';
+  } else {
+    msg = '<p class="ped-status ped-status--nao">🍿 <b>Ainda não temos.</b> Quer pedir?</p>';
+    acao = '<button type="button" class="ped-b-pri" data-pedir>Pedir este</button>';
+  }
+  el.innerHTML =
+    (r.capa ? '<img class="ped-capa" src="' + esc(r.capa) + '" alt="" loading="lazy">' : '<div class="ped-capa ped-capa--vazia" aria-hidden="true">' + (r.tipo==='serie'?'📺':'🎬') + '</div>') +
+    '<div class="ped-corpo">' +
+      '<div class="ped-tit"><b>' + esc(r.titulo) + '</b>' + (r.ano ? ' <span>(' + esc(r.ano) + ')</span>' : '') +
+        (r.tituloOriginal && r.tituloOriginal !== r.titulo ? '<small>' + esc(r.tituloOriginal) + '</small>' : '') + '</div>' +
+      (r.sinopse ? '<p class="ped-sinopse">' + esc(r.sinopse.length > 150 ? r.sinopse.slice(0,150) + '…' : r.sinopse) + '</p>' : '') +
+      msg + '<div class="ped-acoes-res">' + acao + '</div>' +
+    '</div>';
+  var b = el.querySelector('[data-pedir]');
+  if (b) b.addEventListener('click', function(){ escolher(r); });
+  return el;
+}
+
+/* ── Escolher e enviar ── */
+function escolher(r) {
+  escolhido = r;
+  $('pedResultados').hidden = true;
+  $('pedSucesso').hidden = true;
+  $('pedEscolhido').hidden = false;
+  $('pedErro').hidden = true;
+  $('pedEscolhidoCard').innerHTML = '';
+  var c = cartaoResultado(r);
+  c.querySelector('.ped-acoes-res').remove(); c.querySelector('.ped-status').remove();
+  $('pedEscolhidoCard').appendChild(c);
+  atualizarLogin();
+  $('pedEscolhido').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function atualizarLogin() {
+  var av = $('pedLoginAviso');
+  av.hidden = !!usuario || !escolhido;
+  $('pedLoginLink').href = irLoginUrl();
+  $('pedEnviar').disabled = !usuario;
+}
+
+$('pedBuscar').addEventListener('click', pesquisar);
+$('pedQuery').addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); pesquisar(); } });
+$('pedMaisBtn').addEventListener('click', function(){
+  var box = $('pedMaisBox'), abrir = box.hidden;
+  box.hidden = !abrir; this.setAttribute('aria-expanded', String(abrir));
+  if (abrir) $('pedMsg').focus();
+});
+$('pedMsg').addEventListener('input', function(){ $('pedMsgCont').textContent = this.value.length + '/500'; });
+$('pedTrocar').addEventListener('click', function(){
+  escolhido = null; $('pedEscolhido').hidden = true; $('pedResultados').hidden = false; $('pedQuery').focus();
+});
+$('pedOutro').addEventListener('click', function(){
+  $('pedSucesso').hidden = true; $('pedQuery').value = ''; $('pedResultados').hidden = true; $('pedQuery').focus();
+});
+
+$('pedEnviar').addEventListener('click', async function(){
+  if (!escolhido) return;
+  var erro = $('pedErro'); erro.hidden = true;
+  if (!usuario) { location.href = irLoginUrl(); return; }
+  if (!window.PipocaPedidos) { erro.textContent = 'Ainda carregando… tenta de novo em um segundo.'; erro.hidden = false; return; }
+  var btn = this; btn.disabled = true; btn.textContent = 'Enviando…';
+  try {
+    await window.PipocaPedidos.criar({ tipo: escolhido.tipo, tmdb: escolhido, mensagem: $('pedMsg').value });
+    $('pedEscolhido').hidden = true; $('pedSucesso').hidden = false;
+    $('pedMsg').value = ''; $('pedMsgCont').textContent = '0/500'; $('pedMaisBox').hidden = true; $('pedMaisBtn').setAttribute('aria-expanded','false');
+    escolhido = null;
+    $('pedSucesso').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (e) {
+    var c = e && e.code;
+    erro.textContent =
+      c === 'pflix/duplicado' ? 'Você já fez o pedido desse título. Acompanhe em Meu perfil → Meus pedidos.' :
+      c === 'pflix/limite' ? 'Você já tem ' + window.PipocaPedidos.MAX_PENDENTES + ' pedidos pendentes. Espera a gente atender alguns antes de pedir mais 🙂' :
+      c === 'permission-denied' ? 'Sem permissão pra enviar (as regras do Firestore precisam ser publicadas).' :
+      'Não deu pra enviar agora. Confere a internet e tenta de novo.';
+    erro.hidden = false;
+    console.warn('[Pedidos] enviar:', c || e);
+  } finally { btn.disabled = !usuario; btn.textContent = '📨 Fazer pedido'; }
+});
+
+/* ── Painel do admin ── */
+var pedidosAdmin = [], filtroAdmin = 'pendente';
+function desenharAdmin() {
+  var cont = { pendente:0, atendido:0, recusado:0 };
+  pedidosAdmin.forEach(function(p){ cont[p.status] = (cont[p.status]||0) + 1; });
+  var f = $('pedFiltros'); f.innerHTML = '';
+  [['pendente','⏳ Pendentes'],['atendido','✅ Atendidos'],['recusado','❌ Recusados'],['todos','Todos']].forEach(function(o){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'ped-filtro'; b.setAttribute('role','tab');
+    b.setAttribute('aria-selected', String(filtroAdmin === o[0]));
+    b.textContent = o[1] + (o[0] !== 'todos' ? ' (' + (cont[o[0]]||0) + ')' : ' (' + pedidosAdmin.length + ')');
+    b.addEventListener('click', function(){ filtroAdmin = o[0]; desenharAdmin(); });
+    f.appendChild(b);
+  });
+  var lista = $('pedAdminLista'); lista.innerHTML = '';
+  var vis = pedidosAdmin.filter(function(p){ return filtroAdmin === 'todos' || p.status === filtroAdmin; });
+  if (!vis.length) { lista.innerHTML = '<p class="perf-vazio">Nada por aqui.</p>'; return; }
+  vis.forEach(function(p){
+    lista.appendChild(window.PipocaPedidos.montarCartao(p, { admin: true, catalogo: catalogo, aoMudar: carregarAdmin }));
+  });
+}
+async function carregarAdmin() {
+  try { await catalogoPronto; pedidosAdmin = await window.PipocaPedidos.listarTodos(); desenharAdmin(); }
+  catch (e) { console.warn('[Pedidos] admin:', e && e.code || e); $('pedAdminLista').innerHTML = '<p class="perf-vazio">Não deu pra carregar os pedidos (regras do Firestore?).</p>'; }
+}
+
+/* ── Auth ── */
+(function esperarAuth(t){
+  t = t || 0;
+  if (!window.PipocaAuth) { if (t < 40) setTimeout(function(){ esperarAuth(t+1); }, 200); return; }
+  window.PipocaAuth.onAuthChanged(function(u){
+    usuario = u || null; atualizarLogin();
+    var admin = false, tent = 0;
+    (function aguardarModulo(){
+      if (!window.PipocaPedidos) { if (++tent < 50) return setTimeout(aguardarModulo, 200); return; }
+      admin = !!u && window.PipocaPedidos.ehAdmin(u);
+      $('pedAdmin').hidden = !admin;
+      if (admin) carregarAdmin();
+    })();
+  });
+})();
+
+})();
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
+<script src="assets/js/pflix-vip.js"></script>
+</body>
+</html>

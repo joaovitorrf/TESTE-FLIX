@@ -7,6 +7,7 @@
 <meta name="description" content="Entre no PipocaFlix com sua conta Google e aproveite muito mais: comente nos filmes, veja o que já assistiu e monte sua lista.">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
@@ -316,7 +317,15 @@
 
   // Se a pessoa já está logada, não precisa ficar aqui — manda pra onde ela ia.
   onAuthStateChanged(auth, function (user) {
-    if (user) irParaDestino();
+    if (user) {
+      // Conta acabou de ser criada? Deixa um recado pro conta.js abrir o passo
+      // "escolha seu nome e avatar" na próxima página. (Quem já tinha conta não é obrigado a nada.)
+      try {
+        var m = user.metadata || {};
+        if (m.creationTime && m.creationTime === m.lastSignInTime) localStorage.setItem('pflix_onboarding_pendente', user.uid);
+      } catch (e) {}
+      irParaDestino();
+    }
   });
 </script>
 

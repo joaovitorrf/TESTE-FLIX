@@ -2,6 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <script src="assets/js/pflix-guard.js"></script>
+<script src="assets/js/canais-vip.js"></script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
@@ -113,14 +115,15 @@ l.parentNode.insertBefore(s, l);
   </a>
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
-    <a href="catalogo.html?tipo=filmes">Filmes</a>
-    <a href="catalogo.html?tipo=series">Séries</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html" class="active">📡 Canais</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       <a href="suporte.html">🎫 Suporte</a></div>
@@ -151,10 +154,11 @@ l.parentNode.insertBefore(s, l);
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
-  <a href="catalogo.html?tipo=filmes">🎥 Filmes</a>
-  <a href="catalogo.html?tipo=series">📺 Séries</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html">📺 Séries</a>
   <a href="canais.html">📡 Canais</a>
   <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="pedidos.html">📝 Pedidos</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   
@@ -168,7 +172,7 @@ l.parentNode.insertBefore(s, l);
 </div>
 
 <!-- Canal Detail -->
-<div class="canal-detail-wrap">
+<div class="canal-detail-wrap" data-vip-only>
   <div id="canalLoading" style="color:var(--text-3);font-size:1rem;padding:2rem 0">⏳ Carregando canal...</div>
   
   <div id="canalContent" style="display:none">
@@ -211,7 +215,7 @@ l.parentNode.insertBefore(s, l);
 </div>
 
 <!-- ═══ COMENTÁRIOS FIREBASE ═══ -->
-<section class="comments-section" id="commentsSection">
+<section class="comments-section" id="commentsSection" data-vip-only>
   <h3 class="comments-title">💬 Comentários</h3>
   <div id="commentFormWrap">
     <div id="commentLoginPrompt" style="display:none;text-align:center;padding:20px;color:var(--text-3)">
@@ -590,7 +594,10 @@ async function init() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', function () {
+  // canais são só pra VIP: o player só carrega depois que o canais-vip.js confirmar a assinatura
+  (window.PflixCanaisVip ? window.PflixCanaisVip.pronto : Promise.resolve(true)).then(function (ok) { if (ok) init(); });
+});
 
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
@@ -609,20 +616,7 @@ document.addEventListener('DOMContentLoaded', init);
 </div>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
 
-<!-- POPUNDER SOMENTE DESKTOP -->
-<script>
-(function() {
-  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-  if (isMobile) return;
-  var popped = false;
-  document.addEventListener('click', function handler() {
-    if (popped) return; popped = true;
-    var win = window.open('https://sorrowfulpsychology.com/7YQ2ye', '_blank');
-    if (win) { try { win.blur(); window.focus(); } catch(e) {} }
-    document.removeEventListener('click', handler);
-  }, true);
-})();
-</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
 
 <!-- Banner apoio 30 min -->
 <div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
@@ -638,5 +632,6 @@ document.addEventListener('DOMContentLoaded', init);
 
 <script src="assets/js/pflix-vip.js"></script>
 <script src="assets/js/anti-adblock.js" defer></script>
+<script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>

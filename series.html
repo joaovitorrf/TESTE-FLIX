@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<script src="assets/js/pflix-guard.js"></script>
+<meta charset="UTF-8">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Séries — PipocaFlix</title>
+<meta name="description" content="Séries online grátis no PipocaFlix para maratonar: drama, ação, ficção e muito mais. As fileiras mudam a cada visita.">
+<meta name="theme-color" content="#ff2d43">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
+<link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>
+// Aplicar tema ANTES do render para evitar flash
+(function(){
+  const t = localStorage.getItem('pflix_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+</head>
+<body>
+<script src="assets/js/avisos.js" defer></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA",
+    authDomain: "pipoca-flix-43de0.firebaseapp.com",
+    projectId: "pipoca-flix-43de0",
+    storageBucket: "pipoca-flix-43de0.firebasestorage.app",
+    messagingSenderId: "504338312989",
+    appId: "1:504338312989:web:b4949dd355624811017bf4",
+    measurementId: "G-WL3CY5FRMR"
+  };
+
+  const app      = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth     = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.PipocaAuth = {
+    login: () => signInWithPopup(auth, provider),
+    logout: () => signOut(auth),
+    getUser: () => auth.currentUser,
+    onAuthChanged: (cb) => onAuthStateChanged(auth, cb)
+  };
+
+  onAuthStateChanged(auth, function(user) {
+    var btn = document.getElementById('authBtn');
+    if (!btn) return;
+    if (user) {
+      btn.innerHTML = '<img src="' + (user.photoURL || '') + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--red)"> <span>' + (user.displayName || 'Minha Conta').split(' ')[0] + '</span>';
+      btn.title = 'Sair da conta';
+      btn.onclick = function() { window.location.href = 'perfil.html'; };
+      btn.title = 'Ver meu perfil';
+    } else {
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar';
+      btn.title = 'Entrar com Google';
+      btn.onclick = function() { window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search); };
+    }
+  });
+</script>
+
+<!-- ═══ MOBILE SEARCH OVERLAY ═══ -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog" aria-label="Busca">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)">
+    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+  </svg>
+  <input type="search" class="mobile-search-input" id="mobileSearchInput"
+    placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false">
+    <button class="voice-search-btn" id="voiceSearchBtnMobile" aria-label="Busca por voz" title="Busca por voz" style="flex-shrink:0;background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+    <button class="mobile-search-cancel" id="mobileSearchClose">Cancelar</button>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header" id="mainHeader">
+  <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
+  <nav class="nav" aria-label="Navegação">
+    <a href="index.html">Início</a>
+    <a href="filmes.html">Filmes</a>
+    <a href="series.html" class="active" aria-current="page">Séries</a>
+    <a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-btn">Mais ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="como-usar.html">❓ Como Usar</a>
+        <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="feed.html">📰 Feed</a>
+        <a href="elenco.html">🎭 Elenco</a>
+      <a href="suporte.html">🎫 Suporte</a></div>
+    </div>
+  </nav>
+  <div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="search" class="search-bar" id="desktopSearchInput"
+      placeholder="Buscar filmes e séries..." autocomplete="off" spellcheck="false" aria-label="Buscar">
+    <button class="voice-search-btn" id="voiceSearchBtn" aria-label="Busca por voz" title="Busca por voz" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;z-index:2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
+    </button>
+  </div>
+  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
+  <button class="auth-btn" id="authBtn" aria-label="Login">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+  Entrar
+</button>
+  <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  <button class="search-toggle-btn" id="mobileSearchToggle" aria-label="Abrir busca" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+</header>
+
+<!-- ═══ MOBILE NAV MENU ═══ -->
+<div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
+  <a href="como-usar.html">❓ Como Usar</a>
+  <a href="perfil.html">👤 Meu Perfil</a>
+  <a href="index.html">🏠 Início</a>
+  <a href="filmes.html">🎥 Filmes</a>
+  <a href="series.html" class="active" aria-current="page">📺 Séries</a>
+  <a href="canais.html">📡 Canais</a>
+  <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="feed.html">📰 Feed</a>
+  <a href="elenco.html">🎭 Elenco</a>
+  
+  
+
+  <a href="suporte.html">🎫 Suporte</a></div>
+
+
+<main class="tipo-page" id="conteudoPrincipal">
+  <header class="tipo-hero">
+    <div class="tipo-hero-txt">
+      <h1>📺 Séries</h1>
+      <p id="tipoSub">Carregando…</p>
+    </div>
+    <a class="tipo-catalogo" href="catalogo.html?tipo=series">Ver o catálogo completo <span aria-hidden="true">→</span></a>
+  </header>
+  <div id="tipoSecoes" aria-live="polite">
+    <div class="tipo-skel" aria-hidden="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+  </div>
+</main>
+
+
+<footer class="footer">
+  <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
+  <p class="footer-desc">O melhor catálogo de filmes e séries online.</p>
+  <div class="footer-bottom">
+    <span>© 2025 PipocaFlix. Todos os direitos reservados.</span>
+    <span style="color:var(--red)">Feito com ❤️ para fãs de cinema</span>
+  </div>
+    <div class="footer-links" style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <a href="como-usar.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Como Usar</a>
+      <a href="sobre.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Sobre Nós</a>
+      <a href="privacidade.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Política de Privacidade</a>
+      <a href="dmca.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">DMCA</a>
+      <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
+    <a href="suporte.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Suporte</a></div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/security.js"></script>
+<script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/home-rows.js"></script>
+<script type="module" src="assets/js/stats.js"></script>
+
+<script>
+// Toast
+function showToast(msg,ms=2500){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(t._pflixToastTimer);t._pflixToastTimer=setTimeout(function(){t.classList.remove('show');},ms);}
+
+// Tema
+(function(){
+  var btn = document.getElementById('themeToggle');
+  function applyTheme(t) { document.documentElement.setAttribute('data-theme',t); if(btn) btn.textContent = t==='dark'?'🌙':'☀️'; localStorage.setItem('pflix_theme',t); }
+  applyTheme(localStorage.getItem('pflix_theme')||'dark');
+  if(btn) btn.addEventListener('click',function(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); });
+})();
+
+// Header scroll
+window.addEventListener('scroll',function(){
+  var h=document.getElementById('mainHeader');
+  if(h) h.classList.toggle('scrolled',window.scrollY>60);
+  var b=document.getElementById('backToTop');
+  if(b) b.classList.toggle('visible',window.scrollY>400);
+},{passive:true});
+var btt=document.getElementById('backToTop');
+if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+
+// Hamburger
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');
+  if(!btn||!menu) return;
+  btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.classList.toggle('open',o);btn.setAttribute('aria-expanded',o.toString());});
+  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.classList.remove('open');});});
+  document.addEventListener('click',function(e){if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
+})();
+
+// Busca do celular (ícone de lupa do cabeçalho → overlay → página de busca)
+(function(){
+  var tg=document.getElementById('mobileSearchToggle'), ov=document.getElementById('mobileSearchOverlay'),
+      inp=document.getElementById('mobileSearchInput'), cl=document.getElementById('mobileSearchClose');
+  if(!tg||!ov||!inp) return;
+  function abrir(){ ov.classList.add('open'); tg.setAttribute('aria-expanded','true'); setTimeout(function(){inp.focus();},80); }
+  function fechar(){ ov.classList.remove('open'); tg.setAttribute('aria-expanded','false'); }
+  tg.addEventListener('click', abrir);
+  if(cl) cl.addEventListener('click', fechar);
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); var v=inp.value.trim(); if(v.length>=2) location.href='buscar.html?q='+encodeURIComponent(v); }
+    if(e.key==='Escape') fechar();
+  });
+})();
+
+</script>
+<script>
+(function(){
+var TIPO = 'serie';                 // 'filme' | 'serie'
+var R = window.PflixRows;
+var QTD_SECOES = 5;                    // fileiras de gênero sorteadas a cada visita
+var GENEROS = {
+  'acao':'Ação','romance':'Romance','terror':'Terror','comedia':'Comédia','drama':'Drama','ficcao':'Ficção',
+  'animacao':'Animação','aventura':'Aventura','thriller':'Thriller','crime':'Crime','fantasia':'Fantasia',
+  'documentario':'Documentário','faroeste':'Faroeste','guerra':'Guerra','musical':'Musical','familia':'Família'
+};
+function embaralhar(a){ a = a.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+var SETA_E = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>';
+var SETA_D = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
+var seq = 0;
+
+function criarSecao(titulo, linkHref, itens, opts) {
+  var id = 'tipoSec' + (seq++);
+  var sec = document.createElement('section');
+  sec.className = 'content-section';
+  sec.innerHTML =
+    '<div class="section-header"><h2 class="section-title"></h2>' +
+      (linkHref ? '<a href="'+linkHref+'" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>' : '') +
+    '</div>' +
+    '<div class="carousel-wrap">' +
+      '<button class="carousel-arrow prev" id="'+id+'P" aria-label="Anterior">'+SETA_E+'</button>' +
+      '<div class="carousel-track" id="'+id+'T"></div>' +
+      '<button class="carousel-arrow next" id="'+id+'N" aria-label="Próximo">'+SETA_D+'</button>' +
+    '</div>';
+  sec.querySelector('.section-title').textContent = titulo;
+  sec.querySelector('.carousel-track').setAttribute('aria-label', titulo);
+  document.getElementById('tipoSecoes').appendChild(sec);
+  var track = document.getElementById(id+'T');
+  itens.forEach(function(it){ track.appendChild(R.mkCard(it, opts && opts.hot && opts.hot.get(it.nome) ? { hotCount: opts.hot.get(it.nome) } : undefined)); });
+  R.setupCarouselArrows(id+'T', id+'P', id+'N');
+}
+
+async function iniciar() {
+  var box = document.getElementById('tipoSecoes');
+  try {
+    var r = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
+    var filmes = PipocaAPI.filtrarVisiveis(r[0]), series = PipocaAPI.filtrarVisiveis(r[1]);
+    var itens = TIPO === 'serie' ? series : filmes;
+    var plural = TIPO === 'serie' ? 'séries' : 'filmes';
+    window._pflixAllContent = filmes.concat(series);
+    box.innerHTML = '';
+
+    document.getElementById('tipoSub').textContent = itens.length + ' ' + plural + ' pra você escolher. As fileiras mudam a cada visita 🎲';
+    if (!itens.length) { box.innerHTML = '<p class="perf-vazio">Ainda não temos ' + plural + ' por aqui.</p>'; return; }
+
+    // 1) Em alta (de verdade: visualizações + notas) só deste tipo
+    try {
+      for (var i = 0; i < 25 && !window.PipocaStats; i++) await new Promise(function(ok){ setTimeout(ok, 200); });
+      if (window.PipocaStats) {
+        var trend = await window.PipocaStats.getTrending({ limite: 30 });
+        var porChave = new Map(itens.map(function(c){ return [window.PipocaStats.chave(c), c]; }));
+        var hot = new Map(), lista = [];
+        trend.forEach(function(t){ var it = porChave.get(t.chave); if (it && lista.length < 15) { lista.push(it); if (t.views > 0) hot.set(it.nome, t.views); } });
+        if (lista.length >= 3) criarSecao('🔥 Em alta em ' + plural, null, lista, { hot: hot });
+      }
+    } catch (e) { console.warn('[PipocaFlix] em alta:', e); }
+
+    // 2) cinco fileiras "Pipoca <gênero>", com gêneros sorteados (só entram gêneros com conteúdo de sobra)
+    var candidatos = embaralhar(Object.keys(GENEROS).filter(function(k){ return R.filterByCategory(itens, k, 9999).length >= 6; }));
+    var usados = candidatos.slice(0, QTD_SECOES);
+    usados.forEach(function(k){
+      var nome = GENEROS[k], cfg = R.getCatConfig(k);
+      criarSecao(cfg.emoji + ' Pipoca ' + nome, 'catalogo.html?tipo=' + (TIPO === 'serie' ? 'series' : 'filmes') + '&cat=' + encodeURIComponent(nome), R.filterByCategory(itens, k, 24));
+    });
+    // 3) catálogo pequeno: completa as 5 com fileiras sorteadas pra a página nunca ficar vazia
+    var titulosExtras = ['🎲 Sorteados pra você', '🍿 Que tal esses?', '✨ Descubra mais', '🎯 Escolhas da vez', '🎞️ Pra assistir agora'];
+    for (var n = usados.length; n < QTD_SECOES && itens.length >= 6; n++) {
+      criarSecao(titulosExtras[n % titulosExtras.length], null, embaralhar(itens).slice(0, 20));
+    }
+  } catch (e) {
+    console.error('[PipocaFlix]', e);
+    box.innerHTML = '<p class="perf-vazio">Não deu pra carregar agora. Confere sua conexão e recarrega a página.</p>';
+  }
+}
+iniciar();
+
+})();
+</script>
+<script src="assets/js/pflix-ads-desktop.js" defer></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
+<script src="assets/js/pflix-vip.js"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
@@ -81,8 +82,9 @@
 <header class="header" id="mainHeader">
   <a href="index.html" class="logo" aria-label="PipocaFlix Home"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:36px;width:auto;object-fit:contain;display:block"></a>
   <nav class="nav" aria-label="Navegação">
-    <a href="index.html">Início</a><a href="catalogo.html?tipo=filmes">Filmes</a><a href="catalogo.html?tipo=series">Séries</a><a href="canais.html">📡 Canais</a>
-    <div class="nav-dropdown"><button class="nav-dropdown-btn">Mais ▾</button><div class="nav-dropdown-menu"><a href="como-usar.html">❓ Como Usar</a><a href="catalogo.html">🎬 Catálogo</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a><a href="suporte.html">🎫 Suporte</a></div></div>
+    <a href="index.html">Início</a><a href="filmes.html">Filmes</a><a href="series.html">Séries</a><a href="canais.html">📡 Canais</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-btn">Mais ▾</button><div class="nav-dropdown-menu"><a href="como-usar.html">❓ Como Usar</a><a href="catalogo.html">🎬 Catálogo</a>
+<a href="pedidos.html">📝 Pedidos</a><a href="feed.html">📰 Feed</a><a href="elenco.html">🎭 Elenco</a><a href="suporte.html">🎫 Suporte</a></div></div>
   </nav>
   <button class="auth-btn" id="authBtn" aria-label="Login"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar</button>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
@@ -92,7 +94,7 @@
 <div class="mobile-nav-menu" id="mobileNavMenu" aria-label="Menu de navegação">
   <a href="como-usar.html">❓ Como Usar</a>
   <a href="perfil.html">👤 Meu Perfil</a>
-  <a href="index.html">🏠 Início</a><a href="catalogo.html?tipo=filmes">🎥 Filmes</a><a href="catalogo.html?tipo=series">📺 Séries</a><a href="canais.html">📡 Canais</a>
+  <a href="index.html">🏠 Início</a><a href="filmes.html">🎥 Filmes</a><a href="series.html">📺 Séries</a><a href="canais.html">📡 Canais</a>
 
   <a href="suporte.html">🎫 Suporte</a></div>
 
@@ -169,5 +171,6 @@
 (function(){const btn=document.getElementById('themeToggle');function applyTheme(t){document.documentElement.setAttribute('data-theme',t);btn.textContent=t==='dark'?'🌙':'☀️';localStorage.setItem('pflix_theme',t);}applyTheme(localStorage.getItem('pflix_theme')||'dark');btn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));})();
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
+<script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>
