@@ -148,8 +148,16 @@ function fecharMenu() {
 function posicionar() {
   const b = document.getElementById('authBtn'); if (!b || !menuEl) return;
   const r = b.getBoundingClientRect();
+  const largura = menuEl.offsetWidth || 320;
+  // Alinha a borda DIREITA do menu com a borda direita do botão (como antes), mas sempre
+  // dentro da tela: no mobile o botão nem sempre é o último ícone do cabeçalho (depois dele
+  // ainda vêm tema, hambúrguer e busca), então "colar" pela direita podia empurrar o menu
+  // pra fora da tela à esquerda. Aqui travamos entre 12px e (largura da tela - 12px - menu).
+  const idealLeft = r.right - largura;
+  const esquerda = Math.min(Math.max(idealLeft, 12), window.innerWidth - largura - 12);
+  menuEl.style.left = Math.round(esquerda) + 'px';
+  menuEl.style.right = 'auto';
   menuEl.style.top = Math.round(r.bottom + 10) + 'px';
-  menuEl.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
 }
 
 function abrirMenu() {
