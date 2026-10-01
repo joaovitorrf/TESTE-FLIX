@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
-<script src="assets/js/pflix-guard.js"></script>
-<script src="assets/js/canais-vip.js"></script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,7 +114,7 @@
   <div class="cards-grid" id="searchResultsGrid"></div>
 </div>
 
-<div data-vip-only style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
+<div style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap">
     <h1 style="font-size:1.8rem;font-weight:800;margin:0">📡 Canais Ao Vivo</h1>
     <span class="live-badge">AO VIVO</span>
@@ -130,9 +128,7 @@
 </div>
 
 <div class="ad-section">
-  <div class="ad-banner-wrap">
-    <script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
-  </div>
+  
 </div>
 
 <footer class="footer">
@@ -245,43 +241,16 @@ async function init() {
   }
 }
 document.addEventListener('DOMContentLoaded', function () {
-  // canais são só pra VIP: a lista só carrega depois que o canais-vip.js confirmar a assinatura
-  (window.PflixCanaisVip ? window.PflixCanaisVip.pronto : Promise.resolve(true)).then(function (ok) { if (ok) init(); });
+  // A checagem de acesso (VIP/teste grátis) agora é feita pelo acesso-vip.js pra
+  // o site inteiro — quando chega aqui, já foi liberado.
+  init();
 });
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
 
-<script src="assets/js/pflix-ads-desktop.js" defer></script>
-
 <!-- Banner Mobile Ad -->
-<div class="mobile-banner-ad" id="mobileBannerAdNew">
-<script>
-(function(xev){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = xev || {};
-s.src = "//sophisticatedpin.com/bqX.VKs/dKG/lz0OYAWJcz/Oe-mz9/u/Z/U/l_kvPZT/YJ5dOjD/cd2aMVj/kAtNNKjjki4nNhzJYYzuM/wq";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
-</div>
-
-<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
-  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
-    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
-    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
-    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
-    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador! ❤️</p>
-    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">Fechar</button>
-  </div>
-</div>
-<script>setTimeout(function(){var el=document.getElementById('supportBannerOverlay');if(el)el.style.display='block';},30*60*1000);</script>
 
 <script src="assets/js/pflix-vip.js"></script>
-<script src="assets/js/anti-adblock.js" defer></script>
-<script type="module" src="assets/js/conta.js"></script>
+<script src="assets/js/acesso-vip.js"></script><script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>

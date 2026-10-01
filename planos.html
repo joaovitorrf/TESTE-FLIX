@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planos — PipocaFlix</title>
-<meta name="description" content="Escolha seu plano PipocaFlix: filmes e séries grátis, ou VIP com canais ao vivo e sem anúncios.">
+<meta name="description" content="Assine o Pipoca Flix Gold e tenha acesso completo a filmes, séries e canais ao vivo, sem anúncios. Teste 3 horas grátis antes de assinar.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -45,13 +45,25 @@
 
 /* ─── GRID ─── */
 .planos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  gap: 24px;
+  display: flex;
+  justify-content: center;
   max-width: 1060px;
   margin: 48px auto 0;
-  padding: 0 20px 80px;
+  padding: 0 20px 24px;
 }
+.planos-grid .plano-card { width: 100%; max-width: 360px; }
+
+.trial-cta {
+  max-width: 620px; margin: 0 auto 40px; padding: 22px 26px; text-align: center;
+  border-radius: 20px; border: 1px dashed var(--border-light); background: var(--surface-2);
+}
+.trial-cta p { margin: 0 0 12px; color: var(--text-2); font-size: .92rem; line-height: 1.5; }
+.trial-cta a {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1.3rem; border-radius: 999px;
+  background: transparent; border: 1px solid var(--red); color: var(--red); text-decoration: none;
+  font: 700 .88rem var(--font-body, inherit);
+}
+.trial-cta a:hover { background: var(--red); color: #fff; }
 
 /* ─── CARD ─── */
 .plano-card {
@@ -367,7 +379,7 @@
 <!-- ═══ HERO ═══ -->
 <section class="planos-hero">
   <h1>Escolha seu <span>Plano</span> 🍿</h1>
-  <p>Mais de 22 mil filmes e séries. Plano gratuito disponível — ou assine VIP e desbloqueie os canais ao vivo, sem anúncios.</p>
+  <p>Mais de 22 mil filmes e séries, sem anúncio nenhum. O PipocaFlix agora é só para assinantes — mas você pode <a href="teste-gratis.html" style="color:var(--red);font-weight:700">testar 3 horas de graça</a> antes de decidir.</p>
 </section>
 
 <!-- ═══ CARDS ═══ -->
@@ -398,80 +410,12 @@
     <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
   </div>
 
-  <!-- CASAL -->
-  <div class="plano-card destaque">
-    <span class="plano-emoji">❤️</span>
-    <div class="plano-nome">Pipoca Flix Casal</div>
-    <div class="plano-preco">
-      <span class="cifrao">R$</span>
-      <span class="valor">17,90</span>
-      <span class="periodo">/mês</span>
-    </div>
-    <ul class="plano-features">
-      <li>2 Telas simultâneas</li>
-      <li>Mais de 22 mil filmes</li>
-      <li>Mais de 22 mil séries</li>
-      <li>📡 Canais ao vivo liberados: mais de 200 abertos e fechados</li>
-      <li>App e site sem anúncios</li>
-      <li>Baixe filmes e séries</li>
-      <li>📋 Crie listas personalizadas</li>
-      <li>Suporte prioritário</li>
-    </ul>
-    <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/3dm4q7q', 'Casal')">
-      ❤️ Assinar Casal — R$ 17,90/mês
-    </button>
-    <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
-  </div>
+</div>
 
-  <!-- FAMÍLIA -->
-  <div class="plano-card">
-    <span class="plano-emoji">👨‍👩‍👧</span>
-    <div class="plano-nome">Pipoca Flix Família</div>
-    <div class="plano-preco">
-      <span class="cifrao">R$</span>
-      <span class="valor">27,90</span>
-      <span class="periodo">/mês</span>
-    </div>
-    <ul class="plano-features">
-      <li>4 Telas simultâneas</li>
-      <li>Mais de 22 mil filmes</li>
-      <li>Mais de 22 mil séries</li>
-      <li>📡 Canais ao vivo liberados: mais de 200 abertos e fechados</li>
-      <li>App e site sem anúncios</li>
-      <li>Baixe filmes e séries</li>
-      <li>📋 Crie listas personalizadas</li>
-      <li>Suporte prioritário</li>
-    </ul>
-    <button class="btn-assinar" onclick="assinar('https://pay.cakto.com.br/53x84bm', 'Família')">
-      👨‍👩‍👧 Assinar Família — R$ 27,90/mês
-    </button>
-    <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
-  </div>
-
-  <!-- GRÁTIS -->
-  <div class="plano-card plano-card-gratis">
-    <span class="plano-emoji">🎬</span>
-    <div class="plano-nome">Pipoca Flix Grátis</div>
-    <div class="plano-preco">
-      <span class="valor" style="font-size:2.4rem;color:var(--text-1)">R$ 0</span>
-      <span class="periodo">/sempre</span>
-    </div>
-    <ul class="plano-features">
-      <li>1 Tela</li>
-      <li>Mais de 22 mil filmes</li>
-      <li>Mais de 22 mil séries</li>
-      <li class="feature-bloqueada">🚫 Canais ao vivo (exclusivo VIP)</li>
-      <li>Baixe filmes e séries</li>
-      <li style="color:var(--text-3)">⚠️ Anúncios no site e no app</li>
-      <li class="feature-bloqueada">🚫 Sem listas personalizadas</li>
-      <li style="color:var(--text-3)">Suporte padrão</li>
-    </ul>
-    <a href="index.html" class="btn-assinar btn-assinar-gratis">
-      🎬 Começar de graça
-    </a>
-    <p class="plano-seguro">Sem cadastro, sem cartão</p>
-  </div>
-
+<!-- ═══ TESTE GRÁTIS ═══ -->
+<div class="trial-cta">
+  <p>🍿 Ainda não tem certeza? Teste o catálogo completo por <b>3 horas, de graça</b> — sem cartão, sem compromisso.</p>
+  <a href="teste-gratis.html">▶ Testar 3 horas grátis</a>
 </div>
 
 <!-- ═══ GARANTIA ═══ -->
@@ -519,9 +463,9 @@
 
   <div class="faq-item">
     <button class="faq-q" onclick="toggleFaq(this)">
-      O que são as telas simultâneas? <span class="faq-arrow">▼</span>
+      Como funciona o teste grátis de 3 horas? <span class="faq-arrow">▼</span>
     </button>
-    <div class="faq-a"><p>É quantos dispositivos podem assistir ao mesmo tempo com a mesma conta. Gold = 1 pessoa, Casal = 2 pessoas ao mesmo tempo, Família = 4 pessoas ao mesmo tempo.</p></div>
+    <div class="faq-a"><p>É só colocar seu e-mail na <a href="teste-gratis.html" style="color:var(--red)">página do teste grátis</a> — sem cartão, sem compromisso. Você assiste o catálogo completo por 3 horas. Cada e-mail só pode usar o teste uma vez.</p></div>
   </div>
 </div>
 

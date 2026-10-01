@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
-<script src="assets/js/pflix-guard.js"></script>
-<script src="assets/js/canais-vip.js"></script>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,38 +65,9 @@
 
 <!-- Video Slide Ad -->
 <div id="videoSlideAdWrap">
-<script>
-(function(ayrjrx){
-var d = document, s = d.createElement('script'), l = d.scripts[d.scripts.length - 1];
-s.settings = ayrjrx || {};
-s.src = "\/\/massivesalad.com\/bIX\/VXs.d\/GQl\/0NYBW\/cA\/_enmh9uuvZhU\/ltkvPRTqY\/4-N\/j\/kE0xMqTCcmtSNNjYgp2LO\/TaQty\/MZQS";
-s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})
-</script>
+
 </div>
-<script>
-(function() {
-  var INTERVAL = 5 * 60 * 1000;
-  function reloadVideoSlide() {
-    var wrap = document.getElementById('videoSlideAdWrap');
-    if (!wrap) return;
-    var old = wrap.querySelector('script');
-    if (old) old.remove();
-    var s = document.createElement('script');
-    s.src = "//massivesalad.com/bIX/VXs.d/GQl/0NYBW/cA/_enmh9uuvZhU/ltkvPRTqY/4-N/j/kE0xMqTCcmtSNNjYgp2LO/TaQty/MZQS";
-    s.async = true; s.referrerPolicy = 'no-referrer-when-downgrade';
-    wrap.appendChild(s);
-  }
-  var observer = new MutationObserver(function() {
-    setTimeout(reloadVideoSlide, INTERVAL);
-    observer.disconnect();
-  });
-  setTimeout(function() {
-    observer.observe(document.body, { childList: true, subtree: true });
-  }, 3000);
-})();
-</script>
+
 
 <div class="mobile-search-overlay" id="mobileSearchOverlay" role="dialog">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--red)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -172,7 +141,7 @@ l.parentNode.insertBefore(s, l);
 </div>
 
 <!-- Canal Detail -->
-<div class="canal-detail-wrap" data-vip-only>
+<div class="canal-detail-wrap">
   <div id="canalLoading" style="color:var(--text-3);font-size:1rem;padding:2rem 0">⏳ Carregando canal...</div>
   
   <div id="canalContent" style="display:none">
@@ -209,13 +178,11 @@ l.parentNode.insertBefore(s, l);
 </a>
 
 <div class="ad-section">
-  <div class="ad-banner-wrap">
-    <script>(function(qis){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=qis||{};s.src="//simplisticpride.com/bVXfVYs.dtGolg0KYaW/cs/qe/mK9quFZFU/lwkePRTfYk4RNDj/Aq0OMTzfMJtVNHj/gL2AMcDCQcz/NQwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l)})({})</script>
-  </div>
+  
 </div>
 
 <!-- ═══ COMENTÁRIOS FIREBASE ═══ -->
-<section class="comments-section" id="commentsSection" data-vip-only>
+<section class="comments-section" id="commentsSection">
   <h3 class="comments-title">💬 Comentários</h3>
   <div id="commentFormWrap">
     <div id="commentLoginPrompt" style="display:none;text-align:center;padding:20px;color:var(--text-3)">
@@ -346,90 +313,7 @@ function setupSearch(allItems) {
 }
 
 // ── VAST ──
-var VAST_TAG_URL = "https://tiny-ambition.com/d.mcFJzjdwGYNBvIZXGqUK/OeDm/9OuGZFUOlikNPpTBYc4/NnThkA5NOWDLkmtTNFjggr1gOgTNk/5tMKw_";
-function runVAST(onComplete) {
-  // VIP não vê anúncio VAST
-  if (window.PipocaVIP && window.PipocaVIP.ativo) { onComplete(); return; }
-  var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  fetch(VAST_TAG_URL)
-    .then(function(r){ return r.text(); })
-    .then(function(xml){
-      var parser = new DOMParser(), doc = parser.parseFromString(xml,'text/xml'), mp4Url = '';
-      doc.querySelectorAll('MediaFile').forEach(function(mf){
-        var t = (mf.getAttribute('type')||'').toLowerCase();
-        if(!mp4Url && (t==='video/mp4' || t.includes('mp4')))
-          mp4Url = mf.textContent.trim().replace(/<![CDATA[|]]>/g,'').trim();
-      });
-      if(!mp4Url){ console.warn('[VAST] Tag sem MediaFile mp4 válido — pulando anúncio.'); onComplete(); return; }
-      showVASTPlayer(mp4Url, doc, onComplete, isMobile);
-    })
-    .catch(function(err){ console.error('[VAST] Falha ao buscar/processar a tag VAST — anúncio pulado:', err); onComplete(); });
-}
-function showVASTPlayer(mp4Url, doc, onComplete, isMobile){
-  var ov = document.createElement('div');
-  ov.id = 'vastAdOverlay';
-  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center';
-  var vid = document.createElement('video');
-  vid.style.cssText = 'width:100%;max-height:100vh;display:block;background:#000';
-  vid.src = mp4Url; vid.playsInline = true; vid.controls = false;
-  var bar = document.createElement('div');
-  bar.style.cssText = 'position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,0.75);color:#fff;padding:8px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:sans-serif;z-index:2';
-  var lbl = document.createElement('span');
-  lbl.textContent = 'Anúncio';
-  lbl.style.cssText = 'background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600';
-  var skip = document.createElement('button');
-  skip.textContent = 'Aguarde...'; skip.disabled = true;
-  skip.style.cssText = 'background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:6px 16px;border-radius:4px;cursor:default;font-size:12px;font-family:sans-serif';
-  bar.appendChild(lbl); bar.appendChild(skip);
-  ov.appendChild(bar); ov.appendChild(vid);
-  if(isMobile){
-    var tap = document.createElement('div');
-    tap.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:16px;cursor:pointer;background:rgba(0,0,0,0.6)';
-    tap.innerHTML = '<div style="width:76px;height:76px;border-radius:50%;background:rgba(255,45,67,0.92);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="white" width="36" height="36"><path d="M8 5v14l11-7z"/></svg></div>'
-      + '<div style="color:#fff;font-size:17px;font-weight:700;font-family:sans-serif">Toque para continuar</div>'
-      + '<div style="color:rgba(255,255,255,0.55);font-size:12px;font-family:sans-serif">Assista ao anúncio e o canal começará</div>';
-    ov.appendChild(tap);
-    tap.addEventListener('click', function(){
-      tap.style.display = 'none';
-      vid.muted = false;
-      vid.play().catch(function(){ vid.muted = true; vid.play().catch(function(){ ov.remove(); onComplete(); }); });
-    });
-  }
-  document.body.appendChild(ov);
-  var skipDelay = 5, canSkip = false, impFired = false;
-  function track(evt){
-    try{ doc.querySelectorAll('Tracking[event="'+evt+'"]').forEach(function(n){
-      var u = n.textContent.trim().replace(/<!--\[CDATA\[|\]\]-->/g,'').replace(/<![CDATA[|]]>/g,'').trim();
-      if(u) new Image().src = u;
-    }); }catch(e){}
-  }
-  vid.addEventListener('play', function(){
-    if(impFired) return; impFired = true;
-    try{ doc.querySelectorAll('Impression').forEach(function(n){
-      var u = n.textContent.trim().replace(/<![CDATA[|]]>/g,'').trim();
-      if(u) new Image().src = u;
-    }); }catch(e){}
-    track('start');
-  });
-  var qf = {firstQuartile:false,midpoint:false,thirdQuartile:false};
-  vid.addEventListener('timeupdate', function(){
-    if(!vid.duration) return;
-    var pct = vid.currentTime/vid.duration, rem = Math.ceil(skipDelay-vid.currentTime);
-    if(rem > 0){ skip.textContent = 'Pular em '+rem+'s'; }
-    else if(!canSkip){ canSkip=true; skip.textContent='\u23ed Pular an\u00FAncio'; skip.disabled=false; skip.style.cursor='pointer'; skip.style.background='rgba(255,255,255,0.25)'; }
-    [{k:'firstQuartile',t:0.25},{k:'midpoint',t:0.5},{k:'thirdQuartile',t:0.75}].forEach(function(ev){
-      if(!qf[ev.k]&&pct>=ev.t){ qf[ev.k]=true; track(ev.k); }
-    });
-  });
-  function finish(){
-    if(vid.currentTime>0){ track('complete'); }
-    ov.remove();
-    onComplete();
-  }
-  vid.addEventListener('ended', finish);
-  skip.addEventListener('click', function(){ if(canSkip) finish(); });
-  if(!isMobile){ vid.muted = true; vid.play().catch(function(){ finish(); }); }
-}
+
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -544,32 +428,33 @@ async function init() {
       }
     }
 
-    // Aguarda a checagem VIP terminar de verdade (sem chute de tempo) antes
-    // de disparar o VAST — assim VIP nunca vê o anúncio por causa de rede lenta.
-    function aguardarChecagemVipEDispararVAST() {
+    // Aguarda a checagem VIP terminar de verdade (sem chute de tempo) antes de
+    // decidir qual player mostrar (oficial VIP ou embed público).
+    // CORREÇÃO: a versão anterior esperava um evento ("pflix:vip-check-completo") e uma
+    // propriedade (".checked") que o pflix-vip.js NUNCA cria — ele usa "pflix:vip-checado"
+    // e ".pronto". Isso fazia essa checagem nunca disparar de verdade e todo mundo cair
+    // sempre no teto de 4 segundos antes do player aparecer. Corrigido para usar os nomes reais.
+    function aguardarChecagemVipEIniciarPlayer() {
       if (window.PipocaVIP === undefined) {
-        // pflix-vip.js nem carregou nessa página — segue direto
-        runVAST(iniciarPlayer);
+        iniciarPlayer();   // pflix-vip.js nem carregou nessa página — segue direto
         return;
       }
-      if (window.PipocaVIP.checked) {
-        // Já foi decidido antes desse código rodar (ex: cache local resolveu rápido)
-        runVAST(iniciarPlayer);
+      if (window.PipocaVIP.pronto) {
+        iniciarPlayer();   // já foi decidido antes desse código rodar (ex: cache local resolveu rápido)
         return;
       }
       var disparado = false;
       function disparar() {
         if (disparado) return;
         disparado = true;
-        document.removeEventListener('pflix:vip-check-completo', disparar);
-        runVAST(iniciarPlayer);
+        document.removeEventListener('pflix:vip-checado', disparar);
+        iniciarPlayer();
       }
-      document.addEventListener('pflix:vip-check-completo', disparar);
-      // Teto de segurança: se por algum motivo o evento nunca disparar,
-      // não trava o player pra sempre.
+      document.addEventListener('pflix:vip-checado', disparar);
+      // Teto de segurança: se por algum motivo o evento nunca disparar, não trava o player pra sempre.
       setTimeout(disparar, 4000);
     }
-    aguardarChecagemVipEDispararVAST();
+    aguardarChecagemVipEIniciarPlayer();
 
     document.addEventListener('pflix:vip-ativo', function() {
       // VIP confirmado depois que já carregou — recarrega player
@@ -595,43 +480,20 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  // canais são só pra VIP: o player só carrega depois que o canais-vip.js confirmar a assinatura
-  (window.PflixCanaisVip ? window.PflixCanaisVip.pronto : Promise.resolve(true)).then(function (ok) { if (ok) init(); });
+  // A checagem de acesso (VIP/teste grátis) agora é feita pelo acesso-vip.js pra
+  // o site inteiro — quando chega aqui, já foi liberado.
+  init();
 });
 
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
 
 <!-- Page Push (somente desktop) -->
-<script>
-(function() {
-  var isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-  if (isMobile) return;
-  (function(ojll){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=ojll||{};s.src="//sophisticatedpin.com/b.X/V/s/drG/l/0UYmW/cx/sebmn9_u/ZJUllWk/P/TrYv4YNfjSAs0GN/DlkMtmNhj/gY2/MiD/QX1pM/wc";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l);})({}); 
-})();
-</script>
+
 <!-- Banner Mobile Ad -->
-<div class="mobile-banner-ad">
-<script>(function(dmiy){var d=document,s=d.createElement('script'),l=d.scripts[d.scripts.length-1];s.settings=dmiy||{};s.src="//sophisticatedpin.com/bZXRVcsld.Gclp0rYYWwcQ/mefm/9eufZvUOl/kuPpTyY/5DO_DPcP2/MjjZkTtaN/j/k/4TNtzrYIzWMxwv";s.async=true;s.referrerPolicy='no-referrer-when-downgrade';l.parentNode.insertBefore(s,l);})({})</script>
-</div>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
 
-<script src="assets/js/pflix-ads-desktop.js" defer></script>
-
-<!-- Banner apoio 30 min -->
-<div id="supportBannerOverlay" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9998;background:linear-gradient(to top,rgba(0,0,0,0.97),transparent);padding:24px 16px 16px">
-  <div style="max-width:600px;margin:0 auto;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;position:relative;text-align:center">
-    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-3);font-size:1.4rem;cursor:pointer;line-height:1">×</button>
-    <div style="font-size:1.5rem;margin-bottom:8px">🍿</div>
-    <p style="font-size:1rem;font-weight:700;color:var(--text-1);margin:0 0 8px">Você está curtindo o PipocaFlix!</p>
-    <p style="font-size:0.88rem;color:var(--text-3);margin:0 0 14px">Os anúncios são essenciais para manter o site de graça e funcionando. Obrigado por não usar bloqueador! ❤️</p>
-    <button onclick="document.getElementById('supportBannerOverlay').style.display='none'" style="margin-top:12px;background:var(--surface-3);border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:8px 20px;cursor:pointer;font-size:0.88rem">Fechar</button>
-  </div>
-</div>
-<script>setTimeout(function(){var el=document.getElementById('supportBannerOverlay');if(el)el.style.display='block';},30*60*1000);</script>
-
 <script src="assets/js/pflix-vip.js"></script>
-<script src="assets/js/anti-adblock.js" defer></script>
-<script type="module" src="assets/js/conta.js"></script>
+<script src="assets/js/acesso-vip.js"></script><script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>

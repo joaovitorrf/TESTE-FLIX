@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
-<head><meta charset="UTF-8">
+<head>
+<meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Séries — PipocaFlix</title>
-<meta name="description" content="Séries online grátis no PipocaFlix para maratonar: drama, ação, ficção e muito mais. As fileiras mudam a cada visita.">
+<title>Teste grátis por 3 horas — PipocaFlix</title>
+<meta name="description" content="Teste o PipocaFlix de graça por 3 horas, sem cartão de crédito. Um e-mail só pode usar o teste uma vez.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -91,13 +92,14 @@
   <nav class="nav" aria-label="Navegação">
     <a href="index.html">Início</a>
     <a href="filmes.html">Filmes</a>
-    <a href="series.html" class="active" aria-current="page">Séries</a>
+    <a href="series.html">Séries</a>
     <a href="canais.html">📡 Canais</a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-btn">Mais ▾</button>
       <div class="nav-dropdown-menu">
         <a href="como-usar.html">❓ Como Usar</a>
         <a href="catalogo.html">🎬 Catálogo</a>
+        <a href="pedidos.html">📝 Pedidos</a>
         <a href="feed.html">📰 Feed</a>
         <a href="elenco.html">🎭 Elenco</a>
       <a href="suporte.html">🎫 Suporte</a></div>
@@ -136,9 +138,10 @@
   <a href="perfil.html">👤 Meu Perfil</a>
   <a href="index.html">🏠 Início</a>
   <a href="filmes.html">🎥 Filmes</a>
-  <a href="series.html" class="active" aria-current="page">📺 Séries</a>
+  <a href="series.html">📺 Séries</a>
   <a href="canais.html">📡 Canais</a>
   <a href="catalogo.html">🎬 Catálogo</a>
+  <a href="pedidos.html">📝 Pedidos</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   
@@ -147,19 +150,57 @@
   <a href="suporte.html">🎫 Suporte</a></div>
 
 
-<main class="tipo-page" id="conteudoPrincipal">
-  <header class="tipo-hero">
-    <div class="tipo-hero-txt">
-      <h1>📺 Séries</h1>
-      <p id="tipoSub">Carregando…</p>
-    </div>
-    <a class="tipo-catalogo" href="catalogo.html?tipo=series">Ver o catálogo completo <span aria-hidden="true">→</span></a>
-  </header>
-  <div id="tipoSecoes" aria-live="polite">
-    <div class="tipo-skel" aria-hidden="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
-  </div>
-</main>
 
+<main class="trial-page" id="conteudoPrincipal">
+  <section class="trial-card">
+    <p class="trial-logo">🍿 PipocaFlix</p>
+    <h1>Teste grátis por <span>3 horas</span></h1>
+    <p class="trial-sub">Digite seu e-mail e assista o catálogo inteiro de graça por 3 horas, sem cartão e sem compromisso. Cada e-mail só pode usar o teste <b>uma única vez</b>.</p>
+
+    <div id="trialForm" class="trial-form">
+      <label class="sr-only" for="trialEmail">Seu e-mail</label>
+      <input id="trialEmail" type="email" inputmode="email" autocomplete="email" placeholder="seuemail@gmail.com" maxlength="120">
+      <button type="button" id="trialBtn" class="trial-btn">▶ Começar teste grátis</button>
+      <p id="trialErro" class="trial-erro" role="alert" hidden></p>
+      <p class="trial-nota">Ao continuar, você concorda com nossos <a href="privacidade.html">Termos de Privacidade</a>.</p>
+    </div>
+
+    <div id="trialCarregando" class="trial-status" hidden>
+      <div class="trial-spin" aria-hidden="true"></div>
+      <p id="trialCarregandoTxt">Verificando…</p>
+    </div>
+
+    <div id="trialSucesso" class="trial-status" hidden>
+      <div class="trial-ico" aria-hidden="true">✅</div>
+      <h2>Teste iniciado!</h2>
+      <p>Você já pode assistir. Redirecionando…</p>
+    </div>
+
+    <div id="trialJaVip" class="trial-status" hidden>
+      <div class="trial-ico" aria-hidden="true">⭐</div>
+      <h2>Você já é assinante Gold!</h2>
+      <p>Não precisa de teste grátis — é só aproveitar.</p>
+      <a class="trial-btn" href="index.html">Ir para o site</a>
+    </div>
+
+    <div id="trialJaAtivo" class="trial-status" hidden>
+      <div class="trial-ico" aria-hidden="true">🍿</div>
+      <h2>Seu teste grátis já está rolando</h2>
+      <p id="trialJaAtivoTxt"></p>
+      <a class="trial-btn" href="index.html">Ir para o site</a>
+    </div>
+
+    <div id="trialJaUsado" class="trial-status" hidden>
+      <div class="trial-ico" aria-hidden="true">⏰</div>
+      <h2>Esse e-mail já usou o teste grátis</h2>
+      <p>Cada e-mail só pode testar uma vez. Assine o Pipoca Flix Gold pra continuar assistindo sem limite.</p>
+      <a class="trial-btn" href="planos.html">⭐ Assinar o Pipoca Flix Gold</a>
+      <button type="button" id="trialOutroEmail" class="trial-link">Tentar com outro e-mail</button>
+    </div>
+
+    <p class="trial-rodape">Já assina? <a href="login.html?redirect=index.html">Entre na sua conta</a> · Prefere assinar direto? <a href="planos.html">Ver o plano Gold</a></p>
+  </section>
+</main>
 
 <footer class="footer">
   <div class="footer-logo"><img src="https://fontmeme.com/permalink/260606/517f613b.png" alt="PipocaFlix" style="height:32px;width:auto"></div>
@@ -176,20 +217,7 @@
       <a href="cookies.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Cookies</a>
     <a href="suporte.html" style="color:var(--text-3);font-size:0.82rem;text-decoration:none">Suporte</a></div>
 </footer>
-
-<button class="back-to-top" id="backToTop" aria-label="Voltar ao topo">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-</button>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<script src="assets/js/security.js"></script>
-<script src="assets/js/favoritos.js"></script>
-<script src="assets/js/watched.js"></script>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/search.js"></script>
-<script src="assets/js/home-rows.js"></script>
-<script src="assets/js/thumb-loader.js"></script>
-<script type="module" src="assets/js/stats.js"></script>
+<script type="module" src="assets/js/trial.js"></script>
 
 <script>
 // Toast
@@ -213,15 +241,6 @@ window.addEventListener('scroll',function(){
 var btt=document.getElementById('backToTop');
 if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
 
-// Hamburger
-(function(){
-  var btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');
-  if(!btn||!menu) return;
-  btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.classList.toggle('open',o);btn.setAttribute('aria-expanded',o.toString());});
-  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.classList.remove('open');});});
-  document.addEventListener('click',function(e){if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
-})();
-
 // Busca do celular (ícone de lupa do cabeçalho → overlay → página de busca)
 (function(){
   var tg=document.getElementById('mobileSearchToggle'), ov=document.getElementById('mobileSearchOverlay'),
@@ -237,90 +256,91 @@ if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:
   });
 })();
 
+// Hamburger
+(function(){
+  var btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');
+  if(!btn||!menu) return;
+  btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.classList.toggle('open',o);btn.setAttribute('aria-expanded',o.toString());});
+  menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.classList.remove('open');});});
+  document.addEventListener('click',function(e){if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});
+})();
 </script>
 <script>
 (function(){
-var TIPO = 'serie';                 // 'filme' | 'serie'
-var R = window.PflixRows;
-var QTD_SECOES = 5;                    // fileiras de gênero sorteadas a cada visita
-var GENEROS = {
-  'acao':'Ação','romance':'Romance','terror':'Terror','comedia':'Comédia','drama':'Drama','ficcao':'Ficção',
-  'animacao':'Animação','aventura':'Aventura','thriller':'Thriller','crime':'Crime','fantasia':'Fantasia',
-  'documentario':'Documentário','faroeste':'Faroeste','guerra':'Guerra','musical':'Musical','familia':'Família'
-};
-function embaralhar(a){ a = a.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
-var SETA_E = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>';
-var SETA_D = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>';
-var seq = 0;
-
-function criarSecao(titulo, linkHref, itens, opts) {
-  var id = 'tipoSec' + (seq++);
-  var sec = document.createElement('section');
-  sec.className = 'content-section';
-  sec.innerHTML =
-    '<div class="section-header"><h2 class="section-title"></h2>' +
-      (linkHref ? '<a href="'+linkHref+'" class="see-all-link">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></a>' : '') +
-    '</div>' +
-    '<div class="carousel-wrap">' +
-      '<button class="carousel-arrow prev" id="'+id+'P" aria-label="Anterior">'+SETA_E+'</button>' +
-      '<div class="carousel-track" id="'+id+'T"></div>' +
-      '<button class="carousel-arrow next" id="'+id+'N" aria-label="Próximo">'+SETA_D+'</button>' +
-    '</div>';
-  sec.querySelector('.section-title').textContent = titulo;
-  sec.querySelector('.carousel-track').setAttribute('aria-label', titulo);
-  document.getElementById('tipoSecoes').appendChild(sec);
-  var track = document.getElementById(id+'T');
-  itens.forEach(function(it){ track.appendChild(R.mkCard(it, opts && opts.hot && opts.hot.get(it.nome) ? { hotCount: opts.hot.get(it.nome) } : undefined)); });
-  R.setupCarouselArrows(id+'T', id+'P', id+'N');
+function $(id) { return document.getElementById(id); }
+function mostrarSo(id) {
+  ['trialForm','trialCarregando','trialSucesso','trialJaVip','trialJaAtivo','trialJaUsado'].forEach(function (x) {
+    $(x).hidden = (x !== id);
+  });
+}
+function fmtRestante(ms) {
+  var min = Math.max(1, Math.round(ms / 60000));
+  return min >= 60 ? Math.floor(min / 60) + 'h ' + (min % 60) + 'min' : min + ' min';
 }
 
-async function iniciar() {
-  var box = document.getElementById('tipoSecoes');
-  try {
-    var r = await Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
-    var filmes = PipocaAPI.filtrarVisiveis(r[0]), series = PipocaAPI.filtrarVisiveis(r[1]);
-    var itens = TIPO === 'serie' ? series : filmes;
-    var plural = TIPO === 'serie' ? 'séries' : 'filmes';
-    window._pflixAllContent = filmes.concat(series);
-    box.innerHTML = '';
+function esperar(cond, cb, tent) {
+  tent = tent || 0;
+  if (cond()) { cb(); return; }
+  if (tent > 60) { cb(); return; } // desiste depois de ~12s, segue sem travar a pessoa
+  setTimeout(function () { esperar(cond, cb, tent + 1); }, 200);
+}
 
-    document.getElementById('tipoSub').textContent = itens.length + ' ' + plural + ' pra você escolher. As fileiras mudam a cada visita 🎲';
-    if (!itens.length) { box.innerHTML = '<p class="perf-vazio">Ainda não temos ' + plural + ' por aqui.</p>'; return; }
-
-    // 1) Em alta (de verdade: visualizações + notas) só deste tipo
-    try {
-      for (var i = 0; i < 25 && !window.PipocaStats; i++) await new Promise(function(ok){ setTimeout(ok, 200); });
-      if (window.PipocaStats) {
-        var trend = await window.PipocaStats.getTrending({ limite: 30 });
-        var porChave = new Map(itens.map(function(c){ return [window.PipocaStats.chave(c), c]; }));
-        var hot = new Map(), lista = [];
-        trend.forEach(function(t){ var it = porChave.get(t.chave); if (it && lista.length < 15) { lista.push(it); if (t.views > 0) hot.set(it.nome, t.views); } });
-        if (lista.length >= 3) criarSecao('🔥 Em alta em ' + plural, null, lista, { hot: hot });
+// Se já é VIP, nem mostra o formulário. Se o navegador já tem um teste ativo
+// (mesmo ou outro e-mail), manda direto pro site.
+function checarEstadoInicial() {
+  esperar(function () { return window.PipocaVIP && window.PipocaVIP.pronto; }, function () {
+    if (window.PipocaVIP && window.PipocaVIP.ativo) { mostrarSo('trialJaVip'); return; }
+    var emailSalvo = window.PipocaTrial && window.PipocaTrial.emailLocal && window.PipocaTrial.emailLocal();
+    if (!emailSalvo) return; // segue mostrando o formulário normalmente
+    window.PipocaTrial.status(emailSalvo).then(function (r) {
+      if (r.estado === 'ativo') {
+        $('trialJaAtivoTxt').textContent = 'Faltam ' + fmtRestante(r.restanteMs) + ' pra acabar. Aproveita!';
+        mostrarSo('trialJaAtivo');
       }
-    } catch (e) { console.warn('[PipocaFlix] em alta:', e); }
-
-    // 2) cinco fileiras "Pipoca <gênero>", com gêneros sorteados (só entram gêneros com conteúdo de sobra)
-    var candidatos = embaralhar(Object.keys(GENEROS).filter(function(k){ return R.filterByCategory(itens, k, 9999).length >= 6; }));
-    var usados = candidatos.slice(0, QTD_SECOES);
-    usados.forEach(function(k){
-      var nome = GENEROS[k], cfg = R.getCatConfig(k);
-      criarSecao(cfg.emoji + ' Pipoca ' + nome, 'catalogo.html?tipo=' + (TIPO === 'serie' ? 'series' : 'filmes') + '&cat=' + encodeURIComponent(nome), R.filterByCategory(itens, k, 24));
-    });
-    // 3) catálogo pequeno: completa as 5 com fileiras sorteadas pra a página nunca ficar vazia
-    var titulosExtras = ['🎲 Sorteados pra você', '🍿 Que tal esses?', '✨ Descubra mais', '🎯 Escolhas da vez', '🎞️ Pra assistir agora'];
-    for (var n = usados.length; n < QTD_SECOES && itens.length >= 6; n++) {
-      criarSecao(titulosExtras[n % titulosExtras.length], null, embaralhar(itens).slice(0, 20));
-    }
-  } catch (e) {
-    console.error('[PipocaFlix]', e);
-    box.innerHTML = '<p class="perf-vazio">Não deu pra carregar agora. Confere sua conexão e recarrega a página.</p>';
-  }
+    }).catch(function () {});
+  });
 }
-iniciar();
+checarEstadoInicial();
+
+function erro(msg) {
+  $('trialErro').textContent = msg;
+  $('trialErro').hidden = false;
+}
+
+$('trialBtn').addEventListener('click', function () {
+  $('trialErro').hidden = true;
+  var email = $('trialEmail').value.trim();
+  if (!window.PipocaTrial || !window.PipocaTrial.validarEmail(email)) {
+    erro('Digite um e-mail válido, tipo nome@gmail.com.');
+    $('trialEmail').focus();
+    return;
+  }
+  mostrarSo('trialCarregando');
+  $('trialCarregandoTxt').textContent = 'Iniciando seu teste…';
+  window.PipocaTrial.iniciar(email).then(function () {
+    mostrarSo('trialSucesso');
+    setTimeout(function () { location.href = 'index.html'; }, 1400);
+  }).catch(function (e) {
+    if (e && e.code === 'pflix/ja-usado') { mostrarSo('trialJaUsado'); return; }
+    mostrarSo('trialForm');
+    erro(e && e.code === 'permission-denied'
+      ? 'Sem permissão pra criar o teste. (Falta publicar as regras do Firestore — veja o arquivo de regras.)'
+      : 'Não deu pra iniciar agora. Confere sua internet e tenta de novo.');
+    console.warn('[Trial]', e && e.code || e);
+  });
+});
+$('trialEmail').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('trialBtn').click(); });
+$('trialOutroEmail').addEventListener('click', function () {
+  mostrarSo('trialForm');
+  $('trialEmail').value = '';
+  $('trialEmail').focus();
+});
 
 })();
-</script><script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
+</script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
 <script src="assets/js/pflix-vip.js"></script>
-<script src="assets/js/acesso-vip.js"></script>
+<script type="module" src="assets/js/conta.js"></script>
 </body>
 </html>
+
