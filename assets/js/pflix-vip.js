@@ -1,14 +1,19 @@
 /**
- * PIPOCAFLIX — VIP Detector v6
+ * PIPOCAFLIX — VIP Detector v7
  * assets/js/pflix-vip.js
- * Inclua este script perto do </body>, em TODAS as páginas com anúncio.
- * NÃO inclua em planos.html
  *
- * IMPORTANTE: este arquivo depende do assets/js/pflix-guard.js, que precisa
- * estar incluído na PRIMEIRA linha do <head> (antes de tudo). O guard é quem
- * efetivamente bloqueia os anúncios desde o carregamento da página; este
- * arquivo apenas decide, mais tarde, se libera (não-VIP) ou mantém bloqueado
- * (VIP) — usando window.PFLIX_GUARD.liberar() / manterBloqueado().
+ * Antes este arquivo tinha duas funções: (1) decidir quem é VIP e (2) esconder
+ * anúncio de quem for VIP (via window.PFLIX_GUARD). Agora que o site não tem
+ * NENHUM anúncio (pra ninguém, VIP ou não), a função (2) inteira saiu daqui.
+ * Sobrou só a (1): decidir e avisar o resto do site quem é VIP.
+ *
+ * O resto do site (acesso-vip.js, stats.js, conta.js, perfil.html…)
+ * continua funcionando igual, porque a API pública não mudou:
+ *   window.PipocaVIP = { ativo, plano, pronto, erro }
+ *   eventos: "pflix:vip-checado" (sempre, quando termina) e "pflix:vip-ativo" (só se VIP)
+ *
+ * Inclua perto do </body>, em qualquer página (não precisa mais vir depois de
+ * nenhum "guard" no <head> — isso não existe mais).
  */
 (function () {
   'use strict';
@@ -17,52 +22,23 @@
   const FIREBASE_API_KEY = 'AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA';
   const FS_BASE = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE_PROJECT + '/databases/(default)/documents';
 
-  // Fallback de segurança: se por algum motivo o pflix-guard.js não foi
-  // incluído na página, cria um stub pra não quebrar o restante do código
-  // (mas sem a proteção real — por isso é só um fallback de emergência).
-  if (!window.PFLIX_GUARD) {
-    console.warn('[PipocaFlix VIP] ⚠️ pflix-guard.js não encontrado! Inclua-o na primeira linha do <head>.');
-    window.PFLIX_GUARD = { liberar: function(){}, manterBloqueado: function(){} };
-  }
-
-  // Expõe status VIP globalmente para outras partes do site usarem
-  // "pronto" indica que a checagem (cache ou Firestore) já terminou —
-  // outras partes do site (ex: listas.js) podem esperar por isso antes
-  // de decidir se liberam um recurso Premium.
-  window.PipocaVIP = { ativo: false, plano: null, pronto: false };
+  // ativo/plano: status da assinatura. pronto: a checagem (cache ou Firestore) já terminou.
+  // erro: a última checagem falhou por rede (Firestore fora do ar, sem internet etc.) —
+  // quem decide o que fazer nesse caso (bloquear ou liberar) é quem lê essa flag, não aqui.
+  window.PipocaVIP = { ativo: false, plano: null, pronto: false, erro: false };
 
   function marcarPronto() {
     window.PipocaVIP.pronto = true;
     document.dispatchEvent(new CustomEvent('pflix:vip-checado', {
-      detail: { ativo: window.PipocaVIP.ativo, plano: window.PipocaVIP.plano }
+      detail: { ativo: window.PipocaVIP.ativo, plano: window.PipocaVIP.plano, erro: window.PipocaVIP.erro }
     }));
   }
 
-  function matarAnuncios() {
+  function confirmarVip() {
     window.PipocaVIP.ativo = true;
-    window.PFLIX_GUARD.manterBloqueado();
-
-    // Bloqueia window.open (popunder)
-    window.open = function(url) {
-      if (url && (url.startsWith('/') || url.startsWith(location.origin))) {
-        return window.__origOpen ? window.__origOpen(url) : null;
-      }
-      return null;
-    };
-
-    // Remove banner "apoio 30min" se já estiver na tela
-    var sb = document.getElementById('supportBannerOverlay');
-    if (sb) sb.remove();
-
     document.body && document.body.classList.add('pflix-vip-ativo');
-    console.log('[PipocaFlix VIP] ✅ Anúncios desativados (VIP confirmado)');
-
+    console.log('[PipocaFlix VIP] ✅ Assinatura VIP confirmada');
     document.dispatchEvent(new CustomEvent('pflix:vip-ativo', { detail: { plano: window.PipocaVIP.plano } }));
-  }
-
-  function liberarAnuncios() {
-    window.PFLIX_GUARD.liberar();
-    console.log('[PipocaFlix VIP] ℹ️ Usuário não-VIP — anúncios liberados');
   }
 
   // ─── Cache local ───
@@ -74,7 +50,7 @@
       if (cache.email !== email) return null;
       if (new Date() > new Date(cache.cache_ate)) return null;
       return cache;
-    } catch(e) { return null; }
+    } catch (e) { return null; }
   }
 
   function salvarCacheLocal(email, ativo, plano) {
@@ -85,7 +61,7 @@
         plano: plano,
         cache_ate: new Date(Date.now() + 60 * 60 * 1000).toISOString()
       }));
-    } catch(e) {}
+    } catch (e) {}
   }
 
   // ─── Consulta Firestore ───
@@ -94,45 +70,47 @@
     var url = FS_BASE + '/vip/' + emailKey + '?key=' + FIREBASE_API_KEY;
     try {
       var res = await fetch(url);
-      if (!res.ok) return { ativo: false, plano: null };
+      if (res.status === 404) return { ativo: false, plano: null, erro: false };
+      if (!res.ok) return { ativo: false, plano: null, erro: true };
       var data = await res.json();
       var vipAte = data && data.fields && data.fields.vip_ate && data.fields.vip_ate.stringValue;
-      var plano  = data && data.fields && data.fields.plano  && data.fields.plano.stringValue;
-      if (!vipAte) return { ativo: false, plano: null };
-      return { ativo: new Date(vipAte) > new Date(), plano: plano || 'gold' };
-    } catch(e) {
-      // Erro de rede: mantém bloqueado por precaução
-      return { ativo: true, plano: null };
+      var plano = data && data.fields && data.fields.plano && data.fields.plano.stringValue;
+      if (!vipAte) return { ativo: false, plano: null, erro: false };
+      return { ativo: new Date(vipAte) > new Date(), plano: plano || 'gold', erro: false };
+    } catch (e) {
+      // Erro de rede de verdade (sem internet, Firestore fora do ar): NÃO sabemos se é VIP.
+      // Antigamente isso assumia "é VIP" (só pra não mostrar anúncio à toa). Agora que o site
+      // inteiro é pago, isso seria dar acesso de graça em qualquer instabilidade — por isso
+      // agora assume ativo:false + erro:true, e quem decide travar a tela é o gate (acesso-vip.js).
+      return { ativo: false, plano: null, erro: true };
     }
   }
 
   // ─── Lógica principal ───
   async function checarVip(email) {
     var cached = verificarCacheLocal(email);
-
     if (cached !== null) {
       window.PipocaVIP.plano = cached.plano || null;
-      if (cached.is_vip === true) matarAnuncios();
-      else liberarAnuncios();
+      window.PipocaVIP.erro = false;
+      if (cached.is_vip === true) confirmarVip();
       marcarPronto();
       return;
     }
 
     var resultado = await verificarVipFirestore(email);
-    salvarCacheLocal(email, resultado.ativo, resultado.plano);
+    window.PipocaVIP.erro = !!resultado.erro;
+    if (!resultado.erro) salvarCacheLocal(email, resultado.ativo, resultado.plano); // erro de rede não vira cache
     window.PipocaVIP.plano = resultado.plano;
 
-    if (resultado.ativo) matarAnuncios();
-    else liberarAnuncios();
+    if (resultado.ativo) confirmarVip();
     marcarPronto();
   }
 
   function usuarioNaoLogado() {
-    liberarAnuncios();
+    window.PipocaVIP.ativo = false;
+    window.PipocaVIP.erro = false;
     marcarPronto();
   }
-
-  if (!window.__origOpen) window.__origOpen = window.open.bind(window);
 
   function aguardarAuth() {
     var user = window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser();
@@ -141,25 +119,24 @@
       return;
     }
     if (window.PipocaAuth && window.PipocaAuth.onAuthChanged) {
-      window.PipocaAuth.onAuthChanged(function(u) {
+      window.PipocaAuth.onAuthChanged(function (u) {
         if (u && u.email) checarVip(u.email.toLowerCase().trim());
         else usuarioNaoLogado();
       });
       return;
     }
     var tentativas = 0;
-    var intervalo = setInterval(function() {
+    var intervalo = setInterval(function () {
       tentativas++;
       if (tentativas > 60) {
         clearInterval(intervalo);
-        liberarAnuncios();
-        marcarPronto();
+        usuarioNaoLogado();
         return;
       }
       var auth = window.PipocaAuth;
       if (!auth || !auth.onAuthChanged) return;
       clearInterval(intervalo);
-      auth.onAuthChanged(function(u) {
+      auth.onAuthChanged(function (u) {
         if (u && u.email) checarVip(u.email.toLowerCase().trim());
         else usuarioNaoLogado();
       });
