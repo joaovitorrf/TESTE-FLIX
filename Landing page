@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PipocaFlix — Sem anúncio. Sem pausa. Só o filme.</title>
+<meta name="description" content="Mais de 22 mil filmes e séries, canais ao vivo e lançamentos toda semana. Zero anúncio. Teste 3 horas de graça, sem cartão.">
+<meta property="og:title" content="PipocaFlix — Sem anúncio. Sem pausa. Só o filme.">
+<meta property="og:description" content="Mais de 22 mil filmes e séries, canais ao vivo, zero anúncio. Teste 3 horas de graça.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050507">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍿</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --void:#050507; --ink:#0c0c13; --panel:#121219; --panel2:#181822; --line:rgba(255,255,255,.1); --line2:rgba(255,255,255,.17);
+    --red:#ff2d43; --red-deep:#b4121f; --gold:#ffb020; --gold-deep:#c97f00;
+    --paper:#f3f3f8; --dim:#9999ad; --dim2:#67677d;
+    --serif:'Syne',system-ui,sans-serif; --sans:'DM Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--void);color:var(--paper);font-family:var(--sans);line-height:1.5;overflow-x:hidden;
+       -webkit-font-smoothing:antialiased}
+  img,svg{max-width:100%;display:block}
+  a{color:inherit}
+  h1,h2,h3{font-family:var(--serif);margin:0;letter-spacing:-.01em}
+  p{margin:0}
+  button{font:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .eyebrow-free{color:var(--dim)} /* (sem rótulo em caixa alta decorativo — só marcação semântica quando precisa) */
+
+  /* ───────── textura de fundo sutil (grão de filme) ───────── */
+  body::before{
+    content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+    background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1px);background-size:3px 3px;
+  }
+
+  /* ───────── header ───────── */
+  .topo{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 0;transition:padding .25s ease,background .25s ease,border-color .25s ease;
+        border-bottom:1px solid transparent}
+  .topo.encolhido{padding:12px 0;background:rgba(5,5,7,.86);backdrop-filter:blur(14px);border-color:var(--line)}
+  .topo .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .marca{display:flex;align-items:center;gap:9px;font-family:var(--serif);font-weight:800;font-size:1.25rem;color:var(--paper);text-decoration:none}
+  .marca span{color:var(--red)}
+  .topo-acoes{display:flex;align-items:center;gap:10px}
+  .lnk-entrar{font-size:.88rem;font-weight:600;color:var(--dim);text-decoration:none;padding:8px 6px}
+  .lnk-entrar:hover{color:var(--paper)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:999px;
+       font-family:var(--sans);font-weight:700;text-decoration:none;white-space:nowrap;transition:transform .15s ease,filter .15s ease,box-shadow .15s ease}
+  .btn:active{transform:scale(.97)}
+  .btn-sm{padding:10px 18px;font-size:.86rem}
+  .btn-lg{padding:17px 30px;font-size:1.02rem}
+  .btn-red{background:var(--red);color:#fff;box-shadow:0 10px 26px rgba(255,45,67,.32)}
+  .btn-red:hover{filter:brightness(1.08)}
+  .btn-ghost{background:transparent;border:1px solid var(--line2);color:var(--paper)}
+  .btn-ghost:hover{border-color:var(--paper)}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#1a1000;box-shadow:0 10px 26px rgba(255,176,32,.28)}
+  .btn-gold:hover{filter:brightness(1.06)}
+  .btn-full{width:100%}
+
+  /* ───────── hero ───────── */
+  .hero{position:relative;z-index:1;padding:168px 0 90px;overflow:hidden}
+  .hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+  .hero-titulo{font-size:clamp(2.5rem,5.1vw,4.1rem);font-weight:800;line-height:1.04;color:var(--paper)}
+  .hero-titulo em{font-style:normal;color:var(--red)}
+  .hero-sub{margin:26px 0 0;max-width:46ch;color:var(--dim);font-size:1.1rem;line-height:1.6}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+  .hero-nota{margin:18px 0 0;font-size:.82rem;color:var(--dim2)}
+  .hero-stats{display:flex;gap:28px;margin-top:46px;padding-top:30px;border-top:1px solid var(--line);flex-wrap:wrap}
+  .hero-stats div b{display:block;font-family:var(--serif);font-size:1.7rem;font-weight:800;color:var(--paper)}
+  .hero-stats div span{font-size:.8rem;color:var(--dim2)}
+
+  /* mural de pôsteres — tudo CSS, sem imagem nenhuma */
+  .mural{position:relative;height:460px}
+  .poster{position:absolute;width:140px;aspect-ratio:2/3;border-radius:13px;border:1px solid rgba(255,255,255,.14);
+          box-shadow:0 26px 50px rgba(0,0,0,.55);overflow:hidden}
+  .poster::after{content:'';position:absolute;inset:0;background:linear-gradient(200deg,rgba(255,255,255,.22),transparent 55%)}
+  .poster i{position:absolute;left:12px;bottom:12px;right:12px;height:7px;border-radius:4px;background:rgba(255,255,255,.3)}
+  .poster i::before{content:'';position:absolute;left:0;top:0;bottom:0;width:62%;border-radius:4px;background:#fff}
+  .p1{width:168px;top:4%;left:30%;background:linear-gradient(150deg,#ff2d43,#5c0712);transform:rotate(-7deg);z-index:3}
+  .p2{top:0;left:0;background:linear-gradient(150deg,#2a2440,#0c0a18);transform:rotate(-14deg);z-index:1}
+  .p3{top:14%;right:0;background:linear-gradient(150deg,#ffb020,#7a3c00);transform:rotate(11deg);z-index:2}
+  .p4{bottom:0;left:6%;background:linear-gradient(150deg,#123a34,#041210);transform:rotate(9deg);z-index:2}
+  .p5{bottom:-3%;right:8%;background:linear-gradient(150deg,#3a1240,#120415);transform:rotate(-10deg);z-index:1}
+  .mural-tag{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:4;background:var(--ink);border:1px solid var(--line2);
+             padding:11px 18px;border-radius:999px;font-weight:700;font-size:.82rem;box-shadow:0 20px 40px rgba(0,0,0,.5);
+             display:flex;align-items:center;gap:8px}
+  .mural-tag .ao-vivo{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(255,45,67,.22)}
+  .reveal{opacity:0;translate:0 16px;transition:opacity .7s ease,translate .7s ease}
+  .reveal.on{opacity:1;translate:0 0}
+
+  /* ───────── tira de confiança ───────── */
+  .tira{position:relative;z-index:1;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--ink)}
+  .tira .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 32px}
+  .tira p{font-size:.92rem;color:var(--dim);display:flex;align-items:center;gap:9px}
+  .tira p b{color:var(--paper)}
+
+  /* ───────── benefícios editoriais (assimétrico, não é grid de card igual) ───────── */
+  .beneficios{position:relative;z-index:1;padding:120px 0}
+  .sec-cabecalho{max-width:640px;margin:0 0 56px}
+  .sec-cabecalho h2{font-size:clamp(1.9rem,3.4vw,2.6rem);font-weight:800}
+  .sec-cabecalho p{margin-top:14px;color:var(--dim);font-size:1.04rem}
+  .grade-bens{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .bem{border:1px solid var(--line);border-radius:22px;padding:30px;background:var(--panel)}
+  .bem-grande{grid-column:span 2;padding:38px;background:linear-gradient(160deg,var(--panel2),var(--panel))}
+  .bem-peq{grid-column:span 1}
+  .bem-ico{font-size:1.9rem;margin-bottom:16px}
+  .bem h3{font-size:1.18rem;font-weight:700;margin-bottom:9px}
+  .bem-grande h3{font-size:1.5rem}
+  .bem p{color:var(--dim);font-size:.94rem;line-height:1.55}
+
+  /* ───────── como funciona ───────── */
+  .passos{position:relative;z-index:1;padding:0 0 120px}
+  .lista-passos{display:grid;grid-template-columns:repeat(3,1fr);gap:0;counter-reset:passo;
+                border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .passo{counter-increment:passo;padding:34px 30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}
+  .passo::before{content:counter(passo);font-family:var(--serif);font-size:2.6rem;font-weight:800;color:var(--red);opacity:.9}
+  .passo h3{margin:14px 0 8px;font-size:1.12rem;font-weight:700}
+  .passo p{color:var(--dim);font-size:.92rem;line-height:1.55}
+
+  /* ───────── ingresso (pricing) ───────── */
+  .sessao-ingresso{position:relative;z-index:1;padding:0 0 130px}
+  .ingresso-centro{display:flex;justify-content:center}
+  .ingresso{position:relative;width:100%;max-width:760px;display:grid;grid-template-columns:1fr 230px;
+            background:linear-gradient(135deg,var(--panel2),var(--ink));border:1px solid var(--line2);border-radius:26px;overflow:visible;
+            box-shadow:0 50px 100px rgba(0,0,0,.55)}
+  .ingresso-corpo{padding:44px 40px}
+  .ingresso-marca{font-size:.82rem;font-weight:700;color:var(--gold);margin-bottom:6px}
+  .ingresso-corpo h3{font-size:2.1rem;font-weight:800}
+  .ingresso-corpo>p{margin-top:10px;color:var(--dim);font-size:.96rem;max-width:34ch}
+  .ingresso-linha{display:flex;align-items:center;gap:10px;margin-top:22px;font-size:.92rem;color:var(--paper)}
+  .ingresso-linha svg{flex-shrink:0;color:var(--gold)}
+  .ingresso-canhoto{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+                     padding:30px 24px;border-left:2px dashed var(--line2)}
+  .ingresso-canhoto::before,.ingresso-canhoto::after{content:'';position:absolute;left:-13px;width:26px;height:26px;border-radius:50%;background:var(--void)}
+  .ingresso-canhoto::before{top:-13px}
+  .ingresso-canhoto::after{bottom:-13px}
+  .ingresso-selo{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--serif);font-weight:800;letter-spacing:.14em;color:var(--dim2);font-size:.78rem}
+  .ingresso-canhoto .btn{width:100%}
+  .sub-cta{text-align:center;margin-top:26px;color:var(--dim);font-size:.9rem}
+  .sub-cta a{color:var(--paper);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+  /* ───────── faq ───────── */
+  .faq{position:relative;z-index:1;padding:0 0 130px}
+  .faq-lista{max-width:760px;border-top:1px solid var(--line)}
+  .faq-item{border-bottom:1px solid var(--line)}
+  .faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;background:none;border:0;
+         padding:24px 2px;text-align:left;color:var(--paper);font-family:var(--sans);font-size:1.03rem;font-weight:600}
+  .faq-q .mais{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);display:flex;align-items:center;
+               justify-content:center;font-size:1.1rem;color:var(--dim);transition:transform .25s ease,background .2s ease}
+  .faq-item[open] .mais{transform:rotate(45deg);background:var(--red);border-color:var(--red);color:#fff}
+  .faq-a{padding:0 2px 24px;color:var(--dim);font-size:.95rem;line-height:1.6;max-width:62ch}
+  .faq-item summary{list-style:none;cursor:pointer}
+  .faq-item summary::-webkit-details-marker{display:none}
+
+  /* ───────── cta final ───────── */
+  .cta-final{position:relative;z-index:1;padding:110px 0 130px;text-align:center}
+  .cta-final h2{font-size:clamp(2rem,4.2vw,3.1rem);font-weight:800;max-width:16ch;margin:0 auto}
+  .cta-final p{margin:18px auto 0;color:var(--dim);max-width:46ch;font-size:1.04rem}
+  .cta-final .hero-cta{justify-content:center;margin-top:36px}
+
+  /* ───────── footer ───────── */
+  footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:46px 0 34px}
+  .rodape-topo{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;padding-bottom:30px;border-bottom:1px solid var(--line)}
+  .rodape-marca{font-family:var(--serif);font-weight:800;font-size:1.1rem}
+  .rodape-marca span{color:var(--red)}
+  .rodape-links{display:flex;flex-wrap:wrap;gap:22px}
+  .rodape-links a{font-size:.88rem;color:var(--dim);text-decoration:none}
+  .rodape-links a:hover{color:var(--paper)}
+  .rodape-base{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;padding-top:22px;font-size:.78rem;color:var(--dim2)}
+
+  @media (max-width:860px){
+    .hero{padding-top:132px}
+    .hero .wrap{grid-template-columns:1fr;gap:56px}
+    .mural{height:300px;max-width:420px;margin:0 auto;width:100%}
+    .poster{width:110px}
+    .p1{width:132px}
+    .hero-stats{gap:22px}
+    .grade-bens{grid-template-columns:1fr 1fr}
+    .bem-grande,.bem-peq{grid-column:span 2}
+    .lista-passos{grid-template-columns:1fr}
+    .ingresso{grid-template-columns:1fr}
+    .ingresso-canhoto{border-left:0;border-top:2px dashed var(--line2);flex-direction:row;flex-wrap:wrap}
+    .ingresso-canhoto::before{top:-13px;left:50%;translate:-50% 0}
+    .ingresso-canhoto::after{bottom:-13px;top:auto;left:50%;translate:-50% 0}
+    .ingresso-selo{writing-mode:horizontal-tb;transform:none}
+    .rodape-topo{flex-direction:column}
+  }
+  @media (max-width:520px){
+    .grade-bens{grid-template-columns:1fr}
+    .bem-grande,.bem-peq{grid-column:span 1}
+    .hero-cta .btn,.cta-final .hero-cta .btn{width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .reveal{opacity:1;translate:0 0;transition:none}
+    .topo{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="topo" id="topo">
+  <div class="wrap">
+    <a class="marca" href="#topo">🍿 Pipoca<span>Flix</span></a>
+    <div class="topo-acoes">
+      <a class="lnk-entrar" href="https://www.pipocaflix.fun/login.html">Entrar</a>
+      <a class="btn btn-red btn-sm" href="https://www.pipocaflix.fun/planos.html">Assinar o Gold</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="reveal" id="rv-hero-txt">
+      <h1 class="hero-titulo">Sem anúncio.<br>Sem pausa.<br><em>Só o filme.</em></h1>
+      <p class="hero-sub">Mais de 22 mil filmes e séries, canais ao vivo e lançamento toda semana — tudo num lugar só, sem anúncio interrompendo a cena boa.</p>
+      <div class="hero-cta">
+        <a class="btn btn-gold btn-lg" href="https://www.pipocaflix.fun/teste-gratis.html">Testar 3 horas grátis</a>
+        <a class="btn btn-ghost btn-lg" href="https://www.pipocaflix.fun/planos.html">Assinar o Gold</a>
+      </div>
+      <p class="hero-nota">Sem cartão pro teste. Cada e-mail testa uma vez.</p>
+      <div class="hero-stats">
+        <div><b>22 mil+</b><span>filmes e séries</span></div>
+        <div><b>Ao vivo</b><span>canais inclusos</span></div>
+        <div><b>Zero</b><span>anúncio, sempre</span></div>
+      </div>
+    </div>
+    <div class="mural reveal" id="rv-hero-mural" aria-hidden="true">
+      <div class="poster p2"><i></i></div>
+      <div class="poster p5"><i></i></div>
+      <div class="poster p4"><i></i></div>
+      <div class="poster p3"><i></i></div>
+      <div class="poster p1"><i></i></div>
+      <div class="mural-tag"><span class="ao-vivo"></span>Em cartaz agora</div>
+    </div>
+  </div>
+</section>
+
+<div class="tira">
+  <div class="wrap">
+    <p>🎬 <b>Catálogo gigante</b>, de lançamento a clássico</p>
+    <p>📡 <b>Canais ao vivo</b> direto no navegador</p>
+    <p>🚫 <b>Zero anúncio</b>, em qualquer tela</p>
+    <p>✋ <b>Cancele quando quiser</b>, sem fidelidade</p>
+  </div>
+</div>
+
+<section class="beneficios">
+  <div class="wrap">
+    <div class="sec-cabecalho reveal" id="rv-ben-h">
+      <h2>Feito pra quem só quer assistir</h2>
+      <p>Chega de procurar em quatro apps diferentes e esbarrar em anúncio no meio da cena. O PipocaFlix junta tudo isso num lugar só.</p>
+    </div>
+    <div class="grade-bens">
+      <div class="bem bem-grande"><div class="bem-ico">🎞️</div><h3>Um catálogo que não acaba</h3><p>Filme, série, clássico, lançamento — todo gênero, sempre atualizando. Se não achar um título, dá pra pedir e a gente avisa quando adicionar.</p></div>
+      <div class="bem bem-grande"><div class="bem-ico">📡</div><h3>Canais ao vivo inclusos</h3><p>Notícia, esporte, desenho — direto no navegador, sem decodificador, sem instalar nada a mais.</p></div>
+      <div class="bem bem-peq"><div class="bem-ico">🚫</div><h3>Zero anúncio</h3><p>Em nenhuma tela, nunca. Sem pausa, sem popup, sem contador de 5 segundos.</p></div>
+      <div class="bem bem-peq"><div class="bem-ico">📥</div><h3>Assista offline</h3><p>Baixe o título e leve pra onde quiser, sem gastar internet.</p></div>
+      <div class="bem bem-peq"><div class="bem-ico">🕒</div><h3>Teste sem compromisso</h3><p>3 horas de graça pra conhecer, sem cartão de crédito.</p></div>
+      <div class="bem bem-peq"><div class="bem-ico">✋</div><h3>Sem fidelidade</h3><p>Um plano simples. Cancele quando quiser, sem multa.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="passos">
+  <div class="wrap">
+    <div class="sec-cabecalho reveal" id="rv-passos-h">
+      <h2>Como começar</h2>
+      <p>Três passos, nenhum deles complicado.</p>
+    </div>
+    <div class="lista-passos">
+      <div class="passo"><h3>Teste de graça</h3><p>Coloque seu e-mail e já assista por 3 horas, sem cartão e sem compromisso.</p></div>
+      <div class="passo"><h3>Assista à vontade</h3><p>Filme, série ou canal ao vivo — sem anúncio em nenhum momento.</p></div>
+      <div class="passo"><h3>Assine quando quiser</h3><p>Gostou? Um plano só, sem pegadinha, cancela quando quiser.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sessao-ingresso" id="plano">
+  <div class="wrap">
+    <div class="sec-cabecalho reveal" id="rv-tix-h" style="margin:0 auto 50px;text-align:center;max-width:520px">
+      <h2>Um plano só, direto ao ponto</h2>
+      <p>Sem pacote confuso pra escolher. É isto aqui:</p>
+    </div>
+    <div class="ingresso-centro reveal" id="rv-tix">
+      <div class="ingresso">
+        <div class="ingresso-corpo">
+          <p class="ingresso-marca">PIPOCAFLIX APRESENTA</p>
+          <h3>Pipoca Flix Gold</h3>
+          <p>Acesso completo ao catálogo e aos canais ao vivo, sem anúncio em lugar nenhum.</p>
+          <div class="ingresso-linha"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Catálogo completo de filmes e séries</div>
+          <div class="ingresso-linha"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Canais ao vivo inclusos</div>
+          <div class="ingresso-linha"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Zero anúncio, em qualquer tela</div>
+          <div class="ingresso-linha"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>Baixe pra assistir offline</div>
+        </div>
+        <div class="ingresso-canhoto">
+          <span class="ingresso-selo">ENTRADA LIBERADA</span>
+          <a class="btn btn-gold" href="https://www.pipocaflix.fun/planos.html">Ver preço e assinar</a>
+        </div>
+      </div>
+    </div>
+    <p class="sub-cta">Quer ver por dentro primeiro? <a href="https://www.pipocaflix.fun/teste-gratis.html">Teste 3 horas de graça</a>, sem cartão.</p>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap">
+    <div class="sec-cabecalho reveal" id="rv-faq-h">
+      <h2>Perguntas frequentes</h2>
+    </div>
+    <div class="faq-lista">
+      <details class="faq-item">
+        <summary class="faq-q">Como funciona o teste grátis de 3 horas?<span class="mais">+</span></summary>
+        <div class="faq-a">É só colocar o e-mail na página do teste grátis — sem cartão, sem compromisso. Você assiste o catálogo completo por 3 horas. Cada e-mail só pode usar o teste uma vez.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">Posso cancelar quando quiser?<span class="mais">+</span></summary>
+        <div class="faq-a">Pode. Não tem fidelidade nem multa — cancela a hora que quiser.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">Dá pra assistir offline?<span class="mais">+</span></summary>
+        <div class="faq-a">Dá. Você baixa o título e assiste depois, sem gastar internet.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">Não achei um filme ou série — e agora?<span class="mais">+</span></summary>
+        <div class="faq-a">Você pede dentro do próprio site. A equipe confere, adiciona, e avisa você quando o título estiver disponível.</div>
+      </details>
+      <details class="faq-item">
+        <summary class="faq-q">Tem anúncio em algum momento?<span class="mais">+</span></summary>
+        <div class="faq-a">Não. Em nenhuma tela, em nenhum plano — o PipocaFlix não tem anúncio.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="wrap reveal" id="rv-final">
+    <h2>Bora assistir sem interrupção?</h2>
+    <p>Comece pelas 3 horas grátis, sem cartão — ou já assine o Gold se já sabe que quer.</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold btn-lg" href="https://www.pipocaflix.fun/teste-gratis.html">Testar 3 horas grátis</a>
+      <a class="btn btn-ghost btn-lg" href="https://www.pipocaflix.fun/planos.html">Assinar o Gold</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="rodape-topo">
+      <div class="rodape-marca">🍿 Pipoca<span>Flix</span></div>
+      <nav class="rodape-links">
+        <a href="https://www.pipocaflix.fun/sobre.html">Sobre</a>
+        <a href="https://www.pipocaflix.fun/como-usar.html">Como usar</a>
+        <a href="https://www.pipocaflix.fun/suporte.html">Suporte</a>
+        <a href="https://www.pipocaflix.fun/privacidade.html">Privacidade</a>
+        <a href="https://www.pipocaflix.fun/cookies.html">Cookies</a>
+        <a href="https://www.pipocaflix.fun/dmca.html">DMCA</a>
+      </nav>
+    </div>
+    <div class="rodape-base">
+      <span>© <span id="ano"></span> PipocaFlix. Todos os direitos reservados.</span>
+      <span>pipocaflix.fun</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  document.getElementById('ano').textContent = new Date().getFullYear();
+
+  // header encolhe ao rolar
+  var topo = document.getElementById('topo');
+  function onScroll() { topo.classList.toggle('encolhido', window.scrollY > 10); }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // uma única entrada orquestrada por seção (não um monte de hover/scroll espalhado)
+  var alvos = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); } });
+    }, { threshold: .15 });
+    alvos.forEach(function (el) { obs.observe(el); });
+  } else {
+    alvos.forEach(function (el) { el.classList.add('on'); });
+  }
+
+  // só um item do FAQ aberto por vez
+  document.querySelectorAll('.faq-item').forEach(function (d) {
+    d.addEventListener('toggle', function () {
+      if (!d.open) return;
+      document.querySelectorAll('.faq-item[open]').forEach(function (o) { if (o !== d) o.open = false; });
+    });
+  });
+})();
+</script>
+</body>
+</html>
