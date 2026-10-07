@@ -1,6 +1,11 @@
 /**
- * PIPOCAFLIX — VIP Detector v7
+ * PIPOCAFLIX — VIP Detector v8
  * assets/js/pflix-vip.js
+ *
+ * v8: corrigido o bug do cache. Antes, o resultado "NÃO é VIP" ficava salvo por 1h
+ * no localStorage, então quem pagava depois de abrir o site continuava bloqueado.
+ * Agora só é cacheado quem É VIP (e o cache nunca passa da data de vencimento).
+ * Quem não é VIP sempre reconsulta o Firestore.
  *
  * Antes este arquivo tinha duas funções: (1) decidir quem é VIP e (2) esconder
  * anúncio de quem for VIP (via window.PFLIX_GUARD). Agora que o site não tem
@@ -21,6 +26,8 @@
   const FIREBASE_PROJECT = 'pipoca-flix-43de0';
   const FIREBASE_API_KEY = 'AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA';
   const FS_BASE = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE_PROJECT + '/databases/(default)/documents';
+  const CACHE_KEY = 'pflix_vip_cache';
+  const CACHE_MAX_MS = 60 * 60 * 1000; // 1 hora
 
   // ativo/plano: status da assinatura. pronto: a checagem (cache ou Firestore) já terminou.
   // erro: a última checagem falhou por rede (Firestore fora do ar, sem internet etc.) —
@@ -41,27 +48,36 @@
     document.dispatchEvent(new CustomEvent('pflix:vip-ativo', { detail: { plano: window.PipocaVIP.plano } }));
   }
 
-  // ─── Cache local ───
+  // ─── Cache local (SÓ pra quem é VIP) ───
   function verificarCacheLocal(email) {
     try {
-      var raw = localStorage.getItem('pflix_vip_cache');
+      var raw = localStorage.getItem(CACHE_KEY);
       if (!raw) return null;
       var cache = JSON.parse(raw);
       if (cache.email !== email) return null;
+      if (cache.is_vip !== true) return null; // cache de "não VIP" é ignorado
       if (new Date() > new Date(cache.cache_ate)) return null;
       return cache;
     } catch (e) { return null; }
   }
 
-  function salvarCacheLocal(email, ativo, plano) {
+  function salvarCacheLocal(email, plano, vipAte) {
     try {
-      localStorage.setItem('pflix_vip_cache', JSON.stringify({
+      // o cache nunca dura mais que 1h NEM mais que o vencimento do VIP
+      var ate = Date.now() + CACHE_MAX_MS;
+      var venc = vipAte ? new Date(vipAte).getTime() : 0;
+      if (venc && venc < ate) ate = venc;
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
         email: email,
-        is_vip: ativo,
+        is_vip: true,
         plano: plano,
-        cache_ate: new Date(Date.now() + 60 * 60 * 1000).toISOString()
+        cache_ate: new Date(ate).toISOString()
       }));
     } catch (e) {}
+  }
+
+  function limparCacheLocal() {
+    try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
   }
 
   // ─── Consulta Firestore ───
@@ -69,14 +85,14 @@
     var emailKey = email.replace(/[.#$[\]]/g, '_');
     var url = FS_BASE + '/vip/' + emailKey + '?key=' + FIREBASE_API_KEY;
     try {
-      var res = await fetch(url);
+      var res = await fetch(url, { cache: 'no-store' });
       if (res.status === 404) return { ativo: false, plano: null, erro: false };
       if (!res.ok) return { ativo: false, plano: null, erro: true };
       var data = await res.json();
       var vipAte = data && data.fields && data.fields.vip_ate && data.fields.vip_ate.stringValue;
       var plano = data && data.fields && data.fields.plano && data.fields.plano.stringValue;
       if (!vipAte) return { ativo: false, plano: null, erro: false };
-      return { ativo: new Date(vipAte) > new Date(), plano: plano || 'gold', erro: false };
+      return { ativo: new Date(vipAte) > new Date(), plano: plano || 'gold', vipAte: vipAte, erro: false };
     } catch (e) {
       // Erro de rede de verdade (sem internet, Firestore fora do ar): NÃO sabemos se é VIP.
       // Antigamente isso assumia "é VIP" (só pra não mostrar anúncio à toa). Agora que o site
@@ -88,21 +104,27 @@
 
   // ─── Lógica principal ───
   async function checarVip(email) {
+    // 1) Cache só vale se disser que É VIP
     var cached = verificarCacheLocal(email);
     if (cached !== null) {
       window.PipocaVIP.plano = cached.plano || null;
       window.PipocaVIP.erro = false;
-      if (cached.is_vip === true) confirmarVip();
+      confirmarVip();
       marcarPronto();
       return;
     }
 
+    // 2) Sem cache de VIP: sempre pergunta pro Firestore
     var resultado = await verificarVipFirestore(email);
     window.PipocaVIP.erro = !!resultado.erro;
-    if (!resultado.erro) salvarCacheLocal(email, resultado.ativo, resultado.plano); // erro de rede não vira cache
     window.PipocaVIP.plano = resultado.plano;
 
-    if (resultado.ativo) confirmarVip();
+    if (resultado.ativo) {
+      salvarCacheLocal(email, resultado.plano, resultado.vipAte);
+      confirmarVip();
+    } else if (!resultado.erro) {
+      limparCacheLocal(); // não é VIP (ou venceu): garante que não sobra cache velho
+    }
     marcarPronto();
   }
 
