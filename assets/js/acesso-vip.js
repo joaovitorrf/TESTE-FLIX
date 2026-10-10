@@ -10,8 +10,8 @@
  *   1. Mostra uma tela "verificando…" cobrindo tudo (não precisa mexer no HTML de
  *      cada página — um <div> por cima de tudo, com a rolagem travada).
  *   2. Espera o pflix-vip.js terminar de checar (ou usa o cache dele).
- *   3. Ao mesmo tempo, olha se ESTE navegador tem um teste grátis em andamento
- *      (localStorage) e confere no Firestore se ainda não passaram as 3 horas.
+ *   3. Depois, se não for VIP, olha se a CONTA Google (Gmail) logada tem um teste grátis em
+ *      andamento e confere no Firestore se ainda não passaram as 3 horas.
  *   4. Libera (some com a tela) se VIP.ativo OU teste ainda dentro das 3h.
  *      Se for só teste, deixa uma pílula fixa no canto mostrando quanto falta.
  *   5. Senão, troca a tela por "assine ou teste grátis", sem nunca mostrar o
@@ -29,7 +29,6 @@
   const FIREBASE_PROJECT = 'pipoca-flix-43de0';
   const FIREBASE_API_KEY = 'AIzaSyDQK5iw8v0eVf6auRiVkZzaRJn_I6znbeA';
   const FS_BASE = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE_PROJECT + '/databases/(default)/documents';
-  const TRIAL_KEY = 'pflix_trial_email';
   const TRIAL_MS = 3 * 60 * 60 * 1000; // 3 horas
   const TIMEOUT_MS = 12000;
 
@@ -45,14 +44,28 @@
     return !!(a && a.getUser && a.getUser());
   }
 
-  // ─── teste grátis: confere no Firestore se ainda está dentro das 3h ───
-  async function checarTrial() {
-    var email;
-    try { email = localStorage.getItem(TRIAL_KEY); } catch (e) { email = null; }
-    if (!email) return { ativo: false };
+  // ─── convite de amigo: guarda o código do link (?ref=CODIGO) até a pessoa entrar na conta ───
+  // (quem registra o convite de verdade é o convite.js, que roda no login/planos/teste/perfil/home)
+  (function capturarConvite() {
     try {
-      var url = FS_BASE + '/trial/' + emailKeyOf(email) + '?key=' + FIREBASE_API_KEY;
-      var res = await fetch(url);
+      var ref = new URLSearchParams(location.search).get('ref');
+      if (ref && /^[A-Za-z0-9]{6,12}$/.test(ref)) {
+        localStorage.setItem('pflix_ref', JSON.stringify({ codigo: ref.toUpperCase(), ts: Date.now() }));
+      }
+    } catch (e) {}
+  })();
+
+  // ─── teste grátis: confere no Firestore se ainda está dentro das 3h ───
+  // O teste agora é da CONTA Google (Gmail), não de um e-mail guardado no navegador.
+  // Lê o documento com o token da própria pessoa; as regras só deixam ler o do próprio e-mail.
+  async function checarTrial() {
+    var user = window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser();
+    if (!user || !user.email) return { ativo: false };
+    var email = user.email.trim().toLowerCase();
+    try {
+      var token = await user.getIdToken();
+      var url = FS_BASE + '/trial/' + emailKeyOf(email);
+      var res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
       if (res.status === 404) return { ativo: false };
       if (!res.ok) return { ativo: false, erro: true };
       var data = await res.json();
@@ -148,7 +161,9 @@
       texto = 'Deu algum problema na conexão. Recarregue a página pra tentar de novo.';
     } else if (motivo === 'trial-expirado') {
       ico = '⏰'; titulo = 'Seu teste grátis acabou';
-      texto = 'As 3 horas de teste chegaram ao fim. Assine o Pipoca Flix Gold pra continuar assistindo sem limite.';
+      var emailLogado = (window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser() || {}).email;
+      texto = 'As 3 horas de teste chegaram ao fim. Assine o Pipoca Flix Gold pra continuar assistindo sem limite.' +
+        (emailLogado ? ' Na hora de pagar, use este mesmo e-mail (' + emailLogado + ') — é nele que o seu VIP é liberado.' : '');
       mostrarTrial = false;
     } else {
       titulo = 'O PipocaFlix agora é só para assinantes';
@@ -182,7 +197,7 @@
       b.onclick = function () { location.reload(); };
       ac.appendChild(b);
     } else {
-      botao('planos.html', '⭐ Assinar o Pipoca Flix Gold', 'pfx-av-btn--gold');
+      botao(motivo === 'trial-expirado' ? 'planos.html?origem=teste' : 'planos.html', '⭐ Assinar o Pipoca Flix Gold', 'pfx-av-btn--gold');
       if (mostrarTrial) botao('teste-gratis.html', '▶ Testar 3 horas grátis', 'pfx-av-btn--trial');
       if (!estaLogado) botao(loginUrl(), 'Entrar com Google');
     }
@@ -198,17 +213,16 @@
     var a = document.createElement('a');
     a.id = 'pfxTrialPill';
     a.className = 'pfx-trial-pill';
-    a.href = 'planos.html';
+    a.href = 'planos.html?origem=teste';
     a.innerHTML = '🍿 Teste grátis: <b>' + texto + '</b> restantes · assinar';
     document.body.appendChild(a);
   }
 
   async function iniciar() {
     mostrarCarregando();
-    var trialPromise = checarTrial();
-    await aguardarVip();
+    await aguardarVip(); // quando termina, o login do Firebase já foi resolvido
     var vip = window.PipocaVIP || { ativo: false, erro: false };
-    var trial = await trialPromise;
+    var trial = vip.ativo ? { ativo: false } : await checarTrial();
 
     if (vip.ativo) { esconder(); return; }
     if (trial.ativo) { esconder(); mostrarPilulaTrial(trial.restanteMs); return; }

@@ -1,42 +1,57 @@
 /**
  * PIPOCAFLIX — trial.js
- * Teste grátis de 3 horas (um e-mail só pode usar uma vez).
+ * Teste grátis de 3 horas. Regras:
  *
- * Firestore:  trial/{emailKey}  →  { email, criadoEm: serverTimestamp() }
- * Depois de criado o documento NUNCA MAIS pode ser reescrito (ver firestore.rules:
- * "allow update: if false"), e é exatamente isso que impede o mesmo e-mail de usar
- * o teste de novo — não tem nenhum campo "usado:true" separado, a própria existência
- * do documento (pra sempre) já é a marca de "já usou".
+ *   1. SÓ GMAIL, e só pelo login do Google. O e-mail NÃO é mais digitado: vem da conta
+ *      Google que a pessoa acabou de usar pra entrar (o Google já confirmou que ela é dona
+ *      dele). Isso fecha de uma vez e-mail inventado, e-mail descartável (tempmail etc.)
+ *      e o "escrevo o e-mail de outra pessoa". As regras do Firestore conferem tudo de
+ *      novo no servidor (ver firestore.rules.novas) — não dá pra burlar mexendo no JS.
  *
- * As 3 horas são contadas no navegador (agora − criadoEm), nunca gravadas como um
- * campo "expiraEm" — assim ninguém consegue inventar uma validade maior escrevendo
- * direto no Firestore.
+ *   2. UM TESTE POR E-MAIL — o documento trial/{emailKey} nunca pode ser reescrito.
  *
- * Usado por: teste-gratis.html (criar) e acesso-vip.js (conferir, via Firestore REST
- * direto — não importa este módulo, pra não precisar carregar o SDK inteiro só pra ler).
+ *   3. UM TESTE POR APARELHO — junto com o teste, grava-se o aparelho em
+ *      trial_devices/{deviceId} e trial_fp/{fp} (ver dispositivo.js). Se o aparelho já
+ *      tem registro, outro Gmail não consegue começar teste ali.
+ *
+ *   4. As 3 horas continuam sendo contadas no navegador (agora − criadoEm), nunca gravadas
+ *      como "expiraEm".
+ *
+ * Firestore:
+ *   trial/{emailKey}        { email, uid, deviceId, fp, criadoEm }
+ *   trial_devices/{deviceId} { uid, criadoEm }
+ *   trial_fp/{fp}            { uid, criadoEm }
+ *
+ * Usado por: teste-gratis.html (criar) e acesso-vip.js (conferir).
  */
 import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+import { getFirestore, doc, getDoc, writeBatch, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { obterDispositivo } from "./dispositivo.js";
 
 const DURACAO_MS = 3 * 60 * 60 * 1000; // 3 horas
-const LS_KEY = 'pflix_trial_email';
+// true  = bloqueia também pela impressão digital (pega aba anônima / dados limpos,
+//         mas aparelhos idênticos podem colidir → admin libera em "Testes grátis").
+// false = só pelo código guardado no aparelho (menos falso-positivo, mais fácil de burlar).
+const BLOQUEAR_POR_FINGERPRINT = true;
 
 function db() {
   const app = getApps()[0];
   if (!app) throw new Error('Firebase ainda não iniciou');
   return getFirestore(app);
 }
+function usuario() { return (window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser()) || null; }
 
 function emailKeyOf(email) {
   return String(email || '').trim().toLowerCase().replace(/[.#$[\]]/g, '_');
 }
-
-function validarEmail(email) {
-  return /^[^@\s]+@[^@\s]+[.][^@\s]+$/.test(String(email || '').trim());
+function ehGmail(email) {
+  return /^[^@\s]+@gmail\.com$/i.test(String(email || '').trim());
 }
+function erro(code, msg, detalhe) { const e = new Error(msg || code); e.code = code; if (detalhe) e.detalhe = detalhe; return e; }
 
 // status(email) → { estado: 'nunca-usado' | 'ativo' | 'expirado', restanteMs? }
+// Precisa estar logado com esse mesmo e-mail (as regras só deixam a própria pessoa ler).
 async function status(email) {
   const snap = await getDoc(doc(db(), 'trial', emailKeyOf(email)));
   if (!snap.exists()) return { estado: 'nunca-usado' };
@@ -46,31 +61,49 @@ async function status(email) {
   return restante > 0 ? { estado: 'ativo', restanteMs: restante } : { estado: 'expirado' };
 }
 
-// iniciar(email) → cria o registro (só funciona se nunca existiu — ver regras).
-// Lança erro com .code = 'pflix/ja-usado' se esse e-mail já tiver usado antes.
-async function iniciar(email) {
-  const limpo = String(email || '').trim().toLowerCase();
-  if (!validarEmail(limpo)) { const e = new Error('e-mail inválido'); e.code = 'pflix/email-invalido'; throw e; }
+// → true se ESTE aparelho já começou algum teste (com qualquer e-mail).
+async function aparelhoJaUsado() {
+  const d = db();
+  const disp = await obterDispositivo();
+  const checks = [getDoc(doc(d, 'trial_devices', disp.deviceId))];
+  if (BLOQUEAR_POR_FINGERPRINT) checks.push(getDoc(doc(d, 'trial_fp', disp.fp)));
+  const r = await Promise.all(checks);
+  return r.some((s) => s.exists());
+}
 
-  const atual = await status(limpo);
-  if (atual.estado !== 'nunca-usado') {
-    const e = new Error('e-mail já usado'); e.code = 'pflix/ja-usado'; e.detalhe = atual; throw e;
-  }
+// iniciar() → cria o teste pra conta Google logada.
+// Erros (.code): pflix/sem-login · pflix/nao-gmail · pflix/ja-usado · pflix/aparelho-usado
+async function iniciar() {
+  const u = usuario();
+  if (!u || !u.email) throw erro('pflix/sem-login', 'faça login com o Google primeiro');
+  const email = u.email.trim().toLowerCase();
+  if (!ehGmail(email)) throw erro('pflix/nao-gmail', 'só Gmail', { email });
+  if (u.emailVerified === false) throw erro('pflix/nao-gmail', 'e-mail não verificado', { email });
+
+  const atual = await status(email);
+  if (atual.estado !== 'nunca-usado') throw erro('pflix/ja-usado', 'e-mail já usado', atual);
+
+  if (await aparelhoJaUsado()) throw erro('pflix/aparelho-usado', 'aparelho já usou o teste');
+
+  const disp = await obterDispositivo();
+  const d = db();
+  const lote = writeBatch(d);
+  lote.set(doc(d, 'trial', emailKeyOf(email)), { email: email, uid: u.uid, deviceId: disp.deviceId, fp: disp.fp, criadoEm: serverTimestamp() });
+  lote.set(doc(d, 'trial_devices', disp.deviceId), { uid: u.uid, criadoEm: serverTimestamp() });
+  lote.set(doc(d, 'trial_fp', disp.fp), { uid: u.uid, criadoEm: serverTimestamp() });
   try {
-    await setDoc(doc(db(), 'trial', emailKeyOf(limpo)), { email: limpo, criadoEm: serverTimestamp() });
+    await lote.commit();
   } catch (err) {
     if (err && err.code === 'permission-denied') {
-      // Alguém ganhou a corrida (criou o doc um instante antes) — trata como "já usado", não como erro.
-      const e = new Error('e-mail já usado'); e.code = 'pflix/ja-usado'; throw e;
+      // Quase sempre: alguém ganhou a corrida (o registro apareceu um instante antes). Descobre qual.
+      try {
+        if ((await status(email)).estado !== 'nunca-usado') throw erro('pflix/ja-usado', 'e-mail já usado');
+        if (await aparelhoJaUsado()) throw erro('pflix/aparelho-usado', 'aparelho já usou o teste');
+      } catch (e2) { if (e2 && String(e2.code || '').indexOf('pflix/') === 0) throw e2; }
     }
     throw err;
   }
-  try { localStorage.setItem(LS_KEY, limpo); } catch (e) {}
   return true;
 }
 
-function emailLocal() {
-  try { return localStorage.getItem(LS_KEY); } catch (e) { return null; }
-}
-
-window.PipocaTrial = { iniciar, status, emailKeyOf, validarEmail, emailLocal, DURACAO_MS };
+window.PipocaTrial = { iniciar, status, aparelhoJaUsado, emailKeyOf, ehGmail, DURACAO_MS };
