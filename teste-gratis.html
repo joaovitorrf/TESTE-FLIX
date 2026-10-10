@@ -5,7 +5,7 @@
 <meta name="referrer" content="no-referrer-when-downgrade" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teste grátis por 3 horas — PipocaFlix</title>
-<meta name="description" content="Teste o PipocaFlix de graça por 3 horas, sem cartão de crédito. Um e-mail só pode usar o teste uma vez.">
+<meta name="description" content="Teste o PipocaFlix de graça por 3 horas, sem cartão de crédito. Entre com seu Gmail — cada conta e cada aparelho só podem usar o teste uma vez.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -49,6 +49,7 @@
   const analytics = getAnalytics(app);
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' }); // deixa escolher QUAL Gmail usar
 
   window.PipocaAuth = {
     login: () => signInWithPopup(auth, provider),
@@ -155,14 +156,15 @@
   <section class="trial-card">
     <p class="trial-logo">🍿 PipocaFlix</p>
     <h1>Teste grátis por <span>3 horas</span></h1>
-    <p class="trial-sub">Digite seu e-mail e assista o catálogo inteiro de graça por 3 horas, sem cartão e sem compromisso. Cada e-mail só pode usar o teste <b>uma única vez</b>.</p>
+    <p class="trial-sub">Entre com seu <b>Gmail</b> e assista o catálogo inteiro de graça por 3 horas, sem cartão e sem compromisso. Cada conta e cada aparelho só podem usar o teste <b>uma única vez</b>.</p>
 
     <div id="trialForm" class="trial-form">
-      <label class="sr-only" for="trialEmail">Seu e-mail</label>
-      <input id="trialEmail" type="email" inputmode="email" autocomplete="email" placeholder="seuemail@gmail.com" maxlength="120">
-      <button type="button" id="trialBtn" class="trial-btn">▶ Começar teste grátis</button>
+      <button type="button" id="trialBtn" class="trial-google">
+        <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8C43.8 37.5 46.5 31.4 46.5 24.5z"/><path fill="#FBBC05" d="M10.7 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.8 23.8 0 0 0 0 24c0 3.9.9 7.5 2.5 10.8l8.2-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-4.2-13.4-9.9l-8.2 6.1C6.6 42.6 14.7 48 24 48z"/></svg>
+        <span id="trialBtnTxt">Continuar com Google</span>
+      </button>
       <p id="trialErro" class="trial-erro" role="alert" hidden></p>
-      <p class="trial-nota">Ao continuar, você concorda com nossos <a href="privacidade.html">Termos de Privacidade</a>.</p>
+      <p class="trial-nota">Só aceitamos contas <b>@gmail.com</b>. Ao continuar, você concorda com nossos <a href="privacidade.html">Termos de Privacidade</a>. Para evitar abuso, guardamos um identificador do aparelho junto com o teste.</p>
     </div>
 
     <div id="trialCarregando" class="trial-status" hidden>
@@ -192,10 +194,24 @@
 
     <div id="trialJaUsado" class="trial-status" hidden>
       <div class="trial-ico" aria-hidden="true">⏰</div>
-      <h2>Esse e-mail já usou o teste grátis</h2>
-      <p>Cada e-mail só pode testar uma vez. Assine o Pipoca Flix Gold pra continuar assistindo sem limite.</p>
+      <h2>Esse Gmail já usou o teste grátis</h2>
+      <p>Pra continuar assistindo sem limite, assine o Pipoca Flix Gold. <b>Na hora de pagar, use o mesmo e-mail <span id="trialJaUsadoEmail"></span></b> — é nele que o seu VIP é liberado.</p>
+      <a class="trial-btn" href="planos.html?origem=teste">⭐ Assinar o Pipoca Flix Gold</a>
+    </div>
+
+    <div id="trialAparelhoUsado" class="trial-status" hidden>
+      <div class="trial-ico" aria-hidden="true">📱</div>
+      <h2>Este aparelho já usou o teste</h2>
+      <p>O teste grátis é um por aparelho, mesmo com outro Gmail. Assine o Pipoca Flix Gold pra assistir sem limite. Se acha que foi engano, <a href="suporte.html" style="color:var(--red)">fale com o suporte</a>.</p>
       <a class="trial-btn" href="planos.html">⭐ Assinar o Pipoca Flix Gold</a>
-      <button type="button" id="trialOutroEmail" class="trial-link">Tentar com outro e-mail</button>
+    </div>
+
+    <div id="trialNaoGmail" class="trial-status" hidden>
+      <div class="trial-ico" aria-hidden="true">📧</div>
+      <h2>O teste grátis é só pra Gmail</h2>
+      <p>A conta que você usou não é <b>@gmail.com</b>. Entre com um Gmail pra começar o teste, ou assine direto o plano Gold.</p>
+      <button type="button" id="trialOutraConta" class="trial-btn">Entrar com outro Gmail</button>
+      <a class="trial-link" href="planos.html">Ver o plano Gold</a>
     </div>
 
     <p class="trial-rodape">Já assina? <a href="login.html?redirect=index.html">Entre na sua conta</a> · Prefere assinar direto? <a href="planos.html">Ver o plano Gold</a></p>
@@ -268,76 +284,78 @@ if(btt) btt.addEventListener('click',function(){window.scrollTo({top:0,behavior:
 <script>
 (function(){
 function $(id) { return document.getElementById(id); }
-function mostrarSo(id) {
-  ['trialForm','trialCarregando','trialSucesso','trialJaVip','trialJaAtivo','trialJaUsado'].forEach(function (x) {
-    $(x).hidden = (x !== id);
-  });
-}
+var ESTADOS = ['trialForm','trialCarregando','trialSucesso','trialJaVip','trialJaAtivo','trialJaUsado','trialAparelhoUsado','trialNaoGmail'];
+function mostrarSo(id) { ESTADOS.forEach(function (x) { $(x).hidden = (x !== id); }); }
 function fmtRestante(ms) {
   var min = Math.max(1, Math.round(ms / 60000));
   return min >= 60 ? Math.floor(min / 60) + 'h ' + (min % 60) + 'min' : min + ' min';
 }
-
 function esperar(cond, cb, tent) {
   tent = tent || 0;
   if (cond()) { cb(); return; }
   if (tent > 60) { cb(); return; } // desiste depois de ~12s, segue sem travar a pessoa
   setTimeout(function () { esperar(cond, cb, tent + 1); }, 200);
 }
+function erro(msg) { $('trialErro').textContent = msg; $('trialErro').hidden = false; }
+function usuario() { return window.PipocaAuth && window.PipocaAuth.getUser && window.PipocaAuth.getUser(); }
+function jaUsado(email) { $('trialJaUsadoEmail').textContent = '(' + email + ')'; mostrarSo('trialJaUsado'); }
 
-// Se já é VIP, nem mostra o formulário. Se o navegador já tem um teste ativo
-// (mesmo ou outro e-mail), manda direto pro site.
+// Estado inicial: VIP? já tem teste? Se a pessoa já está logada com Gmail, o botão vira "Começar com ela".
 function checarEstadoInicial() {
-  esperar(function () { return window.PipocaVIP && window.PipocaVIP.pronto; }, function () {
+  esperar(function () { return window.PipocaVIP && window.PipocaVIP.pronto && window.PipocaTrial; }, function () {
     if (window.PipocaVIP && window.PipocaVIP.ativo) { mostrarSo('trialJaVip'); return; }
-    var emailSalvo = window.PipocaTrial && window.PipocaTrial.emailLocal && window.PipocaTrial.emailLocal();
-    if (!emailSalvo) return; // segue mostrando o formulário normalmente
-    window.PipocaTrial.status(emailSalvo).then(function (r) {
+    var u = usuario();
+    if (!u || !u.email || !window.PipocaTrial) return;
+    if (!window.PipocaTrial.ehGmail(u.email)) return;
+    $('trialBtnTxt').textContent = 'Começar teste com ' + u.email;
+    window.PipocaTrial.status(u.email).then(function (r) {
       if (r.estado === 'ativo') {
         $('trialJaAtivoTxt').textContent = 'Faltam ' + fmtRestante(r.restanteMs) + ' pra acabar. Aproveita!';
         mostrarSo('trialJaAtivo');
-      }
+      } else if (r.estado === 'expirado') { jaUsado(u.email); }
     }).catch(function () {});
   });
 }
 checarEstadoInicial();
 
-function erro(msg) {
-  $('trialErro').textContent = msg;
-  $('trialErro').hidden = false;
-}
-
-$('trialBtn').addEventListener('click', function () {
+async function comecar(forcarEscolherConta) {
   $('trialErro').hidden = true;
-  var email = $('trialEmail').value.trim();
-  if (!window.PipocaTrial || !window.PipocaTrial.validarEmail(email)) {
-    erro('Digite um e-mail válido, tipo nome@gmail.com.');
-    $('trialEmail').focus();
-    return;
-  }
+  if (!window.PipocaTrial || !window.PipocaAuth) { erro('Ainda carregando… tenta de novo em um segundo.'); return; }
   mostrarSo('trialCarregando');
-  $('trialCarregandoTxt').textContent = 'Iniciando seu teste…';
-  window.PipocaTrial.iniciar(email).then(function () {
+  $('trialCarregandoTxt').textContent = 'Entrando com o Google…';
+  try {
+    var u = usuario();
+    if (u && forcarEscolherConta) { await window.PipocaAuth.logout(); u = null; }
+    if (!u) { var cred = await window.PipocaAuth.login(); u = cred.user; }
+
+    if (!window.PipocaTrial.ehGmail(u.email)) {
+      try { await window.PipocaAuth.logout(); } catch (e) {}
+      mostrarSo('trialNaoGmail'); return;
+    }
+    $('trialCarregandoTxt').textContent = 'Iniciando seu teste…';
+    await window.PipocaTrial.iniciar();
     mostrarSo('trialSucesso');
     setTimeout(function () { location.href = 'index.html'; }, 1400);
-  }).catch(function (e) {
-    if (e && e.code === 'pflix/ja-usado') { mostrarSo('trialJaUsado'); return; }
+  } catch (e) {
+    var c = e && e.code;
+    if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') { mostrarSo('trialForm'); return; }
+    if (c === 'auth/popup-blocked') { mostrarSo('trialForm'); erro('O navegador bloqueou a janela do Google. Libere pop-ups pra este site e tente de novo.'); return; }
+    if (c === 'pflix/ja-usado') { var uu = usuario(); jaUsado((uu && uu.email) || 'que você usou'); return; }
+    if (c === 'pflix/aparelho-usado') { mostrarSo('trialAparelhoUsado'); return; }
+    if (c === 'pflix/nao-gmail') { mostrarSo('trialNaoGmail'); return; }
     mostrarSo('trialForm');
-    erro(e && e.code === 'permission-denied'
-      ? 'Sem permissão pra criar o teste. (Falta publicar as regras do Firestore — veja o arquivo de regras.)'
+    erro(c === 'permission-denied'
+      ? 'Sem permissão pra criar o teste. (Falta publicar as regras do Firestore — veja o arquivo firestore.rules.novas.)'
       : 'Não deu pra iniciar agora. Confere sua internet e tenta de novo.');
-    console.warn('[Trial]', e && e.code || e);
-  });
-});
-$('trialEmail').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('trialBtn').click(); });
-$('trialOutroEmail').addEventListener('click', function () {
-  mostrarSo('trialForm');
-  $('trialEmail').value = '';
-  $('trialEmail').focus();
-});
+    console.warn('[Trial]', c || e);
+  }
+}
+$('trialBtn').addEventListener('click', function () { comecar(false); });
+$('trialOutraConta').addEventListener('click', function () { comecar(true); });
 
 })();
 </script>
+<script type="module" src="assets/js/convite.js"></script>
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
 <script src="assets/js/pflix-vip.js"></script>
 <script type="module" src="assets/js/conta.js"></script>

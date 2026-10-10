@@ -337,8 +337,14 @@ function getRedirect() {
   if (/^https?:\/\//i.test(r) || r.indexOf('//') === 0) return 'index.html';
   return r;
 }
+var _indo = false;
 function irParaDestino() {
-  window.location.href = getRedirect();
+  if (_indo) return; _indo = true;
+  // Se a pessoa veio por um link de convite, dá um tempinho pro convite ser registrado
+  // antes de trocar de página (senão a gravação poderia ser cortada no meio).
+  var C = window.PipocaConvite;
+  var espera = C && C.aguardarRegistro ? C.aguardarRegistro(3000) : Promise.resolve();
+  espera.then(function () { window.location.href = getRedirect(); }, function () { window.location.href = getRedirect(); });
 }
 async function fazerLogin() {
   var btn = document.getElementById('btnLoginGoogle');
@@ -359,5 +365,6 @@ async function fazerLogin() {
 }
 </script>
 
+<script type="module" src="assets/js/convite.js"></script>
 </body>
 </html>

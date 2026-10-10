@@ -195,6 +195,7 @@
           <button type="button" role="tab" class="perf-tab" data-tab="reports" id="tab-reports" aria-controls="painel-reports"><span class="perf-tab-ico" aria-hidden="true">🚩</span><span class="perf-tab-txt">Meus reports</span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="listas" id="tab-listas" aria-controls="painel-listas"><span class="perf-tab-ico" aria-hidden="true">📋</span><span class="perf-tab-txt">Minhas listas</span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="pedidos" id="tab-pedidos" aria-controls="painel-pedidos"><span class="perf-tab-ico" aria-hidden="true">📝</span><span class="perf-tab-txt">Meus pedidos</span><span class="perf-tab-n" data-n="pedidos"></span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="convites" id="tab-convites" aria-controls="painel-convites"><span class="perf-tab-ico" aria-hidden="true">🎁</span><span class="perf-tab-txt">Convidar amigos</span><span class="perf-tab-n" data-n="convites"></span></button>
         </div>
       </nav>
 
@@ -233,6 +234,23 @@
           <header class="perf-painel-topo"><h2>📝 Meus pedidos</h2><a class="perf-btn perf-btn--main perf-btn--link" href="pedidos.html">➕ Fazer um pedido</a></header>
           <p class="perf-dica">Pediu um filme ou série que não achou? Acompanhe aqui: quando a gente adicionar, o pedido vira <b>Atendido</b>.</p>
           <div id="profilePedidos" class="perf-lista"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-convites" data-panel="convites" aria-labelledby="tab-convites" hidden>
+          <header class="perf-painel-topo"><h2>🎁 Convidar amigos</h2><a class="perf-btn perf-btn--main perf-btn--link" href="convites.html">Abrir meu convite</a></header>
+          <p class="perf-dica">Quando um amigo seu assinar o Gold pelo seu link, você ganha <b id="pfBonusVoce">6 dias</b> de VIP e ele ganha <b id="pfBonusAmigo">10 dias</b> a mais.</p>
+          <div class="cv-perfil-box">
+            <dl class="cv-resumo" style="justify-content:flex-start">
+              <div><dt>Convidados</dt><dd id="pfCvTotal">0</dd></div>
+              <div><dt>Assinaram</dt><dd id="pfCvAssinaram">0</dd></div>
+              <div><dt>Dias ganhos</dt><dd id="pfCvDias">0</dd></div>
+            </dl>
+            <div class="cv-perfil-acoes">
+              <button type="button" class="cv-bt cv-bt--pri" id="pfCvCopiar" disabled>Copiar meu link</button>
+              <a class="cv-bt" href="convites.html" style="text-decoration:none">Ver todos os convidados</a>
+            </div>
+            <div id="profileConvites" class="cv-lista"></div>
+          </div>
         </section>
       </div>
     </div>
@@ -329,7 +347,7 @@ function $(id){ return document.getElementById(id); }
 function vazio(el, msg){ el.innerHTML = '<p class="perf-vazio">'+msg+'</p>'; }
 
 /* ── Abas ── */
-var TABS = ['assistidos','favoritos','andamento','comentarios','reports','listas','pedidos'];
+var TABS = ['assistidos','favoritos','andamento','comentarios','reports','listas','pedidos','convites'];
 function abrirAba(nome, foco) {
   if (TABS.indexOf(nome) === -1) nome = 'assistidos';
   document.querySelectorAll('.perf-tab').forEach(function(b){
@@ -442,6 +460,37 @@ function renderPedidos() {
   })();
 }
 
+/* ── Convites ── */
+function renderConvites() {
+  var box = $('profileConvites'); if (!box) return;
+  box.innerHTML = '<p class="cv-vazio">Carregando…</p>';
+  var tent = 0;
+  (function esperar(){
+    if (!window.PipocaConvite) { if (++tent < 50) return setTimeout(esperar, 200); box.innerHTML = '<p class="cv-vazio">Não foi possível carregar seus convites agora.</p>'; return; }
+    var C = window.PipocaConvite, B = C.BONUS;
+    $('pfBonusVoce').textContent = B.convidante + ' dias'; $('pfBonusAmigo').textContent = B.amigo + ' dias';
+    C.aguardarRegistro(2500).then(function(){ return C.meusConvidados(); }).then(function(arr){
+      var ass = 0, dias = 0;
+      arr.forEach(function(c){ if (c.status === 'recompensado') { ass++; dias += (c.bonusConvidanteDias || B.convidante); } });
+      $('pfCvTotal').textContent = arr.length; $('pfCvAssinaram').textContent = ass; $('pfCvDias').textContent = dias;
+      badge('convites', ass);
+      box.innerHTML = '';
+      if (!arr.length) { box.innerHTML = '<p class="cv-vazio">Você ainda não convidou ninguém. Copie seu link e mande pra um amigo.</p>'; return; }
+      arr.slice(0, 5).forEach(function(c){
+        var li = document.createElement('div'); li.className = 'cv-linha';
+        var st = c.status === 'recompensado' ? ['cv-st--ok', 'Assinou · +' + (c.bonusConvidanteDias || B.convidante) + ' dias'] : c.status === 'recusado' ? ['cv-st--mut', 'Não validado'] : ['cv-st--esp', 'Aguardando a assinatura'];
+        li.innerHTML = '<div class="cv-quem"><b>' + esc(c.amigoNome || 'Amigo') + '</b><small>' + esc(c.amigoEmailMasc || '') + '</small></div><span class="cv-st ' + st[0] + '">' + esc(st[1]) + '</span>';
+        box.appendChild(li);
+      });
+      if (arr.length > 5) { var m = document.createElement('p'); m.className = 'cv-vazio'; m.innerHTML = 'e mais ' + (arr.length - 5) + ' — <a href="convites.html" style="color:var(--red)">ver todos</a>'; box.appendChild(m); }
+    }).catch(function(e){ console.warn('[Perfil] convites:', e && e.code || e); box.innerHTML = '<p class="cv-vazio">Não foi possível carregar seus convites agora.</p>'; });
+    C.meuCodigo().then(function(cod){
+      var b = $('pfCvCopiar'); b.disabled = false;
+      b.onclick = function(){ var l = C.linkConvite(cod); (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(l) : Promise.reject()).then(function(){ showToast('🔗 Link copiado!'); }, function(){ prompt('Copie o link:', l); }); };
+    }).catch(function(){});
+  })();
+}
+
 /* ── Auth ── */
 waitForAuth(function() {
   window.PipocaAuth.onAuthChanged(function(user) {
@@ -449,7 +498,7 @@ waitForAuth(function() {
     var notLogged = $('profileNotLogged'), content = $('profileContent');
     if (!user) { notLogged.style.display = 'block'; content.style.display = 'none'; return; }
     notLogged.style.display = 'none'; content.style.display = 'block';
-    renderCabecalho(user); renderVip(); renderLocais(); renderPedidos();
+    renderCabecalho(user); renderVip(); renderLocais(); renderPedidos(); renderConvites();
   });
 });
 
@@ -668,5 +717,6 @@ waitForAuth(function() {
 
 <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(function(){});</script>
 <script src="assets/js/pflix-vip.js"></script>
+<script type="module" src="assets/js/convite.js"></script>
 <script type="module" src="assets/js/conta.js"></script>
 </body>

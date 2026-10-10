@@ -56,6 +56,8 @@
     <li><strong>Foto de perfil:</strong> exibida no botão de login do header.</li>
   </ul>
   <p>Não armazenamos senhas. A autenticação é gerenciada integralmente pelo Google Firebase.</p>
+  <p>Para evitar abuso do teste grátis e de convites, também guardamos <strong>identificadores do aparelho</strong>: um código aleatório gerado no seu navegador (salvo em localStorage, cookie e IndexedDB, com a chave <code>pflix_did</code>) e um resumo criptográfico (hash) de características do aparelho, como tela, fuso horário e idioma. Esses dados são usados apenas para limitar o teste grátis a um por aparelho e para conferir convites de amigos; não são usados para publicidade nem compartilhados.</p>
+  <p>Se você participar do programa de convites, guardamos o código do convite que você usou ou gerou, e quem convidou vê apenas o seu primeiro nome e seu e-mail parcialmente oculto.</p>
 
   <h2>2. Dados Armazenados Localmente (localStorage)</h2>
   <p>Para melhorar sua experiência, armazenamos no seu navegador (sem envio a servidores):</p>
