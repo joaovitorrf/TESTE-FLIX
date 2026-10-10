@@ -5383,3 +5383,107 @@ html { scroll-padding-top: 84px; }                    /* links tipo #pedidos nã
 .trial-rodape { margin: 1.6rem 0 0; font-size: .78rem; color: var(--text-3); line-height: 1.6; }
 .trial-rodape a { color: var(--red); }
 @media (prefers-reduced-motion: reduce) { .trial-spin { animation: none; border-top-color: var(--red); border-right-color: var(--red); } }
+
+/* ── Teste grátis só com Gmail (botão do Google) ───────────────────────────── */
+.trial-google {
+  display: flex; align-items: center; justify-content: center; gap: .65rem; width: 100%;
+  padding: .9rem 1rem; border: 0; border-radius: var(--r-pill); background: #fff; color: #1f1f1f;
+  font: 700 .98rem var(--font-body); cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,.35);
+  transition: filter .15s ease, transform .15s ease;
+}
+.trial-google:hover { filter: brightness(.96); }
+.trial-google:active { transform: scale(.985); }
+.trial-google span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.trial-google:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.trial-nota b { color: var(--text-2); }
+
+/* ── Convite de amigo (convites.html + aba "Convites" do perfil) ───────────── */
+.cv-page { max-width: 760px; margin: 0 auto; padding: calc(var(--header-h) + 36px) 16px 70px; }
+.cv-login { text-align: center; padding: 3rem 0; }
+.cv-login h1, .cv-topo h1 { margin: 0 0 .5rem; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.5rem, 4.6vw, 2.1rem); line-height: 1.15; }
+.cv-login p { margin: 0 0 1.4rem; color: var(--text-3); }
+.cv-login .trial-google { max-width: 320px; margin: 0 auto; }
+.cv-sub { margin: 0 0 1.3rem; color: var(--text-2); font-size: 1rem; }
+
+.cv-premios { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-bottom: 1.6rem; }
+.cv-premio { padding: .9rem 1rem; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--border); }
+.cv-premio b { display: block; font: 800 1.7rem var(--font-display); color: var(--gold); line-height: 1.1; }
+.cv-premio span { display: block; margin-top: .25rem; font-size: .82rem; color: var(--text-3); line-height: 1.4; }
+
+.cv-recebido { margin: 0 0 1.4rem; padding: 1rem 1.1rem; border-radius: var(--r-md); border: 1px solid rgba(245,197,24,.4); background: var(--gold-soft); }
+.cv-recebido b { display: block; font: 700 1.05rem var(--font-display); margin-bottom: .25rem; }
+.cv-recebido p { margin: 0 0 .8rem; font-size: .9rem; color: var(--text-2); line-height: 1.5; }
+.cv-recebido .trial-btn { display: inline-flex; width: auto; padding: .7rem 1.3rem; text-decoration: none; }
+
+/* O ingresso: corpo com o código + canhoto com os botões, separados por picote */
+.cv-ingresso {
+  position: relative; display: grid; grid-template-columns: 1fr 230px; margin-bottom: 2rem;
+  background: var(--card); border: 1px solid var(--border-light); border-radius: var(--r-lg); box-shadow: var(--shadow-card);
+}
+.cv-ing-corpo { padding: 1.5rem 1.6rem; min-width: 0; }
+.cv-ing-canhoto {
+  display: flex; flex-direction: column; justify-content: center; gap: .55rem; padding: 1.4rem 1.4rem 1.4rem 1.6rem; box-sizing: border-box;
+  border-left: 2px dashed var(--border-light);
+}
+.cv-ingresso::before, .cv-ingresso::after {
+  content: ""; position: absolute; right: calc(230px - 12px); width: 22px; height: 22px; border-radius: 50%;
+  background: var(--void); border: 1px solid var(--border-light);
+}
+.cv-ingresso::before { top: -12px; clip-path: inset(50% 0 0 0); }
+.cv-ingresso::after { bottom: -12px; clip-path: inset(0 0 50% 0); }
+.cv-rotulo { margin: 0 0 .3rem; font-size: .82rem; color: var(--text-3); }
+.cv-codigo { margin: 0; font: 800 clamp(1.8rem, 6vw, 2.6rem) var(--font-display); letter-spacing: .16em; color: var(--text-1); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cv-link { margin: .5rem 0 0; font-size: .8rem; color: var(--text-3); overflow-wrap: anywhere; }
+.cv-bt {
+  padding: .72rem 1rem; border-radius: var(--r-pill); border: 1px solid var(--border-light); background: transparent;
+  color: var(--text-1); font: 700 .88rem var(--font-body); cursor: pointer; transition: filter .15s ease, transform .15s ease;
+}
+.cv-bt:hover:not(:disabled) { filter: brightness(1.15); }
+.cv-bt:active:not(:disabled) { transform: scale(.98); }
+.cv-bt:disabled { opacity: .5; cursor: default; }
+.cv-bt:focus-visible { outline: 2px solid var(--text-1); outline-offset: 2px; }
+.cv-bt--pri { background: var(--red); border-color: var(--red); color: #fff; }
+.cv-bt--zap { background: #1faa59; border-color: #1faa59; color: #fff; }
+
+.cv-passos { margin-bottom: 2rem; }
+.cv-passos h2, .cv-lista-topo h2 { margin: 0 0 .8rem; font: 700 1.15rem var(--font-display); }
+.cv-passos ol { margin: 0; padding: 0; list-style: none; counter-reset: p; display: grid; gap: .7rem; }
+.cv-passos li { counter-increment: p; position: relative; padding: .2rem 0 .2rem 2.6rem; }
+.cv-passos li::before {
+  content: counter(p); position: absolute; left: 0; top: .1rem; width: 1.9rem; height: 1.9rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font: 800 .9rem var(--font-display);
+  background: var(--red-soft); color: var(--red);
+}
+.cv-passos li b { display: block; font-size: .96rem; }
+.cv-passos li span { display: block; font-size: .86rem; color: var(--text-3); line-height: 1.5; }
+
+.cv-lista-topo { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.cv-lista-topo h2 { margin: 0; }
+.cv-resumo { display: flex; gap: 1.2rem; margin: 0; }
+.cv-resumo div { text-align: right; }
+.cv-resumo dt { font-size: .74rem; color: var(--text-3); }
+.cv-resumo dd { margin: 0; font: 800 1.15rem var(--font-display); }
+.cv-lista { display: flex; flex-direction: column; border-top: 1px solid var(--border); }
+.cv-linha { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; padding: .85rem .1rem; border-bottom: 1px solid var(--border); }
+.cv-quem { min-width: 0; }
+.cv-quem b { display: block; font-size: .95rem; }
+.cv-quem small { display: block; font-size: .78rem; color: var(--text-3); overflow-wrap: anywhere; }
+.cv-st { padding: .25rem .7rem; border-radius: var(--r-pill); font-size: .76rem; font-weight: 700; }
+.cv-st--ok { background: rgba(61,220,132,.14); color: #3ddc84; }
+.cv-st--esp { background: var(--gold-soft); color: var(--gold); }
+.cv-st--mut { background: var(--panel); color: var(--text-3); }
+.cv-vazio { margin: 0; padding: 1.4rem .2rem; color: var(--text-3); font-size: .9rem; }
+.cv-regras { margin: 1.6rem 0 0; font-size: .78rem; color: var(--text-3); line-height: 1.6; }
+
+@media (max-width: 620px) {
+  .cv-premios { grid-template-columns: 1fr; }
+  .cv-ingresso { grid-template-columns: 1fr; }
+  .cv-ing-canhoto { border-left: 0; border-top: 2px dashed var(--border-light); padding: 1.2rem 1.6rem 1.4rem; }
+  .cv-ingresso::before, .cv-ingresso::after { display: none; }
+  .cv-resumo div { text-align: left; }
+}
+
+/* aba "Convites" do perfil */
+.cv-perfil-box { display: flex; flex-direction: column; gap: 12px; }
+.cv-perfil-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.cv-perfil-cod { font: 800 1.5rem var(--font-display); letter-spacing: .14em; margin: 0; }
