@@ -7,8 +7,9 @@
  * do teste grátis (teste-gratis.html).
  *
  * COMO FUNCIONA (mesma ideia do canais-vip.js, só que pro site inteiro):
- *   1. Mostra uma tela "verificando…" cobrindo tudo (não precisa mexer no HTML de
- *      cada página — um <div> por cima de tudo, com a rolagem travada).
+ *   1. Mostra uma tela "Carregando…" cobrindo tudo (o texto é genérico de propósito:
+ *      a pessoa não vê que existe uma checagem de assinatura). Não precisa mexer no
+ *      HTML de cada página — é um <div> por cima de tudo, com a rolagem travada.
  *   2. Espera o pflix-vip.js terminar de checar (ou usa o cache dele).
  *   3. Depois, se não for VIP, olha se a CONTA Google (Gmail) logada tem um teste grátis em
  *      andamento e confere no Firestore se ainda não passaram as 3 horas.
@@ -137,7 +138,9 @@
       '<div class="pfx-av-card">' +
         '<p class="pfx-av-logo">🍿 PipocaFlix</p>' +
         '<div class="pfx-av-spin" aria-hidden="true"></div>' +
-        '<p class="pfx-av-load">Verificando sua assinatura…</p>' +
+        // Texto propositalmente genérico: a pessoa não precisa saber que existe uma
+        // checagem de assinatura rolando por trás — pra ela, a página só está carregando.
+        '<p class="pfx-av-load" role="status">Carregando…</p>' +
       '</div>';
     (document.body || document.documentElement).appendChild(overlay);
     document.documentElement.style.overflow = 'hidden';

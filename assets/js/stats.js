@@ -27,7 +27,7 @@
 import { getApps } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import {
   getFirestore, doc, getDoc, setDoc, writeBatch, increment, serverTimestamp,
-  collection, query, orderBy, limit, getDocs
+  collection, query, orderBy, limit, getDocs, where
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const ROTULOS = {
@@ -139,7 +139,56 @@ async function avaliar(item, nota) {
   }, { merge: true });
   await b.commit();
   try { localStorage.removeItem('pflix_trending_v1'); } catch (e) {}
+  espelharNota(d, u, k, item, tipo, nota);
   return { mudou: true, anterior: anterior };
+}
+
+/* ───────── minhas notas (perfil / "Seu ano no PipocaFlix") ─────────
+   Cópia das notas da PRÓPRIA pessoa em users/{uid}/sync/notas:
+     { itens: { "<chave>": { nome, tipo, nota, ts } }, backfillOk }
+   Serve só pra montar o perfil sem varrer a coleção "avaliacoes" inteira. Se falhar,
+   a avaliação em si (avaliacoes/ + conteudo/ + trending/) já foi salva — nada quebra. */
+function espelharNota(d, u, k, item, tipo, nota) {
+  try {
+    const itens = {};
+    itens[k] = { nome: item.nome, tipo: tipo, nota: nota, ts: Date.now() };
+    setDoc(doc(d, 'users', u.uid, 'sync', 'notas'), { itens: itens, atualizadoEm: serverTimestamp() }, { merge: true })
+      .catch(e => console.warn('[Stats] nota não espelhada no perfil:', e && e.code || e));
+  } catch (e) { /* silencioso: é só um espelho */ }
+}
+
+async function getMinhasNotas() {
+  const u = usuario(), d = db();
+  if (!u || !d) return {};
+  const ref = doc(d, 'users', u.uid, 'sync', 'notas');
+  let itens = {}, feito = false;
+  try {
+    const s = await getDoc(ref);
+    if (s.exists()) { const x = s.data() || {}; itens = x.itens || {}; feito = !!x.backfillOk; }
+  } catch (e) { console.warn('[Stats] não consegui ler suas notas:', e && e.code || e); return {}; }
+
+  // Notas dadas ANTES do espelho existir: tenta buscar uma vez em avaliacoes/ (campo uid).
+  // Se as regras do Firestore não permitirem essa consulta, desiste pra sempre (sem insistir).
+  const flag = 'pflix_notas_backfill_' + u.uid;
+  let jaTentou = false; try { jaTentou = localStorage.getItem(flag) === '1'; } catch (e) {}
+  if (!feito && !jaTentou) {
+    try {
+      const snap = await getDocs(query(collection(d, 'avaliacoes'), where('uid', '==', u.uid), limit(500)));
+      const novos = {};
+      snap.forEach(x => {
+        const v = x.data() || {};
+        if (!v.chave || !(v.nota >= 1) || itens[v.chave]) return;
+        novos[v.chave] = { nome: v.nome || '', tipo: v.tipo || 'filme', nota: v.nota, ts: (v.ts && v.ts.toMillis) ? v.ts.toMillis() : 0 };
+      });
+      Object.assign(itens, novos);
+      await setDoc(ref, { itens: novos, backfillOk: true, atualizadoEm: serverTimestamp() }, { merge: true });
+      try { localStorage.setItem(flag, '1'); } catch (e) {}
+    } catch (e) {
+      if (e && e.code === 'permission-denied') { try { localStorage.setItem(flag, '1'); } catch (e2) {} }
+      console.warn('[Stats] notas antigas não importadas:', e && e.code || e);
+    }
+  }
+  return itens;
 }
 
 /* ───────── "Em alta" ───────── */
@@ -178,27 +227,39 @@ async function getTrending(opts) {
   }
 }
 
-/* ───────── widget de estrelas ───────── */
+/* ───────── widget de estrelas ─────────
+   Ele aparece LOGO ABAIXO dos botões do filme/série (não mais lá embaixo, perto dos
+   comentários) e tem cara de "ação principal": borda dourada, estrelas grandes e uma
+   piscadinha sutil enquanto a pessoa ainda não avaliou. */
 function injetarEstilo() {
   if (document.getElementById('pfxRateStyle')) return;
   const s = document.createElement('style'); s.id = 'pfxRateStyle';
   s.textContent = `
-.pfx-rate{margin:1.1rem 0;padding:1rem 1.1rem;background:var(--surface-2,#16161e);border:1px solid var(--border,rgba(255,255,255,.08));border-radius:var(--r-lg,16px)}
-.pfx-rate-top{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.pfx-rate-media{display:flex;flex-direction:column;align-items:center;min-width:64px;line-height:1.1}
-.pfx-rate-media b{font-family:var(--font-display,'Syne',system-ui,sans-serif);font-size:1.9rem;color:var(--text-1,#f0f0f6)}
-.pfx-rate-media span{font-size:.7rem;color:var(--text-3,#5a5a72);margin-top:.2rem;text-align:center}
-.pfx-rate-main{flex:1;min-width:220px}
-.pfx-rate-titulo{font-size:.82rem;color:var(--text-3,#5a5a72);margin:0 0 .35rem}
-.pfx-rate-stars{display:flex;gap:.15rem}
-.pfx-rate-star{background:none;border:0;padding:.1rem .12rem;font-size:1.9rem;line-height:1;color:var(--border-light,rgba(255,255,255,.18));transition:transform .12s ease,color .12s ease}
-.pfx-rate-star.on{color:#ffb020}
-.pfx-rate-star:hover{transform:scale(1.14)}
-.pfx-rate-star:focus-visible{outline:2px solid var(--red,#ff2d43);outline-offset:2px;border-radius:6px}
-.pfx-rate-rotulo{min-height:1.3em;margin:.35rem 0 0;font-weight:600;font-size:.92rem;color:var(--text-1,#f0f0f6)}
-.pfx-rate-info{margin:.55rem 0 0;font-size:.78rem;color:var(--text-3,#5a5a72)}
-.pfx-rate-info a{color:var(--red,#ff2d43)}
-@media (prefers-reduced-motion:reduce){.pfx-rate-star{transition:none}.pfx-rate-star:hover{transform:none}}`;
+.pfx-rate{position:relative;margin:1.35rem 0 0;padding:1.15rem 1.3rem 1.05rem;max-width:580px;border-radius:var(--r-lg,18px);
+  background:linear-gradient(135deg,rgba(255,176,32,.16),rgba(255,45,67,.10) 72%),var(--surface-2,#16161e);
+  border:1.5px solid rgba(255,176,32,.5);box-shadow:0 14px 44px rgba(255,176,32,.14),0 0 0 4px rgba(255,176,32,.06)}
+.pfx-rate-top{display:flex;align-items:center;gap:1rem 1.4rem;flex-wrap:wrap}
+.pfx-rate-main{flex:1 1 270px;min-width:0}
+.pfx-rate-titulo{margin:0;font:800 clamp(1.1rem,2.8vw,1.35rem)/1.2 var(--font-display,'Syne',system-ui,sans-serif);color:var(--text-1,#f0f0f6);letter-spacing:-.01em}
+.pfx-rate-sub{margin:.25rem 0 .6rem;font-size:.82rem;color:var(--text-2,#a0a0b8)}
+.pfx-rate-stars{display:flex;gap:.25rem;margin-left:-.2rem}
+.pfx-rate-star{background:none;border:0;padding:.05rem .1rem;font-size:clamp(2.2rem,7vw,2.9rem);line-height:1;color:rgba(255,176,32,.28);cursor:pointer;
+  transition:transform .12s ease,color .12s ease,text-shadow .12s ease}
+.pfx-rate-star.on{color:#ffb020;text-shadow:0 0 18px rgba(255,176,32,.55)}
+.pfx-rate-star:hover{transform:scale(1.16)}
+.pfx-rate-star:focus-visible{outline:2px solid var(--red,#ff2d43);outline-offset:2px;border-radius:8px}
+.pfx-rate-rotulo{min-height:1.4em;margin:.4rem 0 0;font-weight:700;font-size:1rem;color:var(--text-1,#f0f0f6)}
+.pfx-rate-media{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:84px;padding:.6rem .9rem;border-radius:14px;
+  background:rgba(127,127,127,.14);border:1px solid var(--border,rgba(255,255,255,.1));line-height:1.1}
+.pfx-rate-media b{font-family:var(--font-display,'Syne',system-ui,sans-serif);font-size:2rem;color:var(--text-1,#f0f0f6)}
+.pfx-rate-media span{font-size:.7rem;color:var(--text-3,#8a8aa0);margin-top:.25rem;text-align:center}
+.pfx-rate-info{margin:.7rem 0 0;font-size:.78rem;color:var(--text-3,#8a8aa0)}
+.pfx-rate-info a{color:var(--red,#ff2d43);font-weight:600}
+@keyframes pfxStarPing{0%,68%,100%{transform:scale(1)}84%{transform:scale(1.2)}}
+.pfx-rate:not(.is-rated) .pfx-rate-star{animation:pfxStarPing 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*.13s)}
+.pfx-rate:not(.is-rated) .pfx-rate-star:hover{animation:none}
+@media (max-width:520px){.pfx-rate{padding:1rem 1rem .95rem}.pfx-rate-media{flex-direction:row;gap:.6rem;width:100%;justify-content:flex-start}.pfx-rate-media span{margin:0;text-align:left}}
+@media (prefers-reduced-motion:reduce){.pfx-rate-star{transition:none;animation:none!important}.pfx-rate-star:hover{transform:none}}`;
   document.head.appendChild(s);
 }
 
@@ -212,14 +273,18 @@ async function montarWidget(alvo, item) {
   injetarEstilo();
   box.innerHTML = '';
   const wrap = document.createElement('div'); wrap.className = 'pfx-rate';
+  const SUB_NOVA = 'Como foi a pipoca? Toque nas estrelas 🍿';
+  const SUB_FEITA = 'Sua nota está salva. Toque numa estrela pra mudar quando quiser.';
+  const qual = item.isSerie ? 'a série' : 'o filme';   // "Dê sua nota para o filme" / "...para a série"
   wrap.innerHTML =
     '<div class="pfx-rate-top">' +
-      '<div class="pfx-rate-media" aria-live="polite"><b data-r="media">–</b><span data-r="qtd">sem notas ainda</span></div>' +
       '<div class="pfx-rate-main">' +
-        '<p class="pfx-rate-titulo">Como foi a pipoca?</p>' +
-        '<div class="pfx-rate-stars" role="radiogroup" aria-label="Sua avaliação de 1 a 5"></div>' +
+        '<p class="pfx-rate-titulo"><span aria-hidden="true">⭐</span> Dê sua nota para ' + qual + '</p>' +
+        '<p class="pfx-rate-sub" data-r="sub">' + SUB_NOVA + '</p>' +
+        '<div class="pfx-rate-stars" role="radiogroup" aria-label="Sua nota para ' + qual + ', de 1 a 5"></div>' +
         '<p class="pfx-rate-rotulo" data-r="rotulo" aria-live="polite"></p>' +
       '</div>' +
+      '<div class="pfx-rate-media" aria-live="polite"><b data-r="media">–</b><span data-r="qtd">sem notas ainda</span></div>' +
     '</div>' +
     '<p class="pfx-rate-info" data-r="info"></p>';
   box.appendChild(wrap);
@@ -231,7 +296,7 @@ async function montarWidget(alvo, item) {
   const estrelas = [];
   for (let i = 1; i <= 5; i++) {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'pfx-rate-star'; b.textContent = '★';
+    b.type = 'button'; b.className = 'pfx-rate-star'; b.textContent = '★'; b.style.setProperty('--i', String(i - 1));
     b.setAttribute('role', 'radio'); b.setAttribute('aria-label', i + ' — ' + ROTULOS[i]);
     b.addEventListener('mouseenter', () => pintar(i, ROTULOS[i]));
     b.addEventListener('focus', () => pintar(i, ROTULOS[i]));
@@ -244,6 +309,8 @@ async function montarWidget(alvo, item) {
   function pintar(n, rotulo) {
     estrelas.forEach((b, idx) => { b.classList.toggle('on', idx < n); b.setAttribute('aria-checked', String(idx + 1 === minha)); });
     $('rotulo').textContent = rotulo || '';
+    wrap.classList.toggle('is-rated', minha > 0);          // para a piscadinha quando já avaliou
+    $('sub').textContent = minha > 0 ? SUB_FEITA : SUB_NOVA;
   }
   function desenharResumo() {
     $('media').textContent = resumo.qtd ? resumo.media.toFixed(1).replace('.', ',') : '–';
@@ -285,4 +352,4 @@ async function montarWidget(alvo, item) {
   if (window.PipocaAuth && window.PipocaAuth.onAuthChanged) window.PipocaAuth.onAuthChanged(u => { if (u) carregarMinha(); else { minha = 0; pintar(0, ''); desenharResumo(); } });
 }
 
-window.PipocaStats = { ROTULOS, chave, semanaId, registrarView, getResumo, getMinhaNota, avaliar, getTrending, montarWidget };
+window.PipocaStats = { ROTULOS, chave, semanaId, registrarView, getResumo, getMinhaNota, getMinhasNotas, avaliar, getTrending, montarWidget };
