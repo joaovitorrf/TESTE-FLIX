@@ -5339,6 +5339,8 @@ html { scroll-padding-top: 84px; }                    /* links tipo #pedidos nã
 
 /* ── 9) Avaliação por estrelas (o resto do estilo vem do stats.js) ─────────── */
 .rating-wrap { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+/* dentro do bloco de detalhes do filme/série (logo abaixo dos botões): sem o recuo/centralização da versão antiga */
+.rating-wrap--hero { max-width: none; margin: 0; padding: 0; }
 /* elementos que o JS esconde com o atributo [hidden] mas que têm display próprio: sem isto o display ganharia do hidden */
 .ped-resultados[hidden], .perf-selo[hidden], .perf-painel[hidden], .pfx-c-erro[hidden] { display: none !important; }
 
