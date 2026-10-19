@@ -556,11 +556,15 @@
 
 <!-- ═══ SCRIPTS ═══ -->
 <script src="assets/js/security.js"></script>
+<script src="assets/js/sync-core.js"></script>
 <script src="assets/js/favoritos.js"></script>
+<script src="assets/js/watched.js"></script>
 <script src="assets/js/progress.js"></script>
+<script type="module" src="assets/js/sync.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
+<script src="assets/js/preview-hover.js"></script>
 <script>
 /* ═══════════════════════════════════════════════════════
    PIPOCAFLIX INDEX.JS v2 — com todas as novas features
@@ -568,26 +572,7 @@
 
 // ── PipocaProgress (Tarefa 1) — agora carregado de assets/js/progress.js ──
 
-// ── PipocaWatched — salva filmes/séries marcados como assistidos ──
-window.PipocaWatched = (function() {
-  const KEY = 'pflix_watched_list';
-  function getAll() {
-    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
-  }
-  function add(item) {
-    // item = { nome, capa, tipo, ts }
-    const all = getAll().filter(i => i.nome !== item.nome);
-    all.unshift({ ...item, ts: Date.now() });
-    try { localStorage.setItem(KEY, JSON.stringify(all.slice(0, 500))); } catch {}
-  }
-  function remove(nome) {
-    const all = getAll().filter(i => i.nome !== nome);
-    try { localStorage.setItem(KEY, JSON.stringify(all)); } catch {}
-  }
-  function has(nome) { return getAll().some(i => i.nome === nome); }
-  function clear() { try { localStorage.removeItem(KEY); } catch {} }
-  return { add, remove, has, getAll, clear };
-})();
+// ── PipocaWatched — agora carregado de assets/js/watched.js (sincroniza com a conta) ──
 
 
 // ── Clicks tracking (Tarefa 7) ──
@@ -844,6 +829,10 @@ function setupCarouselArrows(trackId, prevId, nextId) {
   var next  = document.getElementById(nextId);
   if (!track || !prev || !next) return;
 
+  // Já ligado antes (a seção foi redesenhada, ex.: chegou mudança de outro aparelho)? Só atualiza
+  // as setas — ligar de novo empilharia cliques (a seta andaria 2x, 3x…) e listeners no document.
+  if (track._carrosselPronto) { track._carrosselPronto(); return; }
+
   var STEP = 680;
 
   function updArrows() {
@@ -865,6 +854,7 @@ function setupCarouselArrows(trackId, prevId, nextId) {
   });
   track.addEventListener('scroll', updArrows, { passive: true });
   updArrows();
+  track._carrosselPronto = updArrows;
 
   // Drag desktop — lógica isolada por track (sem conflito de múltiplos listeners)
   var _drag = { active: false, startX: 0, startScroll: 0, dist: 0 };
@@ -987,7 +977,8 @@ function renderContinueSection() {
       isSerie: isSerie,
       categoria: subTitulo, ano: '', sinopse: '', audio: ''
     };
-    const card = mkCard(item, { pct: prog.pct, wide: true });
+    // "último aberto" (player embedado) não tem minuto salvo: sem barra de progresso
+    const card = mkCard(item, { pct: prog.origem === 'embed' ? null : prog.pct, wide: true });
 
     // Corrige o link do card para usar nomeLink (nome da série, não do episódio)
     card.addEventListener('click', function(e) {
@@ -1003,28 +994,13 @@ function renderContinueSection() {
     ovBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>';
     ovBtn.addEventListener('click', e => {
       e.stopPropagation();
+      // Limpa o card inteiro (todos os episódios da série) — e deixa registrado pros outros
+      // aparelhos também tirarem de "Continuar assistindo".
       if (isSerie && prog.serieNome) {
-        // Remove todos eps da série do progresso
-        const all = window.PipocaProgress.getAll();
-        all.forEach(p => {
-          if (p.tipo === 'serie' && p.serieNome === prog.serieNome) {
-            window.PipocaProgress.remove(p.titulo);
-          }
-        });
-        // Remove também por nome da série diretamente
-        window.PipocaProgress.remove(prog.serieNome);
+        window.PipocaProgress.removeAllFor(prog.serieNome, 'serie');
         window.PipocaWatched.add({ nome: prog.serieNome, capa: prog.capa, tipo: 'serie' });
       } else {
-        window.PipocaProgress.remove(prog.titulo);
-        // Limpeza extra: varre localStorage por chave parecida
-        const normKey = (prog.titulo||'').toLowerCase().normalize('NFD')
-          .replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'_');
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith('pflix_progress_') && k.includes(normKey.slice(0,15))) {
-            localStorage.removeItem(k);
-          }
-        }
+        window.PipocaProgress.removeAllFor(prog.titulo, isSerie ? 'serie' : 'filme');
         window.PipocaWatched.add({ nome: prog.titulo, capa: prog.capa, tipo: prog.tipo || 'filme' });
       }
       renderContinueSection();
@@ -1048,6 +1024,13 @@ function renderFavSection() {
   favs.slice(0,10).forEach(item => track.appendChild(mkCard(item)));
   setupCarouselArrows('favTrack', 'favPrev', 'favNext');
 }
+
+// Mudança vinda de outro aparelho (ou de outra aba): redesenha as seções que dependem disso.
+window.addEventListener('pflix:sync', function (e) {
+  var t = e.detail && e.detail.tipo;
+  if (t === 'continuar' || t === '*') { if (document.getElementById('continueSection')) renderContinueSection(); }
+  if (t === 'favoritos' || t === '*') { if (document.getElementById('favSection')) renderFavSection(); }
+});
 
 // ── Seção Em Alta ──
 async function renderHotSection(allContent) {

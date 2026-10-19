@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/perfil-game.css">
 <script>
 // Aplicar tema ANTES do render para evitar flash
 (function(){
@@ -171,6 +172,7 @@
         <h1 id="profileName"></h1>
         <p id="profileEmail"></p>
         <span class="perf-selo" id="seloVip" hidden>⭐ Assinante VIP</span>
+        <button type="button" class="pfx-g-chip" id="pfxStreakChip" hidden aria-label="Sua sequência de dias — abrir conquistas"></button>
         <div class="perf-acoes">
           <button type="button" class="perf-btn perf-btn--main" id="btnEditPerfil">✏️ Editar perfil</button>
           <button type="button" class="perf-btn" id="btnSair">Sair da conta</button>
@@ -191,6 +193,8 @@
           <button type="button" role="tab" class="perf-tab" data-tab="assistidos" id="tab-assistidos" aria-controls="painel-assistidos"><span class="perf-tab-ico" aria-hidden="true">✅</span><span class="perf-tab-txt">Assistidos</span><span class="perf-tab-n" data-n="assistidos"></span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="favoritos" id="tab-favoritos" aria-controls="painel-favoritos"><span class="perf-tab-ico" aria-hidden="true">❤️</span><span class="perf-tab-txt">Favoritos</span><span class="perf-tab-n" data-n="favoritos"></span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="andamento" id="tab-andamento" aria-controls="painel-andamento"><span class="perf-tab-ico" aria-hidden="true">▶️</span><span class="perf-tab-txt">Em andamento</span><span class="perf-tab-n" data-n="andamento"></span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="ano" id="tab-ano" aria-controls="painel-ano"><span class="perf-tab-ico" aria-hidden="true">🎬</span><span class="perf-tab-txt">Seu ano</span></button>
+          <button type="button" role="tab" class="perf-tab" data-tab="conquistas" id="tab-conquistas" aria-controls="painel-conquistas"><span class="perf-tab-ico" aria-hidden="true">🏆</span><span class="perf-tab-txt">Conquistas</span><span class="perf-tab-n" data-n="conquistas"></span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="comentarios" id="tab-comentarios" aria-controls="painel-comentarios"><span class="perf-tab-ico" aria-hidden="true">💬</span><span class="perf-tab-txt">Meus comentários</span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="reports" id="tab-reports" aria-controls="painel-reports"><span class="perf-tab-ico" aria-hidden="true">🚩</span><span class="perf-tab-txt">Meus reports</span></button>
           <button type="button" role="tab" class="perf-tab" data-tab="listas" id="tab-listas" aria-controls="painel-listas"><span class="perf-tab-ico" aria-hidden="true">📋</span><span class="perf-tab-txt">Minhas listas</span></button>
@@ -213,6 +217,16 @@
         <section role="tabpanel" class="perf-painel" id="painel-andamento" data-panel="andamento" aria-labelledby="tab-andamento" hidden>
           <header class="perf-painel-topo"><h2>▶️ Em andamento</h2></header>
           <div id="profileProgress" class="perf-grid"></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-ano" data-panel="ano" aria-labelledby="tab-ano" hidden>
+          <header class="perf-painel-topo"><h2>🎬 Seu ano no PipocaFlix</h2></header>
+          <div id="pfxAno"><p class="pfx-g-carregando">Carregando…</p></div>
+        </section>
+
+        <section role="tabpanel" class="perf-painel" id="painel-conquistas" data-panel="conquistas" aria-labelledby="tab-conquistas" hidden>
+          <header class="perf-painel-topo"><h2>🏆 Conquistas</h2></header>
+          <div id="pfxConquistas"><p class="pfx-g-carregando">Carregando…</p></div>
         </section>
 
         <section role="tabpanel" class="perf-painel" id="painel-comentarios" data-panel="comentarios" aria-labelledby="tab-comentarios" hidden>
@@ -280,13 +294,18 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/security.js"></script>
+<script src="assets/js/sync-core.js"></script>
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/watched.js"></script>
 <script src="assets/js/progress.js"></script>
+<script type="module" src="assets/js/sync.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script type="module" src="assets/js/listas.js"></script>
 <script type="module" src="assets/js/pedidos.js"></script>
+<script type="module" src="assets/js/stats.js"></script>
+<script type="module" src="assets/js/atividade.js"></script>
+<script src="assets/js/wrapped.js"></script>
 
 <script>
 // Toast
@@ -347,7 +366,7 @@ function $(id){ return document.getElementById(id); }
 function vazio(el, msg){ el.innerHTML = '<p class="perf-vazio">'+msg+'</p>'; }
 
 /* ── Abas ── */
-var TABS = ['assistidos','favoritos','andamento','comentarios','reports','listas','pedidos','convites'];
+var TABS = ['assistidos','favoritos','andamento','ano','conquistas','comentarios','reports','listas','pedidos','convites'];
 function abrirAba(nome, foco) {
   if (TABS.indexOf(nome) === -1) nome = 'assistidos';
   document.querySelectorAll('.perf-tab').forEach(function(b){
@@ -409,7 +428,7 @@ function renderLocais() {
   var p = prog.map(function(i){
     var serie = i.tipo === 'serie';
     var nome = serie && i.serieNome ? i.serieNome : i.titulo;
-    return { nome:nome, capa:i.capa||'', isSerie:serie, pct:i.pct||0, rotulo: serie && i.serieNome ? i.serieNome + ' — ' + i.titulo : i.titulo };
+    return { nome:nome, capa:i.capa||'', isSerie:serie, pct:(i.origem === 'embed' ? null : (i.pct||0)), rotulo: serie && i.serieNome ? i.serieNome + ' — ' + i.titulo : i.titulo };
   }).filter(function(i){return i.nome;});
 
   $('statAssistidos').textContent = w.length; $('statFavoritos').textContent = f.length; $('statProgresso').textContent = p.length;
@@ -432,6 +451,7 @@ function renderVip() {
   var v = window.PipocaVIP; var el = $('seloVip');
   if (el) el.hidden = !(v && v.ativo);
 }
+window.addEventListener('pflix:sync', function(){ if (usuarioAtual) renderLocais(); });   // outro aparelho mudou favoritos/assistidos/continuar
 document.addEventListener('pflix:vip-checado', renderVip);
 document.addEventListener('pflix:vip-ativo', renderVip);
 window.addEventListener('pflix:perfil', function(){ renderCabecalho(usuarioAtual); });

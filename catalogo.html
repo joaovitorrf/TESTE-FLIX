@@ -306,10 +306,13 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/security.js"></script>
+<script src="assets/js/sync-core.js"></script>
 <script src="assets/js/favoritos.js"></script>
+<script type="module" src="assets/js/sync.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
+<script src="assets/js/preview-hover.js"></script>
 <script>
 const PER_PAGE = 10;
 let allContent = [], filtered = [], currentPage = 1;
@@ -712,6 +715,7 @@ async function init() {
 
     if (!isFavMode) setupSidebarFilters();
     applyAllFilters();
+    _catPronto = true;
 
   } catch(err) {
     console.error('[PipocaFlix Catálogo]', err);
@@ -722,6 +726,13 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// "Minha Lista": chegou mudança de outro aparelho (ou de outra aba) → atualiza a grade.
+let _catPronto = false;
+window.addEventListener('pflix:sync', (e) => {
+  const t = e.detail && e.detail.tipo;
+  if (_catPronto && isFavMode && (t === 'favoritos' || t === '*')) applyAllFilters();
+});
 
 // ── Hamburger ──
 (function(){

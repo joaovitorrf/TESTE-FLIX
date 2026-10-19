@@ -45,7 +45,7 @@
 <div class="institucional-wrap">
   <span class="inst-badge">🔒 Privacidade</span>
   <h1>Política de Privacidade</h1>
-  <p><strong>Última atualização:</strong> Junho de 2025</p>
+  <p><strong>Última atualização:</strong> Outubro de 2026</p>
   <p>Esta Política de Privacidade descreve como o PipocaFlix coleta, usa e protege suas informações ao utilizar nosso site.</p>
 
   <h2>1. Dados Coletados</h2>
@@ -60,14 +60,18 @@
   <p>Se você participar do programa de convites, guardamos o código do convite que você usou ou gerou, e quem convidou vê apenas o seu primeiro nome e seu e-mail parcialmente oculto.</p>
 
   <h2>2. Dados Armazenados Localmente (localStorage)</h2>
-  <p>Para melhorar sua experiência, armazenamos no seu navegador (sem envio a servidores):</p>
+  <p>Para melhorar sua experiência, armazenamos no seu navegador:</p>
   <ul>
     <li><strong>pflix_theme:</strong> preferência de tema (claro/escuro);</li>
-    <li><strong>pflix_progress_*:</strong> progresso de visualização por título;</li>
+    <li><strong>pflix_progress_*:</strong> último título (e episódio) que você abriu, usado em "Continuar assistindo";</li>
     <li><strong>pflix_watched_list:</strong> lista de títulos marcados como assistidos;</li>
-    <li><strong>pflix_fav_*:</strong> títulos adicionados à sua lista de favoritos;</li>
+    <li><strong>pflix_favoritos:</strong> títulos adicionados à sua lista de favoritos;</li>
+    <li><strong>pflix_tomb_*</strong> e <strong>pflix_sync_uid:</strong> controle interno da sincronização (marca o que você removeu e de qual conta são os dados deste navegador);</li>
+    <li><strong>pflix_atv_pend_*:</strong> tempo assistido que ainda não foi enviado à sua conta;</li>
+    <li><strong>pflix_game_seen_*:</strong> conquistas que você já viu no perfil;</li>
     <li><strong>pflix_clicks:</strong> contador de cliques para funcionalidades internas.</li>
   </ul>
+  <p>Se você estiver logado, parte disso também é guardada na sua conta — veja a seção 7.</p>
 
   <h2>3. Cookies</h2>
   <p>Utilizamos cookies de sessão e de terceiros. Para mais detalhes, consulte nossa <a href="cookies.html">Política de Cookies</a>.</p>
@@ -81,7 +85,16 @@
   <h2>6. Comentários (Firebase Firestore)</h2>
   <p>Ao publicar comentários, seu nome de exibição, foto de perfil e texto do comentário são armazenados no Firebase Firestore e ficam visíveis publicamente para outros usuários.</p>
 
-  <h2>7. Seus Direitos (LGPD)</h2>
+  <h2>7. Sincronização entre aparelhos, atividade e "Seu ano no PipocaFlix"</h2>
+  <p>Quando você está logado, guardamos na sua conta (Firebase Firestore), em um espaço que só você acessa:</p>
+  <ul>
+    <li>seus <strong>favoritos</strong>, <strong>títulos assistidos</strong> e o <strong>último título/episódio aberto</strong> ("Continuar assistindo"), para aparecerem iguais no celular e no computador;</li>
+    <li>as <strong>notas</strong> que você deu a filmes e séries;</li>
+    <li>sua <strong>atividade</strong>: o tempo em que o player ficou aberto, somado por dia, por hora do dia e por título (é uma estimativa — não sabemos o minuto exato do vídeo, que roda em players de terceiros). Isso alimenta sua sequência de dias, suas conquistas e o resumo "Seu ano no PipocaFlix".</li>
+  </ul>
+  <p>Esses dados aparecem só para você e não são usados para publicidade. A imagem do resumo anual é gerada no seu próprio navegador e só é compartilhada se você escolher compartilhar. Para apagar esses dados, fale com a gente pelo contato abaixo.</p>
+
+  <h2>8. Seus Direitos (LGPD)</h2>
   <p>Em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018), você tem direito a:</p>
   <ul>
     <li>Acessar os dados que temos sobre você;</li>
@@ -90,7 +103,7 @@
     <li>Revogar o consentimento a qualquer momento.</li>
   </ul>
 
-  <h2>8. Contato</h2>
+  <h2>9. Contato</h2>
   <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade, entre em contato: <a href="mailto:contato@pipocaflix.com">contato@pipocaflix.com</a></p>
 </div>
 

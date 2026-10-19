@@ -180,6 +180,9 @@
         </button>
         <button class="btn-secondary" id="reportarBtn" title="Relatar um problema com esta série">🚩 Reportar problema</button>
       </div>
+      <!-- Avaliação por estrelas (montada por stats.js). Fica aqui, logo abaixo dos botões,
+           pra aparecer sem a pessoa precisar rolar a página até os comentários. -->
+      <div class="rating-wrap rating-wrap--hero" id="ratingBox"></div>
     </div>
   </div>
 </section>
@@ -265,9 +268,7 @@
 
 </div>
 <!-- ═══ COMENTÁRIOS FIREBASE ═══ -->
-<!-- Avaliação: 1 a 5 (Pipoca molhada → Pipoca gostosa) — montado por stats.js -->
-<div class="rating-wrap" id="ratingBox"></div>
-
+<!-- (a avaliação por estrelas agora fica no topo, dentro do bloco de detalhes — ver #ratingBox) -->
 <section class="comments-section" id="commentsSection">
   <h3 class="comments-title">💬 Comentários</h3>
   <div id="commentFormWrap">
@@ -481,14 +482,17 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/security.js"></script>
+<script src="assets/js/sync-core.js"></script>
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/watched.js"></script>
 <script src="assets/js/progress.js"></script>
+<script type="module" src="assets/js/sync.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/search.js"></script>
 <script type="module" src="assets/js/listas.js"></script>
 <script type="module" src="assets/js/reportar.js"></script>
 <script src="assets/js/thumb-loader.js"></script>
+<script src="assets/js/preview-hover.js"></script>
 <script src="assets/js/player.js"></script>
 <script>
 
@@ -590,7 +594,7 @@ function abrirPlayerIframe(src, nome) {
     '<div class="alt-player-frame-wrap" id="altPlayerFrameWrap">' +
       '<div class="alt-player-loading" id="altPlayerLoading">' +
         '<div class="alt-player-spinner"></div>' +
-        '<span>⏳ Carregando, aguarda aí irmão...</span>' +
+        '<span>🍿 Carregando espetáculo…</span>' +
       '</div>' +
       '<iframe src="' + src + '" class="alt-player-iframe" id="altPlayerIframe" allowfullscreen' +
       ' allow="autoplay; fullscreen; encrypted-media; picture-in-picture"' +
@@ -695,6 +699,12 @@ function showEpisodePlayerButtons(ep, titulo, videoUrl) {
   carregarOpcao(opcoes[idxEscolhido], botoes[idxEscolhido]);
   // Conta como visualização (vai pro "Em alta" — 1x a cada 6h por pessoa)
   if (window.PipocaStats && _serieItem) window.PipocaStats.registrarView(_serieItem);
+  // "Continuar assistindo" (último episódio aberto, vale em todos os aparelhos) e o tempo de
+  // sessão que alimenta a sequência de dias e o resumo do ano no perfil.
+  if (_serieItem) {
+    if (window.PipocaProgress) window.PipocaProgress.marcarInicio({ titulo: titulo, capa: _serieItem.capa, tipo: 'serie', serieNome: _serieItem.nome });
+    if (window.PipocaAtividade) window.PipocaAtividade.iniciarSessao({ nome: _serieItem.nome, capa: _serieItem.capa, isSerie: true, categoria: _serieItem.categoria });
+  }
 }
 
 function tocar(ep){
@@ -830,6 +840,11 @@ async function init(){
           : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Marcar como assistido';
       }
       syncWatchedBtn();
+      // mudou em outro aparelho (ou aba)? atualiza o botão
+      window.addEventListener('pflix:sync', function(e) {
+        var t = e.detail && e.detail.tipo;
+        if (t === 'assistidos' || t === '*') syncWatchedBtn();
+      });
       wBtn.addEventListener('click', function() {
         if (!window.PipocaWatched) return;
         if (window.PipocaWatched.has(item.nome)) {
@@ -837,19 +852,8 @@ async function init(){
           showToast('↩️ Removido dos assistidos');
         } else {
           window.PipocaWatched.add({ nome: item.nome, capa: item.capa, tipo: 'serie' });
-          if (window.PipocaProgress) {
-            window.PipocaProgress.remove(item.nome);
-            try { window.PipocaProgress.remove(decodeURIComponent(item.nome)); } catch(e) {}
-            var normNome = (item.nome || '').toLowerCase()
-              .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-              .replace(/[^a-z0-9]/g, '_');
-            for (var i = localStorage.length - 1; i >= 0; i--) {
-              var k = localStorage.key(i);
-              if (k && k.startsWith('pflix_progress_') && k.includes(normNome.slice(0, 15))) {
-                localStorage.removeItem(k);
-              }
-            }
-          }
+          // tira o filme/série (e todos os episódios) de "Continuar assistindo" aqui e nos outros aparelhos
+          if (window.PipocaProgress) window.PipocaProgress.removeAllFor(item.nome, 'serie');
           showToast('✅ Marcado como assistido!');
         }
         syncWatchedBtn();
@@ -858,7 +862,7 @@ async function init(){
 
     // Botão favorito no detalhe
     const favBtn=document.getElementById('favDetailBtn');
-    if(favBtn&&window.PipocaFavoritos){const updateFavBtn=()=>{const isFav=window.PipocaFavoritos.has(item.nome);favBtn.textContent=isFav?'❤️ Na lista':'🤍 Favoritar';};updateFavBtn();favBtn.addEventListener('click',()=>{const added=window.PipocaFavoritos.toggle(item);showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');updateFavBtn();});}
+    if(favBtn&&window.PipocaFavoritos){const updateFavBtn=()=>{const isFav=window.PipocaFavoritos.has(item.nome);favBtn.textContent=isFav?'❤️ Na lista':'🤍 Favoritar';};updateFavBtn();window.addEventListener('pflix:sync',(e)=>{const t=e.detail&&e.detail.tipo;if(t==='favoritos'||t==='*')updateFavBtn();});favBtn.addEventListener('click',()=>{const added=window.PipocaFavoritos.toggle(item);showToast(added?'❤️ Adicionado à sua lista':'💔 Removido da sua lista');updateFavBtn();});}
 
     // Botão "Minha Lista" (Premium) — abre o seletor/criador de listas
     const listaBtn=document.getElementById('listaDetailBtn');
@@ -964,5 +968,6 @@ document.addEventListener('DOMContentLoaded',init);
 <script src="assets/js/pflix-vip.js"></script>
 <script src="assets/js/acesso-vip.js"></script><script type="module" src="assets/js/conta.js"></script>
 <script type="module" src="assets/js/stats.js"></script>
+<script type="module" src="assets/js/atividade.js"></script>
 </body>
 </html>

@@ -181,11 +181,14 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/security.js" defer></script>
+<script src="assets/js/sync-core.js"></script>
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/watched.js"></script>
+<script type="module" src="assets/js/sync.js"></script>
 <script src="assets/js/api.js" defer></script>
 <script src="assets/js/search.js" defer></script>
 <script src="assets/js/thumb-loader.js"></script>
+<script src="assets/js/preview-hover.js"></script>
 <script>
 
 // ── Scroll / back-to-top ──
@@ -295,9 +298,11 @@ function renderAssistidos() {
 // ── Botão "Limpar tudo" ──
 function addClearBtn() {
   const items = window.PipocaWatched.getAll();
-  if (items.length === 0) return;
   const hero = document.querySelector('.assistidos-page-hero');
-  if (!hero || hero.querySelector('.btn-clear-watched')) return;
+  if (!hero) return;
+  const existente = hero.querySelector('.btn-clear-watched');
+  if (items.length === 0) { if (existente) existente.remove(); return; }   // lista vazia: sem botão
+  if (existente) return;
   const btn = document.createElement('button');
   btn.className = 'btn-watched btn-clear-watched';
   btn.style.marginTop = '0.75rem';
@@ -316,6 +321,12 @@ function addClearBtn() {
 document.addEventListener('DOMContentLoaded', () => {
   renderAssistidos();
   addClearBtn();
+});
+
+// Chegou mudança de outro aparelho (ou de outra aba): redesenha a lista.
+window.addEventListener('pflix:sync', (e) => {
+  const t = e.detail && e.detail.tipo;
+  if (t === 'assistidos' || t === '*') { renderAssistidos(); addClearBtn(); }
 });
 </script>
 

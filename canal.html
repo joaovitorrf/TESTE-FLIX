@@ -142,7 +142,7 @@
 
 <!-- Canal Detail -->
 <div class="canal-detail-wrap">
-  <div id="canalLoading" style="color:var(--text-3);font-size:1rem;padding:2rem 0">⏳ Carregando canal...</div>
+  <div id="canalLoading" style="color:var(--text-3);font-size:1rem;padding:2rem 0">🍿 Carregando espetáculo…</div>
   
   <div id="canalContent" style="display:none">
     <div class="canal-header">
@@ -154,6 +154,10 @@
     </div>
 
     <div class="canal-iframe-wrap" id="canalIframeWrap">
+      <div class="alt-player-loading" id="canalEmbedLoading" role="status">
+        <div class="alt-player-spinner" aria-hidden="true"></div>
+        <span>🍿 Carregando espetáculo…</span>
+      </div>
       <iframe id="canalIframe" src="" allowfullscreen
         allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         referrerpolicy="no-referrer-when-downgrade"
@@ -348,9 +352,22 @@ async function init() {
     const iframe = document.getElementById('canalIframe');
     const canalContent = document.getElementById('canalContent');
 
+    // "Carregando espetáculo…" por cima do embed até ele terminar de montar
+    // (com teto de segurança, caso o embed nunca dispare o evento 'load').
+    function mostrarCarregandoEmbed() {
+      var el = document.getElementById('canalEmbedLoading');
+      if (el) el.classList.remove('hidden');
+      setTimeout(ocultarCarregandoEmbed, 8000);
+    }
+    function ocultarCarregandoEmbed() {
+      var el = document.getElementById('canalEmbedLoading');
+      if (el) el.classList.add('hidden');
+    }
+
     function carregarPlayerVip(streamUrl) {
       // Esconde iframe público e monta player HLS/M3U
       iframe.style.display = 'none';
+      mostrarCarregandoEmbed();
       var wrap = document.getElementById('canalIframeWrap');
       var vipPlayer = document.createElement('div');
       vipPlayer.id = 'vipLivePlayer';
@@ -364,6 +381,8 @@ async function init() {
         vid.controls = true;
         vid.autoplay = true;
         vid.playsInline = true;
+        vid.addEventListener('loadeddata', ocultarCarregandoEmbed, { once: true });
+        vid.addEventListener('playing', ocultarCarregandoEmbed, { once: true });
         vipPlayer.appendChild(vid);
         wrap.appendChild(vipPlayer);
         // Carrega hls.js dinamicamente
@@ -387,6 +406,7 @@ async function init() {
         vipIframe.src = streamUrl;
         vipIframe.style.cssText = 'width:100%;height:100%;border:none';
         vipIframe.allowFullscreen = true;
+        vipIframe.addEventListener('load', ocultarCarregandoEmbed, { once: true });
         vipPlayer.appendChild(vipIframe);
         wrap.appendChild(vipPlayer);
       }
@@ -398,6 +418,12 @@ async function init() {
     }
 
     function carregarPlayerPublico() {
+      if (canal.embedUrl) {
+        mostrarCarregandoEmbed();
+        iframe.addEventListener('load', ocultarCarregandoEmbed, { once: true });
+      } else {
+        ocultarCarregandoEmbed();
+      }
       iframe.src = canal.embedUrl || '';
       iframe.style.display = 'block';
       // Aviso se embed vazio
