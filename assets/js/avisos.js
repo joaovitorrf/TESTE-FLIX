@@ -16,6 +16,19 @@
  * Basta incluir este script em qualquer página:
  *   <script src="assets/js/avisos.js" defer></script>
  */
+/* ⚡ Busca o CSV pelo Worker (cache no edge, bem mais rápido) e, se o Worker for a versão antiga
+   ou estiver fora, cai pro Google direto — exatamente como era antes. Devolve o texto ou null. */
+async function __pfCsvViaWorker(rota, urlDireta) {
+  try {
+    const r = await fetch("https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev" + rota);
+    if (r.ok) { const t = await r.text(); if (t && t.trim().charAt(0) !== "<") return t; }
+  } catch (e) {}
+  try {
+    const r2 = await fetch(urlDireta);
+    return r2.ok ? await r2.text() : null;
+  } catch (e) { return null; }
+}
+
 (function () {
   'use strict';
 
@@ -135,9 +148,8 @@
       return;
     }
     try {
-      const res = await fetch(CSV_URL);
-      if (!res.ok) return;
-      const csv = await res.text();
+      const csv = await __pfCsvViaWorker("/aba/avisos", CSV_URL);
+      if (!csv) return;
       setCachedCsv(csv);
       processarCsv(csv);
     } catch (e) {
@@ -227,9 +239,8 @@
     const c = csvDoCache();
     if (c) return c;
     try {
-      const res = await fetch(CSV_URL);
-      if (!res.ok) return null;
-      const csv = await res.text();
+      const csv = await __pfCsvViaWorker("/aba/atualizacao", CSV_URL);
+      if (!csv) return null;
       try { localStorage.setItem(CACHE_KEY, JSON.stringify({ csv: csv, ts: Date.now() })); } catch (e) {}
       return csv;
     } catch (e) {

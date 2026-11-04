@@ -221,8 +221,22 @@
     document.body.appendChild(a);
   }
 
+  // ─── liberação rápida pra quem JÁ É VIP (cache do pflix-vip.js) ───
+  // Quem pagou já tem "é VIP até <hora>" guardado no navegador (só vale se é VIP e nunca passa
+  // do vencimento). Em vez de deixar o "Carregando…" na tela até o Firebase baixar e logar,
+  // a página aparece na hora. A checagem de verdade continua rodando por trás; se NÃO
+  // confirmar (outra conta, VIP vencido…), a tela de bloqueio entra normalmente.
+  // Pra desligar: troque para false.
+  var LIBERAR_RAPIDO = true;
+  function vipEmCache() {
+    try {
+      var c = JSON.parse(localStorage.getItem('pflix_vip_cache') || 'null');
+      return !!(c && c.is_vip === true && c.email && Date.now() < new Date(c.cache_ate).getTime());
+    } catch (e) { return false; }
+  }
+
   async function iniciar() {
-    mostrarCarregando();
+    if (!(LIBERAR_RAPIDO && vipEmCache())) mostrarCarregando();
     await aguardarVip(); // quando termina, o login do Firebase já foi resolvido
     var vip = window.PipocaVIP || { ativo: false, erro: false };
     var trial = vip.ativo ? { ativo: false } : await checarTrial();

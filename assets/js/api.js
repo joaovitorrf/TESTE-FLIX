@@ -3,14 +3,21 @@
  * Integração Google Sheets via Worker Cloudflare
  *
  * Workers:
- *   WORKER_BASE    → filmes, series (planilha principal)
- *   EPISODES_WORKER → episodios (planilha separada, 7 abas)
+ *   WORKER_BASE    → filmes, series (planilha principal) + abas pequenas (/aba/top10, feed, canais…)
+ *   EPISODES_WORKER → episodios (planilha separada, 11 abas)
  *
- * MUDANÇA PRINCIPAL:
- *   Antes: getEpisodiosPorSerie() baixava as 7 abas INTEIRAS (~70k linhas)
- *          só pra filtrar os episódios de uma série.
- *   Agora: busca aba por aba e para assim que achar os episódios da série,
- *          sem carregar dados desnecessários.
+ * ── O QUE ESTA VERSÃO FAZ DE DIFERENTE (velocidade) ───────────────────────────────────────────
+ *  • Leitor de CSV mais rápido: linha sem aspas vira split(',') (antes era caractere por caractere).
+ *  • Nunca baixa a mesma planilha duas vezes ao mesmo tempo (várias páginas pediam séries 2x).
+ *  • Pré-busca: o <head> das páginas pode largar o download do CSV antes do resto da página
+ *    carregar (window.__pfPre) — o api.js aproveita esse download já em andamento.
+ *  • getFilmePorNome / getSeriePorNome: acha UM título sem transformar as ~30 mil linhas em
+ *    objetos (a página do filme/série só precisa de um).
+ *  • Episódios: em vez de transformar ~70 mil linhas em objetos pra achar os de UMA série, olha só
+ *    o nome (1ª coluna) de cada linha e só lê por completo as que são da série.
+ *  • Abas pequenas (Top 10, Feed, Canais, Plataformas, Seções, Avatares) passam pelo Worker
+ *    (cache no edge). Se o Worker for a versão antiga, cai sozinho pro Google, como antes.
+ *  • Top 10: coluna B da planilha diz se o título da coluna A é "Filme" ou "Serie".
  */
 
 const WORKER_BASE = "https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev";
@@ -29,44 +36,109 @@ const EPISODE_TABS = [
 
 // Cache em memória — filmes/séries: 5 min, episódios por série: 10 min
 const _cache = {};
+const _inflight = {};   // downloads em andamento (chave → Promise): evita baixar a mesma coisa 2x ao mesmo tempo
+const _linhas = {};     // CSV já separado em linhas (ainda não transformado em colunas)
 const CACHE_TTL_GERAL    = 5  * 60 * 1000;
 const CACHE_TTL_EPISODIOS = 10 * 60 * 1000;
 
-/* ─────────────────────────────────────────────
-   fetchCSV — filmes e séries (planilha principal)
-───────────────────────────────────────────── */
-async function fetchCSV(tab, retries = 3, delay = 1200) {
-  const cacheKey = tab;
-  if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_GERAL) {
-    return _cache[cacheKey].data;
-  }
-  const workerUrl = WORKER_BASE + ROUTES[tab];
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const ctrl  = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 10000);
-      const res = await fetch(workerUrl, {
-        signal:  ctrl.signal,
-        headers: { 'Accept': 'text/csv, text/plain, */*' }
-      });
-      clearTimeout(timer);
-      if (!res.ok) throw new Error(`HTTP ${res.status} ao buscar ${tab}`);
-      const text = await res.text();
-      const data = parseCSV(text);
-      _cache[cacheKey] = { data, ts: Date.now() };
-      return data;
-    } catch (err) {
-      if (attempt === retries) {
-        console.error(`[API] Falha ao buscar ${tab} após ${retries} tentativas:`, err);
-        return [];
-      }
-      await new Promise(r => setTimeout(r, delay * attempt));
-    }
-  }
+// Junta pedidos iguais que chegam ao mesmo tempo numa só Promise.
+function dedupe(chave, criar) {
+  if (_inflight[chave]) return _inflight[chave];
+  const p = Promise.resolve().then(criar).finally(() => { if (_inflight[chave] === p) delete _inflight[chave]; });
+  _inflight[chave] = p;
+  return p;
+}
+
+// Pré-busca largada pelo <head> da página (window.__pfPre[url] = fetch(url)). Só dá pra usar uma vez.
+function pegarPreBusca(url) {
+  try {
+    const m = window.__pfPre;
+    if (m && m[url]) { const p = m[url]; delete m[url]; return p; }
+  } catch (e) {}
+  return null;
 }
 
 /* ─────────────────────────────────────────────
-   fetchEpisodeTab — busca UMA aba de episódios
+   Quebra o texto do CSV em linhas de DADOS
+   (sem a linha de cabeçalho e sem linhas em branco).
+───────────────────────────────────────────── */
+function separarLinhas(text) {
+  if (text.indexOf('\r') !== -1) text = text.replace(/\r\n?/g, '\n');
+  const todas = text.split('\n');
+  const out = [];
+  let cabecalho = true;
+  for (let i = 0; i < todas.length; i++) {
+    const l = todas[i];
+    if (!l || !l.trim()) continue;
+    if (cabecalho) { cabecalho = false; continue; }
+    out.push(l);
+  }
+  return out;
+}
+
+function linhasParaRows(linhas) {
+  const rows = [];
+  for (let i = 0; i < linhas.length; i++) {
+    const r = parseCSVLine(linhas[i]);
+    if (r[0]) rows.push(r);       // já vem sem espaços nas pontas: vazio = linha sem nome
+  }
+  return rows;
+}
+
+/* ─────────────────────────────────────────────
+   fetchCSVLines — baixa o CSV (filmes ou séries) e devolve as linhas
+───────────────────────────────────────────── */
+function fetchCSVLines(tab, retries = 3, delay = 1200) {
+  const c = _linhas[tab];
+  if (c && Date.now() - c.ts < CACHE_TTL_GERAL) return Promise.resolve(c.lines);
+  return dedupe('lines_' + tab, async () => {
+    const workerUrl = WORKER_BASE + ROUTES[tab];
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        let res = null;
+        if (attempt === 1) {
+          const pre = pegarPreBusca(workerUrl);
+          if (pre) { try { res = await pre; } catch (e) { res = null; } if (res && !res.ok) res = null; }
+        }
+        if (!res) {
+          const ctrl  = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 12000);
+          try {
+            res = await fetch(workerUrl, { signal: ctrl.signal, headers: { 'Accept': 'text/csv, text/plain, */*' } });
+          } finally { clearTimeout(timer); }
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status} ao buscar ${tab}`);
+        const lines = separarLinhas(await res.text());
+        _linhas[tab] = { lines, ts: Date.now() };
+        return lines;
+      } catch (err) {
+        if (attempt === retries) {
+          console.error(`[API] Falha ao buscar ${tab} após ${retries} tentativas:`, err);
+          return [];
+        }
+        await new Promise(r => setTimeout(r, delay * attempt));
+      }
+    }
+  });
+}
+
+/* ─────────────────────────────────────────────
+   fetchCSV — filmes e séries (planilha principal) → linhas já em colunas
+───────────────────────────────────────────── */
+function fetchCSV(tab, retries = 3, delay = 1200) {
+  const c = _cache[tab];
+  if (c && Date.now() - c.ts < CACHE_TTL_GERAL) return Promise.resolve(c.data);
+  return dedupe('csv_' + tab, async () => {
+    const lines = await fetchCSVLines(tab, retries, delay);
+    const data = linhasParaRows(lines);
+    if (lines.length) _cache[tab] = { data, ts: Date.now() };
+    delete _linhas[tab];            // o texto já virou colunas: libera a memória
+    return data;
+  });
+}
+
+/* ─────────────────────────────────────────────
+   fetchEpisodeTab — busca UMA aba de episódios (usado só por getEpisodios, que é raro)
 ───────────────────────────────────────────── */
 async function fetchEpisodeTab(route) {
   const cacheKey = 'ep_tab_' + route;
@@ -78,11 +150,7 @@ async function fetchEpisodeTab(route) {
     const timer = setTimeout(() => ctrl.abort(), 8000);
     const res = await fetch(EPISODES_WORKER + route, {
       signal: ctrl.signal,
-      headers: {
-        'Accept':  'text/csv, text/plain, */*',
-        'Origin':  location.origin,
-        'Referer': location.href
-      }
+      headers: { 'Accept': 'text/csv, text/plain, */*' }
     });
     clearTimeout(timer);
     if (!res.ok) {
@@ -103,16 +171,16 @@ async function fetchEpisodeTab(route) {
    parseCSV — parser robusto com suporte a aspas
 ───────────────────────────────────────────── */
 function parseCSV(text) {
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  const rows = [];
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    rows.push(parseCSVLine(line));
-  }
-  return rows.slice(1).filter(r => r && r[0] && r[0].trim());
+  return linhasParaRows(separarLinhas(text));
 }
 
 function parseCSVLine(line) {
+  // Caminho rápido: sem aspas não existe vírgula "escondida" dentro de campo.
+  if (line.indexOf('"') === -1) {
+    const cols = line.split(',');
+    for (let i = 0; i < cols.length; i++) cols[i] = cols[i].trim();
+    return cols;
+  }
   const cols = [];
   let cur = '';
   let inQuote = false;
@@ -132,18 +200,78 @@ function parseCSVLine(line) {
   return cols;
 }
 
+// Só o PRIMEIRO campo de uma linha CSV (já sem aspas e sem espaços nas pontas),
+// sem transformar a linha inteira em colunas. Qualquer caso estranho cai no parser completo.
+function primeiroCampo(line) {
+  if (line.charCodeAt(0) === 34) {                       // campo entre aspas
+    const n = line.length;
+    let i = 1;
+    while (i < n) {
+      if (line.charCodeAt(i) === 34) {
+        if (line.charCodeAt(i + 1) === 34) { i += 2; continue; }   // "" = aspas literal
+        break;
+      }
+      i++;
+    }
+    if (i < n && (i + 1 === n || line.charCodeAt(i + 1) === 44)) {
+      return line.slice(1, i).replace(/""/g, '"').trim();
+    }
+    return parseCSVLine(line)[0];
+  }
+  const c = line.indexOf(',');
+  const campo = c === -1 ? line : line.slice(0, c);
+  return campo.indexOf('"') === -1 ? campo.trim() : parseCSVLine(line)[0];
+}
+
 /* ─────────────────────────────────────────────
    parseCSVEpisodios — parser dedicado
    Filtra por coluna B (linkMP4) não vazia
 ───────────────────────────────────────────── */
 function parseCSVEpisodios(text) {
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
   const rows = [];
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    rows.push(parseCSVLine(line));
+  const linhas = separarLinhas(text);
+  for (let i = 0; i < linhas.length; i++) {
+    const r = parseCSVLine(linhas[i]);
+    if (r && r[1] && r[1].trim()) rows.push(r);
   }
-  return rows.slice(1).filter(r => r && r[1] && r[1].trim());
+  return rows;
+}
+
+/* ─────────────────────────────────────────────
+   Episódios de UMA série dentro do texto de uma aba:
+   olha só o nome (1ª coluna) de cada linha — e só lê por completo as que batem.
+───────────────────────────────────────────── */
+function filtrarEpisodiosDaSerie(text, nomeNorm) {
+  const out = [];
+  if (!nomeNorm) return out;
+  const linhas = separarLinhas(text);
+  const memo = new Map();       // o mesmo nome se repete em todos os episódios da série
+  for (let i = 0; i < linhas.length; i++) {
+    const linha = linhas[i];
+    const campo = primeiroCampo(linha);
+    let n = memo.get(campo);
+    if (n === undefined) { n = normalizeStr(campo); memo.set(campo, n); }
+    if (n !== nomeNorm) continue;
+    const r = parseCSVLine(linha);
+    if (r[1] && r[1].trim()) out.push(r);
+  }
+  return out;
+}
+
+async function buscarEpisodiosNaAba(route, nomeNorm) {
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    let res;
+    try {
+      res = await fetch(EPISODES_WORKER + route, { signal: ctrl.signal, headers: { 'Accept': 'text/csv, text/plain, */*' } });
+    } finally { clearTimeout(timer); }
+    if (!res.ok) { console.warn('[API] episódios', route, 'retornou', res.status); return { rows: [], ok: false }; }
+    return { rows: filtrarEpisodiosDaSerie(await res.text(), nomeNorm), ok: true };
+  } catch (err) {
+    console.warn('[API] episódios', route, 'erro:', err && err.message);
+    return { rows: [], ok: false };
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -248,6 +376,45 @@ async function getSeries() {
   return rows.map(mapSerie).filter(s => s.nome);
 }
 
+/* ─────────────────────────────────────────────
+   getFilmePorNome / getSeriePorNome
+   Acha UM título sem transformar o catálogo inteiro em objetos.
+   Regra igual à das páginas filme.html / serie.html:
+     1º nome IGUAL (sem acento/pontuação/maiúscula) → senão o 1º que "contém" / "está contido".
+   Devolve null se não achar (aí a página usa o caminho completo, como antes).
+───────────────────────────────────────────── */
+function acharRowPorNome(rows, alvo) {
+  let aprox = null;
+  for (let i = 0; i < rows.length; i++) {
+    const n = normalizeStr(rows[i][0]);
+    if (n === alvo) return rows[i];
+    if (!aprox && (n.includes(alvo) || alvo.includes(n))) aprox = rows[i];
+  }
+  return aprox;
+}
+function acharLinhaPorNome(linhas, alvo) {
+  let aprox = null;
+  for (let i = 0; i < linhas.length; i++) {
+    const n = normalizeStr(primeiroCampo(linhas[i]));
+    if (n === alvo) return parseCSVLine(linhas[i]);
+    if (!aprox && n && (n.includes(alvo) || alvo.includes(n))) aprox = linhas[i];
+  }
+  return aprox ? parseCSVLine(aprox) : null;
+}
+async function acharItemPorNome(tab, nome, mapper) {
+  const alvo = normalizeStr(String(nome || ''));
+  if (!alvo) return null;
+  const c = _cache[tab];
+  const row = (c && Date.now() - c.ts < CACHE_TTL_GERAL)
+    ? acharRowPorNome(c.data, alvo)
+    : acharLinhaPorNome(await fetchCSVLines(tab), alvo);
+  if (!row) return null;
+  const item = mapper(row);
+  return item.nome ? item : null;
+}
+async function getFilmePorNome(nome) { return acharItemPorNome('FILMES', nome, mapFilme); }
+async function getSeriePorNome(nome) { return acharItemPorNome('SERIES', nome, mapSerie); }
+
 async function getTodosConteudos() {
   const [filmes, series] = await Promise.all([getFilmes(), getSeries()]);
   return [...filmes, ...series];
@@ -274,40 +441,49 @@ async function getEpisodiosPorSerie(nomeSerieOriginal) {
     return _cache[cacheKey].data;
   }
 
-  console.log('[API] getEpisodiosPorSerie: buscando episódios de', nomeSerieOriginal);
+  // Se já tem uma busca desta série em andamento (ex.: a página pré-buscou), junta com ela.
+  return dedupe(cacheKey, async () => {
+    console.log('[API] getEpisodiosPorSerie: buscando episódios de', nomeSerieOriginal);
 
-  // Busca todas as abas em paralelo — mas só processa as que tiverem a série
-  const results = await Promise.all(EPISODE_TABS.map(fetchEpisodeTab));
+    // Todas as abas em paralelo — cada uma já devolve SÓ as linhas da série pedida
+    const resultados = await Promise.all(EPISODE_TABS.map(r => buscarEpisodiosNaAba(r, nomeNorm)));
 
-  const todosEpisodios = results
-    .flat()
-    .map(mapEpisodio)
-    .filter(e => e.linkMP4);
+    // Aba que falhou (rede / tempo esgotado) ganha UMA segunda chance. Antes, uma aba que
+    // falhava virava "sem episódios" e o resultado ficava no cache por 10 minutos.
+    const falhas = [];
+    resultados.forEach((x, i) => { if (!x.ok) falhas.push(i); });
+    if (falhas.length) {
+      const novas = await Promise.all(falhas.map(i => buscarEpisodiosNaAba(EPISODE_TABS[i], nomeNorm)));
+      falhas.forEach((idx, k) => { resultados[idx] = novas[k]; });
+    }
+    const algumaFalhou = resultados.some(x => !x.ok);
 
-  // Filtra só os episódios da série pedida
-  const filtrados = todosEpisodios.filter(e => {
-    const serieNorm = normalizeStr(e.serie);
-    return isNomeSerieMatch(serieNorm, nomeNorm);
+    const filtrados = resultados
+      .map(x => x.rows)
+      .flat()
+      .map(mapEpisodio)
+      .filter(e => e.linkMP4)
+      .filter(e => isNomeSerieMatch(normalizeStr(e.serie), nomeNorm));
+
+    console.log(`[API] getEpisodiosPorSerie: ${filtrados.length} episódios encontrados para "${nomeSerieOriginal}"`);
+
+    // Agrupa por temporada
+    const temporadas = {};
+    for (const ep of filtrados) {
+      if (!temporadas[ep.temporada]) temporadas[ep.temporada] = [];
+      temporadas[ep.temporada].push(ep);
+    }
+
+    // Ordena episódios dentro de cada temporada
+    for (const t in temporadas) {
+      temporadas[t].sort((a, b) => a.episodio - b.episodio);
+    }
+
+    // Salva no cache por série (se alguma aba falhou, NÃO salva: a próxima chamada tenta de novo)
+    if (!algumaFalhou) _cache[cacheKey] = { data: temporadas, ts: Date.now() };
+
+    return temporadas;
   });
-
-  console.log(`[API] getEpisodiosPorSerie: ${filtrados.length} episódios encontrados para "${nomeSerieOriginal}"`);
-
-  // Agrupa por temporada
-  const temporadas = {};
-  for (const ep of filtrados) {
-    if (!temporadas[ep.temporada]) temporadas[ep.temporada] = [];
-    temporadas[ep.temporada].push(ep);
-  }
-
-  // Ordena episódios dentro de cada temporada
-  for (const t in temporadas) {
-    temporadas[t].sort((a, b) => a.episodio - b.episodio);
-  }
-
-  // Salva no cache por série
-  _cache[cacheKey] = { data: temporadas, ts: Date.now() };
-
-  return temporadas;
 }
 
 /* ─────────────────────────────────────────────
@@ -365,12 +541,55 @@ function isNomeSerieMatch(serieNorm, nomeNorm) {
    getFeedNoticias — busca a aba Feed da planilha
    Coluna A: titulo | B: ativo (sim/nao) | C: conteudo | D: fotoPersonagem | E: imagemNoticia
 ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   fetchSheetText — abas pequenas da planilha "geral" (Top 10, Feed, Canais, Plataformas,
+   Seções, Avatares). Tenta o Worker (cache no edge, rápido); se o Worker for a versão
+   antiga ou falhar, busca direto no Google, como era antes.
+───────────────────────────────────────────── */
+const WORKER_ABAS = {
+  top10: '/aba/top10', feed: '/aba/feed', canais: '/aba/canais',
+  plataformas: '/aba/plataformas', secoes: '/aba/secoes', avatares: '/aba/avatares'
+};
+let _workerAbasOff = false;
+const _abaTexto = {};     // nome → { text, ts }   (cache curto, em memória)
+const CACHE_TTL_ABA = 2 * 60 * 1000;
+
+function fetchSheetText(nome, urlDireta) {
+  const c = _abaTexto[nome];
+  if (c && Date.now() - c.ts < CACHE_TTL_ABA) return Promise.resolve(c.text);
+  return dedupe('aba_' + nome, async () => {
+    const rota = WORKER_ABAS[nome];
+    let text = null;
+    if (rota && !_workerAbasOff) {
+      try {
+        const ctrl  = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 6000);
+        let res;
+        try { res = await fetch(WORKER_BASE + rota, { signal: ctrl.signal, headers: { 'Accept': 'text/csv, text/plain, */*' } }); }
+        finally { clearTimeout(timer); }
+        if (res.ok) {
+          const t = await res.text();
+          if (t && t.trim().charAt(0) !== '<') text = t;           // HTML = erro, não é CSV
+        } else if (res.status === 404 || res.status === 403) {
+          _workerAbasOff = true;                                    // Worker antigo (sem /aba/*): não insiste nesta visita
+        }
+      } catch (e) { /* cai pro Google direto */ }
+    }
+    if (text === null) {
+      const res = await fetch(urlDireta);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      text = await res.text();
+    }
+    _abaTexto[nome] = { text, ts: Date.now() };
+    return text;
+  });
+}
+
 const FEED_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=923245815';
 
 async function getFeedNoticias() {
   try {
-    const res = await fetch(FEED_SHEET_URL);
-    const text = await res.text();
+    const text = await fetchSheetText('feed', FEED_SHEET_URL);
     const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
     const rows = lines.slice(1).map(parseCSVLine).filter(r => r && r[0] && r[0].trim());
     return rows
@@ -406,8 +625,7 @@ async function getCanais() {
     return _cache[cacheKey].data;
   }
   try {
-    const res = await fetch(CANAIS_CSV_URL);
-    const text = await res.text();
+    const text = await fetchSheetText('canais', CANAIS_CSV_URL);
     const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
     const rows = lines.slice(1).map(parseCSVLine).filter(r => r && r[2] && r[2].trim());
     const data = rows.map(row => ({
@@ -455,25 +673,67 @@ window.PipocaAPI = {
 /* ─────────────────────────────────────────────
    getTop10 — busca a aba Top10 da planilha
    Coluna A: nome do filme/série (a partir da linha 2)
+   Coluna B: palavra-chave "Filme" ou "Serie" (opcional) — resolve o caso de um filme e uma
+             série com o MESMO nome. Sem palavra-chave, vale o comportamento antigo (filme primeiro).
 ───────────────────────────────────────────── */
 const TOP10_CSV_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=1557218892';
 
-async function getTop10Names() {
+// "Filme", "filmes", "FILME" → 'filme' | "Serie", "Série", "séries" → 'serie' | vazio/outra coisa → ''
+function tipoTop10(v) {
+  const t = normalizeStr(String(v || ''));
+  if (!t) return '';
+  const serie = t.indexOf('serie') !== -1, filme = t.indexOf('film') !== -1;
+  if (serie && !filme) return 'serie';
+  if (filme && !serie) return 'filme';
+  return '';
+}
+
+// → [{ nome, tipo: 'filme' | 'serie' | '' }, …] na ordem da planilha
+async function getTop10Items() {
   try {
-    const res = await fetch(TOP10_CSV_URL);
-    const text = await res.text();
+    const text = await fetchSheetText('top10', TOP10_CSV_URL);
     const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
-    // Pula linha 1 (cabeçalho), pega coluna A
+    // Pula linha 1 (cabeçalho). Coluna A = nome, coluna B = palavra-chave
     return lines.slice(1)
-      .map(l => parseCSVLine(l)[0])
-      .map(n => (n||'').trim())
-      .filter(n => n.length > 0);
+      .map(l => parseCSVLine(l))
+      .map(r => ({ nome: ((r && r[0]) || '').trim(), tipo: tipoTop10(r && r[1]) }))
+      .filter(x => x.nome.length > 0);
   } catch(e) {
-    console.error('[API] getTop10Names error:', e);
+    console.error('[API] getTop10Items error:', e);
     return [];
   }
 }
 
+// Só os nomes (mantido pra compatibilidade)
+async function getTop10Names() {
+  return (await getTop10Items()).map(i => i.nome);
+}
+
+/* resolverTop10(entradas, filmes, series) → itens do catálogo, na ordem da planilha.
+   - "Filme" → procura só entre os filmes; "Serie" → só entre as séries.
+   - sem palavra-chave → filme primeiro, depois série (comportamento antigo).
+   - título que não existe no catálogo é pulado (e o motivo aparece no console). */
+function resolverTop10(entradas, filmes, series) {
+  const alvos = new Set(entradas.map(e => normalizeStr(e.nome)));
+  const mapaF = new Map(), mapaS = new Map();
+  for (const f of filmes) { const k = normalizeStr(f.nome); if (alvos.has(k) && !mapaF.has(k)) mapaF.set(k, f); }
+  for (const s of series) { const k = normalizeStr(s.nome); if (alvos.has(k) && !mapaS.has(k)) mapaS.set(k, s); }
+  const out = [];
+  for (const e of entradas) {
+    const k = normalizeStr(e.nome);
+    const achou = e.tipo === 'serie' ? mapaS.get(k)
+                : e.tipo === 'filme' ? mapaF.get(k)
+                : (mapaF.get(k) || mapaS.get(k));
+    if (!achou) { console.warn('[Top10] não achei no catálogo:', e.nome + (e.tipo ? ' (' + e.tipo + ')' : '')); continue; }
+    if (out.indexOf(achou) === -1) out.push(achou);
+  }
+  return out;
+}
+
+window.PipocaAPI.getTop10Items = getTop10Items;
+window.PipocaAPI.resolverTop10 = resolverTop10;
+window.PipocaAPI.getFilmePorNome = getFilmePorNome;
+window.PipocaAPI.getSeriePorNome = getSeriePorNome;
 window.PipocaAPI.getTop10Names = getTop10Names;
 window.PipocaAPI.parseLegendas = parseLegendas;
 
@@ -491,8 +751,7 @@ async function getPlataformas() {
     return _cache[cacheKey].data;
   }
   try {
-    const res = await fetch(PLATAFORMAS_CSV_URL);
-    const text = await res.text();
+    const text = await fetchSheetText('plataformas', PLATAFORMAS_CSV_URL);
     const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
     const rows = lines.slice(1).map(parseCSVLine).filter(r => r && r[0] && r[0].trim());
     const data = rows.map(row => ({
@@ -755,9 +1014,7 @@ function parseCSVCompleto(text) {
 
 async function baixarAba(url, cacheKey) {
   if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_NOVAS_ABAS) return _cache[cacheKey].data;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const rows = parseCSVCompleto(await res.text());
+  const rows = parseCSVCompleto(await fetchSheetText(cacheKey.replace(/_csv$/, ''), url));
   _cache[cacheKey] = { data: rows, ts: Date.now() };
   return rows;
 }
