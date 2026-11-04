@@ -5489,3 +5489,64 @@ html { scroll-padding-top: 84px; }                    /* links tipo #pedidos nã
 .cv-perfil-box { display: flex; flex-direction: column; gap: 12px; }
 .cv-perfil-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
 .cv-perfil-cod { font: 800 1.5rem var(--font-display); letter-spacing: .14em; margin: 0; }
+
+/* ═══ RESPONSIVIDADE GERAL v2 — do celular pequeno (280px) até TV/4K ═══════════
+   Fica no FIM do arquivo de propósito: vence as regras antigas sem precisar de gambiarra.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* O texto não "incha" quando o celular gira */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* Altura de tela no celular: 100dvh acompanha a barra do navegador que sobe/desce (100vh não) */
+@supports (height: 100dvh) {
+  body { min-height: 100dvh; }
+}
+
+/* ── Catálogo: sidebar + grade ──────────────────────────────────────────────
+   Antes o layout era um style="" inline com 2 colunas fixas (240px + resto) que NUNCA era desfeito
+   no celular: a sidebar sumia, mas a coluna de 240px ficava — e os cards ficavam presos nela
+   (1 card gigante por linha). Agora o layout vive aqui e vira 1 coluna abaixo de 900px. */
+.catalogo-layout { padding: 1.25rem clamp(1rem, 5vw, 3.5rem) 2rem; }
+.content-with-sidebar { grid-template-columns: 240px minmax(0, 1fr); }
+@media (max-width: 900px) {
+  .content-with-sidebar { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .catalogo-layout { padding-top: 1rem; }
+}
+
+/* Grades de cards: no celular, SEMPRE 2 (ou mais) por linha. O tamanho mínimo da coluna encolhe junto com a tela */
+@media (max-width: 899px) {
+  .cards-grid { grid-template-columns: repeat(auto-fill, minmax(min(140px, 44vw), 1fr)) !important; }
+}
+@media (max-width: 339px) {
+  .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; }
+}
+
+/* ── Hero da home (celular): os pontinhos do carrossel ficavam POR CIMA do botão "Mais Infos" ── */
+@media (max-width: 768px) {
+  .hero-content { padding-bottom: 3.1rem; }
+  .hero-dots { bottom: 1rem; }
+}
+
+/* ── Perfil: estatísticas e abas cabem até em 280px (antes eram cortadas em silêncio) ── */
+.perf-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.perf-stats > div { min-width: 0; }
+.perf-tab { min-width: 0; }
+@media (max-width: 860px) {
+  .perf-menu-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 400px) {
+  .perf-stats > div { padding: 10px 6px; }
+  .perf-stats dd { font-size: 1.4rem; }
+}
+@media (max-width: 359px) {
+  .perf-tab { padding: 10px 8px; font-size: .8rem; gap: 6px; }
+}
+
+/* ── "Você também pode gostar" (páginas de filme/série): o card tinha largura fixa (200px) dentro de
+   colunas de ~135px → os cards se sobrepunham e o último de cada linha era cortado na borda da tela ── */
+.recommendations-grid .card { width: 100%; min-width: 0; }
+
+/* ── Telas grandes (monitor largo, TV, 4K): tudo cresce junto em vez de ficar minúsculo ── */
+@media (min-width: 1920px) { html { font-size: 112.5%; } }
+@media (min-width: 2400px) { html { font-size: 125%; } }
+@media (min-width: 3000px) { html { font-size: 150%; } }
