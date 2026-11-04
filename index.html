@@ -16,6 +16,18 @@
 <link rel="apple-touch-startup-image" href="assets/img/splash.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ⚡ Carregamento: conecta cedo ao Worker e ao Firebase, e já larga o download do catálogo
+     enquanto o resto da página ainda está sendo lido (o api.js aproveita esse download) -->
+<link rel="preconnect" href="https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js">
+<script>
+(function(){try{
+  var W='https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev',pre={};
+  ['/filmes','/series'].forEach(function(r){pre[W+r]=fetch(W+r,{headers:{'Accept':'text/csv, text/plain, */*'}});pre[W+r].catch(function(){});});
+  window.__pfPre=pre;
+}catch(e){}})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>
@@ -71,7 +83,6 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
@@ -86,7 +97,9 @@
   };
 
   const app      = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  // Analytics fica pra depois do carregamento: não disputa rede/CPU com o conteúdo
+  const _pfAnalytics = () => import("https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js").then(m => m.getAnalytics(app)).catch(() => {});
+  if (document.readyState === 'complete') setTimeout(_pfAnalytics, 800); else window.addEventListener('load', () => setTimeout(_pfAnalytics, 800));
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
 
@@ -1299,24 +1312,34 @@ function discoverRandom() {
 }
 
 // ── Top 10 ──
-async function renderTop10(allContent) {
+// Planilha "Top10": coluna A = nome, coluna B = "Filme" ou "Serie".
+// Isso resolve o caso de um filme e uma série com o MESMO nome (antes o filme sempre ganhava).
+// Coluna B vazia = comportamento antigo (filme primeiro).
+async function renderTop10(allContent, filmes, series) {
   var track = document.getElementById('top10Track');
   if (!track) return;
   track.innerHTML = '<div style="color:var(--text-3);padding:20px">Carregando Top 10...</div>';
 
-  // Busca nomes da planilha
-  var top10Names = [];
-  try { top10Names = await window.PipocaAPI.getTop10Names(); } catch(e) {}
+  var API = window.PipocaAPI;
+  var entradas = [];
+  try {
+    if (API.getTop10Items) entradas = await API.getTop10Items();
+    else entradas = (await API.getTop10Names()).map(function(n){ return { nome: n, tipo: '' }; });
+  } catch(e) {}
 
   var top10 = [];
-  if (top10Names.length > 0) {
-    // Faz match pelo nome (normalizado)
-    var norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,'').trim();
-    top10Names.forEach(function(nome) {
-      var nNorm = norm(nome);
-      var found = allContent.find(function(c){ return norm(c.nome) === nNorm; });
-      if (found) top10.push(found);
-    });
+  if (entradas.length > 0) {
+    if (API.resolverTop10) {
+      top10 = API.resolverTop10(entradas, filmes || [], series || []);
+    } else {
+      // api.js antigo em cache: mesmo comportamento de antes
+      var norm = function(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,'').trim(); };
+      entradas.forEach(function(e) {
+        var nNorm = norm(e.nome);
+        var found = allContent.find(function(c){ return norm(c.nome) === nNorm; });
+        if (found) top10.push(found);
+      });
+    }
   }
 
   // Fallback: aleatório se planilha estiver vazia
@@ -1411,7 +1434,7 @@ window._pflixAllContent = allContent;
     setupCarouselArrows('seriesTrack','seriePrev','serieNext');
 
     renderHotSection(allContent);
-    renderTop10(allContent); // async
+    renderTop10(allContent, filmes, series); // async
     renderPlatforms(); // async, independente do allContent
 
     // Seções montadas pela aba "Seções" da planilha (no lugar das "Pipoca <gênero>")

@@ -15,6 +15,17 @@
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ⚡ Carregamento: conecta cedo ao Worker/Firebase e já larga o download do catálogo (o api.js aproveita) -->
+<link rel="preconnect" href="https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js">
+<script>
+(function(){try{
+  var W='https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev',pre={};
+  ['/filmes','/series'].forEach(function(r){pre[W+r]=fetch(W+r,{headers:{'Accept':'text/csv, text/plain, */*'}});pre[W+r].catch(function(){});});
+  window.__pfPre=pre;
+}catch(e){}})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>
@@ -30,7 +41,6 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
@@ -45,7 +55,9 @@
   };
 
   const app      = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  // Analytics fica pra depois do carregamento: não disputa rede/CPU com o conteúdo
+  const _pfAnalytics = () => import("https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js").then(m => m.getAnalytics(app)).catch(() => {});
+  if (document.readyState === 'complete') setTimeout(_pfAnalytics, 800); else window.addEventListener('load', () => setTimeout(_pfAnalytics, 800));
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
 

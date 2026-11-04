@@ -31,7 +31,6 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
@@ -46,7 +45,9 @@
   };
 
   const app      = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  // Analytics fica pra depois do carregamento: não disputa rede/CPU com o conteúdo
+  const _pfAnalytics = () => import("https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js").then(m => m.getAnalytics(app)).catch(() => {});
+  if (document.readyState === 'complete') setTimeout(_pfAnalytics, 800); else window.addEventListener('load', () => setTimeout(_pfAnalytics, 800));
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' }); // deixa escolher QUAL Gmail usar
@@ -164,7 +165,7 @@
         <span id="trialBtnTxt">Continuar com Google</span>
       </button>
       <p id="trialErro" class="trial-erro" role="alert" hidden></p>
-      <p class="trial-nota">Só aceitamos contas <b>@gmail.com</b>. Ao continuar, você concorda com nossos <a href="privacidade.html">Termos de Privacidade</a>. Para evitar abuso, guardamos um identificador do aparelho junto com o teste.</p>
+      <p class="trial-nota">Só aceitamos contas <b>@gmail.com</b>. 📧 Vamos te avisar <b>por e-mail</b> quando faltar cerca de 30 minutos pro teste acabar (e quando ele terminar). Ao continuar, você concorda com nossos <a href="privacidade.html">Termos de Privacidade</a>. Para evitar abuso, guardamos um identificador do aparelho junto com o teste.</p>
     </div>
 
     <div id="trialCarregando" class="trial-status" hidden>
@@ -175,7 +176,7 @@
     <div id="trialSucesso" class="trial-status" hidden>
       <div class="trial-ico" aria-hidden="true">✅</div>
       <h2>Teste iniciado!</h2>
-      <p>Você já pode assistir. Redirecionando…</p>
+      <p>Você já pode assistir. Vamos te avisar por e-mail quando faltar 30 minutos. Redirecionando…</p>
     </div>
 
     <div id="trialJaVip" class="trial-status" hidden>

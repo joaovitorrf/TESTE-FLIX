@@ -3,36 +3,174 @@
     {
       "source": "/sitemap.xml",
       "headers": [
-        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
       ]
     },
     {
       "source": "/robots.txt",
       "headers": [
-        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
       ]
     },
     {
       "source": "/limpar-cache",
       "headers": [
-        { "key": "Clear-Site-Data", "value": "\"cache\", \"cookies\"" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Clear-Site-Data",
+          "value": "\"cache\", \"cookies\""
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/limpar-cache.html",
       "headers": [
-        { "key": "Clear-Site-Data", "value": "\"cache\", \"cookies\"" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Clear-Site-Data",
+          "value": "\"cache\", \"cookies\""
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, max-age=0"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/assets/img/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/(icon-192.png|icon-512.png|favicon.jpg)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/filme",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|TelegramBot|facebookexternalhit|Facebot|Twitterbot|Discordbot|Slackbot|Slack-ImgProxy|LinkedInBot|SkypeUriPreview|Pinterest|Embedly|vkShare|Viber|redditbot|Mastodon).*"
+        },
+        {
+          "type": "query",
+          "key": "nome",
+          "value": "(?<nome>.+)"
+        }
+      ],
+      "destination": "/api/share?tipo=filme&nome=:nome",
+      "permanent": false
+    },
+    {
+      "source": "/filme.html",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|TelegramBot|facebookexternalhit|Facebot|Twitterbot|Discordbot|Slackbot|Slack-ImgProxy|LinkedInBot|SkypeUriPreview|Pinterest|Embedly|vkShare|Viber|redditbot|Mastodon).*"
+        },
+        {
+          "type": "query",
+          "key": "nome",
+          "value": "(?<nome>.+)"
+        }
+      ],
+      "destination": "/api/share?tipo=filme&nome=:nome",
+      "permanent": false
+    },
+    {
+      "source": "/serie",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|TelegramBot|facebookexternalhit|Facebot|Twitterbot|Discordbot|Slackbot|Slack-ImgProxy|LinkedInBot|SkypeUriPreview|Pinterest|Embedly|vkShare|Viber|redditbot|Mastodon).*"
+        },
+        {
+          "type": "query",
+          "key": "nome",
+          "value": "(?<nome>.+)"
+        }
+      ],
+      "destination": "/api/share?tipo=serie&nome=:nome",
+      "permanent": false
+    },
+    {
+      "source": "/serie.html",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(WhatsApp|TelegramBot|facebookexternalhit|Facebot|Twitterbot|Discordbot|Slackbot|Slack-ImgProxy|LinkedInBot|SkypeUriPreview|Pinterest|Embedly|vkShare|Viber|redditbot|Mastodon).*"
+        },
+        {
+          "type": "query",
+          "key": "nome",
+          "value": "(?<nome>.+)"
+        }
+      ],
+      "destination": "/api/share?tipo=serie&nome=:nome",
+      "permanent": false
+    }
+  ],
   "rewrites": [
-    { "source": "/filmes/:slug", "destination": "/filmes/:slug.html" },
-    { "source": "/series/:slug", "destination": "/series/:slug.html" },
-    { "source": "/Shorts", "destination": "https://reproduvideocurto.canalpedroid.workers.dev/Shorts" },
-    { "source": "/Shorts/:path*", "destination": "https://reproduvideocurto.canalpedroid.workers.dev/Shorts/:path*" }
+    {
+      "source": "/c/:tipo/:slug",
+      "destination": "/api/share?tipo=:tipo&slug=:slug"
+    },
+    {
+      "source": "/filmes/:slug",
+      "destination": "/filmes/:slug.html"
+    },
+    {
+      "source": "/series/:slug",
+      "destination": "/series/:slug.html"
+    },
+    {
+      "source": "/Shorts",
+      "destination": "https://reproduvideocurto.canalpedroid.workers.dev/Shorts"
+    },
+    {
+      "source": "/Shorts/:path*",
+      "destination": "https://reproduvideocurto.canalpedroid.workers.dev/Shorts/:path*"
+    }
   ],
   "cleanUrls": true
 }

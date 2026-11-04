@@ -291,7 +291,7 @@
   overflow: hidden;
   transition: max-height 0.35s ease;
 }
-.faq-item.open .faq-a { max-height: 180px; }
+.faq-item.open .faq-a { max-height: 520px; }
 .faq-a p {
   padding: 0 20px 18px;
   color: var(--text-2);
@@ -326,6 +326,17 @@
   color: var(--text-1);
   box-shadow: none;
 }
+</style>
+<style>
+  .plano-dia{margin:10px 0 0;text-align:center;font-size:.84rem;color:var(--text-3)}
+  .plano-dia b{color:var(--text-1)}
+  .como-libera{max-width:640px;margin:26px auto 0;padding:20px 22px;border:1px solid var(--border);border-radius:var(--r-lg,16px);background:var(--panel)}
+  .como-libera h3{margin:0 0 12px;font-size:1.05rem;text-align:center}
+  .como-libera ol{margin:0;padding-left:1.3rem;display:grid;gap:8px;color:var(--text-2);font-size:.92rem;line-height:1.5}
+  .como-libera li::marker{color:var(--red);font-weight:700}
+  .como-libera b{color:var(--text-1)}
+  .como-libera a{color:var(--red)}
+  @media (max-width:420px){.como-libera{margin-inline:12px;padding:16px}}
 </style>
 </head>
 <body>
@@ -400,7 +411,7 @@
     <ul class="plano-features">
       <li>1 Tela</li>
       <li>Mais de 22 mil filmes</li>
-      <li>Mais de 22 mil séries</li>
+      <li>Mais de 8 mil séries</li>
       <li>📡 Canais ao vivo liberados: mais de 200 abertos e fechados</li>
       <li>App e site sem anúncios</li>
       <li>Baixe filmes e séries</li>
@@ -411,8 +422,19 @@
       🍿 Assinar Gold — R$ 10/mês
     </button>
     <p class="plano-seguro">🔒 Pagamento seguro via Cakto</p>
+      <p class="plano-dia">Menos de <b>R$ 0,35 por dia</b> • PIX, cartão ou boleto • sem fidelidade</p>
   </div>
 
+</div>
+
+<!-- ═══ COMO LIBERA ═══ -->
+<div class="como-libera">
+  <h3>Como seu acesso é liberado</h3>
+  <ol>
+    <li><b>Entre com o Google</b> (é rápido) para o PipocaFlix saber quem você é.</li>
+    <li><b>Pague com o mesmo e-mail</b> da sua conta — PIX, cartão ou boleto.</li>
+    <li><b>Pronto:</b> o VIP é liberado nesse e-mail. Se demorar, <a href="suporte.html">fale com o suporte</a>.</li>
+  </ol>
 </div>
 
 <!-- ═══ TESTE GRÁTIS ═══ -->
@@ -605,11 +627,21 @@ function toggleFaq(btn) {
 // ─── Link do plano pendente ───
 let _pendingLink = null;
 
+// Coloca o e-mail da conta no checkout (se a Cakto aceitar o parâmetro, o campo já vem preenchido —
+// o VIP é liberado pelo e-mail, então isso evita pagar com um e-mail diferente sem querer).
+function comEmail(link, user) {
+  try {
+    const u = new URL(link);
+    if (user && user.email) u.searchParams.set('email', user.email);
+    return u.toString();
+  } catch (e) { return link; }
+}
+
 function assinar(link, nomePlano) {
   const user = window.PipocaAuth?.getUser?.();
   if (user) {
     // Já logado → vai direto
-    window.open(link, '_blank');
+    window.open(comEmail(link, user), '_blank');
   } else {
     // Não logado → abre modal de login
     _pendingLink = link;
@@ -629,7 +661,7 @@ async function loginEAssinar() {
     // Login ok → fecha modal e abre link
     document.getElementById('loginModal').style.display = 'none';
     if (_pendingLink) {
-      window.open(_pendingLink, '_blank');
+      window.open(comEmail(_pendingLink, window.PipocaAuth?.getUser?.()), '_blank');
       _pendingLink = null;
     }
   } catch (err) {

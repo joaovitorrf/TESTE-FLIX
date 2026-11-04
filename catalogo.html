@@ -10,6 +10,17 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<!-- ⚡ Carregamento: conecta cedo ao Worker/Firebase e já larga o download do catálogo (o api.js aproveita) -->
+<link rel="preconnect" href="https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js">
+<script>
+(function(){try{
+  var W='https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev',pre={};
+  ['/filmes','/series'].forEach(function(r){pre[W+r]=fetch(W+r,{headers:{'Accept':'text/csv, text/plain, */*'}});pre[W+r].catch(function(){});});
+  window.__pfPre=pre;
+}catch(e){}})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
@@ -18,7 +29,6 @@
 <script src="assets/js/avisos.js" defer></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
@@ -33,7 +43,9 @@
   };
 
   const app      = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  // Analytics fica pra depois do carregamento: não disputa rede/CPU com o conteúdo
+  const _pfAnalytics = () => import("https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js").then(m => m.getAnalytics(app)).catch(() => {});
+  if (document.readyState === 'complete') setTimeout(_pfAnalytics, 800); else window.addEventListener('load', () => setTimeout(_pfAnalytics, 800));
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
 
@@ -169,7 +181,7 @@
   </div>
 </div>
 
-<div style="padding:1.25rem clamp(1rem,5vw,3.5rem) 2rem;display:grid;grid-template-columns:240px 1fr;gap:2rem;align-items:start" id="mainLayout">
+<div class="content-with-sidebar catalogo-layout" id="mainLayout"><!-- layout em style.css (antes era inline e travava 1 card por linha no celular) -->
 
   <!-- Sidebar de filtros -->
   <aside class="catalog-sidebar" id="catalogSidebar">

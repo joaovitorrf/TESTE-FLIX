@@ -11,6 +11,17 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PipocaFlix">
+<!-- ⚡ Carregamento: conecta cedo ao Worker/Firebase e já larga o download do catálogo (o api.js aproveita) -->
+<link rel="preconnect" href="https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js">
+<script>
+(function(){try{
+  var W='https://autumn-pine-50da.slacarambafdsosobrenome.workers.dev',pre={};
+  ['/filmes','/series'].forEach(function(r){pre[W+r]=fetch(W+r,{headers:{'Accept':'text/csv, text/plain, */*'}});pre[W+r].catch(function(){});});
+  window.__pfPre=pre;
+}catch(e){}})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
@@ -20,7 +31,6 @@
 <script src="assets/js/avisos.js" defer></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
     from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
@@ -35,7 +45,9 @@
   };
 
   const app      = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  // Analytics fica pra depois do carregamento: não disputa rede/CPU com o conteúdo
+  const _pfAnalytics = () => import("https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js").then(m => m.getAnalytics(app)).catch(() => {});
+  if (document.readyState === 'complete') setTimeout(_pfAnalytics, 800); else window.addEventListener('load', () => setTimeout(_pfAnalytics, 800));
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
 
@@ -173,6 +185,7 @@
         </button>
         <button class="btn-secondary" id="favDetailBtn">🤍 Favoritar</button>
         <button class="btn-secondary" id="listaDetailBtn">📋 Minha Lista</button>
+        <button class="btn-secondary" id="shareDetailBtn" type="button" aria-label="Compartilhar">📤 Compartilhar</button>
         <a href="index.html" class="btn-secondary">← Voltar</a>
         <button class="btn-watched" id="watchedBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
@@ -785,15 +798,39 @@ async function init(){
   document.title=`${nomeSerie} — PipocaFlix`;
 
   try{
-    const [series,allContentRaw]=await Promise.all([PipocaAPI.getSeries(),PipocaAPI.getTodosConteudos()]);
-    // allContent (busca + recomendações) respeita a coluna W (visivel=FALSE).
-    // "series" continua completo pra achar o item mesmo se ele estiver invisível.
-    const allContent=PipocaAPI.filtrarVisiveis(allContentRaw);
-    setupSearch(allContent);
+    // ⚡ Começa a buscar os EPISÓDIOS já, em paralelo com o catálogo (antes só começava depois de tudo).
+    // O getEpisodiosPorSerie junta pedidos iguais, então a chamada lá embaixo aproveita esta.
+    if(PipocaAPI.getEpisodiosPorSerie){ PipocaAPI.getEpisodiosPorSerie(nomeParam).catch(function(){}); }
 
-    const normNome=PipocaAPI.normalizeStr(nomeParam);
-    const item=series.find(s=>PipocaAPI.normalizeStr(s.nome)===normNome)||series.find(s=>PipocaAPI.normalizeStr(s.nome).includes(normNome)||normNome.includes(PipocaAPI.normalizeStr(s.nome)));
+    // ⚡ CAMINHO RÁPIDO: acha SÓ esta série (sem transformar ~30 mil linhas em objetos) e já mostra a
+    // página. O catálogo completo (busca + recomendações) carrega logo depois, em segundo plano.
+    let allContent=null;
+    let item=null;
+    if(PipocaAPI.getSeriePorNome){ try{ item=await PipocaAPI.getSeriePorNome(nomeParam); }catch(e){} }
+
+    if(!item){
+      // Caminho completo (igual ao de antes) — também roda se o título não foi achado na busca rápida.
+      const [series,allContentRaw]=await Promise.all([PipocaAPI.getSeries(),PipocaAPI.getTodosConteudos()]);
+      // allContent (busca + recomendações) respeita a coluna W (visivel=FALSE).
+      // "series" continua completo pra achar o item mesmo se ele estiver invisível.
+      allContent=PipocaAPI.filtrarVisiveis(allContentRaw);
+      setupSearch(allContent);
+
+      const normNome=PipocaAPI.normalizeStr(nomeParam);
+      item=series.find(s=>PipocaAPI.normalizeStr(s.nome)===normNome)||series.find(s=>PipocaAPI.normalizeStr(s.nome).includes(normNome)||normNome.includes(PipocaAPI.normalizeStr(s.nome)));
+    }
     if(!item){document.getElementById('loadingMsg').textContent='⚠️ Série não encontrada.';return;}
+
+    // Catálogo completo em segundo plano (só no caminho rápido): espera a página pintar primeiro.
+    function carregarCatalogoDepois(){
+      requestAnimationFrame(function(){ setTimeout(function(){
+        PipocaAPI.getTodosConteudos().then(function(raw){
+          var all=PipocaAPI.filtrarVisiveis(raw);
+          setupSearch(all);
+          renderRecs(item,all);
+        }).catch(function(e){ console.warn('[PipocaFlix Série] catálogo em segundo plano falhou',e); });
+      },0); });
+    }
     nomeSerie=item.nome;
     _serieItem=item;
 
@@ -827,6 +864,22 @@ async function init(){
     document.getElementById('detailSynopsis').textContent=item.sinopse||'Sinopse não disponível.';
     document.getElementById('detailSynopsis').style.display='';
     document.getElementById('detailBtns').style.display='flex';
+
+    // ── Compartilhar ──
+    // O link /c/serie/<slug> abre com PRÉVIA bonita (pôster + sinopse) no WhatsApp, Telegram, Discord…
+    // (a prévia é montada pelo servidor em api/share.js). No celular abre o menu de compartilhar do aparelho;
+    // no computador copia o link.
+    (function(){
+      var sb=document.getElementById('shareDetailBtn'); if(!sb) return;
+      var slug=(item.nome||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,80);
+      var link=location.origin+(slug?('/c/serie/'+slug):('/serie?nome='+encodeURIComponent(item.nome)));
+      sb.onclick=async function(){
+        var dados={title:item.nome+' — PipocaFlix',text:'🍿 '+item.nome+' — assista no PipocaFlix',url:link};
+        try{ if(navigator.share){ await navigator.share(dados); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+        try{ await navigator.clipboard.writeText(link); showToast('🔗 Link copiado! Cole no WhatsApp ou no Telegram.'); }
+        catch(e){ window.prompt('Copie o link:', link); }
+      };
+    })();
 
     // ── Botão "Marcar como assistido" (série) ──
     (function() {
@@ -887,7 +940,7 @@ async function init(){
     const ytUrl=ytEmbed(item.trailer);
     if(ytUrl){document.getElementById('trailerFrame').src=ytUrl;document.getElementById('trailerSection').style.display='block';}
     renderCast(item.nomeElenco,item.fotoElenco);
-    renderRecs(item,allContent);
+    if(allContent) renderRecs(item,allContent); else carregarCatalogoDepois();
 
     // playerSection fica visível mas playerBox escondido — seriePlayer precisa do DOM acessível
     document.getElementById('playerSection').style.display='block';

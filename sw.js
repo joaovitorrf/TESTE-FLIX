@@ -1,10 +1,18 @@
 /* ═══════════════════════════════════════════════════
-   PIPOCAFLIX — Service Worker v3 (Network-First)
-   Estratégia: Network First para HTML/CSS/JS
+   PIPOCAFLIX — Service Worker v4 (Network-First, só do próprio site)
+   Estratégia: Network First para HTML/CSS/JS do PRÓPRIO site
    Cache apenas como fallback offline
+
+   O que mudou na v4:
+   • NÃO intermedeia mais pedidos de outros domínios (Worker, Firebase, fontes, capas…).
+     Antes todo pedido passava pelo SW; se a rede falhasse, um pedido de CSV/JSON recebia o
+     index.html como resposta (e o catálogo tentava "ler" HTML como se fosse planilha).
+   • Falha de rede em arquivo que NÃO é página (js, css, imagem…) agora falha de verdade, em vez
+     de devolver a home no lugar.
+   • /api/* e /c/* (prévia de compartilhamento) nunca passam pelo cache.
 ═══════════════════════════════════════════════════ */
 
-const CACHE_VERSION = 'pipocaflix-v3-20250502';
+const CACHE_VERSION = 'pipocaflix-v4-20261024';
 const CACHE_NAME    = CACHE_VERSION;
 
 /* Assets que queremos manter disponíveis offline */
@@ -34,29 +42,39 @@ self.addEventListener('activate', event => {
   self.clients.claim(); // toma controle de todas as abas abertas
 });
 
-/* ── Fetch: NETWORK FIRST para tudo ── */
+/* ── Fetch: NETWORK FIRST (só pedidos do próprio site) ── */
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
+  const url = new URL(req.url);
 
   // Ignora extensões de browser e chrome-extension
   if (!url.protocol.startsWith('http')) return;
 
+  // Outros domínios (Worker do catálogo, Firebase, Google Fonts, capas…): o navegador resolve sozinho.
+  if (url.origin !== self.location.origin) return;
+
+  // Funções do servidor e links de prévia: sempre direto da rede.
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/c/')) return;
+
+  const ehPagina = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then(response => {
         // Atualiza cache com versão nova
         if (response && response.status === 200 && response.type === 'basic') {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
         }
         return response;
       })
       .catch(() => {
-        // Apenas usa cache se offline
-        return caches.match(event.request).then(cached => {
-          return cached || caches.match('/index.html');
+        // Offline: usa o que tiver em cache. Só PÁGINAS caem pra home; o resto falha de verdade.
+        return caches.match(req).then(cached => {
+          if (cached) return cached;
+          return ehPagina ? caches.match('/index.html') : Response.error();
         });
       })
   );
