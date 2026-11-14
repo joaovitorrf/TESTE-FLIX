@@ -609,7 +609,9 @@ async function getFeedNoticias() {
 
 /* ─────────────────────────────────────────────
    getCanais — busca a aba de Canais Ao Vivo
-   Coluna C: nome | D: categoria | E: embedUrl | F: logoUrl
+   (ATUALIZADO nov/2026 — colunas novas da aba Canais)
+   A: nome | B: capa (link da imagem) | C: descrição | D: categoria
+   E: (não usada) | F: link do EMBED (iframe) | J: SITUAÇÃO
    Coluna J (SITUAÇÃO): vazio/TRUE = aparece normal.
                         FALSE      = o canal SOME do site inteiro
                         (home, lista de canais, jogos de hoje e página do canal).
@@ -619,6 +621,16 @@ async function getFeedNoticias() {
 const CANAIS_CSV_URL = 'https://docs.google.com/spreadsheets/d/1i__-NfKkjKYmlm78vGXdNBMk2Z-o3dzZ-LL0Me-oPtU/export?format=csv&gid=319480319';
 const CACHE_TTL_CANAIS = 10 * 60 * 1000;
 
+// Aceita tanto o link puro quanto o código <iframe ...> colado na célula.
+function extrairEmbedSrc(txt) {
+  txt = String(txt || '').trim();
+  if (!txt) return '';
+  const m = txt.match(/<iframe[^>]*\ssrc\s*=\s*["']([^"']+)["']/i);
+  if (m) return m[1].trim();
+  const u = txt.match(/https?:\/\/[^\s"'<>]+/i);
+  return u ? u[0].trim() : '';
+}
+
 async function getCanais() {
   const cacheKey = 'canais_csv';
   if (_cache[cacheKey] && Date.now() - _cache[cacheKey].ts < CACHE_TTL_CANAIS) {
@@ -626,15 +638,20 @@ async function getCanais() {
   }
   try {
     const text = await fetchSheetText('canais', CANAIS_CSV_URL);
-    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-    const rows = lines.slice(1).map(parseCSVLine).filter(r => r && r[2] && r[2].trim());
-    const data = rows.map(row => ({
-      nome:     (row[2] || '').trim(),
-      categoria:(row[3] || '').trim(),
-      embedUrl: (row[4] || '').trim(),
-      logoUrl:  (row[5] || '').trim(),
-      visivel:  (row[9] || '').trim().toUpperCase() !== 'FALSE', // coluna J (SITUAÇÃO)
-    })).filter(c => c.nome && c.visivel);
+    // parseCSVCompleto aguenta vírgula/quebra de linha DENTRO da descrição (coluna C é texto livre)
+    const rows = parseCSVCompleto(text).slice(1).filter(r => r && r[0] && r[0].trim());
+    const data = rows.map(row => {
+      const capa = (row[1] || '').trim();
+      return {
+        nome:      (row[0] || '').trim(),          // A
+        capa:      capa,                           // B
+        logoUrl:   capa,                           // (apelido antigo — home/jogos ainda usam)
+        descricao: (row[2] || '').trim(),          // C
+        categoria: (row[3] || '').trim(),          // D
+        embedUrl:  extrairEmbedSrc(row[5]),        // F
+        visivel:   (row[9] || '').trim().toUpperCase() !== 'FALSE', // J (SITUAÇÃO)
+      };
+    }).filter(c => c.nome && c.visivel);
     _cache[cacheKey] = { data, ts: Date.now() };
     return data;
   } catch(e) {

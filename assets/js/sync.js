@@ -4,6 +4,7 @@
  *     ❤️  favoritos          (favoritos.js)
  *     ▶️  continuar assistindo (progress.js)
  *     ✅  assistidos          (watched.js)
+ *     👁️  episódios vistos    (episodios-vistos.js)
  *
  * COMO FUNCIONA (a explicação longa está no sync-core.js)
  *   • A página sempre lê/escreve no localStorage — instantâneo e funciona offline.
@@ -43,7 +44,8 @@ const LOTE = 100;                                    // itens por gravação
 const TIPOS = {
   favoritos:  { espera: 900,   adaptador: () => window.PipocaFavoritos && window.PipocaFavoritos.__sync },
   assistidos: { espera: 900,   adaptador: () => window.PipocaWatched   && window.PipocaWatched.__sync },
-  continuar:  { espera: 15000, adaptador: () => window.PipocaProgress  && window.PipocaProgress.__sync }
+  continuar:  { espera: 15000, adaptador: () => window.PipocaProgress  && window.PipocaProgress.__sync },
+  epvistos:   { espera: 900,   adaptador: () => window.PipocaEpVistos  && window.PipocaEpVistos.__sync }
 };
 
 let uid = null;
@@ -266,6 +268,7 @@ window.addEventListener('storage', (ev) => {
   if (k === 'pflix_favoritos') tipo = 'favoritos';
   else if (k === 'pflix_watched_list') tipo = 'assistidos';
   else if (k.indexOf('pflix_progress_') === 0) tipo = 'continuar';
+  else if (k === 'pflix_ep_vistos') tipo = 'epvistos';
   if (tipo) avisarPaginas(tipo, 'aba');
 });
 

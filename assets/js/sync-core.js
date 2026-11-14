@@ -94,7 +94,7 @@
      nos módulos) porque nem toda página carrega todos eles — e nenhum dado da conta
      anterior pode sobrar. As chaves que carregam o uid (streak, atividade) não entram:
      elas já são separadas por conta. */
-  var DADOS_FIXOS = ['pflix_favoritos', 'pflix_watched_list'];
+  var DADOS_FIXOS = ['pflix_favoritos', 'pflix_watched_list', 'pflix_ep_vistos', 'pflix_spoiler_ciente'];
   var DADOS_PREFIXOS = ['pflix_progress_', TOMB_PREFIX];
   function limparDadosLocais() {
     try {

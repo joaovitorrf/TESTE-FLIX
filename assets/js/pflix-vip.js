@@ -1,6 +1,8 @@
 /**
- * PIPOCAFLIX — VIP Detector v8
+ * PIPOCAFLIX — VIP Detector v9
  * assets/js/pflix-vip.js
+ *
+ * v9 (nov/2026): a classe "pflix-vip-ativo" agora vai no <html> (cedo, pelo <head>) e sai se a conta não for VIP.
  *
  * v8: corrigido o bug do cache. Antes, o resultado "NÃO é VIP" ficava salvo por 1h
  * no localStorage, então quem pagava depois de abrir o site continuava bloqueado.
@@ -41,9 +43,19 @@
     }));
   }
 
+  // A classe fica no <html> (e no <body>, por compatibilidade): o CSS usa ela pra esconder o
+  // botão "Seja VIP", o link do menu e os banners de assinatura de quem JÁ É VIP.
+  // Um mini-script no <head> de cada página já põe a classe antes de desenhar a tela (usando o
+  // cache abaixo) — aqui é a confirmação de verdade; se NÃO for VIP, a classe sai.
+  function marcarVipNaPagina(sim) {
+    var h = document.documentElement, b = document.body;
+    if (sim) { h.classList.add('pflix-vip-ativo'); b && b.classList.add('pflix-vip-ativo'); }
+    else     { h.classList.remove('pflix-vip-ativo'); b && b.classList.remove('pflix-vip-ativo'); }
+  }
+
   function confirmarVip() {
     window.PipocaVIP.ativo = true;
-    document.body && document.body.classList.add('pflix-vip-ativo');
+    marcarVipNaPagina(true);
     console.log('[PipocaFlix VIP] ✅ Assinatura VIP confirmada');
     document.dispatchEvent(new CustomEvent('pflix:vip-ativo', { detail: { plano: window.PipocaVIP.plano } }));
   }
@@ -124,6 +136,7 @@
       confirmarVip();
     } else if (!resultado.erro) {
       limparCacheLocal(); // não é VIP (ou venceu): garante que não sobra cache velho
+      marcarVipNaPagina(false); // o mini-script do <head> pode ter marcado por causa de um cache velho/de outra conta
     }
     marcarPronto();
   }
@@ -131,6 +144,7 @@
   function usuarioNaoLogado() {
     window.PipocaVIP.ativo = false;
     window.PipocaVIP.erro = false;
+    marcarVipNaPagina(false);
     marcarPronto();
   }
 
