@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Entrar — PipocaFlix</title>
 <meta name="description" content="Entre no PipocaFlix com sua conta Google e aproveite muito mais: comente nos filmes, veja o que já assistiu e monte sua lista.">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
@@ -233,6 +233,7 @@
     .login-visual { min-height: 38vh; }
   }
 </style>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body>
 <script src="assets/js/avisos.js" defer></script>

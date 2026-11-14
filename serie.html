@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head><meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>PipocaFlix — Assistir Série</title>
 <meta name="description" content="Assista séries online grátis no PipocaFlix.">
 <meta name="theme-color" content="#ff2d43">
@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body class="has-bottom-nav">
 <script src="assets/js/avisos.js" defer></script>
@@ -108,7 +109,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
-  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
+  <a href="planos.html" class="vip-btn-header so-nao-vip">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -142,22 +143,24 @@
 <!-- ═══ MENU INFERIOR MOBILE ═══ -->
 <nav class="bottom-nav-mobile" id="bottomNavMobile" aria-label="Navegação inferior">
   <a href="index.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
     <span>Início</span>
   </a>
-  <a href="Shorts.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/>
-    </svg>
-    <span>Shorts</span>
+  <a href="filmes.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4M3 12h18M3 16h4M17 8h4M17 16h4"/></svg>
+    <span>Filmes</span>
+  </a>
+  <a href="series.html" class="bottom-nav-item active" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.2l4.2 2.3-4.2 2.3V8.2z" fill="currentColor" stroke="none"/></svg>
+    <span>Séries</span>
   </a>
   <a href="canais.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/></svg>
     <span>TV Online</span>
+  </a>
+  <a href="Shorts.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/></svg>
+    <span>Shorts</span>
   </a>
 </nav>
 
@@ -195,7 +198,7 @@
       </div>
       <!-- Avaliação por estrelas (montada por stats.js). Fica aqui, logo abaixo dos botões,
            pra aparecer sem a pessoa precisar rolar a página até os comentários. -->
-      <div class="rating-wrap rating-wrap--hero" id="ratingBox"></div>
+      <div class="spoiler-wrap" id="ratingShield"><div class="rating-wrap rating-wrap--hero" id="ratingBox"></div></div>
     </div>
   </div>
 </section>
@@ -243,15 +246,24 @@
 <section class="seasons-section" id="seasonsSection" style="display:none">
   <div class="section-header" style="padding:0;margin-bottom:1.25rem"><h2 class="section-title">Temporadas &amp; Episódios</h2></div>
   <div class="season-tabs" id="seasonTabs" role="tablist"></div>
+  <!-- Continuar de onde parou + progresso da temporada (preenchidos por atualizarEstadoEpisodios) -->
+  <div class="ep-continuar" id="epContinuar" hidden></div>
+  <div class="ep-toolbar" id="epToolbar">
+    <div class="ep-prog">
+      <div class="ep-prog-txt" id="epProgTxt"></div>
+      <div class="ep-prog-bar" aria-hidden="true"><span id="epProgFill"></span></div>
+    </div>
+    <button type="button" class="ep-marcar-tudo" id="epMarcarTudo">✓ Marcar temporada toda</button>
+  </div>
   <div class="episodes-list" id="episodesList" role="list"></div>
   <p id="noEpsMsg" style="display:none;color:var(--text-3);padding:1rem 0">ℹ️ Episódios ainda não cadastrados para esta série.</p>
 </section>
 
-<a href="planos.html" class="vip-promo-banner" aria-label="Assine o PipocaFlix VIP e assista sem anúncios">
+<a href="planos.html" class="vip-promo-banner" aria-label="Assine o Pipoca Flix Gold e continue assistindo sem limite de tempo">
   <div class="vip-promo-icon">🎬</div>
   <div class="vip-promo-body">
-    <div class="vip-promo-title">Quer assistir sem anúncios?</div>
-    <div class="vip-promo-desc">Assine o PipocaFlix VIP e tenha uma experiência muito mais confortável, sem propagandas e com benefícios exclusivos.</div>
+    <div class="vip-promo-title">Gostando do PipocaFlix?</div>
+    <div class="vip-promo-desc">Assine o Pipoca Flix Gold e continue assistindo sem limite de tempo, com todos os benefícios exclusivos.</div>
   </div>
   <span class="vip-promo-cta">⭐ Assinar VIP</span>
 </a>
@@ -493,11 +505,13 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="ep-snack" id="epSnack" role="status" aria-live="polite" hidden></div>
 
 <script src="assets/js/security.js"></script>
 <script src="assets/js/sync-core.js"></script>
 <script src="assets/js/favoritos.js"></script>
 <script src="assets/js/watched.js"></script>
+<script src="assets/js/episodios-vistos.js"></script>
 <script src="assets/js/progress.js"></script>
 <script type="module" src="assets/js/sync.js"></script>
 <script src="assets/js/api.js"></script>
@@ -535,50 +549,290 @@ function renderCast(nomes,fotos){if(!nomes)return;const ns=nomes.split(',').map(
 
 function renderTemporadas(){const tabs=document.getElementById('seasonTabs'),nums=Object.keys(temporadasData).map(Number).sort((a,b)=>a-b);if(!nums.length){document.getElementById('noEpsMsg').style.display='block';return;}tabs.innerHTML='';nums.forEach(t=>{const btn=document.createElement('button');btn.className='season-tab'+(t===temporadaAtual?' active':'');btn.textContent=`Temporada ${t}`;btn.setAttribute('role','tab');btn.setAttribute('aria-selected',t===temporadaAtual?'true':'false');btn.addEventListener('click',()=>{temporadaAtual=t;tabs.querySelectorAll('.season-tab').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false');});btn.classList.add('active');btn.setAttribute('aria-selected','true');renderEpisodios();});tabs.appendChild(btn);});renderEpisodios();}
 
-function renderEpisodios(){
-  const lista=document.getElementById('episodesList'),eps=temporadasData[temporadaAtual]||[];
-  lista.innerHTML='';
-  if(!eps.length){lista.innerHTML='<p style="color:var(--text-3);padding:1rem 0">Sem episódios para esta temporada.</p>';return;}
-  eps.forEach(ep=>{
-    const epId=`ep-${ep.temporada}-${ep.episodio}`;
-    const btn=document.createElement('button');
-    btn.className='episode-btn';
-    btn.setAttribute('role','listitem');
-    btn.innerHTML=`<span class="ep-num">${String(ep.episodio).padStart(2,'0')}</span>`+
-      `<span class="ep-thumb-wrap" id="${epId}-thumb"><span class="ep-thumb-placeholder">🎬</span></span>`+
-      `<span class="ep-info">`+
-        `<span class="ep-name" id="${epId}-name">${nomeSerie} — T${ep.temporada} EP${ep.episodio}</span>`+
-        `<span class="ep-sub">Temporada ${ep.temporada} · Episódio ${ep.episodio}</span>`+
-      `</span>`+
-      `<span class="ep-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`;
-    btn.addEventListener('click',()=>tocar(ep));
-    lista.appendChild(btn);
+/* ════════════════════════════════════════════════════════════════════════════
+   EPISÓDIOS — marcar como visto · descrição (TMDB) · continuar de onde parou
+   O "visto" fica no episodios-vistos.js (salva no aparelho e, logado, na conta).
+   ════════════════════════════════════════════════════════════════════════════ */
+const _tmdbEps = {};   // temporada → mapa já buscado { nºEp: {nome, imagem, sinopse} }
+
+function chaveEp(ep){ return 'ep-' + ep.temporada + '-' + ep.episodio; }
+function paresDe(lista){ return lista.map(function(e){ return { t: e.temporada, e: e.episodio }; }); }
+function epVisto(ep){ return !!(window.PipocaEpVistos && window.PipocaEpVistos.has(nomeSerie, ep.temporada, ep.episodio)); }
+function todosEpisodios(){
+  return Object.keys(temporadasData).map(Number).sort(function(a,b){return a-b;})
+    .reduce(function(acc,t){ return acc.concat(temporadasData[t]||[]); }, []);
+}
+// "Onde parei" = o episódio marcado mais à frente. O "próximo" é o primeiro NÃO visto depois dele.
+function situacaoEpisodios(){
+  const todos = todosEpisodios(); let ult = -1;
+  todos.forEach(function(ep,i){ if(epVisto(ep)) ult = i; });
+  if(ult < 0) return { ultimo: null, proximo: null, completo: false };
+  const prox = todos.slice(ult+1).find(function(e){ return !epVisto(e); }) || todos.find(function(e){ return !epVisto(e); }) || null;
+  return { ultimo: todos[ult], proximo: prox, completo: !prox };
+}
+function ativarAbaTemporada(t){
+  temporadaAtual = t;
+  document.querySelectorAll('#seasonTabs .season-tab').forEach(function(b){
+    const on = parseInt(b.textContent.replace('Temporada ','')) === t;
+    b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
   });
+}
+function irParaEpisodio(ep){
+  if(ep.temporada !== temporadaAtual){ ativarAbaTemporada(ep.temporada); renderEpisodios(); }
+  tocar(ep);
+}
+
+function renderEpisodios(){
+  const lista=document.getElementById('episodesList'), eps=temporadasData[temporadaAtual]||[];
+  lista.innerHTML='';
+  esconderSnack();
+  const btnTudo=document.getElementById('epMarcarTudo');
+  if(btnTudo && !btnTudo.dataset.ligado){
+    btnTudo.dataset.ligado='1';
+    btnTudo.addEventListener('click',function(){ marcarTemporada(btnTudo.dataset.modo); });
+  }
+  if(!eps.length){
+    lista.innerHTML='<p style="color:var(--text-3);padding:1rem 0">Sem episódios para esta temporada.</p>';
+    atualizarEstadoEpisodios(); return;
+  }
+  eps.forEach(function(ep){
+    const epId=chaveEp(ep);
+    const item=document.createElement('div');
+    item.className='ep-item'; item.id=epId; item.setAttribute('role','listitem');
+    item.dataset.t=ep.temporada; item.dataset.e=ep.episodio;
+
+    // botão principal: toca o episódio
+    const main=document.createElement('button');
+    main.type='button'; main.className='episode-btn ep-main';
+    main.innerHTML='<span class="ep-num">'+String(ep.episodio).padStart(2,'0')+'</span>'+
+      '<span class="ep-thumb-wrap" id="'+epId+'-thumb"><span class="ep-thumb-placeholder">🎬</span></span>'+
+      '<span class="ep-info">'+
+        '<span class="ep-name" id="'+epId+'-name"></span>'+
+        '<span class="ep-sub">Temporada '+ep.temporada+' · Episódio '+ep.episodio+'</span>'+
+      '</span>'+
+      '<span class="ep-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>';
+    main.querySelector('.ep-name').textContent = nomeSerie+' — T'+ep.temporada+' EP'+ep.episodio;
+    main.addEventListener('click',function(){ tocar(ep); });
+
+    // botão "já vi" (marcar / desmarcar)
+    const chk=document.createElement('button');
+    chk.type='button'; chk.className='ep-check';
+    chk.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle class="ep-ck-bola" cx="12" cy="12" r="10"/><path class="ep-ck-v" d="M7.5 12.5l3 3 6-6.5"/></svg><span class="ep-ck-txt">Marcar visto</span>';
+    chk.addEventListener('click',function(ev){ ev.stopPropagation(); alternarVisto(ep); });
+
+    // descrição (vem do TMDB; começa escondida)
+    const dw=document.createElement('div'); dw.className='ep-desc-wrap'; dw.id=epId+'-desc'; dw.hidden=true;
+    dw.innerHTML='<p class="ep-desc"></p><button type="button" class="ep-desc-toggle" hidden>Ver mais</button>';
+    dw.querySelector('.ep-desc-toggle').addEventListener('click',function(){
+      const aberta=item.classList.toggle('aberta'); this.textContent=aberta?'Ver menos':'Ver mais';
+    });
+
+    item.appendChild(main); item.appendChild(chk); item.appendChild(dw);
+    lista.appendChild(item);
+  });
+  atualizarEstadoEpisodios();
   enriquecerEpisodiosTMDB(temporadaAtual);
 }
 
-// Busca nome + capa dos episódios no TMDB (via proxy) e "veste" os botões
-// já renderizados. A QUANTIDADE de episódios não muda — só vem da planilha.
+// Atualiza SÓ as marcações (sem refazer a lista — as capas do TMDB não piscam).
+function atualizarEstadoEpisodios(){
+  const eps=temporadasData[temporadaAtual]||[];
+  const sit=situacaoEpisodios();
+  document.querySelectorAll('#episodesList .ep-item').forEach(function(item){
+    const t=+item.dataset.t, e=+item.dataset.e;
+    const visto=!!(window.PipocaEpVistos && window.PipocaEpVistos.has(nomeSerie,t,e));
+    item.classList.toggle('visto',visto);
+    const chk=item.querySelector('.ep-check');
+    chk.setAttribute('aria-pressed',visto?'true':'false');
+    chk.setAttribute('aria-label',(visto?'Desmarcar':'Marcar')+' episódio '+e+' da temporada '+t+' como visto');
+    chk.querySelector('.ep-ck-txt').textContent=visto?'Visto':'Marcar visto';
+    const ehProx=!!(sit.proximo && sit.proximo.temporada===t && sit.proximo.episodio===e);
+    item.classList.toggle('proximo',ehProx);
+    const sub=item.querySelector('.ep-sub'), tag=sub.querySelector('.ep-tag-prox');
+    if(ehProx && !tag){ const sp=document.createElement('span'); sp.className='ep-tag-prox'; sp.textContent='PRÓXIMO'; sub.appendChild(sp); }
+    else if(!ehProx && tag) tag.remove();
+  });
+  const vistos=window.PipocaEpVistos ? window.PipocaEpVistos.contar(nomeSerie,paresDe(eps)) : 0;
+  const txt=document.getElementById('epProgTxt'), fill=document.getElementById('epProgFill'), btn=document.getElementById('epMarcarTudo');
+  if(txt) txt.textContent=eps.length ? 'Temporada '+temporadaAtual+': '+vistos+' de '+eps.length+(eps.length===1?' episódio visto':' episódios vistos') : '';
+  if(fill) fill.style.width=eps.length ? Math.round(vistos/eps.length*100)+'%' : '0%';
+  if(btn){
+    const tudo=eps.length>0 && vistos===eps.length;
+    btn.textContent=tudo?'↩ Desmarcar temporada':'✓ Marcar temporada toda';
+    btn.dataset.modo=tudo?'desmarcar':'marcar';
+    btn.hidden=!eps.length;
+  }
+  // faixa "continuar de onde parou"
+  const faixa=document.getElementById('epContinuar');
+  if(faixa){
+    faixa.innerHTML='';
+    if(sit.ultimo && sit.proximo){
+      faixa.hidden=false;
+      const tx=document.createElement('div'); tx.className='ep-continuar-txt';
+      tx.textContent='Você parou na Temporada '+sit.ultimo.temporada+' · Episódio '+sit.ultimo.episodio;
+      const sm=document.createElement('small'); sm.textContent='Continue: Temporada '+sit.proximo.temporada+' · Episódio '+sit.proximo.episodio;
+      tx.appendChild(sm);
+      const b=document.createElement('button'); b.type='button'; b.textContent='▶ Continuar';
+      b.addEventListener('click',function(){ irParaEpisodio(sit.proximo); });
+      faixa.appendChild(tx); faixa.appendChild(b);
+    } else if(sit.ultimo && sit.completo){
+      faixa.hidden=false;
+      const tx=document.createElement('div'); tx.className='ep-continuar-txt'; tx.textContent='🎉 Você já viu todos os episódios!';
+      faixa.appendChild(tx);
+    } else faixa.hidden=true;
+  }
+}
+
+let _snackTimer=0;
+function esconderSnack(){ const s=document.getElementById('epSnack'); if(s) s.hidden=true; clearTimeout(_snackTimer); }
+function mostrarSnack(texto,acoes){
+  const s=document.getElementById('epSnack'); if(!s) return;
+  s.innerHTML='';
+  const t=document.createElement('div'); t.className='ep-snack-txt'; t.textContent=texto; s.appendChild(t);
+  acoes.forEach(function(a){
+    const b=document.createElement('button'); b.type='button'; b.textContent=a.rotulo; if(a.sim) b.className='sim';
+    b.addEventListener('click',function(){ esconderSnack(); if(a.fn) a.fn(); });
+    s.appendChild(b);
+  });
+  s.hidden=false; clearTimeout(_snackTimer); _snackTimer=setTimeout(esconderSnack,12000);
+}
+
+function aposMudancaEpisodios(){ atualizarEstadoEpisodios(); verificarSerieConcluida(); atualizarEscudoSpoiler(); }
+window.__pfxAposMudanca = aposMudancaEpisodios;
+
+function alternarVisto(ep){
+  if(!window.PipocaEpVistos){ showToast('⚠️ Não deu pra salvar agora. Atualize a página.'); return; }
+  const agora=window.PipocaEpVistos.toggle(nomeSerie,ep.temporada,ep.episodio);
+  aposMudancaEpisodios();
+  if(!agora){ esconderSnack(); return; }
+  // "Terminei no episódio X": oferece marcar tudo que vem antes, de uma vez só
+  const todos=todosEpisodios();
+  const idx=todos.findIndex(function(x){ return x.temporada===ep.temporada && x.episodio===ep.episodio; });
+  const faltam=todos.slice(0,idx).filter(function(x){ return !epVisto(x); });
+  if(faltam.length){
+    mostrarSnack('Marcou T'+ep.temporada+' · EP '+ep.episodio+'. Marcar também os '+faltam.length+(faltam.length===1?' episódio anterior':' episódios anteriores')+' como vistos?',
+      [{ rotulo:'Sim, marcar', sim:true, fn:function(){ window.PipocaEpVistos.setVarios(nomeSerie,paresDe(faltam),true); aposMudancaEpisodios(); } },{ rotulo:'Não' }]);
+  } else esconderSnack();
+}
+function marcarTemporada(modo){
+  if(!window.PipocaEpVistos) return;
+  const eps=temporadasData[temporadaAtual]||[];
+  window.PipocaEpVistos.setVarios(nomeSerie,paresDe(eps),modo!=='desmarcar');
+  aposMudancaEpisodios();
+}
+window.__pfxMarcarTodosEps=function(visto){
+  if(!window.PipocaEpVistos) return;
+  window.PipocaEpVistos.setVarios(nomeSerie,paresDe(todosEpisodios()),!!visto);
+  aposMudancaEpisodios();
+};
+// Marcou o ÚLTIMO episódio que faltava → a série inteira vira "assistida" sozinha
+function verificarSerieConcluida(){
+  const todos=todosEpisodios();
+  if(!todos.length || !window.PipocaWatched || !window.PipocaEpVistos) return;
+  if(todos.every(epVisto) && !window.PipocaWatched.has(nomeSerie)){
+    window.PipocaWatched.add({ nome:nomeSerie, capa:(_serieItem&&_serieItem.capa)||'', tipo:'serie' });
+    if(window.PipocaProgress && window.PipocaProgress.removeAllFor) window.PipocaProgress.removeAllFor(nomeSerie,'serie');
+    showToast('🎉 Série concluída! Ela foi pra sua lista de assistidos.');
+    window.dispatchEvent(new CustomEvent('pflix:sync',{ detail:{ tipo:'assistidos' } }));
+  }
+}
+// mudou em outro aparelho/aba? atualiza
+window.addEventListener('pflix:sync',function(e){
+  const t=e.detail && e.detail.tipo;
+  if(t==='epvistos' || t==='assistidos' || t==='*'){ atualizarEstadoEpisodios(); atualizarEscudoSpoiler(); }
+});
+
+/* Descrição do episódio (TMDB) + nome + capa */
+function preencherDescricao(wrap,texto){
+  const p=wrap.querySelector('.ep-desc'), tg=wrap.querySelector('.ep-desc-toggle');
+  p.textContent=texto; wrap.hidden=false;
+  tg.hidden = texto.length < 130;       // texto curto cabe nas 2 linhas: não precisa de "Ver mais"
+}
 async function enriquecerEpisodiosTMDB(temporadaAlvo){
   try{
-    const anoSerie = _serieItem ? _serieItem.ano : '';
-    const mapa = await PipocaAPI.getTmdbEpisodiosTemporada(nomeSerie, anoSerie, temporadaAlvo);
+    let mapa=_tmdbEps[temporadaAlvo];
+    if(!mapa){
+      const anoSerie=_serieItem?_serieItem.ano:'';
+      mapa=await PipocaAPI.getTmdbEpisodiosTemporada(nomeSerie,anoSerie,temporadaAlvo);
+      if(mapa && Object.keys(mapa).length) _tmdbEps[temporadaAlvo]=mapa;
+    }
     if(!mapa || Object.keys(mapa).length===0) return;
-    if(temporadaAlvo !== temporadaAtual) return; // usuário já trocou de aba, ignora resultado antigo
-    (temporadasData[temporadaAlvo]||[]).forEach(ep=>{
-      const info=mapa[ep.episodio];
-      if(!info) return;
-      const epId=`ep-${ep.temporada}-${ep.episodio}`;
-      const thumbWrap=document.getElementById(epId+'-thumb');
-      const nameEl=document.getElementById(epId+'-name');
+    if(temporadaAlvo!==temporadaAtual) return;   // a pessoa já trocou de aba: ignora resultado velho
+    (temporadasData[temporadaAlvo]||[]).forEach(function(ep){
+      const info=mapa[ep.episodio]; if(!info) return;
+      const id=chaveEp(ep);
+      const thumbWrap=document.getElementById(id+'-thumb'), nameEl=document.getElementById(id+'-name'), dw=document.getElementById(id+'-desc');
       if(thumbWrap && info.imagem){
-        thumbWrap.innerHTML=`<img class="ep-thumb" src="${info.imagem}" alt="${(info.nome||'').replace(/"/g,'')}" loading="lazy">`;
+        const img=document.createElement('img'); img.className='ep-thumb'; img.loading='lazy'; img.alt=''; img.src=info.imagem;
+        thumbWrap.innerHTML=''; thumbWrap.appendChild(img);
       }
-      if(nameEl && info.nome){
-        nameEl.textContent=`${ep.episodio}. ${info.nome}`;
-      }
+      if(nameEl && info.nome) nameEl.textContent=ep.episodio+'. '+info.nome;
+      if(dw && info.sinopse) preencherDescricao(dw,info.sinopse);
     });
   }catch(e){ console.warn('[Série] Erro ao enriquecer episódios via TMDB:', e); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   👻 ESCUDO CONTRA SPOILER
+   Enquanto a pessoa NÃO terminou a série, a nota e os comentários ficam borrados.
+   "Terminou" = marcou todos os episódios, ou apertou "Já vi tudo" / "Marcar como assistido".
+   Pra não travar de vez: "Estou ciente, mostrar mesmo assim" libera (e o site lembra dessa escolha).
+   ════════════════════════════════════════════════════════════════════════════ */
+const CHAVE_CIENTE='pflix_spoiler_ciente';
+function lerCiente(){ try{ return JSON.parse(localStorage.getItem(CHAVE_CIENTE)||'{}')||{}; }catch(e){ return {}; } }
+function cienteSpoiler(){ return !!lerCiente()[String(nomeSerie).toLowerCase()]; }
+function gravarCiente(){ const o=lerCiente(); o[String(nomeSerie).toLowerCase()]=Date.now(); try{ localStorage.setItem(CHAVE_CIENTE,JSON.stringify(o)); }catch(e){} }
+function serieConcluida(){
+  if(window.PipocaWatched && window.PipocaWatched.has(nomeSerie)) return true;
+  const todos=todosEpisodios();
+  return todos.length>0 && todos.every(epVisto);
+}
+function jaViTudo(){
+  if(window.PipocaWatched) window.PipocaWatched.add({ nome:nomeSerie, capa:(_serieItem&&_serieItem.capa)||'', tipo:'serie' });
+  if(window.PipocaProgress && window.PipocaProgress.removeAllFor) window.PipocaProgress.removeAllFor(nomeSerie,'serie');
+  window.dispatchEvent(new CustomEvent('pflix:sync',{ detail:{ tipo:'assistidos' } }));
+  window.__pfxMarcarTodosEps(true);
+  showToast('✅ Marcado como assistido!');
+}
+function montarEscudoSpoiler(){
+  const com=document.getElementById('commentsSection'), nota=document.getElementById('ratingShield');
+  if(com && !document.getElementById('spoilerEscudoCom')){
+    const e=document.createElement('div'); e.className='spoiler-escudo'; e.id='spoilerEscudoCom'; e.hidden=true;
+    e.innerHTML='<div class="spoiler-card" role="group" aria-labelledby="spoilerTit">'+
+      '<h4 id="spoilerTit">👻 Escudo contra spoiler</h4>'+
+      '<p></p>'+
+      '<div class="spoiler-btns">'+
+        '<button type="button" class="spoiler-btn principal" id="spoilerVi">✅ Já vi tudo — liberar</button>'+
+        '<button type="button" class="spoiler-btn" id="spoilerCiente">👀 Estou ciente, mostrar mesmo assim</button>'+
+      '</div>'+
+      '<p class="spoiler-dica">Dica: marque os episódios que você já viu, lá em cima. Quando marcar o último, o escudo cai sozinho.</p>'+
+    '</div>';
+    e.querySelector('p').textContent='Os comentários e a nota de “'+nomeSerie+'” podem contar o final. Você ainda está assistindo?';
+    com.appendChild(e);
+    e.querySelector('#spoilerVi').addEventListener('click',jaViTudo);
+    e.querySelector('#spoilerCiente').addEventListener('click',function(){ gravarCiente(); atualizarEscudoSpoiler(); });
+  }
+  if(nota && !document.getElementById('spoilerMiniNota')){
+    const m=document.createElement('div'); m.className='spoiler-mini'; m.id='spoilerMiniNota'; m.hidden=true;
+    m.innerHTML='<button type="button">👻 Nota escondida (spoiler) · toque pra ver</button>';
+    m.querySelector('button').addEventListener('click',function(){ gravarCiente(); atualizarEscudoSpoiler(); });
+    nota.appendChild(m);
+  }
+}
+function atualizarEscudoSpoiler(){
+  montarEscudoSpoiler();
+  const proteger=!serieConcluida() && !cienteSpoiler();
+  ['commentsSection','ratingShield'].forEach(function(id){ const el=document.getElementById(id); if(el) el.classList.toggle('spoiler-on',proteger); });
+  const caixaNota=document.getElementById('ratingBox');
+  const temNota=!!(caixaNota && caixaNota.childElementCount>0);      // sem widget de nota = nada pra esconder
+  const escCom=document.getElementById('spoilerEscudoCom'), miniNota=document.getElementById('spoilerMiniNota');
+  if(escCom) escCom.hidden=!proteger;
+  if(miniNota) miniNota.hidden=!(proteger && temNota);
+  // o widget de nota (stats.js) chega depois: quando aparecer, reavalia
+  if(caixaNota && !caixaNota.dataset.vigiado && window.MutationObserver){
+    caixaNota.dataset.vigiado='1';
+    new MutationObserver(function(){ atualizarEscudoSpoiler(); }).observe(caixaNota,{childList:true});
+  }
 }
 
 const REPRODUCTION_WORKER='https://shy-dream-7986.slacarambafdsosobrenome.workers.dev';
@@ -796,6 +1050,7 @@ async function init(){
   if(!nomeParam){location.href='index.html';return;}
   nomeSerie=nomeParam;
   document.title=`${nomeSerie} — PipocaFlix`;
+  atualizarEscudoSpoiler();   // 👻 já nasce protegido (a nota e os comentários não aparecem nem por um instante)
 
   try{
     // ⚡ Começa a buscar os EPISÓDIOS já, em paralelo com o catálogo (antes só começava depois de tudo).
@@ -903,13 +1158,16 @@ async function init(){
         if (window.PipocaWatched.has(item.nome)) {
           window.PipocaWatched.remove(item.nome);
           showToast('↩️ Removido dos assistidos');
+          if (window.__pfxMarcarTodosEps) window.__pfxMarcarTodosEps(false);   // desmarca os episódios também (senão a série voltaria sozinha pros assistidos)
         } else {
           window.PipocaWatched.add({ nome: item.nome, capa: item.capa, tipo: 'serie' });
           // tira o filme/série (e todos os episódios) de "Continuar assistindo" aqui e nos outros aparelhos
           if (window.PipocaProgress) window.PipocaProgress.removeAllFor(item.nome, 'serie');
           showToast('✅ Marcado como assistido!');
+          if (window.__pfxMarcarTodosEps) window.__pfxMarcarTodosEps(true);   // marca todos os episódios como vistos
         }
         syncWatchedBtn();
+        if (window.__pfxAposMudanca) window.__pfxAposMudanca();
       });
     })();
 

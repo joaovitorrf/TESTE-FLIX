@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PipocaFlix — Canais Ao Vivo</title>
-<meta name="description" content="Todos os canais ao vivo disponíveis no PipocaFlix.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PipocaFlix — TV Online | Canais Ao Vivo</title>
+<meta name="description" content="Assista TV ao vivo no PipocaFlix: escolha a categoria, toque no canal e o vídeo troca na hora.">
 <meta name="theme-color" content="#ff2d43">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="apple-touch-icon" href="favicon.jpg">
@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body class="has-bottom-nav">
 <script src="assets/js/avisos.js" defer></script>
@@ -59,7 +60,7 @@
     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" role="button" tabindex="0" aria-label="Ir para busca" style="cursor:pointer" onclick="(function(){var i=document.getElementById('desktopSearchInput');var v=i?i.value.trim():'';window.location.href='buscar.html'+(v?('?q='+encodeURIComponent(v)):'');})()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.onclick();}"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input type="search" class="search-bar" id="desktopSearchInput" placeholder="Buscar..." autocomplete="off" spellcheck="false">
   </div>
-  <a href="planos.html" class="vip-btn-header">⭐ Seja VIP</a>
+  <a href="planos.html" class="vip-btn-header so-nao-vip">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Entrar
   </button>
@@ -89,22 +90,24 @@
 <!-- ═══ MENU INFERIOR MOBILE ═══ -->
 <nav class="bottom-nav-mobile" id="bottomNavMobile" aria-label="Navegação inferior">
   <a href="index.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
     <span>Início</span>
   </a>
-  <a href="Shorts.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/>
-    </svg>
-    <span>Shorts</span>
+  <a href="filmes.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4M3 12h18M3 16h4M17 8h4M17 16h4"/></svg>
+    <span>Filmes</span>
   </a>
-  <a href="canais.html" class="bottom-nav-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/>
-    </svg>
+  <a href="series.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.2l4.2 2.3-4.2 2.3V8.2z" fill="currentColor" stroke="none"/></svg>
+    <span>Séries</span>
+  </a>
+  <a href="canais.html" class="bottom-nav-item active" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/></svg>
     <span>TV Online</span>
+  </a>
+  <a href="Shorts.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/></svg>
+    <span>Shorts</span>
   </a>
 </nav>
 
@@ -113,18 +116,62 @@
   <div class="cards-grid" id="searchResultsGrid"></div>
 </div>
 
-<div style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap">
-    <h1 style="font-size:1.8rem;font-weight:800;margin:0">📡 Canais Ao Vivo</h1>
-    <span class="live-badge">AO VIVO</span>
+<main class="tv-page" id="tvPage">
+  <div class="tv-layout">
+
+    <!-- ① PLAYER (no celular fica fixo no topo enquanto a pessoa escolhe o canal) -->
+    <section class="tv-player" id="tvPlayer" aria-label="Player do canal">
+      <div class="tv-player-vazio" id="tvVazio" hidden>
+        <span class="tv-player-vazio-ico" aria-hidden="true">📡</span>
+        <strong>Este canal está sem transmissão no momento</strong>
+        <span>Escolha outro canal na lista abaixo.</span>
+      </div>
+      <div class="tv-loading" id="tvLoading" role="status" hidden>
+        <div class="tv-spinner" aria-hidden="true"></div>
+        <span>🍿 Carregando canal…</span>
+      </div>
+      <div class="tv-legenda" id="tvLegenda" aria-hidden="true"></div>
+    </section>
+
+    <!-- ② O QUE ESTÁ NO AR -->
+    <section class="tv-now" aria-label="Canal selecionado">
+      <div class="tv-now-top">
+        <div class="tv-now-logo" id="tvNowLogoBox"><img id="tvNowLogo" alt="" hidden></div>
+        <div class="tv-now-text">
+          <div class="tv-now-linha"><span class="live-badge">AO VIVO</span><span class="tv-now-cat" id="tvNowCat"></span></div>
+          <h1 class="tv-now-name" id="tvNowName">Carregando…</h1>
+        </div>
+      </div>
+      <p class="tv-now-desc" id="tvNowDesc"></p>
+      <div class="tv-now-acoes">
+        <button type="button" class="tv-btn" id="tvReload"><span aria-hidden="true">↻</span> Recarregar</button>
+        <button type="button" class="tv-btn tv-btn-fs" id="tvFull"><span aria-hidden="true">⛶</span> Tela cheia</button>
+      </div>
+      <p class="tv-dica">💡 A imagem não apareceu? Toque em <strong>Recarregar</strong> ou escolha outro canal.</p>
+    </section>
+
+    <!-- ③ MENU "CANAIS": categorias ao lado + canais com capa e nome -->
+    <aside class="tv-guide" aria-label="Todos os canais">
+      <div class="tv-guide-head">
+        <h2 class="tv-guide-title"><span aria-hidden="true">📺</span> CANAIS</h2>
+        <div class="tv-busca">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="search" id="tvBusca" placeholder="Buscar canal…" autocomplete="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar canal">
+        </div>
+      </div>
+      <div class="tv-guide-body">
+        <nav class="tv-cats" id="tvCats" aria-label="Categorias"></nav>
+        <div class="tv-lista-wrap">
+          <div class="tv-lista-titulo" id="tvListaTitulo"></div>
+          <div class="tv-lista" id="tvLista" role="list">
+            <div class="tv-lista-carregando" id="tvListaLoad">⏳ Carregando canais…</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
   </div>
-  
-  <!-- Filtros de categoria -->
-  <div id="filtrosCats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem"></div>
-  
-  <div id="canaisLoading" style="color:var(--text-3);padding:2rem 0">⏳ Carregando canais...</div>
-  <div id="canaisContainer"></div>
-</div>
+</main>
 
 <div class="ad-section">
   
@@ -158,92 +205,210 @@ document.getElementById('backToTop').addEventListener('click',()=>window.scrollT
 document.getElementById('mobileSearchToggle').addEventListener('click',()=>{document.getElementById('mobileSearchOverlay').classList.add('open');setTimeout(()=>document.getElementById('mobileSearchInput').focus(),80);});
 document.getElementById('mobileSearchClose').addEventListener('click',()=>{document.getElementById('mobileSearchOverlay').classList.remove('open');document.getElementById('searchResultsOverlay').classList.remove('active');document.getElementById('mobileSearchInput').value='';});
 
-var CAT_COLORS = {'Notícias':'#e53935','Esportes':'#43a047','Infantil':'#fb8c00','Filmes':'#8e24aa','Variedades':'#1e88e5','Documentários':'#00897b','Músicas':'#f4511e','default':'#546e7a'};
-function getCatColor(cat){return CAT_COLORS[cat]||CAT_COLORS.default;}
+/* ═══════════════════════════════════════════════════════════════════════
+   TV ONLINE — página única dos canais (nov/2026)
+   Planilha (aba Canais): A nome | B capa (quadrada) | C descrição | D categoria | F embed
+   ─ o player fica em cima; o menu CANAIS embaixo (categorias ao lado + canais com capa e nome)
+   ─ clicou numa categoria → só os canais dela; clicou num canal → o player troca na hora
+   ─ ?canal=Nome na URL abre direto naquele canal (e é o link que dá pra compartilhar)
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var KEY_ULTIMO = 'pflix_tv_ultimo';
+  var todos = [], cats = [], catAtual = 'Todos', termo = '', atual = null, timerCarga = 0, timerLegenda = 0;
 
-var allCanais=[], currentFilter='todos';
-
-function renderCanais(canais) {
-  var container = document.getElementById('canaisContainer');
-  container.innerHTML = '';
-  var filtered = currentFilter === 'todos' ? canais : canais.filter(c=>c.categoria===currentFilter);
-  if (!filtered.length) { container.innerHTML = '<p style="color:var(--text-3);padding:2rem 0">Nenhum canal nesta categoria.</p>'; return; }
-  
-  var groups = {};
-  filtered.forEach(c => {
-    var cat = c.categoria || 'Outros';
-    if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(c);
-  });
-  
-  Object.keys(groups).sort().forEach(cat => {
-    var section = document.createElement('div');
-    section.className = 'canais-group';
-    section.innerHTML = '<div class="canais-group-title">' + cat + '</div>';
-    var grid = document.createElement('div');
-    grid.className = 'canais-grid';
-    groups[cat].forEach(canal => {
-      var card = document.createElement('a');
-      card.className = 'canal-card';
-      card.href = 'canal.html?nome=' + encodeURIComponent(canal.nome);
-      card.innerHTML = (canal.logoUrl ? '<img class="canal-card-logo" src="'+canal.logoUrl+'" alt="'+canal.nome+'" onerror="this.style.display=\'none\'">' : '')
-        + '<div class="canal-card-name">'+canal.nome+'</div>'
-        + (canal.categoria ? '<span class="canal-cat-badge" style="background:'+getCatColor(canal.categoria)+'22;color:'+getCatColor(canal.categoria)+'">'+canal.categoria+'</span>' : '');
-      grid.appendChild(card);
-    });
-    section.appendChild(grid);
-    container.appendChild(section);
-  });
-}
-
-function setupFiltros(canais) {
-  var cats = [...new Set(canais.map(c=>c.categoria).filter(Boolean))].sort();
-  var wrap = document.getElementById('filtrosCats');
-  var btnTodos = document.createElement('button');
-  btnTodos.textContent = 'Todos';
-  btnTodos.className = 'cat-pill active';
-  btnTodos.style.cssText = 'background:var(--red);color:#fff;border:none;border-radius:20px;padding:6px 16px;cursor:pointer;font-size:0.85rem;font-weight:600;';
-  btnTodos.onclick = function() {
-    currentFilter = 'todos';
-    document.querySelectorAll('.cat-pill').forEach(b=>b.style.background='var(--surface-2)');
-    this.style.background = 'var(--red)';
-    renderCanais(allCanais);
-  };
-  wrap.appendChild(btnTodos);
-  cats.forEach(cat => {
-    var btn = document.createElement('button');
-    btn.textContent = cat;
-    btn.className = 'cat-pill';
-    btn.style.cssText = 'background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);border-radius:20px;padding:6px 16px;cursor:pointer;font-size:0.85rem;';
-    btn.onclick = function() {
-      currentFilter = cat;
-      document.querySelectorAll('.cat-pill').forEach(b=>{ b.style.background='var(--surface-2)'; b.style.color='var(--text-2)'; });
-      this.style.background = 'var(--red)';
-      this.style.color = '#fff';
-      renderCanais(allCanais);
-    };
-    wrap.appendChild(btn);
-  });
-}
-
-async function init() {
-  try {
-    const [canais, filmes, series] = await Promise.all([PipocaAPI.getCanais(), PipocaAPI.getFilmes(), PipocaAPI.getSeries()]);
-    allCanais = canais;
-    document.getElementById('canaisLoading').style.display = 'none';
-    if (!canais.length) { document.getElementById('canaisContainer').innerHTML='<p style="color:var(--text-3)">Nenhum canal disponível no momento.</p>'; return; }
-    setupFiltros(canais);
-    renderCanais(canais);
-    if (PipocaSearch) { PipocaSearch.indexContent([...filmes,...series]); }
-  } catch(e) {
-    document.getElementById('canaisLoading').textContent = '⚠️ Erro ao carregar canais.';
+  function $(id) { return document.getElementById(id); }
+  function norm(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); }
+  function iniciais(nome) {
+    var p = String(nome || '?').trim().split(/\s+/).slice(0, 2);
+    return p.map(function (x) { return x.charAt(0); }).join('').toUpperCase();
   }
-}
-document.addEventListener('DOMContentLoaded', function () {
-  // A checagem de acesso (VIP/teste grátis) agora é feita pelo acesso-vip.js pra
-  // o site inteiro — quando chega aqui, já foi liberado.
-  init();
-});
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function lerUltimo() { try { return localStorage.getItem(KEY_ULTIMO) || ''; } catch (e) { return ''; } }
+  function gravarUltimo(n) { try { localStorage.setItem(KEY_ULTIMO, n); } catch (e) {} }
+
+  /* ── capa: <img> com plano B (iniciais) se o link falhar ── */
+  function capaEl(canal, classe) {
+    var box = el('span', classe);
+    var ini = el('span', 'tv-capa-ini', iniciais(canal.nome));
+    box.appendChild(ini);
+    if (canal.capa) {
+      var img = new Image();
+      img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
+      img.onload = function () { box.classList.add('tem-img'); };
+      img.onerror = function () { img.remove(); };
+      img.src = canal.capa;
+      box.appendChild(img);
+    }
+    return box;
+  }
+
+  /* ── categorias (na ordem em que aparecem na planilha) ── */
+  function montarCats() {
+    var ordem = [], cont = {};
+    todos.forEach(function (c) {
+      var k = c.categoria || 'Outros';
+      if (!(k in cont)) { cont[k] = 0; ordem.push(k); }
+      cont[k]++;
+    });
+    cats = [{ nome: 'Todos', n: todos.length }].concat(ordem.map(function (k) { return { nome: k, n: cont[k] }; }));
+  }
+  function renderCats() {
+    var nav = $('tvCats'); nav.innerHTML = '';
+    cats.forEach(function (c) {
+      var b = el('button', 'tv-cat' + (c.nome === catAtual ? ' ativa' : ''));
+      b.type = 'button';
+      b.setAttribute('aria-pressed', c.nome === catAtual ? 'true' : 'false');
+      b.appendChild(el('span', 'tv-cat-nome', c.nome));
+      b.appendChild(el('span', 'tv-cat-n', String(c.n)));
+      b.addEventListener('click', function () { catAtual = c.nome; renderCats(); renderLista(); });
+      nav.appendChild(b);
+    });
+  }
+
+  /* ── lista de canais (filtrada por categoria e busca) ── */
+  function filtrados() {
+    var t = norm(termo);
+    return todos.filter(function (c) {
+      if (catAtual !== 'Todos' && (c.categoria || 'Outros') !== catAtual) return false;
+      return !t || norm(c.nome).indexOf(t) !== -1 || norm(c.categoria).indexOf(t) !== -1;
+    });
+  }
+  function renderLista() {
+    var lista = $('tvLista'), tit = $('tvListaTitulo');
+    lista.innerHTML = '';
+    var f = filtrados();
+    tit.textContent = (catAtual === 'Todos' ? 'Todos os canais' : catAtual) + ' · ' + f.length + (f.length === 1 ? ' canal' : ' canais');
+    if (!f.length) {
+      lista.appendChild(el('p', 'tv-lista-vazio', termo ? 'Nenhum canal com esse nome. Tente outra palavra.' : 'Nenhum canal nesta categoria.'));
+      return;
+    }
+    f.forEach(function (c) {
+      var b = el('button', 'tv-ch' + (atual && atual.nome === c.nome ? ' no-ar' : ''));
+      b.type = 'button';
+      b.setAttribute('role', 'listitem');
+      b.setAttribute('aria-label', 'Assistir ' + c.nome);
+      b.dataset.nome = c.nome;
+      b.appendChild(capaEl(c, 'tv-ch-capa'));
+      b.appendChild(el('span', 'tv-ch-noar', '▶ No ar'));
+      b.appendChild(el('span', 'tv-ch-nome', c.nome));
+      b.addEventListener('click', function () { selecionar(c, true); });
+      lista.appendChild(b);
+    });
+  }
+  function marcarNoAr() {
+    var bs = $('tvLista').querySelectorAll('.tv-ch');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.toggle('no-ar', !!atual && bs[i].dataset.nome === atual.nome);
+  }
+
+  /* ── player ── */
+  function novoIframe(url) {
+    var f = document.createElement('iframe');
+    f.id = 'tvFrame'; f.className = 'tv-frame';
+    f.setAttribute('allowfullscreen', '');
+    f.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
+    f.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+    f.setAttribute('frameborder', '0'); f.setAttribute('scrolling', 'no');
+    f.title = 'Transmissão ao vivo';
+    f.src = url;
+    return f;
+  }
+  function carregarEmbed(canal) {
+    var player = $('tvPlayer'), load = $('tvLoading'), vazio = $('tvVazio');
+    clearTimeout(timerCarga);
+    var velho = $('tvFrame'); if (velho) velho.remove();   // remove o iframe antigo (para o som do canal anterior)
+    if (!canal.embedUrl) { load.hidden = true; vazio.hidden = false; return; }
+    vazio.hidden = true; load.hidden = false;
+    var f = novoIframe(canal.embedUrl);
+    f.addEventListener('load', function () { load.hidden = true; clearTimeout(timerCarga); });
+    player.insertBefore(f, player.firstChild);
+    timerCarga = setTimeout(function () { load.hidden = true; }, 9000);   // plano B: embed que nunca avisa que carregou
+  }
+  function legendaTemporaria(nome) {
+    var l = $('tvLegenda'); l.textContent = nome; l.classList.add('visivel');
+    clearTimeout(timerLegenda); timerLegenda = setTimeout(function () { l.classList.remove('visivel'); }, 2800);
+  }
+  function precisaSubir() {
+    var r = $('tvPlayer').getBoundingClientRect();
+    var h = (document.getElementById('mainHeader') || {}).offsetHeight || 56;
+    return r.top < h - 4;
+  }
+
+  function selecionar(canal, deClique) {
+    atual = canal;
+    $('tvNowName').textContent = canal.nome;
+    $('tvNowCat').textContent = canal.categoria || '';
+    $('tvNowCat').hidden = !canal.categoria;
+    var d = $('tvNowDesc'); d.textContent = canal.descricao || ''; d.hidden = !canal.descricao;
+    // logo pequeno ao lado do nome
+    var box = $('tvNowLogoBox'); box.innerHTML = ''; box.appendChild(capaEl(canal, 'tv-now-capa'));
+    document.title = canal.nome + ' ao vivo — PipocaFlix TV Online';
+    try { history.replaceState(null, '', '?canal=' + encodeURIComponent(canal.nome)); } catch (e) {}
+    gravarUltimo(canal.nome);
+    carregarEmbed(canal);
+    marcarNoAr();
+    if (deClique) {
+      legendaTemporaria(canal.nome);
+      if (precisaSubir()) { var h = (document.getElementById('mainHeader') || {}).offsetHeight || 56; window.scrollTo({ top: $('tvPlayer').getBoundingClientRect().top + window.pageYOffset - h, behavior: 'smooth' }); }
+    }
+  }
+
+  /* ── botões ── */
+  function ligarBotoes() {
+    $('tvReload').addEventListener('click', function () { if (atual) { carregarEmbed(atual); legendaTemporaria('Recarregando…'); } });
+    var p = $('tvPlayer');
+    var req = p.requestFullscreen || p.webkitRequestFullscreen || p.msRequestFullscreen;
+    var fsBtn = $('tvFull');
+    // iPhone não deixa pôr um <iframe> em tela cheia pela página (só o próprio vídeo do player faz isso).
+    // Sem suporte, o botão some pra ninguém tocar num botão que não faz nada.
+    if (!req) { fsBtn.hidden = true; }
+    else fsBtn.addEventListener('click', function () {
+      var ativo = document.fullscreenElement || document.webkitFullscreenElement;
+      if (ativo) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else { try { req.call(p); } catch (e) {} }
+    });
+    var t = 0;
+    $('tvBusca').addEventListener('input', function (e) {
+      clearTimeout(t); var v = e.target.value;
+      t = setTimeout(function () { termo = v; if (v && catAtual !== 'Todos') { catAtual = 'Todos'; renderCats(); } renderLista(); }, 120);
+    });
+  }
+
+  function acharPorNome(n) {
+    var k = norm(n); if (!k) return null;
+    for (var i = 0; i < todos.length; i++) if (norm(todos[i].nome) === k) return todos[i];
+    return null;
+  }
+
+  async function init() {
+    var q = new URLSearchParams(location.search);
+    var pedido = q.get('canal') || q.get('nome') || '';        // "nome" = links antigos (canal.html?nome=…) — o canal.html agora só redireciona pra cá
+    ligarBotoes();
+    try {
+      todos = await PipocaAPI.getCanais();
+    } catch (e) { todos = []; }
+    $('tvListaLoad') && $('tvListaLoad').remove();
+    if (!todos.length) {
+      $('tvNowName').textContent = 'Nenhum canal por aqui ainda';
+      $('tvVazio').hidden = false;
+      $('tvLista').appendChild(el('p', 'tv-lista-vazio', 'Nenhum canal disponível no momento. Volte daqui a pouco!'));
+      return;
+    }
+    montarCats(); renderCats();
+    var inicial = acharPorNome(pedido) || acharPorNome(lerUltimo()) || todos[0];
+    if (inicial && inicial.categoria && pedido) { catAtual = inicial.categoria; renderCats(); }   // abre já na categoria do canal pedido
+    renderLista();
+    selecionar(inicial, false);
+    // A busca do topo do site precisa do catálogo — carrega DEPOIS, sem atrasar o player.
+    var tarde = function () {
+      Promise.all([PipocaAPI.getFilmes(), PipocaAPI.getSeries()]).then(function (r) {
+        if (window.PipocaSearch) PipocaSearch.indexContent(r[0].concat(r[1]));
+      }).catch(function () {});
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(tarde, { timeout: 4000 }); else setTimeout(tarde, 1500);
+  }
+  document.addEventListener('DOMContentLoaded', init);   // o gate de acesso (acesso-vip.js) já liberou a página quando chega aqui
+})();
 (function(){const btn=document.getElementById('hamburgerBtn'),menu=document.getElementById('mobileNavMenu');if(!btn||!menu)return;btn.addEventListener('click',()=>{const open=menu.classList.toggle('open');btn.classList.toggle('open',open);btn.setAttribute('aria-expanded',open.toString());});menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('open');btn.classList.remove('open');}));document.addEventListener('click',e=>{if(!btn.contains(e.target)&&!menu.contains(e.target)){menu.classList.remove('open');btn.classList.remove('open');}});})();
 </script>
 

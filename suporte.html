@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Suporte — PipocaFlix</title>
 <meta name="description" content="Abra um ticket de suporte: reclamações, pedidos de filme/série ou dúvidas sobre o PipocaFlix.">
 <meta name="theme-color" content="#ff2d43">
@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <script>(function(){const t=localStorage.getItem('pflix_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body>
 <script src="assets/js/avisos.js" defer></script>
@@ -99,7 +100,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
-  <a href="planos.html" class="vip-btn-header" id="vipHeaderBtn">⭐ Seja VIP</a>
+  <a href="planos.html" class="vip-btn-header so-nao-vip" id="vipHeaderBtn">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -128,7 +129,7 @@
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
   <a href="suporte.html">🎫 Suporte</a>
-  <a href="planos.html" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
+  <a href="planos.html" class="so-nao-vip" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
 </div>
 
 <div class="search-results-overlay" id="searchResultsOverlay" role="region" aria-label="Resultados">

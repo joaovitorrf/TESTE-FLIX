@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Instalar o PipocaFlix</title>
 <meta name="description" content="Instale o PipocaFlix no seu celular, iPhone ou computador e tenha o catálogo completo a um toque de distância.">
 <link rel="icon" type="image/jpeg" href="favicon.jpg">
@@ -242,6 +242,7 @@ body { overflow-x: hidden; }
   line-height: 1.6;
 }
 </style>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body>
 <script src="assets/js/avisos.js" defer></script>

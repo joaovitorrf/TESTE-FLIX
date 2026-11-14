@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head><meta charset="UTF-8">
 <meta name="referrer" content="no-referrer-when-downgrade" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>PipocaFlix — Filmes e Séries Online</title>
 <meta name="description" content="Assista filmes e séries online grátis no PipocaFlix. Catálogo completo em HD.">
 <meta name="theme-color" content="#ff2d43">
@@ -37,6 +37,7 @@
   document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body class="has-bottom-nav">
 <!-- ═══ SPLASH DE CARREGAMENTO — só aparece no app instalado (PWA), não no navegador ═══ -->
@@ -169,7 +170,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v3M8 22h8"/></svg>
     </button>
   </div>
-  <a href="planos.html" class="vip-btn-header" id="vipHeaderBtn">⭐ Seja VIP</a>
+  <a href="planos.html" class="vip-btn-header so-nao-vip" id="vipHeaderBtn">⭐ Seja VIP</a>
   <button class="auth-btn" id="authBtn" aria-label="Login">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -200,28 +201,30 @@
   <a href="elenco.html">🎭 Elenco</a>
   
   
-  <a href="planos.html" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
+  <a href="planos.html" class="so-nao-vip" style="color:var(--red);font-weight:700">⭐ Seja VIP</a>
 </div>
 
 <!-- ═══ MENU INFERIOR MOBILE ═══ -->
 <nav class="bottom-nav-mobile" id="bottomNavMobile" aria-label="Navegação inferior">
-  <a href="index.html" class="bottom-nav-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
-    </svg>
+  <a href="index.html" class="bottom-nav-item active" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
     <span>Início</span>
   </a>
-  <a href="Shorts.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/>
-    </svg>
-    <span>Shorts</span>
+  <a href="filmes.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4M3 12h18M3 16h4M17 8h4M17 16h4"/></svg>
+    <span>Filmes</span>
+  </a>
+  <a href="series.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.2l4.2 2.3-4.2 2.3V8.2z" fill="currentColor" stroke="none"/></svg>
+    <span>Séries</span>
   </a>
   <a href="canais.html" class="bottom-nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 3l4 3 4-3"/></svg>
     <span>TV Online</span>
+  </a>
+  <a href="Shorts.html" class="bottom-nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M10.5 9l4 3-4 3V9z" fill="currentColor" stroke="none"/></svg>
+    <span>Shorts</span>
   </a>
 </nav>
 
@@ -237,6 +240,12 @@
 <!-- ═══ HERO CARROSSEL ═══ -->
 <section class="hero" id="hero" aria-label="Destaques">
   <div class="hero-frame">
+    <!-- Boas-vindas: aparece só pra quem está logado (nome = o que a pessoa escolheu no perfil) -->
+    <div class="welcome-pill" id="welcomeStrip" hidden role="status">
+      <span class="welcome-wave" aria-hidden="true">👋</span>
+      <span class="welcome-msg">Seja bem-vindo, <strong id="welcomeName"></strong>!</span>
+      <span class="welcome-vip">⭐ VIP</span>
+    </div>
     <div class="hero-slides" id="heroSlides">
       <div class="hero-slide active">
         <div class="hero-slide-bg" style="background:linear-gradient(135deg,#0c0c10,#1a1a24)"></div>
@@ -1180,9 +1189,32 @@ function setupLazySection(trackId, category, prevId, nextId, allContent) {
   observer.observe(section);
 }
 
-// ── Seções da planilha (aba "Seções") ──
+// ── Seções da planilha (aba "Seções") — CARREGAM CONFORME A PESSOA ROLA A TELA ──
 // A2 = nome da seção | B2 = Filmes / Series / Series/Filmes | C2 = títulos separados por vírgula.
-// Cada linha da aba vira uma fileira aqui. Substitui as antigas "Pipoca <gênero>" sorteadas.
+// Cada linha da aba vira uma fileira aqui. Dá pra ter 7–8 (ou mais) seções sem pesar:
+// só a primeira é montada de cara; as outras entram quando a pessoa chega perto do fim da página
+// (IntersectionObserver). Assim o celular não monta nem baixa capa de fileira que ninguém viu.
+const SECOES_MARGEM_PX = 500;   // começa a montar a próxima quando ela está a 500px de aparecer
+
+function montarSecaoPlanilha(host, s, i) {
+  const id = 'secPlan' + i;
+  const sec = document.createElement('section');
+  sec.className = 'content-section secao-planilha secao-entrando';
+  sec.innerHTML =
+    '<div class="section-header"><h2 class="section-title"></h2></div>' +
+    '<div class="carousel-wrap">' +
+      '<button class="carousel-arrow prev" id="' + id + 'Prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+      '<div class="carousel-track" id="' + id + 'Track"></div>' +
+      '<button class="carousel-arrow next" id="' + id + 'Next" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>' +
+    '</div>';
+  sec.querySelector('.section-title').textContent = s.titulo;   // textContent: nada da planilha vira HTML
+  sec.querySelector('.carousel-track').setAttribute('aria-label', s.titulo);
+  host.appendChild(sec);
+  fillTrack(id + 'Track', s.itens, 30);
+  setupCarouselArrows(id + 'Track', id + 'Prev', id + 'Next');
+  requestAnimationFrame(() => sec.classList.remove('secao-entrando'));   // fade-in suave
+}
+
 async function renderSecoesPlanilha(filmes, series) {
   const host = document.getElementById('secoesPlanilha');
   if (!host) return;
@@ -1190,24 +1222,61 @@ async function renderSecoesPlanilha(filmes, series) {
   try { secoes = await PipocaAPI.montarSecoesHome(filmes, series); }
   catch (e) { console.warn('[PipocaFlix] seções da planilha:', e); }
   host.innerHTML = '';
-  secoes.forEach((s, i) => {
-    const id = 'secPlan' + i;
-    const sec = document.createElement('section');
-    sec.className = 'content-section secao-planilha';
-    sec.innerHTML =
-      '<div class="section-header"><h2 class="section-title"></h2></div>' +
-      '<div class="carousel-wrap">' +
-        '<button class="carousel-arrow prev" id="' + id + 'Prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>' +
-        '<div class="carousel-track" id="' + id + 'Track"></div>' +
-        '<button class="carousel-arrow next" id="' + id + 'Next" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>' +
-      '</div>';
-    sec.querySelector('.section-title').textContent = s.titulo;   // textContent: nada da planilha vira HTML
-    sec.querySelector('.carousel-track').setAttribute('aria-label', s.titulo);
-    host.appendChild(sec);
-    fillTrack(id + 'Track', s.itens, 30);
-    setupCarouselArrows(id + 'Track', id + 'Prev', id + 'Next');
-  });
+  if (!secoes.length) return;
+
+  // Navegador sem IntersectionObserver (muito antigo): monta tudo, como antes.
+  if (!('IntersectionObserver' in window)) { secoes.forEach((s, i) => montarSecaoPlanilha(host, s, i)); return; }
+
+  // "Sentinela": uma faixinha logo abaixo da última seção montada. Quando ela chega perto da tela, monta a próxima.
+  const sentinela = document.createElement('div');
+  sentinela.className = 'secoes-sentinela';
+  sentinela.setAttribute('aria-hidden', 'true');
+  sentinela.innerHTML = '<span></span><span></span><span></span>';
+  host.after(sentinela);
+
+  let proxima = 0;
+  const obs = new IntersectionObserver((entradas) => {
+    if (!entradas.some(e => e.isIntersecting)) return;
+    montarSecaoPlanilha(host, secoes[proxima], proxima);
+    proxima++;
+    if (proxima >= secoes.length) { obs.disconnect(); sentinela.remove(); return; }
+    // Se a tela for alta e a sentinela ainda estiver à vista, "religa" a observação pra montar a seguinte
+    obs.unobserve(sentinela); obs.observe(sentinela);
+  }, { rootMargin: SECOES_MARGEM_PX + 'px 0px' });
+  obs.observe(sentinela);
 }
+
+// ── Boas-vindas: "Seja bem-vindo, NOME!" (o nome é o que a pessoa escolheu no perfil) ──
+function iniciarBoasVindas() {
+  const pill = document.getElementById('welcomeStrip');
+  const nomeEl = document.getElementById('welcomeName');
+  if (!pill || !nomeEl) return;
+  let usuario = null;
+
+  function nomeDoPerfil(u) {
+    if (!u) return '';
+    let n = '';
+    try { const p = window.PipocaPerfil && window.PipocaPerfil.get && window.PipocaPerfil.get(); if (p && p.nome) n = p.nome; } catch (e) {}
+    if (!n) { try { const c = JSON.parse(localStorage.getItem('pflix_perfil_' + u.uid) || 'null'); if (c && c.nome) n = c.nome; } catch (e) {} }
+    if (!n) n = u.displayName || '';
+    return String(n).trim();
+  }
+  function pintar() {
+    const n = nomeDoPerfil(usuario);
+    if (!usuario || !n) { pill.hidden = true; return; }
+    nomeEl.textContent = n;     // textContent: o nome nunca vira HTML
+    pill.hidden = false;
+  }
+  window.addEventListener('pflix:perfil', pintar);   // a pessoa trocou o nome no perfil → atualiza na hora
+
+  let tent = 0;
+  (function ligar() {
+    if (window.PipocaAuth && window.PipocaAuth.onAuthChanged) {
+      window.PipocaAuth.onAuthChanged(u => { usuario = u || null; pintar(); });
+    } else if (++tent < 60) setTimeout(ligar, 200);
+  })();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciarBoasVindas); else iniciarBoasVindas();
 
 // ── Search ──
 function setupSearch(allContent) {
@@ -1510,7 +1579,7 @@ async function loadCanaisHome() {
     canaisShuffled.slice(0, 20).forEach(canal => {
       const card = document.createElement('a');
       card.className = 'canal-card';
-      card.href = `canal.html?nome=${encodeURIComponent(canal.nome)}`;
+      card.href = `canais.html?canal=${encodeURIComponent(canal.nome)}`;
       card.innerHTML = `
         ${canal.logoUrl ? `<img class="canal-card-logo" src="${canal.logoUrl}" alt="${canal.nome}" onerror="this.style.display='none'">` : ''}
         <div class="canal-card-name">${canal.nome}</div>
@@ -1610,7 +1679,7 @@ async function loadJogosHome() {
 
       const card = document.createElement(canal ? 'a' : 'div');
       card.className = 'jogo-card' + (canal ? '' : ' jogo-sem-canal');
-      if (canal) card.href = 'canal.html?nome=' + encodeURIComponent(canal.nome);
+      if (canal) card.href = 'canais.html?canal=' + encodeURIComponent(canal.nome);
       card.title = jogo.title || '';
       card.innerHTML = ''
         + '<div class="jogo-competicao">' + (jogo.competition || '') + '</div>'

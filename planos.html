@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Planos — PipocaFlix</title>
 <meta name="description" content="Assine o Pipoca Flix Gold e tenha acesso completo a filmes, séries e canais ao vivo, sem anúncios. Teste 3 horas grátis antes de assinar.">
 <meta name="theme-color" content="#ff2d43">
@@ -338,6 +338,7 @@
   .como-libera a{color:var(--red)}
   @media (max-width:420px){.como-libera{margin-inline:12px;padding:16px}}
 </style>
+<script>/* VIP cedo: se este navegador já tem "é VIP" válido guardado, marca a página ANTES de desenhar (sem piscar "Seja VIP"). A confirmação de verdade vem do pflix-vip.js. */(function(){try{var c=JSON.parse(localStorage.getItem('pflix_vip_cache')||'null');if(c&&c.is_vip===true&&Date.now()<new Date(c.cache_ate).getTime())document.documentElement.classList.add('pflix-vip-ativo');}catch(e){}})();</script>
 </head>
 <body>
 <script src="assets/js/avisos.js" defer></script>
@@ -364,7 +365,7 @@
     </div>
   </nav>
   <div class="search-wrapper" style="display:none"></div>
-  <a href="planos.html" class="auth-btn" style="background:var(--red);color:#fff;font-weight:700;border-color:var(--red)">🍿 Assinar</a>
+  <a href="planos.html" class="auth-btn so-nao-vip" aria-label="Assinar o plano Gold" style="background:var(--red);color:#fff;font-weight:700;border-color:var(--red)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 9.6l-5.4 4.8L18.2 22 12 18.3 5.8 22l1.6-7.6L2 9.6l7.1-.7z"/></svg><span>Assinar</span></a>
   <button class="theme-toggle-btn" id="themeToggle" aria-label="Alternar tema">🌙</button>
   <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -383,7 +384,7 @@
   <a href="pedidos.html">📝 Pedidos</a>
   <a href="feed.html">📰 Feed</a>
   <a href="elenco.html">🎭 Elenco</a>
-  <a href="planos.html" style="color:var(--red);font-weight:700">🍿 Assinar</a>
+  <a href="planos.html" class="so-nao-vip" style="color:var(--red);font-weight:700">🍿 Assinar</a>
 
   <a href="suporte.html">🎫 Suporte</a></div>
 

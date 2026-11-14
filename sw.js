@@ -12,7 +12,7 @@
    • /api/* e /c/* (prévia de compartilhamento) nunca passam pelo cache.
 ═══════════════════════════════════════════════════ */
 
-const CACHE_VERSION = 'pipocaflix-v4-20261024';
+const CACHE_VERSION = 'pipocaflix-v4-20261112';
 const CACHE_NAME    = CACHE_VERSION;
 
 /* Assets que queremos manter disponíveis offline */
